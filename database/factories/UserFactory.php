@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Role;
 use App\Models\Team;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -35,6 +36,48 @@ class UserFactory extends Factory
             'profile_photo_path' => null,
             'current_team_id' => null,
         ];
+    }
+
+    /**
+     * Indicate that the user's role is admin.
+     *
+     * @return \Illuminate\Database\Eloquent\Factories\Factory
+     */
+    public function admin()
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'role' => Role::ADMIN,
+            ];
+        });
+    }
+
+    /**
+     * Indicate that the user's role is manager.
+     *
+     * @return \Illuminate\Database\Eloquent\Factories\Factory
+     */
+    public function manager()
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'role' => Role::MANAGER,
+            ];
+        });
+    }
+
+    /**
+     * Indicate that the user's role is guest.
+     *
+     * @return \Illuminate\Database\Eloquent\Factories\Factory
+     */
+    public function guest()
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'role' => Role::GUEST,
+            ];
+        });
     }
 
     /**

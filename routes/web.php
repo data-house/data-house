@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\DocumentController;
+use App\Http\Controllers\DocumentLibraryController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -25,4 +27,11 @@ Route::middleware([
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
+    
+    Route::resource('/documents', DocumentController::class)->except('index');
+    
+    Route::get('/library', DocumentLibraryController::class)->name('documents.library');
+
+
+
 });
