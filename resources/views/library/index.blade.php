@@ -24,6 +24,29 @@
                     <x-input type="text" name="s" id="s" class="min-w-full" placeholder="{{ _('Search within the digital library...') }}" />
                 </form>
             </div>
+
+            <div class="mt-6 grid grid-cols-3 gap-4">
+                @forelse ($documents as $document)
+                    <div class="space-y-2 rounded overflow-hidden bg-white p-4">
+                        <div class="aspect-video bg-white -mx-4 -mt-4 flex items-center justify-center">
+                            {{-- Space for the thumbnail --}}
+                            <x-codicon-file-pdf class="text-gray-400 h-10 w-h-10" />
+                        </div>
+
+                        <p class="font-bold truncate">{{ $document->title }}</p>
+                        <p>{{ $document->created_at }}</p>
+                        <p>
+                            @if ($document->draft)
+                                <span class="inline-block text-sm px-2 py-1 rounded-xl bg-gray-200 text-gray-900">{{ __('draft') }}</span>
+                            @endif
+                        </p>
+                    </div>
+                @empty
+                    <div class="col-span-3">
+                        <p>{{ __('No documents in the library.') }}</p>
+                    </div>
+                @endforelse
+            </div>
         </div>
     </div>
 </x-app-layout>

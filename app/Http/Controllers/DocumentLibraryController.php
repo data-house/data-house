@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Document;
 use Illuminate\Http\Request;
 
 class DocumentLibraryController extends Controller
@@ -11,6 +12,11 @@ class DocumentLibraryController extends Controller
      */
     public function __invoke(Request $request)
     {
-        return view('library.index');
+
+        $documents = Document::all();
+
+        return view('library.index', [
+            'documents' => $documents,
+        ]);
     }
 }
