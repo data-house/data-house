@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Disk;
 use App\Models\Document;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -43,13 +44,13 @@ class DocumentController extends Controller
 
         $file = $request->file('document');
 
-        $path = $file->store('local');
+        $path = $file->store('', Disk::DOCUMENTS->value);
         
         $document = Document::create([
-            'disk_name' => 'local',
+            'disk_name' => Disk::DOCUMENTS->value,
             'disk_path' => $path,
             'title' => $file->getClientOriginalName(),
-            'mime' => Storage::disk('local')->mimeType($path),
+            'mime' => Storage::disk(Disk::DOCUMENTS->value)->mimeType($path),
             'uploaded_by' => $request->user()->getKey(),
             'team_id' => $request->user()->currentTeam->getKey(),
         ]);

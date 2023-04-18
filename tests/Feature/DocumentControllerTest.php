@@ -37,7 +37,7 @@ class DocumentControllerTest extends TestCase
     
     public function test_document_can_be_uploaded(): void
     {
-        Storage::fake('local');
+        Storage::fake('documents');
 
         $user = User::factory()->withPersonalTeam()->guest()->create();
 
@@ -52,13 +52,15 @@ class DocumentControllerTest extends TestCase
         
         $document = Document::first();
 
-        $this->assertEquals('local', $document->disk_name);
+        $this->assertEquals('documents', $document->disk_name);
         $this->assertNotEmpty($document->disk_path);
         $this->assertEquals('photo1.jpg', $document->title);
         $this->assertEquals('image/jpeg', $document->mime);
         $this->assertTrue($document->uploader->is($user));
         $this->assertTrue($document->team->is($user->currentTeam));
 
-        Storage::disk('local')->assertExists($document->path);
+        $this->assertStringNotContainsString('/', $document->disk_path);
+
+        Storage::disk('documents')->assertExists($document->disk_path);
     }
 }

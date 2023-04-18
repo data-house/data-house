@@ -56,6 +56,12 @@ return [
             'throw' => false,
         ],
 
+        'documents' => [
+            'driver' => 'scoped',
+            'disk' => env('FILESYSTEM_DISK', 'local'),
+            'prefix' => 'documents',
+        ]
+
     ],
 
     /*
