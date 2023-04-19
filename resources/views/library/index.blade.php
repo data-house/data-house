@@ -21,7 +21,7 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">                
             <div>
                 <form action="" method="get">
-                    <x-input type="text" name="s" id="s" class="min-w-full" placeholder="{{ _('Search within the digital library...') }}" />
+                    <x-input type="text" name="s" id="s" class="min-w-full" placeholder="{{ __('Search within the digital library...') }}" />
                 </form>
             </div>
 
