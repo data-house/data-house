@@ -2,18 +2,26 @@
 
 namespace App\Models;
 
+use App\PdfProcessing\Facades\Pdf;
+use Exception;
 use Illuminate\Database\Eloquent\Casts\AsArrayObject;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Casts\AsEnumCollection;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use PrinsFrank\Standards\Language\LanguageAlpha2;
+use Laravel\Scout\Searchable;
+use MeiliSearch\Exceptions\JsonEncodingException;
 
 class Document extends Model
 {
     use HasFactory;
 
     use HasUlids;
+
+    use Searchable;
     
     /**
      * The attributes that should be hidden for serialization.
@@ -84,5 +92,59 @@ class Document extends Model
     public function team()
     {
         return $this->belongsTo(Team::class);
+    }
+
+    
+    /**
+     * Modify the query used to retrieve models when making all of the models searchable.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    protected function makeAllSearchableUsing($query)
+    {
+        return $query->with('team');
+    }
+    
+    /**
+     * Get the indexable data array for the model.
+     *
+     * @return array
+     */
+    public function toSearchableArray()
+    {
+        logs()->info("Making document [{$this->id}] searchable");
+
+        $content = null;
+
+        if($this->attributes['disk_path'] && Str::endsWith($this->attributes['disk_path'], ['.pdf'])){
+            $path = Storage::disk($this->attributes['disk_name'])
+                ->path($this->attributes['disk_path']);
+
+            try{
+                $content = Pdf::text($path);
+            }
+            catch(Exception $ex)
+            {
+                logs()->error("Error extracting text from document [{$this->id}]", ['error' => $ex->getMessage()]);
+            }
+        }
+
+        return collect([])
+            ->merge([
+                'id' => $this->id,
+                'ulid' => $this->ulid,
+                'title' => $this->title,
+                'description' => $this->description,
+                'languages' => $this->languages,
+                'mime' => $this->mime,
+                'content' => $content,
+                'draft' => $this->draft,
+                'published' => $this->published_at !== null,
+                'published_at' => $this->published_at,
+                'created_at' => $this->created_at,
+                'updated_at' => $this->updated_at,
+            ])
+            ->all();
     }
 }

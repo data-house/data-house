@@ -12,11 +12,13 @@ class DocumentLibraryController extends Controller
      */
     public function __invoke(Request $request)
     {
+        $searchQuery = $request->has('s') ? e($request->input('s')) : null;
 
-        $documents = Document::all();
+        $documents = $searchQuery ? Document::search(e($searchQuery))->get() : Document::all();
 
         return view('library.index', [
             'documents' => $documents,
+            'searchQuery' => $searchQuery,
         ]);
     }
 }
