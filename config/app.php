@@ -1,5 +1,6 @@
 <?php
 
+use App\PdfProcessing\PdfProcessingServiceProvider;
 use Illuminate\Support\Facades\Facade;
 
 return [
@@ -185,6 +186,8 @@ return [
         /*
          * Package Service Providers...
          */
+
+        PdfProcessingServiceProvider::class,
 
         /*
          * Application Service Providers...
