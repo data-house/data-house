@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\PdfProcessing\Drivers;
+namespace Tests\Feature\PdfProcessing;
 
 use App\Models\Disk;
 use App\PdfProcessing\DocumentProperties;
@@ -20,7 +20,7 @@ class PdfProcessingManagerTest extends TestCase
     {
         $driver = app()->make(PdfProcessingManager::class)->getDefaultDriver();
 
-        $this->assertInstanceOf(SmalotPdfParserDriver::class, $driver);
+        $this->assertEquals('smalot', $driver);
     }
     
     public function test_smalot_driver_can_be_created(): void

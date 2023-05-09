@@ -66,6 +66,6 @@ class PdfProcessingManager extends Manager
      */
     public function getDefaultDriver()
     {
-        return $this->createSmalotDriver();
+        return PdfDriver::SMALOT_PDF->value;
     }
 }

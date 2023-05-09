@@ -1,6 +1,6 @@
 <?php
 
-namespace App\PdfProcessing\Facades;
+namespace App\PdfProcessing;
 
 
 /**
