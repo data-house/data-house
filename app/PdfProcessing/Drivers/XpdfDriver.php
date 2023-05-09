@@ -36,7 +36,6 @@ class XpdfDriver
             }
             
             $output = file_get_contents($temp_file);
-            dump($output);
 
             // using iconv to re-encode UTF-8 strings ignoring illegal characters that might cause failures
             $content = iconv('UTF-8', 'UTF-8//IGNORE', $output);
@@ -99,6 +98,17 @@ class XpdfDriver
             producedWith: str($attributes['Creator'] ?? null)->utf8(),  //creator software
         );
 
+    }
+
+
+    public static function hasDependenciesInstalled(): bool
+    {
+        $pdfinfoCheck = Process::run(self::PDF_INFO_BINARY . ' -v');
+
+        $pdftotextCheck = Process::run(self::PDF_TO_TEXT_BINARY . ' -v');
+
+        return ($pdfinfoCheck->successful() || $pdfinfoCheck->exitCode() === 99)
+            && ($pdftotextCheck->successful() || $pdftotextCheck->exitCode() === 99);
     }
 
 }
