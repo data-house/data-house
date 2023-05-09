@@ -4,6 +4,7 @@ namespace App\PdfProcessing\Drivers;
 
 use App\PdfProcessing\DocumentProperties;
 use App\PdfProcessing\PdfProcessingManager;
+use Exception;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Facade;
 use Illuminate\Support\Facades\Process;
@@ -11,7 +12,9 @@ use Illuminate\Support\Facades\Process;
 class XpdfDriver
 {
 
-    private const PDF_INFO_BINARY = 'pdfinfo.exe';
+    private const PDF_INFO_BINARY = 'pdfinfo';
+
+    private const PDF_TO_TEXT_BINARY = 'pdftotext';
 
     public function __construct()
     {
@@ -19,14 +22,40 @@ class XpdfDriver
     }
 
 
-    public function text()
+    public function text($path): string
     {
+
+        $temp_file = tempnam(sys_get_temp_dir(), 'dh-xpdf');
+
+        try{
+
+            $result = Process::run(self::PDF_TO_TEXT_BINARY . ' -enc UTF-8 -layout ' . $path . ' ' . $temp_file);
+
+            if(!$result->successful()){
+                throw new Exception("pdf to text execution error " . $result->errorOutput());
+            }
+            
+            $output = file_get_contents($temp_file);
+            dump($output);
+
+            // using iconv to re-encode UTF-8 strings ignoring illegal characters that might cause failures
+            $content = iconv('UTF-8', 'UTF-8//IGNORE', $output);
+
+            if($content === false){
+                throw new Exception("Failed to perform UTF-8 encoding");
+            }
+
+            return $content;
+        }
+        catch(Exception $ex)
+        {
+            logs()->error("Error extracting text from document [{$path}]", ['error' => $ex->getMessage()]);
+            throw $ex;
+        }
+        finally {
+            unlink($temp_file);
+        }
         
-    }
-
-    public function thumbnail()
-    {
-
     }
 
     public function info($path): DocumentProperties

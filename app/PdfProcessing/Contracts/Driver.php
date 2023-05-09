@@ -6,6 +6,12 @@ use App\PdfProcessing\DocumentProperties;
 
 interface Driver
 {
+    /**
+     * Get text contained in the PDF
+     * 
+     * @param string $path The file absolute path
+     */
+    public function text($path): string;
 
     /**
      * Get PDF document properties

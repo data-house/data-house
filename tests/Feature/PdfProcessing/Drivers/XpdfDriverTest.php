@@ -30,4 +30,17 @@ class XpdfDriverTest extends TestCase
         $this->assertEquals('2023-05-09 11:34:41', $info->createdAt->toDateTimeString());
         $this->assertEquals('2023-05-09 11:34:41', $info->modifiedAt->toDateTimeString());
     }
+
+    public function test_driver_return_file_content(): void
+    {
+        $driver = new XpdfDriver();
+
+        $text = $driver->text(base_path('tests/fixtures/documents/data-house-test-doc.pdf'));
+
+        $this->assertStringContainsString("This is the header", $text);
+        $this->assertStringContainsString("This is a test PDF to be used as input in unit\r\ntests", $text);
+        $this->assertStringContainsString("This is a heading 1", $text);
+        $this->assertStringContainsString("This is a paragraph below heading", $text);
+
+    }
 }
