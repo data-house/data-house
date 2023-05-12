@@ -9,6 +9,7 @@ use App\Actions\Jetstream\DeleteUser;
 use App\Actions\Jetstream\InviteTeamMember;
 use App\Actions\Jetstream\RemoveTeamMember;
 use App\Actions\Jetstream\UpdateTeamName;
+use App\Models\Role;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Jetstream\Jetstream;
 
@@ -45,23 +46,23 @@ class JetstreamServiceProvider extends ServiceProvider
     {
         Jetstream::defaultApiTokenPermissions(['documents:view']);
 
-        Jetstream::role('admin', 'Administrator', [
+        Jetstream::role(Role::ADMIN->value, 'Administrator', [
             '*',
         ])->description('Administrator users can perform any action.');
 
-        Jetstream::role('manager', 'Manager', [
-            'projects:view',
-            'projects:create',
-            'projects:update',
-            'projects:delete',
-            'documents:view',
-            'documents:create',
-            'documents:update',
-            'documents:delete',
+        Jetstream::role(Role::MANAGER->value, 'Manager', [
+            'project:view',
+            'project:create',
+            'project:update',
+            'project:delete',
+            'document:view',
+            'document:create',
+            'document:update',
+            'document:delete',
         ])->description('Manager users can coordinate and allocate resources for activities.');
         
-        Jetstream::role('guest', 'Guest', [
-            'documents:view',
+        Jetstream::role(Role::GUEST->value, 'Guest', [
+            'document:view',
         ])->description('Guest users can access resources to see and observe.');
 
     }
