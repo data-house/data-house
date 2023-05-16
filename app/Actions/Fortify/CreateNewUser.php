@@ -38,7 +38,9 @@ class CreateNewUser implements CreatesNewUsers
                 'password' => Hash::make($input['password']),
                 'role' => Role::from($input['role'] ?? Role::GUEST->value),
             ]), function (User $user) {
-                // $this->createTeam($user);
+                if($user->role == Role::ADMIN){
+                    $this->createTeam($user);
+                }
             });
         });
     }
