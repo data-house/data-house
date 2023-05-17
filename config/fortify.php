@@ -132,7 +132,7 @@ return [
     */
 
     'features' => [
-        // Features::registration(),
+        env('REGISTRATION_ENABLED', false) ? Features::registration() : null,
         Features::resetPasswords(),
         // Features::emailVerification(),
         Features::updateProfileInformation(),
