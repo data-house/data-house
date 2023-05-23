@@ -32,6 +32,10 @@ class AddTeamMember implements AddsTeamMembers
             $newTeamMember, ['role' => $role]
         );
 
+        if (is_null($newTeamMember->current_team_id)) {
+            $newTeamMember->switchTeam($team);
+        }
+
         TeamMemberAdded::dispatch($team, $newTeamMember);
     }
 

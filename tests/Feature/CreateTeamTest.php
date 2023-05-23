@@ -21,7 +21,7 @@ class CreateTeamTest extends TestCase
             return;
         }
         
-        $this->actingAs($user = User::factory()->withPersonalTeam()->create());
+        $this->actingAs($user = User::factory()->admin()->withPersonalTeam()->create());
 
         Livewire::test(CreateTeamForm::class)
                     ->set(['state' => ['name' => 'Test Team']])
@@ -29,5 +29,22 @@ class CreateTeamTest extends TestCase
 
         $this->assertCount(2, $user->fresh()->ownedTeams);
         $this->assertEquals('Test Team', $user->fresh()->ownedTeams()->latest('id')->first()->name);
+    }
+
+    public function test_teams_creation_not_allowed(): void
+    {
+        if (! Features::hasTeamFeatures()) {
+            $this->markTestSkipped('Team support is not enabled.');
+
+            return;
+        }
+        
+        $this->actingAs($user = User::factory()->manager()->create());
+
+        Livewire::test(CreateTeamForm::class)
+                    ->set(['state' => ['name' => 'Test Team']])
+                    ->call('createTeam');
+
+        $this->assertCount(0, $user->fresh()->ownedTeams);
     }
 }
