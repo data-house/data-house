@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite';
 import laravel, { refreshPaths } from 'laravel-vite-plugin';
+import { pdfViewer } from 'vite-plugin-pdfjs-viewer';
 
 export default defineConfig({
     plugins: [
@@ -12,6 +13,10 @@ export default defineConfig({
                 ...refreshPaths,
                 'app/Http/Livewire/**',
             ],
+        }),
+        pdfViewer({
+            out: "public/",
+            // base: "build/pdf-viewer/"
         }),
     ],
 });

@@ -27,13 +27,15 @@
 
             <div class="mt-6 grid grid-cols-3 gap-4">
                 @forelse ($documents as $document)
-                    <div class="space-y-2 rounded overflow-hidden bg-white p-4">
+                    <div class="space-y-2 rounded overflow-hidden bg-white p-4 group relative">
                         <div class="aspect-video bg-white -mx-4 -mt-4 flex items-center justify-center">
                             {{-- Space for the thumbnail --}}
                             <x-codicon-file-pdf class="text-gray-400 h-10 w-h-10" />
                         </div>
 
-                        <p class="font-bold truncate">{{ $document->title }}</p>
+                        <a href="{{ $document->viewerUrl() }}" class="block font-bold truncate group-hover:text-blue-800">
+                            <span class="z-10 absolute inset-0"></span>{{ $document->title }}
+                        </a>
                         <p>{{ $document->created_at }}</p>
                         <p>
                             @if ($document->draft)

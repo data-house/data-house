@@ -105,6 +105,26 @@ class Document extends Model
     {
         return $query->with('team');
     }
+
+    /**
+     * Get the URL for downloading the file
+     */
+    public function url(): string
+    {
+        return route('documents.download', $this);
+    }
+
+    /**
+     * Get the URL to obtain the viewer of the document
+     */
+    public function viewerUrl(int $page = 1): string
+    {
+        return route('pdf.viewer', [
+            'document' => $this->ulid,
+            'file' => Str::replace(config('app.url'),'',$this->url()),
+            'page' => $page
+        ]) . "#page={$page}";
+    }
     
     /**
      * Get the indexable data array for the model.
