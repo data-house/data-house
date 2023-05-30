@@ -33,7 +33,7 @@
                             <x-codicon-file-pdf class="text-gray-400 h-10 w-h-10" />
                         </div>
 
-                        <a href="{{ $document->viewerUrl() }}" class="block font-bold truncate group-hover:text-blue-800">
+                        <a href="{{ route('documents.show', $document) }}" class="block font-bold truncate group-hover:text-blue-800">
                             <span class="z-10 absolute inset-0"></span>{{ $document->title }}
                         </a>
                         <p>{{ $document->created_at }}</p>

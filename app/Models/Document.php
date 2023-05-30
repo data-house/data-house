@@ -125,6 +125,11 @@ class Document extends Model
             'page' => $page
         ]) . "#page={$page}";
     }
+
+    public function isPublished()
+    {
+        return !is_null($this->published_at);
+    }
     
     /**
      * Get the indexable data array for the model.
