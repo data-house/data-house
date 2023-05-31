@@ -19,7 +19,7 @@ class PdfViewerControllerTest extends TestCase
 
         $url = $document->viewerUrl(page: 3);
 
-        $file = urlencode("documents/{$document->ulid}/download");
+        $file = urlencode("/documents/{$document->ulid}/download");
 
         $this->assertEquals(config('app.url')."/pdf-viewer?document={$document->ulid}&file={$file}&page=3#page=3", $url);
     }
