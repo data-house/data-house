@@ -21,7 +21,7 @@ class PdfViewerControllerTest extends TestCase
 
         $file = urlencode("documents/{$document->ulid}/download");
 
-        $this->assertEquals("http://localhost:8000/pdf-viewer?document={$document->ulid}&file={$file}&page=3#page=3", $url);
+        $this->assertEquals(config('app.url')."/pdf-viewer?document={$document->ulid}&file={$file}&page=3#page=3", $url);
     }
 
     public function test_pdf_viewer_requires_authentication(): void
