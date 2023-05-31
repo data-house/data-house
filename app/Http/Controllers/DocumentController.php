@@ -65,15 +65,24 @@ class DocumentController extends Controller
      */
     public function show(Document $document)
     {
-        //
+        $document->load([
+            'uploader',
+            'team'
+        ]);
+
+        return view('document.show', [
+            'document' => $document
+        ]);
     }
 
     /**
      * Show the form for editing the specified resource.
      */
     public function edit(Document $document)
-    {
-        //
+    {       
+        return view('document.edit', [
+            'document' => $document
+        ]);
     }
 
     /**
@@ -81,7 +90,20 @@ class DocumentController extends Controller
      */
     public function update(Request $request, Document $document)
     {
-        //
+        $validated = $this->validate($request, [
+            'title' => ['required', 'string', 'max:250'],
+            'description' => ['nullable', 'string', 'max:2000'],
+        ]);
+
+        $document->update([
+            'title' => $validated['title'],
+            'description' => $validated['description'],
+        ]);
+        
+        return to_route('documents.show', $document)
+            ->with('flash.banner', __(':document updated.', [
+                'document' => $validated['title']
+            ]));
     }
 
     /**

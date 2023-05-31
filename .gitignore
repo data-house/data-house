@@ -3,6 +3,13 @@
 /public/build
 /public/hot
 /public/storage
+/public/cmaps
+/public/locale
+/public/pdf.viewer.js
+/public/viewer.css
+/public/index.html
+/public/standard_fonts
+/public/images
 /storage/*.key
 /vendor
 .env
