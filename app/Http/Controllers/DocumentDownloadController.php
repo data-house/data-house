@@ -19,6 +19,6 @@ class DocumentDownloadController extends Controller
         $this->authorize('view', $document);
 
         return response()
-            ->file(Storage::disk($document->disk_name)->path($document->disk_path));
+            ->download(Storage::disk($document->disk_name)->path($document->disk_path));
     }
 }
