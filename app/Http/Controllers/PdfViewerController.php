@@ -13,8 +13,10 @@ class PdfViewerController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function __invoke(Request $request, Document $document)
+    public function __invoke(Request $request)
     {
+        $document = Document::whereUlid($request->input('document'))->firstOrFail();
+        
         $this->authorize('view', $document);
 
         return view('pdf.viewer', [
