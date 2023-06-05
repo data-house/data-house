@@ -39,7 +39,7 @@
                         <p>{{ $document->created_at }}</p>
                         <p>
                             @if ($document->draft)
-                                <span class="inline-block text-sm px-2 py-1 rounded-xl bg-gray-200 text-gray-900">{{ __('draft') }}</span>
+                                <span class="inline-block text-sm px-2 py-1 rounded-xl bg-gray-200 text-gray-900">{{ __('pending review') }}</span>
                             @endif
                         </p>
                     </div>
