@@ -2,7 +2,10 @@
 
 namespace App\Providers;
 
+use App\Models\Document;
+use App\Pipelines\Pipeline;
 use Illuminate\Support\ServiceProvider;
+use App\Jobs\Pipeline\Document\ExtractDocumentProperties;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,6 +22,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        Pipeline::define(Document::class, [
+            ExtractDocumentProperties::class,
+        ]);
     }
 }

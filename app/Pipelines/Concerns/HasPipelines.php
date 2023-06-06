@@ -24,8 +24,6 @@ trait HasPipelines
     {
         return $this->morphOne(Pipeline::pipelineRunModel(), 'pipeable')->latestOfMany();
     }
-    
-    // TODO: Listen to model events to trigger a new pipeline
 
     public function dispatchPipeline()
     {
