@@ -3,6 +3,7 @@
 namespace App\Pipelines;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Bus;
 
 class Pipeline
 {
@@ -72,6 +73,55 @@ class Pipeline
     public static function get(Model|string $model = null): ?PipelineConfiguration
     {
         return static::$pipelines[class_basename($model)] ?? null;
+    }
+
+    /**
+     * Dispatch the configured pipeline for a given model
+     * 
+     * @param \Illuminate\Database\Eloquent\Model  $model The model
+     */
+    public static function dispatch(Model $model)
+    {        
+        $pipeline = static::get($model);
+
+        if(is_null($pipeline)){
+            return;
+        }
+
+        // TODO: group run creation in a transaction
+
+        // create a pipeline run entry
+
+        $pipelineRun = static::newPipelineRunModel()->forceFill([
+            'status' => PipelineState::CREATED,
+        ]);
+
+        $model->pipelineRuns()->save($pipelineRun);
+
+        // get the jobs defined in the pipeline
+
+        $jobs = collect($pipeline->steps)->map(function(PipelineStepConfiguration $step) use ($model, $pipelineRun) {
+            
+            $pipelineStep = static::newPipelineStepRunModel()->forceFill([
+                'status' => PipelineState::CREATED,
+                'job' => $step->job,
+            ]);
+
+            $run = $pipelineRun->steps()->save($pipelineStep);
+            
+            return $step->asJob($model, $run);
+        });
+
+        Bus::chain([
+                ...$jobs,
+                function () use ($pipelineRun) {
+                    $pipelineRun->markAsCompleted();
+                },
+            ])
+            ->catch(function () use ($pipelineRun) {
+                $pipelineRun->markAsFailed();
+            })
+            ->dispatch();
     }
     
     /**

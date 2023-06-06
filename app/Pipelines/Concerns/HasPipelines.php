@@ -24,11 +24,11 @@ trait HasPipelines
     {
         return $this->morphOne(Pipeline::pipelineRunModel(), 'pipeable')->latestOfMany();
     }
-
-
-    // TODO: Allow to retrieve defined pipelines for the model
-
-    // TODO: Allow to run the defined pipeline for the model
     
     // TODO: Listen to model events to trigger a new pipeline
+
+    public function dispatchPipeline()
+    {
+        Pipeline::dispatch($this);
+    }
 }

@@ -2,6 +2,8 @@
 
 namespace App\Pipelines;
 
+use App\Pipelines\Queue\PipelineJob;
+use Illuminate\Database\Eloquent\Model;
 use JsonSerializable;
 
 class PipelineStepConfiguration implements JsonSerializable
@@ -62,6 +64,14 @@ class PipelineStepConfiguration implements JsonSerializable
         $this->description = $description;
 
         return $this;
+    }
+
+    public function asJob(Model $model, Model $run): PipelineJob
+    {
+        return app()->makeWith($this->job, [
+            'model' => $model,
+            'run' => $run,
+        ]);
     }
 
     /**
