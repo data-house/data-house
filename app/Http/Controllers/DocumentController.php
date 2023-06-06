@@ -55,6 +55,8 @@ class DocumentController extends Controller
             'team_id' => $request->user()->currentTeam->getKey(),
         ]);
 
+        $document->dispatchPipeline();
+
         return redirect()
             ->route('documents.library')
             ->with('flash.banner', __('Document uploaded.'));
