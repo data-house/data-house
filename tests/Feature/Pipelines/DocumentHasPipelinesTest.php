@@ -8,6 +8,7 @@ use App\Pipelines\Pipeline;
 use App\Pipelines\PipelineTrigger;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\Queue;
 use Tests\Feature\Pipelines\Fixtures\FakePipelineJob;
 use Tests\TestCase;
 
@@ -49,5 +50,29 @@ class DocumentHasPipelinesTest extends TestCase
         $document = Document::first();
 
         $this->assertTrue($document->latestPipelineRun->is(PipelineRun::query()->latest()->first()));
+    }
+    
+    public function test_document_has_active_pipelines(): void
+    {
+        Queue::fake();
+
+        Pipeline::$pipelines = [];
+
+        Pipeline::define(Document::class, PipelineTrigger::ALWAYS, [
+            FakePipelineJob::class,
+        ]);
+
+        PipelineRun::factory()
+            ->count(2)
+            ->sequence(
+                ['created_at' => now()->subHours(4)],
+                ['created_at' => now()->subHours(2)],
+            )
+            ->for(Document::factory(), 'pipeable')
+            ->create();
+
+        $document = Document::first();
+
+        $this->assertTrue($document->hasActivePipelines());
     }
 }

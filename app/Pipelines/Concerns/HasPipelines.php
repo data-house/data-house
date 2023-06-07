@@ -7,6 +7,7 @@ use App\Pipelines\PipelineTrigger;
 use App\Pipelines\Observers\PipeableModelObserver;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
+use Illuminate\Support\Collection;
 
 trait HasPipelines
 {
@@ -40,5 +41,21 @@ trait HasPipelines
     public function dispatchPipeline(?PipelineTrigger $trigger = null)
     {
         Pipeline::dispatch($this, $trigger ?? PipelineTrigger::ALWAYS);
+    }
+
+    /**
+     * Return the active pipelines (created, queued or running)
+     */
+    public function activePipelines(): Collection
+    {
+        return $this->pipelineRuns()->active()->latest()->get();
+    }
+
+    /**
+     * Check if there are active pipelines (created, queued or running)
+     */
+    public function hasActivePipelines(): bool
+    {
+        return $this->activePipelines()->isNotEmpty();
     }
 }
