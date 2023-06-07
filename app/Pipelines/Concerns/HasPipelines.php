@@ -4,6 +4,7 @@ namespace App\Pipelines\Concerns;
 
 use App\Pipelines\Pipeline;
 use App\Pipelines\PipelineTrigger;
+use App\Pipelines\Observers\PipeableModelObserver;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 
