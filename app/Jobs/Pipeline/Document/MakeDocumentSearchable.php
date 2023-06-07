@@ -26,12 +26,4 @@ class MakeDocumentSearchable extends PipelineJob
 
         $this->model->searchable();
     }
-
-
-    protected function isSupported($mime)
-    {
-        return in_array($mime, [
-            'application/pdf',
-        ]);
-    }
 }
