@@ -5,6 +5,7 @@ namespace App\Pipelines\Models;
 use App\Pipelines\Pipeline;
 use App\Pipelines\PipelineState;
 use App\Pipelines\Concerns\InteractWithRunStatus;
+use App\Pipelines\PipelineTrigger;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -23,6 +24,7 @@ class PipelineStepRun extends Model
 
     protected $casts = [
         'status' => PipelineState::class,
+        'trigger' => PipelineTrigger::class,
     ];
 
     /**

@@ -30,5 +30,7 @@ class DocumentPipelineTest extends TestCase
         Queue::assertPushed(MakeDocumentSearchable::class, function($job) use ($document){
             return $job->model->is($document);
         });
+
+        Queue::assertPushed(MakeDocumentSearchable::class, 1);
     }
 }

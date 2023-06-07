@@ -21,6 +21,8 @@ return new class extends Migration
 
             $table->morphs('pipeable');
             
+            $table->string('trigger')->nullable();
+
             $table->string('status');
         });
     }

@@ -21,11 +21,11 @@ return new class extends Migration
 
             $table->foreignIdFor(Pipeline::pipelineRunModel(), 'pipeline_run_id');
 
+            $table->string('trigger')->nullable();
+
             $table->string('status');
 
             $table->string('job');
-
-            // TODO: maybe a link to the queue job?
 
         });
     }

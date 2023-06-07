@@ -4,6 +4,7 @@ namespace App\Pipelines;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\DB;
 
 class Pipeline
 {
@@ -96,28 +97,32 @@ class Pipeline
             return;
         }
 
-        // TODO: group run creation in a transaction
+        list($pipelineRun, $jobs) = DB::transaction(function() use ($model, $trigger, $pipeline){
 
-        // create a pipeline run entry
+            // create a pipeline run entry
 
-        $pipelineRun = static::newPipelineRunModel()->forceFill([
-            'status' => PipelineState::CREATED,
-        ]);
-
-        $model->pipelineRuns()->save($pipelineRun);
-
-        // get the jobs defined in the pipeline
-
-        $jobs = collect($pipeline->steps)->map(function(PipelineStepConfiguration $step) use ($model, $pipelineRun) {
-            
-            $pipelineStep = static::newPipelineStepRunModel()->forceFill([
+            $pipelineRun = static::newPipelineRunModel()->forceFill([
+                'trigger' => $trigger,
                 'status' => PipelineState::CREATED,
-                'job' => $step->job,
             ]);
 
-            $run = $pipelineRun->steps()->save($pipelineStep);
-            
-            return $step->asJob($model, $run);
+            $model->pipelineRuns()->save($pipelineRun);
+
+            // get the jobs defined in the pipeline
+
+            $jobs = collect($pipeline->steps)->map(function(PipelineStepConfiguration $step) use ($model, $pipelineRun) {
+                
+                $pipelineStep = static::newPipelineStepRunModel()->forceFill([
+                    'status' => PipelineState::CREATED,
+                    'job' => $step->job,
+                ]);
+
+                $run = $pipelineRun->steps()->save($pipelineStep);
+                
+                return $step->asJob($model, $run);
+            });
+
+            return [$pipelineRun, $jobs];
         });
 
         Bus::chain([
