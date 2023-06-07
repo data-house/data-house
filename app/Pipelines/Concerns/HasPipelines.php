@@ -11,6 +11,16 @@ trait HasPipelines
 {
 
     /**
+     * Boot the trait.
+     *
+     * @return void
+     */
+    public static function bootHasPipelines()
+    {
+        static::observe(new PipeableModelObserver);
+    }
+
+    /**
      * Get all of the model's pipeline runs.
      */
     public function pipelineRuns(): MorphMany
