@@ -3,6 +3,7 @@
 namespace App\Pipelines\Concerns;
 
 use App\Pipelines\Pipeline;
+use App\Pipelines\PipelineTrigger;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 
@@ -25,8 +26,8 @@ trait HasPipelines
         return $this->morphOne(Pipeline::pipelineRunModel(), 'pipeable')->latestOfMany();
     }
 
-    public function dispatchPipeline()
+    public function dispatchPipeline(?PipelineTrigger $trigger = null)
     {
-        Pipeline::dispatch($this);
+        Pipeline::dispatch($this, $trigger ?? PipelineTrigger::ALWAYS);
     }
 }

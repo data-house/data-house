@@ -8,6 +8,7 @@ use App\Pipelines\Models\PipelineRun;
 use App\Pipelines\Models\PipelineStepRun;
 use App\Pipelines\Pipeline;
 use App\Pipelines\PipelineState;
+use App\Pipelines\PipelineTrigger;
 use App\Pipelines\Queue\PipelineJob;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -27,7 +28,7 @@ class PipelineExecutionTest extends TestCase
 
         Pipeline::$pipelines = [];
 
-        Pipeline::define(Document::class, [
+        Pipeline::define(Document::class, PipelineTrigger::ALWAYS, [
             FakePipelineJob::class,
         ]);
 
@@ -50,7 +51,7 @@ class PipelineExecutionTest extends TestCase
     {
         Pipeline::$pipelines = [];
 
-        Pipeline::define(Document::class, [
+        Pipeline::define(Document::class, PipelineTrigger::ALWAYS, [
             FakePipelineJob::class,
         ]);
 
@@ -73,7 +74,7 @@ class PipelineExecutionTest extends TestCase
     {
         Pipeline::$pipelines = [];
 
-        Pipeline::define(Document::class, [
+        Pipeline::define(Document::class, PipelineTrigger::ALWAYS, [
             FakeFailingPipelineJob::class,
         ]);
 

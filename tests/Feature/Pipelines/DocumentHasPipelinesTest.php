@@ -5,9 +5,10 @@ namespace Tests\Feature\Pipelines;
 use App\Models\Document;
 use App\Pipelines\Models\PipelineRun;
 use App\Pipelines\Pipeline;
-use App\Pipelines\Queue\PipelineJob;
+use App\Pipelines\PipelineTrigger;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Tests\Feature\Pipelines\Fixtures\FakePipelineJob;
 use Tests\TestCase;
 
 class DocumentHasPipelinesTest extends TestCase
@@ -18,13 +19,9 @@ class DocumentHasPipelinesTest extends TestCase
     {
         Pipeline::$pipelines = [];
 
-        $step = new class extends PipelineJob {
-
-        };
-
-        Pipeline::define(Document::class, [
-                get_class($step),
-            ]);
+        Pipeline::define(Document::class, PipelineTrigger::ALWAYS, [
+            FakePipelineJob::class,
+        ]);
 
         $document = Document::factory()->hasPipelineRuns(2)->create();
 
@@ -36,13 +33,9 @@ class DocumentHasPipelinesTest extends TestCase
     {
         Pipeline::$pipelines = [];
 
-        $step = new class extends PipelineJob {
-
-        };
-
-        Pipeline::define(Document::class, [
-                get_class($step),
-            ]);
+        Pipeline::define(Document::class, PipelineTrigger::ALWAYS, [
+            FakePipelineJob::class,
+        ]);
 
         PipelineRun::factory()
             ->count(2)

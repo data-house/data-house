@@ -6,8 +6,10 @@ use App\Models\Document;
 use App\Models\User;
 use App\Pipelines\Pipeline;
 use App\Pipelines\PipelineStepConfiguration;
+use App\Pipelines\PipelineTrigger;
 use App\Pipelines\Queue\PipelineJob;
 use PHPUnit\Framework\TestCase;
+use Tests\Feature\Pipelines\Fixtures\FakePipelineJob;
 
 class PipelineTest extends TestCase
 {
@@ -16,12 +18,8 @@ class PipelineTest extends TestCase
     {
         Pipeline::$pipelines = [];
 
-        $step = new class extends PipelineJob {
-
-        };
-
-        Pipeline::define(Document::class, [
-                get_class($step),
+        Pipeline::define(Document::class, PipelineTrigger::ALWAYS, [
+                FakePipelineJob::class,
             ])
             ->description('Document Pipeline')
             ->name('A human name for this pipeline');
@@ -30,9 +28,10 @@ class PipelineTest extends TestCase
 
         $this->assertTrue(Pipeline::hasPipelines('Document'));
 
-        $pipe = Pipeline::get('Document');
+        $pipe = Pipeline::get('Document', PipelineTrigger::ALWAYS);
 
         $this->assertEquals('Document Pipeline', $pipe->description);
+        $this->assertEquals(PipelineTrigger::ALWAYS, $pipe->trigger);
         $this->assertEquals('A human name for this pipeline', $pipe->name);
         $this->assertContainsOnlyInstancesOf(PipelineStepConfiguration::class, $pipe->steps);
     }
@@ -41,12 +40,9 @@ class PipelineTest extends TestCase
     {
         Pipeline::$pipelines = [];
 
-        $step = new class extends PipelineJob {
 
-        };
-
-        $pipe = Pipeline::define('test', [
-                get_class($step),
+        $pipe = Pipeline::define('test',  PipelineTrigger::MODEL_CREATED, [
+            FakePipelineJob::class,
             ])
             ->name('Test')
             ->description('Test pipeline description');
@@ -55,6 +51,7 @@ class PipelineTest extends TestCase
 
         $this->assertArrayHasKey('key', $serialized);
         $this->assertArrayHasKey('name', $serialized);
+        $this->assertArrayHasKey('trigger', $serialized);
         $this->assertArrayHasKey('description', $serialized);
         $this->assertArrayHasKey('steps', $serialized);
     }

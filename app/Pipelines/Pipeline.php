@@ -36,15 +36,22 @@ class Pipeline
      * You can only define one pipeline for each model.
      * 
      * @param  \Illuminate\Database\Eloquent\Model|string  $key The entity to which the pipeline is attached
+     * @param  \App\Pipelines\PipelineTrigger  $trigger The trigger condition
      * @param  array  $steps
      * @return \App\Pipelines\PipelineConfiguration
      */
-    public static function define(Model|string $model, array $steps): PipelineConfiguration
+    public static function define(Model|string $model, PipelineTrigger $trigger, array $steps): PipelineConfiguration
     {
         $key = class_basename($model);
 
-        return tap(new PipelineConfiguration($key, $steps), function ($pipe) use ($key) {
-            static::$pipelines[$key] = $pipe;
+        return tap(new PipelineConfiguration($key, $trigger, $steps), function ($pipe) use ($key, $trigger) {
+
+            if(!isset(static::$pipelines[$key])){
+                static::$pipelines[$key] = [$trigger->value => $pipe];
+                return;
+            }
+
+            static::$pipelines[$key][$trigger->value] = $pipe;
         });
     }
 
@@ -68,11 +75,12 @@ class Pipeline
      * Get a configured pipeline
      * 
      * @param \Illuminate\Database\Eloquent\Model|string  $model (optional) The key or the model to search for
+     * @param  \App\Pipelines\PipelineTrigger  $trigger The trigger condition
      * @return PipelineConfiguration|null
      */
-    public static function get(Model|string $model = null): ?PipelineConfiguration
+    public static function get(Model|string $model, PipelineTrigger $trigger): ?PipelineConfiguration
     {
-        return static::$pipelines[class_basename($model)] ?? null;
+        return static::$pipelines[class_basename($model)][$trigger->value] ?? null;
     }
 
     /**
@@ -80,9 +88,9 @@ class Pipeline
      * 
      * @param \Illuminate\Database\Eloquent\Model  $model The model
      */
-    public static function dispatch(Model $model)
+    public static function dispatch(Model $model, PipelineTrigger $trigger = null)
     {        
-        $pipeline = static::get($model);
+        $pipeline = static::get($model, $trigger);
 
         if(is_null($pipeline)){
             return;

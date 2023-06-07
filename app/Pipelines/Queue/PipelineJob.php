@@ -31,14 +31,30 @@ abstract class PipelineJob implements ShouldQueue
     public $deleteWhenMissingModels = true;
 
     /**
+     * The reference to the model
+     * 
+     * @var \Illuminate\Database\Eloquent\Model
+     */
+    public $model;
+    
+    /**
+     * The current run
+     */
+    public Model $run;
+
+    /**
      * Create a new job instance.
+     * 
+     * @param \Illuminate\Database\Eloquent\Model $model The instance of the Eloquent model that is the input of the pipeline job
+     * @param \Illuminate\Database\Eloquent\Model $run The instance of the Eloquent model representing the pipeline step run
      */
     public function __construct(
-        public Model $model,
-        public Model $run, // the instance of the PipelineRun
+        Model $model,
+        Model $run,
     )
     {
-        //
+        $this->model = $model;
+        $this->run = $run;
     }
 
     /**

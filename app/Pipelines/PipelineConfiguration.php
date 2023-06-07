@@ -21,6 +21,13 @@ class PipelineConfiguration implements JsonSerializable
     public $name;
 
     /**
+     * The trigger condition of the pipe.
+     *
+     * @var \App\Pipelines\PipelineTrigger
+     */
+    public $trigger;
+
+    /**
      * The pipe's steps.
      *
      * @var array
@@ -42,9 +49,10 @@ class PipelineConfiguration implements JsonSerializable
      * @param  array  $steps
      * @return void
      */
-    public function __construct(string $key, array $steps)
+    public function __construct(string $key, PipelineTrigger $trigger, array $steps)
     {
         $this->key = $key;
+        $this->trigger = $trigger;
         $this->steps = collect($steps)
             ->mapInto(PipelineStepConfiguration::class)
             ->toArray();
@@ -86,6 +94,7 @@ class PipelineConfiguration implements JsonSerializable
     {
         return [
             'key' => $this->key,
+            'trigger' => $this->trigger->value,
             'name' => $this->name,
             'description' => $this->description,
             'steps' => $this->steps,
