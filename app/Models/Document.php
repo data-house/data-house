@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\PdfProcessing\Facades\Pdf;
+use App\Pipelines\Concerns\HasPipelines;
 use Exception;
 use Illuminate\Database\Eloquent\Casts\AsArrayObject;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -22,6 +23,8 @@ class Document extends Model
     use HasUlids;
 
     use Searchable;
+
+    use HasPipelines;
     
     /**
      * The attributes that should be hidden for serialization.

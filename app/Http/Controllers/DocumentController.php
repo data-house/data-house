@@ -71,7 +71,8 @@ class DocumentController extends Controller
         ]);
 
         return view('document.show', [
-            'document' => $document
+            'document' => $document,
+            'hasActivePipelines' => $document->hasActivePipelines(),
         ]);
     }
 

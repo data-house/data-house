@@ -3,8 +3,9 @@
 namespace App\PdfProcessing;
 
 use Carbon\Carbon;
+use JsonSerializable;
 
-class DocumentProperties
+class DocumentProperties implements JsonSerializable
 {
     public function __construct(
         public readonly string $title,
@@ -21,5 +22,25 @@ class DocumentProperties
     {
     }
 
+    /**
+     * Get the JSON serializable representation of the object.
+     *
+     * @return array
+     */
+    #[\ReturnTypeWillChange]
+    public function jsonSerialize()
+    {
+        return [
+            'title' => $this->title,
+            'description' => $this->description,
+            'author' => $this->author,
+            'pages' => $this->pages,
+            'page_size' => $this->pageSize,
+            'is_tagged_pdf' => $this->isTaggedPdf,
+            'created_at' => $this->createdAt,
+            'modified_at' => $this->modifiedAt,
+            'produced_with' => $this->producedWith,
+        ];
+    }
 
 }
