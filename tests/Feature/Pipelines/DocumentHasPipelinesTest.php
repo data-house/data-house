@@ -5,6 +5,7 @@ namespace Tests\Feature\Pipelines;
 use App\Models\Document;
 use App\Pipelines\Models\PipelineRun;
 use App\Pipelines\Pipeline;
+use App\Pipelines\PipelineState;
 use App\Pipelines\PipelineTrigger;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -65,8 +66,8 @@ class DocumentHasPipelinesTest extends TestCase
         PipelineRun::factory()
             ->count(2)
             ->sequence(
-                ['created_at' => now()->subHours(4)],
-                ['created_at' => now()->subHours(2)],
+                ['created_at' => now()->subHours(4), 'status' => PipelineState::COMPLETED],
+                ['created_at' => now()->subHours(2), 'status' => PipelineState::QUEUED],
             )
             ->for(Document::factory(), 'pipeable')
             ->create();
