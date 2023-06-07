@@ -24,6 +24,8 @@ return new class extends Migration
             $table->string('trigger')->nullable();
 
             $table->string('status');
+
+            $table->string('job');
         });
     }
 

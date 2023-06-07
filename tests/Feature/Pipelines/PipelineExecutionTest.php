@@ -5,7 +5,6 @@ namespace Tests\Feature\Pipelines;
 use App\Jobs\Pipeline\Document\ExtractDocumentProperties;
 use App\Models\Document;
 use App\Pipelines\Models\PipelineRun;
-use App\Pipelines\Models\PipelineStepRun;
 use App\Pipelines\Pipeline;
 use App\Pipelines\PipelineState;
 use App\Pipelines\PipelineTrigger;
@@ -40,10 +39,10 @@ class PipelineExecutionTest extends TestCase
 
         $this->assertTrue($run->pipeable->is($document));
 
-        $this->assertEquals(FakePipelineJob::class, $run->steps()->first()->job);
+        $this->assertEquals(FakePipelineJob::class, $run->job);
 
         Queue::assertPushed(FakePipelineJob::class, function($job) use ($document, $run){
-            return $job->model->is($document) && $job->run instanceof PipelineStepRun;
+            return $job->model->is($document) && $job->run instanceof PipelineRun;
         });
     }
 
@@ -63,11 +62,8 @@ class PipelineExecutionTest extends TestCase
 
         $this->assertTrue($run->pipeable->is($document));
         $this->assertEquals(PipelineState::COMPLETED, $run->status);
-
-        $stepRun = $run->steps()->first();
-
-        $this->assertEquals(FakePipelineJob::class, $stepRun->job);
-        $this->assertEquals(PipelineState::COMPLETED, $stepRun->status);
+        $this->assertEquals(PipelineTrigger::ALWAYS, $run->trigger);
+        $this->assertEquals(FakePipelineJob::class, $run->job);
     }
 
     public function test_pipeline_run_failed(): void
@@ -86,10 +82,6 @@ class PipelineExecutionTest extends TestCase
 
         $this->assertTrue($run->pipeable->is($document));
         $this->assertEquals(PipelineState::FAILED, $run->status);
-
-        $stepRun = $run->steps()->first();
-
-        $this->assertEquals(FakeFailingPipelineJob::class, $stepRun->job);
-        $this->assertEquals(PipelineState::FAILED, $stepRun->status);
+        $this->assertEquals(FakeFailingPipelineJob::class, $run->job);
     }
 }

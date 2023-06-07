@@ -25,13 +25,6 @@ class Pipeline
     public static $pipelineRunModel = 'App\\Pipelines\\Models\\PipelineRun';
 
     /**
-     * The pipeline step run model that should be used.
-     *
-     * @var string
-     */
-    public static $pipelineStepRunModel = 'App\\Pipelines\\Models\\PipelineStepRun';
-
-    /**
      * Define a pipeline for a model.
      * 
      * You can only define one pipeline for each model.
@@ -97,44 +90,28 @@ class Pipeline
             return;
         }
 
-        list($pipelineRun, $jobs) = DB::transaction(function() use ($model, $trigger, $pipeline){
+        $jobs = DB::transaction(function() use ($model, $trigger, $pipeline){
 
-            // create a pipeline run entry
+            // create a pipeline run entry for
+            // each job defined in the pipeline
 
-            $pipelineRun = static::newPipelineRunModel()->forceFill([
-                'trigger' => $trigger,
-                'status' => PipelineState::CREATED,
-            ]);
-
-            $model->pipelineRuns()->save($pipelineRun);
-
-            // get the jobs defined in the pipeline
-
-            $jobs = collect($pipeline->steps)->map(function(PipelineStepConfiguration $step) use ($model, $pipelineRun) {
+            $jobs = collect($pipeline->steps)->map(function(PipelineStepConfiguration $step) use ($model, $trigger) {
                 
-                $pipelineStep = static::newPipelineStepRunModel()->forceFill([
+                $run = static::newPipelineRunModel()->forceFill([
+                    'trigger' => $trigger,
                     'status' => PipelineState::CREATED,
                     'job' => $step->job,
                 ]);
 
-                $run = $pipelineRun->steps()->save($pipelineStep);
+                $model->pipelineRuns()->save($run);
                 
                 return $step->asJob($model, $run);
             });
 
-            return [$pipelineRun, $jobs];
+            return $jobs;
         });
 
-        Bus::chain([
-                ...$jobs,
-                function () use ($pipelineRun) {
-                    $pipelineRun->markAsCompleted();
-                },
-            ])
-            ->catch(function () use ($pipelineRun) {
-                $pipelineRun->markAsFailed();
-            })
-            ->dispatch();
+        Bus::chain($jobs)->dispatch();
     }
     
     /**
@@ -168,41 +145,6 @@ class Pipeline
     public static function usePipelineRunModel(string $model)
     {
         static::$pipelineRunModel = $model;
-
-        return new static;
-    }
-
-    /**
-     * Get the name of the pipeline step model used by the application.
-     *
-     * @return string
-     */
-    public static function pipelineStepRunModel()
-    {
-        return static::$pipelineStepRunModel;
-    }
-
-    /**
-     * Get a new instance of the pipeline step model.
-     *
-     * @return mixed
-     */
-    public static function newPipelineStepRunModel()
-    {
-        $model = static::pipelineStepRunModel();
-
-        return new $model;
-    }
-
-    /**
-     * Specify the pipeline step model that should be used.
-     *
-     * @param  string  $model
-     * @return static
-     */
-    public static function usePipelineStepRunModel(string $model)
-    {
-        static::$pipelineStepRunModel = $model;
 
         return new static;
     }

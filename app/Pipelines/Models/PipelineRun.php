@@ -37,15 +37,6 @@ class PipelineRun extends Model
         return $this->morphTo();
     }
 
-    
-    /**
-     * Get the steps contained in this run
-     */
-    public function steps(): HasMany
-    {
-        return $this->hasMany(Pipeline::pipelineStepRunModel(), 'pipeline_run_id');
-    }
-
     public function scopeActive(Builder $query): void
     {
         $query->whereIn('status', [PipelineState::CREATED, PipelineState::QUEUED, PipelineState::RUNNING]);

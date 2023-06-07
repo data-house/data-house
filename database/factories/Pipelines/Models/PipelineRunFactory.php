@@ -22,6 +22,7 @@ class PipelineRunFactory extends Factory
     {
         return [
             'status' => fake()->randomElement(PipelineState::cases())->value,
+            'job' => 'FakePipelineJob',
         ];
     }
 }
