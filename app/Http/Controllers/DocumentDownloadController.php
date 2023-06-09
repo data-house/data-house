@@ -20,9 +20,17 @@ class DocumentDownloadController extends Controller
         $this->authorize('view', $document);
 
         $disposition = $request->string('disposition', HeaderUtils::DISPOSITION_ATTACHMENT);
+        
+        $original = $request->boolean('original', false);
 
         if(!in_array($disposition, [HeaderUtils::DISPOSITION_ATTACHMENT, HeaderUtils::DISPOSITION_INLINE])){
             $disposition = HeaderUtils::DISPOSITION_ATTACHMENT;
+        }
+
+        if(!$original && ($document->conversion_file_mime && $document->conversion_disk_path)){
+
+            return response()
+                ->download(Storage::disk($document->conversion_disk_name)->path($document->conversion_disk_path), null, [], $disposition);
         }
 
         return response()

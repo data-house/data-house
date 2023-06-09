@@ -21,7 +21,8 @@ class PdfViewerController extends Controller
         
         $this->authorize('view', $document);
 
-        if($document->mime !== MimeType::APPLICATION_PDF->value){
+        if(($document->mime !== MimeType::APPLICATION_PDF->value && is_null($document->conversion_file_mime)) 
+            || ($document->mime !== MimeType::APPLICATION_PDF->value && $document->conversion_file_mime && $document->conversion_file_mime !== MimeType::APPLICATION_PDF->value)){
             return response('', HttpStatusCode::Unsupported_Media_Type->value);
         }
 
