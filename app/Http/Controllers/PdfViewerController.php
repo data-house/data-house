@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Document;
+use App\Models\MimeType;
 use Illuminate\Http\Request;
 use PrinsFrank\Standards\Http\HttpStatusCode;
 
@@ -20,7 +21,7 @@ class PdfViewerController extends Controller
         
         $this->authorize('view', $document);
 
-        if($document->mime !== 'application/pdf'){
+        if($document->mime !== MimeType::APPLICATION_PDF){
             return response('', HttpStatusCode::Unsupported_Media_Type->value);
         }
 

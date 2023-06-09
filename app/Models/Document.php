@@ -123,7 +123,7 @@ class Document extends Model
      */
     public function viewerUrl(int $page = 1): string
     {
-        if($this->mime !== 'application/pdf'){
+        if($this->mime !== MimeType::APPLICATION_PDF){
             return route('documents.download', ['document' => $this, 'disposition' => HeaderUtils::DISPOSITION_INLINE]);
         }
 
