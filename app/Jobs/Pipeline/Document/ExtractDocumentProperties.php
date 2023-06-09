@@ -3,6 +3,7 @@
 namespace App\Jobs\Pipeline\Document;
 
 use App\Models\Document;
+use App\Models\MimeType;
 use App\PdfProcessing\Facades\Pdf;
 use App\Pipelines\Queue\PipelineJob;
 use Illuminate\Support\Facades\Storage;
@@ -40,7 +41,7 @@ class ExtractDocumentProperties extends PipelineJob
     protected function isSupported($mime)
     {
         return in_array($mime, [
-            'application/pdf',
+            MimeType::APPLICATION_PDF->value,
         ]);
     }
 }

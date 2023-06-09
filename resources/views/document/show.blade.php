@@ -9,7 +9,7 @@
             </h2>
             <div class="flex gap-2">
                 @can('view', $document)
-                    <x-button-link href="{{ $document->viewerUrl() }}">
+                    <x-button-link href="{{ $document->viewerUrl() }}" target="_blank">
                         {{ __('Open Document') }}
                     </x-button-link>
                 @endcan

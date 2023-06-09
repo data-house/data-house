@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Disk;
+use App\Models\MimeType;
 use App\Models\Team;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -24,7 +25,7 @@ class DocumentFactory extends Factory
             'disk_path' => fake()->md5() . '.pdf',
             'draft' => true,
             'title' => fake()->text(40),
-            'mime' => 'application/pdf',
+            'mime' => MimeType::APPLICATION_PDF->value,
             'uploaded_by' => User::factory(),
             'team_id' => Team::factory(),
             'languages' => [],

@@ -15,6 +15,7 @@ use Illuminate\Support\Str;
 use PrinsFrank\Standards\Language\LanguageAlpha2;
 use Laravel\Scout\Searchable;
 use MeiliSearch\Exceptions\JsonEncodingException;
+use Symfony\Component\HttpFoundation\HeaderUtils;
 
 class Document extends Model
 {
@@ -122,6 +123,10 @@ class Document extends Model
      */
     public function viewerUrl(int $page = 1): string
     {
+        if($this->mime !== MimeType::APPLICATION_PDF->value && ($this->conversion_file_mime && $this->conversion_file_mime !== MimeType::APPLICATION_PDF->value)){
+            return route('documents.download', ['document' => $this, 'disposition' => HeaderUtils::DISPOSITION_INLINE]);
+        }
+
         return route('pdf.viewer', [
             'document' => $this->ulid,
             'file' => Str::replace(config('app.url'),'',$this->url()),
