@@ -25,7 +25,7 @@ class DocumentFactory extends Factory
             'disk_path' => fake()->md5() . '.pdf',
             'draft' => true,
             'title' => fake()->text(40),
-            'mime' => MimeType::APPLICATION_PDF,
+            'mime' => MimeType::APPLICATION_PDF->value,
             'uploaded_by' => User::factory(),
             'team_id' => Team::factory(),
             'languages' => [],

@@ -41,7 +41,7 @@ class ExtractDocumentProperties extends PipelineJob
     protected function isSupported($mime)
     {
         return in_array($mime, [
-            MimeType::APPLICATION_PDF,
+            MimeType::APPLICATION_PDF->value,
         ]);
     }
 }
