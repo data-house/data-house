@@ -48,4 +48,51 @@ class DocumentDownloadControllerTest extends TestCase
 
         $response->assertDownload();
     }
+    
+    public function test_document_can_be_downloaded_with_inline_disposition(): void
+    {
+        Storage::fake();
+
+        Storage::putFileAs('', new File(base_path('tests/fixtures/documents/data-house-test-doc.pdf')), 'test.pdf');
+
+        $user = User::factory()->withPersonalTeam()->manager()->create();
+
+        $document = Document::factory()
+            ->for($user, 'uploader')
+            ->create([
+                'disk_name' => 'local',
+                'disk_path' => 'test.pdf',
+            ]);
+
+        $response = $this->actingAs($user)
+            ->get("/documents/{$document->ulid}/download?disposition=inline");
+
+        $response->assertStatus(200);
+
+        $response->assertHeader('content-disposition', 'inline; filename=test.pdf');
+    }
+
+    
+    public function test_invalid_disposition_parameter_causes_download(): void
+    {
+        Storage::fake();
+
+        Storage::putFileAs('', new File(base_path('tests/fixtures/documents/data-house-test-doc.pdf')), 'test.pdf');
+
+        $user = User::factory()->withPersonalTeam()->manager()->create();
+
+        $document = Document::factory()
+            ->for($user, 'uploader')
+            ->create([
+                'disk_name' => 'local',
+                'disk_path' => 'test.pdf',
+            ]);
+
+        $response = $this->actingAs($user)
+            ->get("/documents/{$document->ulid}/download?disposition=preview");
+
+        $response->assertStatus(200);
+
+        $response->assertDownload();
+    }
 }

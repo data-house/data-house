@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Document;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\HeaderUtils;
 
 class DocumentDownloadController extends Controller
 {
@@ -18,7 +19,13 @@ class DocumentDownloadController extends Controller
     {
         $this->authorize('view', $document);
 
+        $disposition = $request->string('disposition', HeaderUtils::DISPOSITION_ATTACHMENT);
+
+        if(!in_array($disposition, [HeaderUtils::DISPOSITION_ATTACHMENT, HeaderUtils::DISPOSITION_INLINE])){
+            $disposition = HeaderUtils::DISPOSITION_ATTACHMENT;
+        }
+
         return response()
-            ->download(Storage::disk($document->disk_name)->path($document->disk_path));
+            ->download(Storage::disk($document->disk_name)->path($document->disk_path), null, [], $disposition);
     }
 }
