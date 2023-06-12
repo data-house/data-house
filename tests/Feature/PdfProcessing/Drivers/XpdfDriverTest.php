@@ -99,7 +99,7 @@ class XpdfDriverTest extends TestCase
 
         $driver = new XpdfDriver();
 
-        $info = $driver->info(base_path('tests/fixtures/documents/data-house-test-doc.pdf'));
+        $info = $driver->properties(base_path('tests/fixtures/documents/data-house-test-doc.pdf'));
 
         Process::assertRan('pdfinfo -meta -rawdates ' . base_path('tests/fixtures/documents/data-house-test-doc.pdf'));
 
