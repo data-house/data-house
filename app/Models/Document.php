@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\DocumentConversion\Contracts\Convertible;
+use App\DocumentConversion\ConversionRequest;
 use App\PdfProcessing\Facades\Pdf;
 use App\Pipelines\Concerns\HasPipelines;
 use Exception;
@@ -11,13 +13,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Casts\AsEnumCollection;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
 use PrinsFrank\Standards\Language\LanguageAlpha2;
 use Laravel\Scout\Searchable;
 use MeiliSearch\Exceptions\JsonEncodingException;
 use Symfony\Component\HttpFoundation\HeaderUtils;
 
-class Document extends Model
+class Document extends Model implements Convertible
 {
     use HasFactory;
 
@@ -117,15 +120,30 @@ class Document extends Model
     {
         return route('documents.download', $this);
     }
+    
+    /**
+     * Get the URL for downloading the file that can be used by internal services
+     * and that uses a signed route
+     */
+    public function internalUrl(): string
+    {
+        $url = URL::signedRoute('documents.download', $this);
+
+        if(!Str::startsWith(config('app.internal_url'), config('app.url'))){
+            return Str::replace(config('app.url'), rtrim(config('app.internal_url'), '/') . '/', $url);
+        }
+
+        return $url;
+    }
 
     /**
      * Get the URL to obtain the viewer of the document
      */
     public function viewerUrl(int $page = 1): string
     {
-        if($this->mime !== MimeType::APPLICATION_PDF->value && ($this->conversion_file_mime && $this->conversion_file_mime !== MimeType::APPLICATION_PDF->value)){
+        // if($this->mime !== MimeType::APPLICATION_PDF->value && ($this->conversion_file_mime && $this->conversion_file_mime !== MimeType::APPLICATION_PDF->value)){
             return route('documents.download', ['document' => $this, 'disposition' => HeaderUtils::DISPOSITION_INLINE]);
-        }
+        // }
 
         return route('pdf.viewer', [
             'document' => $this->ulid,
@@ -179,5 +197,15 @@ class Document extends Model
                 'updated_at' => $this->updated_at,
             ])
             ->all();
+    }
+
+    public function toConvertible(): ConversionRequest
+    {
+        return new ConversionRequest(
+            key: $this->getKey(),
+            url: $this->internalUrl(),
+            mimetype: $this->mime,
+            title: $this->title
+        );
     }
 }
