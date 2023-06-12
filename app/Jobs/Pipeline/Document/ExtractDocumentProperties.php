@@ -32,7 +32,7 @@ class ExtractDocumentProperties extends PipelineJob
         $path = Storage::disk($this->model->disk_name)
                 ->path($this->model->disk_path);
 
-        $this->model->properties = Pdf::info($path);
+        $this->model->properties = Pdf::properties($path);
 
         $this->model->save();
     }

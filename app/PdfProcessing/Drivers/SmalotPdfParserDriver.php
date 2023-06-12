@@ -2,6 +2,7 @@
 
 namespace App\PdfProcessing\Drivers;
 
+use App\PdfProcessing\Contracts\Driver;
 use App\PdfProcessing\DocumentProperties;
 use App\PdfProcessing\PdfProcessingManager;
 use Exception;
@@ -11,7 +12,7 @@ use Illuminate\Support\Facades\Process;
 use Smalot\PdfParser\Config;
 use Smalot\PdfParser\Parser;
 
-class SmalotPdfParserDriver
+class SmalotPdfParserDriver implements Driver
 {
     protected Parser $parser;
 
@@ -51,7 +52,7 @@ class SmalotPdfParserDriver
         
     }
 
-    public function info($path): DocumentProperties
+    public function properties($path): DocumentProperties
     {
         $pdf = $this->parser->parseFile($path);
 

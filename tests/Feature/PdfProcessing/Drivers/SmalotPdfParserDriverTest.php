@@ -17,7 +17,7 @@ class SmalotPdfParserDriverTest extends TestCase
     {
         $driver = new SmalotPdfParserDriver();
 
-        $info = $driver->info(base_path('tests/fixtures/documents/data-house-test-doc.pdf'));
+        $info = $driver->properties(base_path('tests/fixtures/documents/data-house-test-doc.pdf'));
 
         $this->assertInstanceOf(DocumentProperties::class, $info);
         $this->assertEquals('Test document', $info->title);
