@@ -2,6 +2,7 @@
 
 namespace App\PdfProcessing\Drivers;
 
+use App\PdfProcessing\Contracts\Driver;
 use App\PdfProcessing\DocumentProperties;
 use App\PdfProcessing\PdfProcessingManager;
 use Exception;
@@ -9,7 +10,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Facade;
 use Illuminate\Support\Facades\Process;
 
-class XpdfDriver
+class XpdfDriver implements Driver
 {
 
     private const PDF_INFO_BINARY = 'pdfinfo';
@@ -57,7 +58,7 @@ class XpdfDriver
         
     }
 
-    public function info($path): DocumentProperties
+    public function properties($path): DocumentProperties
     {
         $result = Process::run(self::PDF_INFO_BINARY . ' -meta -rawdates ' . $path);
         
