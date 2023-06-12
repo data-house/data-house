@@ -28,11 +28,11 @@ RUN \
 
 FROM php:8.1.13-fpm AS php
 
-LABEL maintainer="Alessio <alessio@avsoft.it>" \
-  org.label-schema.name="avvertix/kart-race-management" \
-  org.label-schema.description="Docker image for Kart Race Management. Collect and verify racers before entering the race track." \
+LABEL maintainer="OneOffTech <info@oneofftech.xyz>" \
+  org.label-schema.name="data-house/data-house" \
+  org.label-schema.description="Docker image for the Data House. A supporting tool to create and test Digital Library pilots." \
   org.label-schema.schema-version="1.0" \
-  org.label-schema.vcs-url="https://github.com/avvertix/kart-race-management"
+  org.label-schema.vcs-url="https://github.com/data-house/data-house"
 
 ## Default environment variables
 ENV PHP_MAX_EXECUTION_TIME 120
