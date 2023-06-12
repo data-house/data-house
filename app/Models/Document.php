@@ -6,6 +6,7 @@ use App\DocumentConversion\Contracts\Convertible;
 use App\DocumentConversion\ConversionRequest;
 use App\PdfProcessing\Facades\Pdf;
 use App\Pipelines\Concerns\HasPipelines;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Database\Eloquent\Casts\AsArrayObject;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -125,11 +126,11 @@ class Document extends Model implements Convertible
      * Get the URL for downloading the file that can be used by internal services
      * and that uses a signed route
      */
-    public function internalUrl(): string
+    public function internalUrl($validityInMinutes = 5): string
     {
-        $url = URL::signedRoute('documents.download', $this);
+        $url = URL::temporarySignedRoute('documents.download.internal', $validityInMinutes * Carbon::SECONDS_PER_MINUTE, $this);
 
-        if(!Str::startsWith(config('app.internal_url'), config('app.url'))){
+        if(!Str::startsWith(config('app.url'), config('app.internal_url'))){
             return Str::replace(config('app.url'), rtrim(config('app.internal_url'), '/') . '/', $url);
         }
 
@@ -141,9 +142,9 @@ class Document extends Model implements Convertible
      */
     public function viewerUrl(int $page = 1): string
     {
-        // if($this->mime !== MimeType::APPLICATION_PDF->value && ($this->conversion_file_mime && $this->conversion_file_mime !== MimeType::APPLICATION_PDF->value)){
+        if($this->mime !== MimeType::APPLICATION_PDF->value && (!$this->conversion_file_mime || $this->conversion_file_mime && $this->conversion_file_mime !== MimeType::APPLICATION_PDF->value)){
             return route('documents.download', ['document' => $this, 'disposition' => HeaderUtils::DISPOSITION_INLINE]);
-        // }
+        }
 
         return route('pdf.viewer', [
             'document' => $this->ulid,
