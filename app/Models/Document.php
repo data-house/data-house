@@ -128,13 +128,11 @@ class Document extends Model implements Convertible
      */
     public function internalUrl($validityInMinutes = 5): string
     {
-        $url = URL::temporarySignedRoute('documents.download.internal', $validityInMinutes * Carbon::SECONDS_PER_MINUTE, $this);
+        $url = URL::temporarySignedRoute('documents.download.internal', $validityInMinutes * Carbon::SECONDS_PER_MINUTE, $this, false);
 
-        if(!Str::startsWith(config('app.url'), config('app.internal_url'))){
-            return Str::replace(config('app.url'), rtrim(config('app.internal_url'), '/') . '/', $url);
-        }
+        // TODO: check the option to use a temporary url https://laravel.com/docs/10.x/filesystem#temporary-urls
 
-        return $url;
+        return rtrim(config('app.internal_url'), '/') . $url;
     }
 
     /**

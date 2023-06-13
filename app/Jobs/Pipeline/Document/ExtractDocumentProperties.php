@@ -34,7 +34,7 @@ class ExtractDocumentProperties extends PipelineJob
 
         $this->model->properties = Pdf::properties($path);
 
-        $this->model->save();
+        $this->model->saveQuietly();
     }
 
 

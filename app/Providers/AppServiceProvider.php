@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Jobs\Pipeline\Document\ConvertToPdf;
 use App\Models\Document;
 use App\Pipelines\Pipeline;
 use Illuminate\Support\ServiceProvider;
@@ -32,9 +33,9 @@ class AppServiceProvider extends ServiceProvider
         // Define pipelines for Documents
         Pipeline::define(Document::class, PipelineTrigger::MODEL_CREATED, [
             ExtractDocumentProperties::class,
+            ConvertToPdf::class,
             // RecognizeLanguage
             // GenerateThumbnail
-            // ConvertToPdfForPreview // only for docx and pptx
         ]);
         
         Pipeline::define(Document::class, PipelineTrigger::MODEL_SAVED, [

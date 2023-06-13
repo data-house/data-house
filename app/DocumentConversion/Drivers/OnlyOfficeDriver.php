@@ -24,6 +24,23 @@ class OnlyOfficeDriver implements Driver
     private array $config = [];
 
 
+    private static $filetypeMap = [
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document" => 'docx',
+        'application/vnd.openxmlformats-officedocument.presentationml.presentation' => 'pptx',
+    ];
+
+    private static $errorCodes = [
+        -1 => 'Unknown error.',
+        -2 => 'Conversion timeout error.',
+        -3 => 'Conversion error.',
+        -4 => 'Error while downloading the document file to be converted.',
+        -5 => 'Incorrect password.',
+        -6 => 'Error while accessing the conversion result database.',
+        -7 => 'Input error.',
+        -8 => 'Invalid token.',
+    ];
+
+
     public function __construct(array $config = null)
     {
         $this->config = [
@@ -52,9 +69,9 @@ class OnlyOfficeDriver implements Driver
 
             $response = Http::acceptJson()
                 ->asJson()
-                ->post($this->config['url'] . self::CONVERSION_ENDPOINT, [
+                ->post(rtrim($this->config['url'], '/') . self::CONVERSION_ENDPOINT, [
                     "async" => false,
-                    "filetype" => $request->mimetype,
+                    "filetype" => static::$filetypeMap[$request->mimetype],
                     "key" => $request->key,
                     "outputtype" => $format->value,
                     "title" => $request->title,
@@ -65,14 +82,16 @@ class OnlyOfficeDriver implements Driver
             $json = $response->json();
 
             if($json['error'] ?? false){
-                throw new ConversionException("Conversion ERROR " . $json['error']);
+                throw new ConversionException("Conversion ERROR " . $json['error'] . ' - ' . (static::$errorCodes[$json['error']] ?? 'unknown error'));
             }
 
             if(!$json['endConvert'] ?? false){
                 throw new ConversionException("Conversion Not finished " . $response->body());
             }
 
-            $conversionFileName = 'Khirz6zTPdfd7.pdf';
+            $conversionFileName = "{$request->key}.pdf";
+
+            // assuming conversion disk uses local driver
 
             $sinkPath = Storage::disk($this->config['disk'])->path($conversionFileName);
             
@@ -83,7 +102,7 @@ class OnlyOfficeDriver implements Driver
                 ->throw();
 
 
-            return new ConvertedFile($sinkPath);
+            return new ConvertedFile($this->config['disk'], $conversionFileName, MimeType::fromExtension($format->value));
             
         }
         catch(Throwable $ex)

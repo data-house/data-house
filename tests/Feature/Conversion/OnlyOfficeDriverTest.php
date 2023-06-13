@@ -52,6 +52,9 @@ class OnlyOfficeDriverTest extends TestCase
             ]
         ]);
 
+        /**
+         * @var \App\DocumentConversion\ConvertedFile
+         */
         $convertedFile = $driver->convert($document, Format::PDF);
 
         $this->assertStringStartsWith('http://app.internal.url', $document->internalUrl());
@@ -75,6 +78,6 @@ class OnlyOfficeDriverTest extends TestCase
                    $data['url'] === $document->internalUrl();
         });
 
-        $this->assertFileExists($convertedFile->path());
+        $this->assertFileExists($convertedFile->absolutePath());
     }
 }
