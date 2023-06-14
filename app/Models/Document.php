@@ -180,6 +180,19 @@ class Document extends Model implements Convertible
             }
         }
 
+        if($this->attributes['conversion_disk_path'] && Str::endsWith($this->attributes['conversion_disk_path'], ['.pdf'])){
+            $path = Storage::disk($this->attributes['conversion_disk_name'])
+                ->path($this->attributes['conversion_disk_path']);
+
+            try{
+                $content = Pdf::text($path);
+            }
+            catch(Exception $ex)
+            {
+                logs()->error("Error extracting text from document [{$this->id}]", ['error' => $ex->getMessage()]);
+            }
+        }
+
         return collect([])
             ->merge([
                 'id' => $this->id,
