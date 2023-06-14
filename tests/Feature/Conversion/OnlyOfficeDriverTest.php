@@ -68,6 +68,8 @@ class OnlyOfficeDriverTest extends TestCase
 
             $data = $request->data();
 
+            dump($data);
+
             return $request->url() == 'http://onlyoffice/ConvertService.ashx' &&
                    $request->isJson() &&
                    $data['async'] === false &&
