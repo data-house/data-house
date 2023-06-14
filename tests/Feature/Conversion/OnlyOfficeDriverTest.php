@@ -68,12 +68,10 @@ class OnlyOfficeDriverTest extends TestCase
 
             $data = $request->data();
 
-            dump($data);
-
             return $request->url() == 'http://onlyoffice/ConvertService.ashx' &&
                    $request->isJson() &&
                    $data['async'] === false &&
-                   $data['filetype'] === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' &&
+                   $data['filetype'] === 'docx' &&
                    $data['key'] == $document->getKey() &&
                    $data['outputtype'] === 'pdf' &&
                    $data['title'] === $document->title &&
