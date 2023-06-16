@@ -4,7 +4,9 @@ use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\DocumentDownloadController;
 use App\Http\Controllers\DocumentLibraryController;
 use App\Http\Controllers\DocumentPreviewController;
+use App\Http\Controllers\InternalDocumentDownloadController;
 use App\Http\Controllers\PdfViewerController;
+use App\Http\Middleware\ValidateSignature;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -39,6 +41,9 @@ Route::middleware([
     
     Route::get('/library', DocumentLibraryController::class)->name('documents.library');
 
-
-
 });
+
+
+Route::get('/documents/{document}/internal-download', InternalDocumentDownloadController::class)
+    ->middleware(ValidateSignature::relative())
+    ->name('documents.download.internal');

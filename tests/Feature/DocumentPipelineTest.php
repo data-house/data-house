@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Jobs\Pipeline\Document\ConvertToPdf;
 use App\Jobs\Pipeline\Document\ExtractDocumentProperties;
 use App\Jobs\Pipeline\Document\MakeDocumentSearchable;
 use App\Models\Document;
@@ -30,6 +31,10 @@ class DocumentPipelineTest extends TestCase
         Queue::assertPushed(MakeDocumentSearchable::class, function($job) use ($document){
             return $job->model->is($document);
         });
+
+        Queue::assertPushedWithChain(ExtractDocumentProperties::class, [
+            ConvertToPdf::class
+        ]);
 
         Queue::assertPushed(MakeDocumentSearchable::class, 1);
     }
