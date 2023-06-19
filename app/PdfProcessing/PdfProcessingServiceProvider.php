@@ -28,7 +28,7 @@ class PdfProcessingServiceProvider extends ServiceProvider
                 return new self($this->value);
             }
     
-            return new self(iconv(mb_detect_encoding($this->value, mb_detect_order(), true), "UTF-8", $this->value));
+            return new self(iconv(mb_detect_encoding($this->value, mb_detect_order(), true), "UTF-8//IGNORE", $this->value));
         });
     }
 }
