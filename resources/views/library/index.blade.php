@@ -13,6 +13,11 @@
                         {{ __('Upload Document') }}
                     </x-button-link>
                 @endcan
+                @can('viewAny', \App\Model\Import::class)
+                    <x-button-link href="{{ route('imports.index') }}">
+                        {{ __('Import Documents') }}
+                    </x-button-link>
+                @endcan
             </div>
         </div>
     </x-slot>

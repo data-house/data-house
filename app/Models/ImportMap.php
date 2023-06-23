@@ -29,18 +29,16 @@ class ImportMap extends Model
      * @var string[]
      */
     protected $fillable = [
-        'source',
-        'configuration',
-        'created_by',
+        'mapped_team',
+        'mapped_uploader',
+        'recursive',
+        'filters',
     ];
 
     protected $casts = [
         'recursive' => 'boolean',
-        'status' => ImportStatus::class,
-        'configuration' => 'encrypted:json',
         'filters' => 'json',
-
-
+        'status' => ImportStatus::class,
     ];
 
 
@@ -72,12 +70,12 @@ class ImportMap extends Model
 
     public function mappedTeam()
     {
-        return $this->belongsTo(Team::class);
+        return $this->belongsTo(Team::class, 'mapped_team');
     }
 
     public function mappedUploader()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'mapped_uploader');
     }
 
 }

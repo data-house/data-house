@@ -1,6 +1,7 @@
 <?php
 
 use App\PdfProcessing\PdfProcessingServiceProvider;
+use App\Providers\ImportFilesystemProvider;
 use Illuminate\Support\Facades\Facade;
 
 return [
@@ -190,6 +191,7 @@ return [
          */
 
         PdfProcessingServiceProvider::class,
+        ImportFilesystemProvider::class,
 
         /*
          * Application Service Providers...

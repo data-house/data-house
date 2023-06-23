@@ -78,4 +78,15 @@ class Import extends Model
     {
         return $query->where('created_by', $creator->getKey());
     }
+
+
+    /**
+     * Start the import.
+     */
+    public function start()
+    {
+
+    }
+
+
 }
