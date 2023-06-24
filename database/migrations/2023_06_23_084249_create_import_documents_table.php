@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\Import;
+use App\Models\ImportMap;
 use App\Models\Team;
 use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
@@ -17,7 +17,7 @@ return new class extends Migration
         Schema::create('import_documents', function (Blueprint $table) {
             $table->id();
 
-            $table->foreignIdFor(Import::class);
+            $table->foreignIdFor(ImportMap::class);
             
             $table->string('source_path');
             
