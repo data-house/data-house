@@ -2,9 +2,14 @@
 
 namespace App\Models;
 
+use App\Jobs\StartImportJob;
+use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class Import extends Model
 {
@@ -67,7 +72,8 @@ class Import extends Model
     {
         return $this->hasMany(ImportMap::class);
     }
-
+    
+    
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');
@@ -85,8 +91,64 @@ class Import extends Model
      */
     public function start()
     {
+        Cache::lock($this->lockKey())->block(30, function() {
+            DB::transaction(function () {
+                $this->status = ImportStatus::RUNNING;
+
+                $this->save();
+
+                $this->maps()->update(['status' => ImportStatus::RUNNING]);
+            });
+        });
+
+        StartImportJob::dispatch($this);
+    }
+
+
+    public function lockKey(): string
+    {
+        return 'import-lock:' . $this->ulid;
+    }
+
+
+    /**
+     * Clear the data imported so far
+     */
+    public function wipeData()
+    {
 
     }
 
+
+    public function cancel()
+    {
+        if ($this->status == ImportStatus::CANCELLED) {
+            return ;
+        }
+           
+        Cache::lock($this->lockKey())->block(30, function() {
+            DB::transaction(function () {
+                $this->status = ImportStatus::CANCELLED;
+                $this->save();
+            
+                $this->maps()->update(['status' => ImportStatus::CANCELLED]);
+            
+                $this->wipeData();
+            });
+        });
+    }
+
+
+    /**
+     * Get the connection to the file service as a Filesystem
+     */
+    public function connection(): Filesystem
+    {
+        $disk = Storage::build([
+            'driver' => $this->source->value,
+            ...$this->configuration,
+        ]);
+        return $disk;
+    }
 
 }
