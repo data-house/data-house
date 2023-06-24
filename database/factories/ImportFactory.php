@@ -25,8 +25,8 @@ class ImportFactory extends Factory
             'source' => ImportSource::WEBDAV->value,
             'configuration' => [
                 'url' => 'http://service',
-                'user' => fake()->userName(),
-                'password' => fake()->password(),
+                'user' => 'fake-disk-user',
+                'password' => 'fake-disk-password',
             ],
         ];
     }
