@@ -68,6 +68,11 @@ class ImportMap extends Model
         return $this->belongsTo(Import::class);
     }
 
+    public function documents()
+    {
+        return $this->hasMany(ImportDocument::class);
+    }
+
     public function mappedTeam()
     {
         return $this->belongsTo(Team::class, 'mapped_team');
@@ -78,4 +83,8 @@ class ImportMap extends Model
         return $this->belongsTo(User::class, 'mapped_uploader');
     }
 
+    public function lockKey(): string
+    {
+        return $this->ulid;
+    }
 }
