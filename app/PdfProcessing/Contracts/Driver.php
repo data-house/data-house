@@ -3,20 +3,22 @@
 namespace App\PdfProcessing\Contracts;
 
 use App\PdfProcessing\DocumentProperties;
+use App\PdfProcessing\DocumentReference;
 
 interface Driver
 {
     /**
      * Get text contained in the PDF
      * 
-     * @param string $path The file absolute path
+     * @param \App\PdfProcessing\DocumentReference $document The reference to the document. Could be either an absolute path or a url.
+     * @return 
      */
-    public function text($path): string;
+    public function text(DocumentReference $document): string;
 
     /**
      * Get PDF document properties
      * 
-     * @param string $path The file absolute path
+     * @param \App\PdfProcessing\DocumentReference $document The reference to the document. Could be either an absolute path or a url.
      */
-    public function properties($path): DocumentProperties;
+    public function properties(DocumentReference $document): DocumentProperties;
 }

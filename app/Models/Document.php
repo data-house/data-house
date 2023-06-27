@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\DocumentConversion\Contracts\Convertible;
 use App\DocumentConversion\ConversionRequest;
+use App\PdfProcessing\DocumentReference;
 use App\PdfProcessing\Facades\Pdf;
 use App\Pipelines\Concerns\HasPipelines;
 use Carbon\Carbon;
@@ -167,30 +168,14 @@ class Document extends Model implements Convertible
 
         $content = null;
 
-        if($this->attributes['disk_path'] && Str::endsWith($this->attributes['disk_path'], ['.pdf'])){
-            $path = Storage::disk($this->attributes['disk_name'])
-                ->path($this->attributes['disk_path']);
+        $reference = $this->asReference();
 
-            try{
-                $content = Pdf::text($path);
-            }
-            catch(Exception $ex)
-            {
-                logs()->error("Error extracting text from document [{$this->id}]", ['error' => $ex->getMessage()]);
-            }
+        try{
+            $content = Pdf::text($reference);
         }
-
-        if($this->attributes['conversion_disk_path'] && Str::endsWith($this->attributes['conversion_disk_path'], ['.pdf'])){
-            $path = Storage::disk($this->attributes['conversion_disk_name'])
-                ->path($this->attributes['conversion_disk_path']);
-
-            try{
-                $content = Pdf::text($path);
-            }
-            catch(Exception $ex)
-            {
-                logs()->error("Error extracting text from document [{$this->id}]", ['error' => $ex->getMessage()]);
-            }
+        catch(Exception $ex)
+        {
+            logs()->error("Error extracting text from document [{$this->id}]", ['error' => $ex->getMessage()]);
         }
 
         return collect([])
@@ -219,5 +204,40 @@ class Document extends Model implements Convertible
             mimetype: $this->mime,
             title: $this->title
         );
+    }
+
+    public function asReference()
+    {
+        $path = null;
+
+        if($this->attributes['disk_path'] && Str::endsWith($this->attributes['disk_path'], ['.pdf'])){
+            $path = Storage::disk($this->attributes['disk_name'])
+                ->path($this->attributes['disk_path']);
+
+            try{
+                $content = Pdf::text($path);
+            }
+            catch(Exception $ex)
+            {
+                logs()->error("Error extracting text from document [{$this->id}]", ['error' => $ex->getMessage()]);
+            }
+        }
+
+        if($this->attributes['conversion_disk_path'] && Str::endsWith($this->attributes['conversion_disk_path'], ['.pdf'])){
+            $path = Storage::disk($this->attributes['conversion_disk_name'])
+                ->path($this->attributes['conversion_disk_path']);
+
+            try{
+                $content = Pdf::text($path);
+            }
+            catch(Exception $ex)
+            {
+                logs()->error("Error extracting text from document [{$this->id}]", ['error' => $ex->getMessage()]);
+            }
+        }
+
+        return (new DocumentReference($this->mime))
+            ->path($path)
+            ->url($this->internalUrl());
     }
 }
