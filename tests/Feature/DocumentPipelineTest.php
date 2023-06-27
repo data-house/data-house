@@ -33,7 +33,8 @@ class DocumentPipelineTest extends TestCase
         });
 
         Queue::assertPushedWithChain(ExtractDocumentProperties::class, [
-            ConvertToPdf::class
+            ConvertToPdf::class,
+            MakeDocumentSearchable::class,
         ]);
 
         Queue::assertPushed(MakeDocumentSearchable::class, 1);
