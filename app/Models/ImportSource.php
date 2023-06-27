@@ -6,6 +6,8 @@ use InvalidArgumentException;
 
 enum ImportSource: string
 {
+    case LOCAL = 'local';
+
     case WEBDAV = 'webdav';
 
 
@@ -17,6 +19,11 @@ enum ImportSource: string
                     'url' => __('The URL of the server'),
                     'username' => __('The username to use for authentication'),
                     'password' => __('The password to use for authentication'),
+                ];
+                break;
+            case self::LOCAL:
+                return [
+                    'root' => __('The root folder'),
                 ];
                 break;
         }
