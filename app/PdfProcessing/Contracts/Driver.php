@@ -2,6 +2,7 @@
 
 namespace App\PdfProcessing\Contracts;
 
+use App\PdfProcessing\DocumentContent;
 use App\PdfProcessing\DocumentProperties;
 use App\PdfProcessing\DocumentReference;
 
@@ -13,7 +14,7 @@ interface Driver
      * @param \App\PdfProcessing\DocumentReference $document The reference to the document. Could be either an absolute path or a url.
      * @return 
      */
-    public function text(DocumentReference $document): string;
+    public function text(DocumentReference $document): DocumentContent;
 
     /**
      * Get PDF document properties

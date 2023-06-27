@@ -40,7 +40,7 @@ class SmalotPdfParserDriverTest extends TestCase
 
         $reference = DocumentReference::build('application/pdf')->path(base_path('tests/fixtures/documents/data-house-test-doc.pdf'));
 
-        $text = $driver->text($reference);
+        $text = $driver->text($reference)->all();
 
         $this->assertStringContainsString("This is the header", $text);
         $this->assertStringContainsString("This is a test PDF to be used\t as input \tin unit \t\ntests", $text);

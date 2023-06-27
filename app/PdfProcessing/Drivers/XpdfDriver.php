@@ -3,6 +3,7 @@
 namespace App\PdfProcessing\Drivers;
 
 use App\PdfProcessing\Contracts\Driver;
+use App\PdfProcessing\DocumentContent;
 use App\PdfProcessing\DocumentProperties;
 use App\PdfProcessing\DocumentReference;
 use App\PdfProcessing\PdfProcessingManager;
@@ -25,7 +26,7 @@ class XpdfDriver implements Driver
     }
 
 
-    public function text(DocumentReference $document): string
+    public function text(DocumentReference $document): DocumentContent
     {
         if(empty($document->path)){
             throw new InvalidArgumentException(__('The PDF driver is able to deal only with local files'));
@@ -51,7 +52,7 @@ class XpdfDriver implements Driver
                 throw new Exception("Failed to perform UTF-8 encoding");
             }
 
-            return $content;
+            return new DocumentContent($content);
         }
         catch(Exception $ex)
         {
