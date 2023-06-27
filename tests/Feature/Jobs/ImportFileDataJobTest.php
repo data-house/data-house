@@ -3,6 +3,7 @@
 namespace Tests\Feature\Jobs;
 
 use App\Jobs\ImportFileDataJob;
+use App\Jobs\MoveImportedDocumentsJob;
 use App\Jobs\RetrieveDocumentsToImportJob;
 use App\Models\Disk;
 use App\Models\Import;
@@ -70,6 +71,8 @@ class ImportFileDataJobTest extends TestCase
 
         Storage::disk(Disk::IMPORTS->value)->assertExists($imported->disk_path);
 
-        Queue::assertNothingPushed();
+        Queue::assertPushed(MoveImportedDocumentsJob::class, function($job) use ($importMap) {
+            return $job->importMap->is($importMap);
+        });
     }
 }

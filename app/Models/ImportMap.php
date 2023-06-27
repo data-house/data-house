@@ -85,6 +85,6 @@ class ImportMap extends Model
 
     public function lockKey(): string
     {
-        return $this->ulid;
+        return 'import-map-lock:' . $this->ulid;
     }
 }

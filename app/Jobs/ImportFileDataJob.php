@@ -67,7 +67,7 @@ class ImportFileDataJob extends ImportJobBase
 
     protected function lastPage()
     {
-        // dispatch(new ImportFileDataJob($this->importMap));
+        dispatch(new MoveImportedDocumentsJob($this->importMap));
     }
 
     protected function downloadDocument(Filesystem $disk, ImportDocument $document)

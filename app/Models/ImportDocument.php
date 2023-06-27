@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Symfony\Component\Mime\MimeTypes;
 
@@ -64,5 +65,17 @@ class ImportDocument extends Model
     protected function guessExtension()
     {
         return MimeTypes::getDefault()->getExtensions($this->mime)[0] ?? null;
+    }
+
+    public function moveToDisk(Disk|string $disk): string
+    {        
+        $path = basename($this->disk_path);
+        Storage::disk(is_string($disk) ? $disk : $disk->value)
+            ->writeStream($path, Storage::disk($this->disk_name)->readStream($this->disk_path));
+
+        $this->processed_at = now();
+        $this->save();
+
+        return $path;
     }
 }
