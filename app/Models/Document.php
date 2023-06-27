@@ -213,27 +213,11 @@ class Document extends Model implements Convertible
         if($this->attributes['disk_path'] && Str::endsWith($this->attributes['disk_path'], ['.pdf'])){
             $path = Storage::disk($this->attributes['disk_name'])
                 ->path($this->attributes['disk_path']);
-
-            try{
-                $content = Pdf::text($path);
-            }
-            catch(Exception $ex)
-            {
-                logs()->error("Error extracting text from document [{$this->id}]", ['error' => $ex->getMessage()]);
-            }
         }
 
-        if($this->attributes['conversion_disk_path'] && Str::endsWith($this->attributes['conversion_disk_path'], ['.pdf'])){
+        if(isset($this->attributes['conversion_disk_path']) && $this->attributes['conversion_disk_path'] && Str::endsWith($this->attributes['conversion_disk_path'], ['.pdf'])){
             $path = Storage::disk($this->attributes['conversion_disk_name'])
                 ->path($this->attributes['conversion_disk_path']);
-
-            try{
-                $content = Pdf::text($path);
-            }
-            catch(Exception $ex)
-            {
-                logs()->error("Error extracting text from document [{$this->id}]", ['error' => $ex->getMessage()]);
-            }
         }
 
         return (new DocumentReference($this->mime))

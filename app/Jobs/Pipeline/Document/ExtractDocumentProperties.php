@@ -29,10 +29,7 @@ class ExtractDocumentProperties extends PipelineJob
             return;
         }
 
-        $path = Storage::disk($this->model->disk_name)
-                ->path($this->model->disk_path);
-
-        $this->model->properties = Pdf::properties($path);
+        $this->model->properties = Pdf::properties($this->model->asReference());
 
         $this->model->saveQuietly();
     }
