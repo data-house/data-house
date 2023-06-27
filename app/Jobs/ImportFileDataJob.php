@@ -51,7 +51,7 @@ class ImportFileDataJob extends ImportJobBase
 
         $this->importMap
             ->documents()
-            ->whereNull('processed_at')
+            ->whereNull('retrieved_at')
             ->take(10)
             ->lazyById(5)
             ->each(function($importDocument) use ($processed, $lastProcessed, $disk) {
@@ -78,7 +78,7 @@ class ImportFileDataJob extends ImportJobBase
         Storage::disk($document->disk_name)
             ->writeStream($localPath, $disk->readStream($document->source_path));
         
-        $document->processed_at = now();
+        $document->retrieved_at = now();
         $document->disk_path = $localPath;
 
         $document->save();

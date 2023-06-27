@@ -65,7 +65,8 @@ class ImportFileDataJobTest extends TestCase
 
         $this->assertNotNull($imported->disk_path);
         $this->assertStringStartsWith("{$importMap->getKey()}", $imported->disk_path);
-        $this->assertNotNull($imported->processed_at);
+        $this->assertNotNull($imported->retrieved_at);
+        $this->assertNull($imported->processed_at);
 
         Storage::disk(Disk::IMPORTS->value)->assertExists($imported->disk_path);
 
