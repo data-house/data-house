@@ -2,6 +2,7 @@
 
 namespace App\PdfProcessing;
 
+use Illuminate\Support\Collection;
 use JsonSerializable;
 
 class DocumentContent implements JsonSerializable
@@ -22,6 +23,11 @@ class DocumentContent implements JsonSerializable
             return collect($this->raw)->join('\f');
         }
         return $this->raw;
+    }
+
+    public function collect(): Collection
+    {
+        return collect($this->raw);
     }
 
     /**

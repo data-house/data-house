@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Copilot\Questionable;
 use App\DocumentConversion\Contracts\Convertible;
 use App\DocumentConversion\ConversionRequest;
 use App\PdfProcessing\DocumentReference;
@@ -29,6 +30,8 @@ class Document extends Model implements Convertible
     use HasUlids;
 
     use Searchable;
+
+    use Questionable;
 
     use HasPipelines;
     
@@ -178,22 +181,63 @@ class Document extends Model implements Convertible
             logs()->error("Error extracting text from document [{$this->id}]", ['error' => $ex->getMessage()]);
         }
 
-        return collect([])
-            ->merge([
-                'id' => $this->id,
-                'ulid' => $this->ulid,
-                'title' => $this->title,
-                'description' => $this->description,
-                'languages' => $this->languages,
-                'mime' => $this->mime,
-                'content' => $content,
-                'draft' => $this->draft,
-                'published' => $this->published_at !== null,
-                'published_at' => $this->published_at,
-                'created_at' => $this->created_at,
-                'updated_at' => $this->updated_at,
-            ])
-            ->all();
+        return [
+            'id' => $this->id,
+            'ulid' => $this->ulid,
+            'title' => $this->title,
+            'description' => $this->description,
+            'languages' => $this->languages,
+            'mime' => $this->mime,
+            'content' => $content,
+            'draft' => $this->draft,
+            'published' => $this->published_at !== null,
+            'published_at' => $this->published_at,
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
+        ];
+    }
+    
+    /**
+     * Get the questionable data array for the model.
+     *
+     * @return array
+     */
+    public function toQuestionableArray()
+    {
+        logs()->info("Making document [{$this->id}] questionable");
+
+        /**
+         * @var \App\PdfProcessing\PaginatedDocumentContent
+         */
+        $content = null;
+
+        try{
+
+            // TODO: check if copilot pdf extractor driver is available and throw exception if not
+
+            $reference = $this->asReference();
+            $content = Pdf::driver('copilot')->text($reference);
+        }
+        catch(Exception $ex)
+        {
+            logs()->error("Error extracting text from document [{$this->id}]", ['error' => $ex->getMessage()]);
+            throw $ex;
+        }
+
+        return [
+            'id' => $this->id,
+            'ulid' => $this->ulid,
+            'title' => $this->title,
+            'content' => $content->collect()->map(function($pageContent, $pageNumber){
+                // TODO: maybe this transformation should be driver specific
+                return [
+                    "metadata" => [
+                        "page_number" => $pageNumber
+                    ],
+                    "text" => $pageContent
+                ];
+            })->values()->toArray(),
+        ];
     }
 
     public function toConvertible(): ConversionRequest
