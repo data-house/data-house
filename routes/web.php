@@ -4,8 +4,11 @@ use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\DocumentDownloadController;
 use App\Http\Controllers\DocumentLibraryController;
 use App\Http\Controllers\DocumentPreviewController;
+use App\Http\Controllers\ImportController;
+use App\Http\Controllers\ImportMapsController;
 use App\Http\Controllers\InternalDocumentDownloadController;
 use App\Http\Controllers\PdfViewerController;
+use App\Http\Controllers\StartImportController;
 use App\Http\Middleware\ValidateSignature;
 use Illuminate\Support\Facades\Route;
 
@@ -40,7 +43,12 @@ Route::middleware([
     Route::resource('/documents', DocumentController::class)->except('index');
     
     Route::get('/library', DocumentLibraryController::class)->name('documents.library');
-
+    
+    Route::resource('/imports', ImportController::class);
+    
+    Route::resource('imports.mappings', ImportMapsController::class)->shallow()->except(['index', 'show', 'edit', 'update', 'destroy']);
+    
+    Route::post('/imports-start', StartImportController::class)->name('imports.start');
 });
 
 

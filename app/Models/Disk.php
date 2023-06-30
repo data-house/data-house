@@ -8,4 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 enum Disk: string
 {
     case DOCUMENTS = 'documents';
+    
+    case IMPORTS = 'imports';
 }

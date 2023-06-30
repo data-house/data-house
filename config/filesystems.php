@@ -60,6 +60,12 @@ return [
             'driver' => 'scoped',
             'disk' => env('FILESYSTEM_DISK', 'local'),
             'prefix' => 'documents',
+        ],
+        
+        'imports' => [
+            'driver' => 'scoped',
+            'disk' => env('IMPORT_FILESYSTEM_DISK', 'local'),
+            'prefix' => 'imports',
         ]
 
     ],
