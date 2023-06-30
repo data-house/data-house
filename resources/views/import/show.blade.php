@@ -55,9 +55,18 @@
                         {{ __('Import another folder') }}
                     </x-button-link>
                     
-                    <x-button-link href="#">
-                        {{ __('Start Import') }}
-                    </x-button-link>
+                    @can('update', $import)
+                        <form action="{{ route('imports.start') }}" method="post">
+                            @csrf
+
+                            <input type="hidden" name="import" value="{{ $import->getKey() }}">
+                            
+                            <x-button>
+                                {{ __('Start Import') }}
+                            </x-button>
+                        </form>
+                    @endcan
+
                 </div>
             </div>
         </div>
