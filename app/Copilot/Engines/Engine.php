@@ -34,8 +34,8 @@ abstract class Engine
     /**
      * Ask the question to the engine.
      *
-     * @param  \Laravel\Scout\Builder  $builder
-     * @return mixed
+     * @param  \App\Copilot\CopilotRequest  $question
+     * @return \App\Copilot\CopilotResponse
      */
     abstract public function question(CopilotRequest $question): CopilotResponse;
 

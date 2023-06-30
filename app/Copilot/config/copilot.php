@@ -1,5 +1,7 @@
 <?php
 
+use Carbon\Carbon;
+
 return [
 
     /*
@@ -29,12 +31,26 @@ return [
     */
 
     'chunk' => [
-        'questionable' => 50,
-        'unquestionable' => 50,
+        'questionable' => 1,
+        'unquestionable' => 1,
     ],
 
-    
+    /*
+    |--------------------------------------------------------------------------
+    | Cache configuration
+    |--------------------------------------------------------------------------
+    |
+    | This option allows to control whether to store received answers in
+    | a common cache. This can reduce the time required to obtain an
+    | answer. Please note that the cache is shared among all users.
+    |
+    */
 
+    'cache' => [
+        'store' => env('COPILOT_CACHE', env('CACHE_DRIVER', 'file')),
+
+        'ttl' => env('COPILOT_CACHE_TTL', Carbon::HOURS_PER_DAY * Carbon::MINUTES_PER_HOUR * Carbon::SECONDS_PER_MINUTE), // 1 day
+    ],
     
     'engines' => [
     

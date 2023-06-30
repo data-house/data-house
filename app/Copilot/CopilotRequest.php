@@ -33,4 +33,16 @@ class CopilotRequest implements JsonSerializable
         ];
     }
 
+    /**
+     * Calculate a hash representing the characteristics of the request.
+     * 
+     * This can be used to cache the request and the response.
+     * 
+     * @return string
+     */
+    public function hash(): string
+    {
+        return hash('sha512', $this->question . '-' . join('-', $this->documents));
+    }
+
 }

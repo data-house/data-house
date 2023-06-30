@@ -2,9 +2,14 @@
 
 namespace App\Copilot;
 
+use App\Models\Question;
+use \Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Benchmark;
 use Illuminate\Support\Collection as BaseCollection;
+use Illuminate\Support\Facades\Cache;
 
 trait Questionable
 {
@@ -78,6 +83,70 @@ trait Questionable
         return true;
     }
 
+    /**
+     * Get all of the model's questions.
+     */
+    public function questions(): MorphMany
+    {
+        return $this->morphMany(Question::class, 'questionable');
+    }
+
+
+    /**
+     * Ask a question to the document using the configured Copilot engine
+     * 
+     * @param string $query
+     * @return \App\Copilot\CopilotResponse
+     */
+    public function question(string $query): CopilotResponse
+    {
+        // TODO: recognize the language of the question
+
+        $request = new CopilotRequest(Str::uuid(), $query, [''.$this->getCopilotKey()]);
+
+        // TODO: check user's history // TODO: when we invalidate the answer question?
+
+        // We cache the response for each user as it requires time and resources.
+        // This improves also the responsiveness of the system on the short run.
+        // TODO: add a command that invalidates the questions based on the modified documents
+
+        // store(config('copilot.cache.store'))
+        $response = Cache::remember('q-'.$request->hash(), config('copilot.cache.ttl'), function() use ($request) {
+                return $this->executeQuestionRequest($request);
+            });
+
+        // Save question and response as part of user's history
+
+        $this->questions()->create([
+            'question' => $request->question,
+            'hash' => $request->hash(),
+            'user_id' => auth()->user()?->getKey(),
+            'language' => $request->language,
+            'answer' => [
+                'text' => $response->text,
+                'references' => $response->references,
+            ],
+            'execution_time' => $response->executionTime,
+        ]);
+
+        return $response;
+    }
+
+    protected function executeQuestionRequest(CopilotRequest $request): CopilotResponse
+    {
+        /**
+         * @var \App\Copilot\CopilotResponse
+         */
+        $response = null;
+
+        $timing = Benchmark::measure(function() use ($request, &$response) {
+            $response = $this->questionableUsing()->question($request);
+        });
+
+        $response?->setExecutionTime($timing);
+
+        return $response;
+    }
 
     /**
      * Add all instances of the model to Copilot and making them questionable.
@@ -127,7 +196,8 @@ trait Questionable
      */
     protected function addAllToCopilotUsing(EloquentBuilder $query)
     {
-        return $query;
+        return $query->where('mime', 'application/pdf');
+            // ->orWhere('conversion_file_mime', 'application/pdf');
     }
 
     /**
@@ -164,7 +234,7 @@ trait Questionable
     /**
      * Get the Copilot engine for the model.
      *
-     * @return mixed
+     * @return \App\Copilot\Engines\Engine
      */
     public function questionableUsing()
     {

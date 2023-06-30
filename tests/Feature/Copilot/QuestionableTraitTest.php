@@ -2,13 +2,17 @@
 
 namespace Tests\Feature\Copilot;
 
+use App\Copilot\CopilotResponse;
 use App\Copilot\Engines\OaksEngine;
 use App\Models\Disk;
 use App\Models\Document;
+use App\Models\Question;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\Client\Request;
 use Illuminate\Http\File;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
@@ -159,5 +163,91 @@ class QuestionableTraitTest extends TestCase
         $document = Document::factory()->create();
 
         $this->assertTrue($document->shouldBeQuestionable());
+    }
+
+    public function test_model_can_be_questioned(): void
+    {
+        config([
+            'copilot.driver' => 'oaks',
+            'copilot.queue' => false,
+            'copilot.engines.oaks' => [
+                'host' => 'http://localhost:5000/',
+            ],
+        ]);
+
+        Http::preventStrayRequests();
+
+        Queue::fake();
+        
+        $document = Document::factory()->create();
+
+        Str::createUuidsUsing(fn () => "8ec0a880-3bd0-4819-a15f-b8d2c50ebc81");
+
+        Http::fake([
+            'http://localhost:5000/question' => Http::response([
+                "q_id" => Str::uuid(),
+                "answer" => [
+                    "text" => "Yes, I can provide information and answer questions related to renewable energy and sustainable development based on the context information provided.",
+                    "references" => [
+                        [
+                            "doc_id" => 1,
+                            "page_number" => 2,
+                        ],
+                        [
+                            "doc_id" => 1,
+                            "page_number" => 4,
+                        ]
+                    ]
+                ]
+            ], 200),
+        ]);
+
+        $answer = $document->question('Do you really reply to my question?');
+
+        $expectedQuestionHash = hash('sha512', 'Do you really reply to my question?-' . $document->getKey());
+
+        $this->assertInstanceOf(CopilotResponse::class, $answer);
+
+        $this->assertEquals('<p>Yes, I can provide information and answer questions related to renewable energy and sustainable development based on the context information provided.</p>', trim($answer->toHtml()));
+        $this->assertEquals('Yes, I can provide information and answer questions related to renewable energy and sustainable development based on the context information provided.', $answer->text);
+        $this->assertEquals([
+            [
+                "doc_id" => 1,
+                "page_number" => 2,
+            ],
+            [
+                "doc_id" => 1,
+                "page_number" => 4,
+            ]
+            ], $answer->references);
+
+        Http::assertSent(function (Request $request) {
+            return $request->url() == 'http://localhost:5000/question' &&
+                   Str::isUuid($request['q_id']) &&
+                   $request['q'] == 'Do you really reply to my question?' &&
+                   $request['doc_id'][0] === "1" &&
+                   is_null($request['lang']);
+        });
+
+        $cachedResponse = Cache::get('q-' . $expectedQuestionHash);
+
+        $this->assertNotNull($cachedResponse);
+        $this->assertInstanceOf(CopilotResponse::class, $cachedResponse);
+
+        $savedQuestion = Question::whereUuid("8ec0a880-3bd0-4819-a15f-b8d2c50ebc81")->first();
+
+        $this->assertNotNull($savedQuestion);
+
+        $this->assertNull($savedQuestion->user);
+        $this->assertNull($savedQuestion->language);
+        $this->assertNotNull($savedQuestion->execution_time);
+
+        $this->assertTrue($savedQuestion->questionable->is($document));
+
+        $this->assertEquals($expectedQuestionHash, $savedQuestion->hash);
+        $this->assertEquals('Do you really reply to my question?', $savedQuestion->question);
+        $this->assertEquals($answer->text, $savedQuestion->answer['text']);
+        $this->assertEquals($answer->references, $savedQuestion->answer['references']);
+
     }
 }

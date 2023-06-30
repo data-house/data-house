@@ -5,6 +5,7 @@ namespace App\Copilot\Engines;
 use App\Copilot\Questionable;
 use App\Copilot\CopilotRequest;
 use App\Copilot\CopilotResponse;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\Http;
 use InvalidArgumentException;
@@ -64,6 +65,7 @@ class OaksEngine extends Engine
             $objects->each(function($object){
 
                 $response = Http::acceptJson()
+                    ->timeout(5 * Carbon::SECONDS_PER_MINUTE)
                     ->asJson()
                     ->post(rtrim($this->config['host'], '/') . '/documents', $object)
                     ->throw();
@@ -107,6 +109,7 @@ class OaksEngine extends Engine
             $keys->each(function($key){
 
                 $response = Http::acceptJson()
+                    ->timeout(2 * Carbon::SECONDS_PER_MINUTE)
                     ->asJson()
                     ->delete(rtrim($this->config['host'], '/') . '/documents/' . $key)
                     ->throw();
@@ -135,7 +138,38 @@ class OaksEngine extends Engine
      */
     public function question(CopilotRequest $question): CopilotResponse
     {
-        return new CopilotResponse('');
+        try{
+
+            $response = Http::acceptJson()
+                ->timeout(2 * Carbon::SECONDS_PER_MINUTE)
+                ->asJson()
+                ->post(rtrim($this->config['host'], '/') . '/question', $question->jsonSerialize())
+                ->throwIfServerError();
+
+            $json = $response->json();
+
+            if(isset($json['code']) && $json['code'] == 404){
+                logs()->error("Question cannot be answered [{$response->status()}]", ['response' => $json, 'request' => $question]);
+                throw new Exception("Document might not be ready to accept questions.");
+            }
+
+            if(empty($json['q_id'] ?? null) || $json['q_id'] && $json['q_id'] !== $question->id){
+                throw new Exception("Communication error with the copilot. [{$response->status()}]");
+            }
+            
+            if(empty($json['answer'] ?? null)){
+                throw new Exception("Communication error with the copilot. Missing answer.");
+            }
+
+            return new CopilotResponse($json['answer']['text'], $json['answer']['references'] ?? []);
+        }
+        catch(Throwable $ex)
+        {
+            // TODO: response body can contain error information // {"code":500,"message":"Error while parsing file","type":"Internal Server Error"}
+            // {"code":422,"message":"No content found in request","type":"Unprocessable Entity"}
+            logs()->error("Error asking question copilot", ['error' => $ex->getMessage(), 'request' => $question, 'response' => $response?->body()]);
+            throw $ex;
+        }
     }
 
 }
