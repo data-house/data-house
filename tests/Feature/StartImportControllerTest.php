@@ -29,6 +29,7 @@ class StartImportControllerTest extends TestCase
 
         $response = $this
             ->actingAs($user)
+            ->from(route('imports.show', $import))
             ->post('/imports-start/', [
                 'import' => $import->getKey(),
             ]);
