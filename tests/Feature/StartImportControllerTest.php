@@ -41,4 +41,53 @@ class StartImportControllerTest extends TestCase
 
         $this->assertEquals(ImportStatus::RUNNING, $import->fresh()->status);
     }
+
+    public function test_cannot_start_import_created_by_another_user(): void
+    {
+        Queue::fake();
+
+        $user = User::factory()
+            ->withPersonalTeam()
+            ->manager()
+            ->has(Import::factory())
+            ->create();
+
+        $import = Import::factory()->create();
+
+        $response = $this
+            ->actingAs($user)
+            ->from(route('imports.index'))
+            ->post('/imports-start/', [
+                'import' => $import->getKey(),
+            ]);
+
+        $response->assertRedirectToRoute('imports.index');
+
+        $response->assertSessionHasErrors('import');
+
+        Queue::assertNothingPushed();
+    }
+
+    public function test_guest_cannot_start_import(): void
+    {
+        Queue::fake();
+
+        $user = User::factory()
+            ->guest()
+            ->has(Import::factory())
+            ->create();
+
+        $import = Import::first();
+
+        $response = $this
+            ->actingAs($user)
+            ->from(route('imports.index'))
+            ->post('/imports-start/', [
+                'import' => $import->getKey(),
+            ]);
+
+        $response->assertForbidden();
+
+        Queue::assertNothingPushed();
+    }
 }
