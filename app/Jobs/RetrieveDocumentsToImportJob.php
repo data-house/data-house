@@ -5,15 +5,10 @@ namespace App\Jobs;
 use App\Models\Disk;
 use App\Models\ImportMap;
 use App\Models\ImportReport;
+use App\Models\MimeType as ModelsMimeType;
 use GuzzleHttp\Psr7\MimeType;
-use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Cache\LockTimeoutException;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Contracts\Filesystem\Filesystem;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -138,7 +133,11 @@ class RetrieveDocumentsToImportJob extends ImportJobBase
                 return $prefix ? Str::after($path, $prefix) : $path;
             })
             ->unique()
-            ->filter();
+            ->filter()
+            ->filter(function($path){
+                // Filtering only fully supported documents so far
+                return MimeType::fromFilename($path) !== ModelsMimeType::APPLICATION_PDF;
+            });
 
         return $entries->map(function($file){
             return [
