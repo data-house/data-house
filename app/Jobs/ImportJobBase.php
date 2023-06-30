@@ -90,7 +90,7 @@ abstract class ImportJobBase implements ShouldQueue
             && $this->importMap->import->fresh()->status !== ImportStatus::RUNNING;
     }
 
-    protected function failed()
+    public function failed()
     {
         if ($this->importMap->status == ImportStatus::FAILED) {
             return ;
