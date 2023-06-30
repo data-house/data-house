@@ -14,6 +14,7 @@ use Tests\TestCase;
 
 class ImportSourceBrowserTest extends TestCase
 {
+    use RefreshDatabase;
 
     public function test_the_component_can_render()
     {
