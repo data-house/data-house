@@ -83,40 +83,4 @@ class Question extends Model
         return $this->morphTo();
     }
 
-    /**
-     * Get the indexable data array for the model.
-     *
-     * @return array
-     */
-    public function toSearchableArray()
-    {
-        logs()->info("Making document [{$this->id}] searchable");
-
-        $content = null;
-
-        $reference = $this->asReference();
-
-        try{
-            $content = Pdf::text($reference);
-        }
-        catch(Exception $ex)
-        {
-            logs()->error("Error extracting text from document [{$this->id}]", ['error' => $ex->getMessage()]);
-        }
-
-        return [
-            'id' => $this->id,
-            'ulid' => $this->ulid,
-            'title' => $this->title,
-            'description' => $this->description,
-            'languages' => $this->languages,
-            'mime' => $this->mime,
-            'content' => $content,
-            'draft' => $this->draft,
-            'published' => $this->published_at !== null,
-            'published_at' => $this->published_at,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
-        ];
-    }
 }
