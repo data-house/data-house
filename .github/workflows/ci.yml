@@ -55,6 +55,8 @@ jobs:
       run: |
         rm -f /usr/local/etc/php/conf.d/docker-php-ext-pcov.ini
         composer install --prefer-dist
+        php artisan language-recognizer:install-local-driver
+        chmod +x ./bin/language-recognizer
         yarn config set cache-folder ~/.yarn/
         yarn
         yarn build

@@ -9,7 +9,9 @@ RUN \
     mkdir -p "storage/framework/sessions" &&\
     mkdir -p "storage/framework/views" &&\
     mkdir -p "storage/logs" &&\
-    composer install --no-dev --prefer-dist --optimize-autoloader
+    composer install --no-dev --prefer-dist --optimize-autoloader && \
+    php artisan language-recognizer:install-local-driver && \
+    chmod +x ./bin/language-recognizer
 RUN \
     yarn && \
     yarn build && \

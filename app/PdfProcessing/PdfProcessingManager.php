@@ -2,6 +2,7 @@
 
 namespace App\PdfProcessing;
 
+use App\PdfProcessing\Drivers\CopilotPdfParserDriver;
 use App\PdfProcessing\Drivers\SmalotPdfParserDriver;
 use App\PdfProcessing\Drivers\XpdfDriver;
 use Illuminate\Support\Arr;
@@ -30,6 +31,29 @@ class PdfProcessingManager extends Manager
     protected function createSmalotDriver()
     {
         return new SmalotPdfParserDriver();
+    }
+    
+    /**
+     * Create an instance of the specified driver.
+     *
+     * @return \App\PdfProcessing\Contracts\Driver
+     */
+    protected function createCopilotDriver()
+    {
+        $config = $this->getConfig('copilot');
+
+        return new CopilotPdfParserDriver($config);
+    }
+
+    /**
+     * Get the PDF processor configuration.
+     *
+     * @param  string  $name
+     * @return array
+     */
+    protected function getConfig($name)
+    {
+        return $this->config["pdf.processors.{$name}"] ?: [];
     }
 
     /**
@@ -66,6 +90,6 @@ class PdfProcessingManager extends Manager
      */
     public function getDefaultDriver()
     {
-        return PdfDriver::SMALOT_PDF->value;
+        return $this->config['pdf.default'] ?? PdfDriver::SMALOT_PDF->value;
     }
 }

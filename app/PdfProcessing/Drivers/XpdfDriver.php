@@ -3,12 +3,15 @@
 namespace App\PdfProcessing\Drivers;
 
 use App\PdfProcessing\Contracts\Driver;
+use App\PdfProcessing\DocumentContent;
 use App\PdfProcessing\DocumentProperties;
+use App\PdfProcessing\DocumentReference;
 use App\PdfProcessing\PdfProcessingManager;
 use Exception;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Facade;
 use Illuminate\Support\Facades\Process;
+use InvalidArgumentException;
 
 class XpdfDriver implements Driver
 {
@@ -23,14 +26,18 @@ class XpdfDriver implements Driver
     }
 
 
-    public function text($path): string
+    public function text(DocumentReference $document): DocumentContent
     {
+        if(empty($document->path)){
+            throw new InvalidArgumentException(__('The PDF driver is able to deal only with local files'));
+        }
+
 
         $temp_file = tempnam(sys_get_temp_dir(), 'dh-xpdf');
 
         try{
 
-            $result = Process::run(self::PDF_TO_TEXT_BINARY . ' -enc UTF-8 -layout ' . $path . ' ' . $temp_file);
+            $result = Process::run(self::PDF_TO_TEXT_BINARY . ' -enc UTF-8 -layout ' . $document->path . ' ' . $temp_file);
 
             if(!$result->successful()){
                 throw new Exception("pdf to text execution error " . $result->errorOutput());
@@ -45,11 +52,11 @@ class XpdfDriver implements Driver
                 throw new Exception("Failed to perform UTF-8 encoding");
             }
 
-            return $content;
+            return new DocumentContent($content);
         }
         catch(Exception $ex)
         {
-            logs()->error("Error extracting text from document [{$path}]", ['error' => $ex->getMessage()]);
+            logs()->error("Error extracting text from document [{$document->path}]", ['error' => $ex->getMessage()]);
             throw $ex;
         }
         finally {
@@ -58,9 +65,13 @@ class XpdfDriver implements Driver
         
     }
 
-    public function properties($path): DocumentProperties
+    public function properties(DocumentReference $document): DocumentProperties
     {
-        $result = Process::run(self::PDF_INFO_BINARY . ' -meta -rawdates ' . $path);
+        if(empty($document->path)){
+            throw new InvalidArgumentException(__('The PDF driver is able to deal only with local files'));
+        }
+        
+        $result = Process::run(self::PDF_INFO_BINARY . ' -meta -rawdates ' . $document->path);
         
         $output = $result->output();
 

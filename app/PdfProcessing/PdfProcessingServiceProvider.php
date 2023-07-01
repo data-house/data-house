@@ -12,7 +12,9 @@ class PdfProcessingServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->mergeConfigFrom(
+            __DIR__.'/config/pdf.php', 'pdf'
+        );
     }
 
     /**
@@ -20,6 +22,10 @@ class PdfProcessingServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        $this->publishes([
+            __DIR__.'/config/pdf.php' => config_path('pdf.php'),
+        ]);
+
         Stringable::macro('utf8', function(){
 
             /** @var \Illuminate\Support\Stringable $this  */

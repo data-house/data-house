@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use App\Copilot\Questionable;
 use App\DocumentConversion\Contracts\Convertible;
 use App\DocumentConversion\ConversionRequest;
+use App\PdfProcessing\DocumentReference;
 use App\PdfProcessing\Facades\Pdf;
 use App\Pipelines\Concerns\HasPipelines;
 use Carbon\Carbon;
@@ -28,6 +30,8 @@ class Document extends Model implements Convertible
     use HasUlids;
 
     use Searchable;
+
+    use Questionable;
 
     use HasPipelines;
     
@@ -167,48 +171,73 @@ class Document extends Model implements Convertible
 
         $content = null;
 
-        if($this->attributes['disk_path'] && Str::endsWith($this->attributes['disk_path'], ['.pdf'])){
-            $path = Storage::disk($this->attributes['disk_name'])
-                ->path($this->attributes['disk_path']);
+        $reference = $this->asReference();
 
-            try{
-                $content = Pdf::text($path);
-            }
-            catch(Exception $ex)
-            {
-                logs()->error("Error extracting text from document [{$this->id}]", ['error' => $ex->getMessage()]);
-            }
+        try{
+            $content = Pdf::text($reference);
+        }
+        catch(Exception $ex)
+        {
+            logs()->error("Error extracting text from document [{$this->id}]", ['error' => $ex->getMessage()]);
         }
 
-        if($this->attributes['conversion_disk_path'] && Str::endsWith($this->attributes['conversion_disk_path'], ['.pdf'])){
-            $path = Storage::disk($this->attributes['conversion_disk_name'])
-                ->path($this->attributes['conversion_disk_path']);
+        return [
+            'id' => $this->id,
+            'ulid' => $this->ulid,
+            'title' => $this->title,
+            'description' => $this->description,
+            'languages' => $this->languages,
+            'mime' => $this->mime,
+            'content' => $content,
+            'draft' => $this->draft,
+            'published' => $this->published_at !== null,
+            'published_at' => $this->published_at,
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
+        ];
+    }
+    
+    /**
+     * Get the questionable data array for the model.
+     *
+     * @return array
+     */
+    public function toQuestionableArray()
+    {
+        logs()->info("Making document [{$this->id}] questionable");
 
-            try{
-                $content = Pdf::text($path);
-            }
-            catch(Exception $ex)
-            {
-                logs()->error("Error extracting text from document [{$this->id}]", ['error' => $ex->getMessage()]);
-            }
+        /**
+         * @var \App\PdfProcessing\PaginatedDocumentContent
+         */
+        $content = null;
+
+        try{
+
+            // TODO: check if copilot pdf extractor driver is available and throw exception if not
+
+            $reference = $this->asReference();
+            $content = Pdf::driver('copilot')->text($reference);
+        }
+        catch(Exception $ex)
+        {
+            logs()->error("Error extracting text from document [{$this->id}]", ['error' => $ex->getMessage()]);
+            throw $ex;
         }
 
-        return collect([])
-            ->merge([
-                'id' => $this->id,
-                'ulid' => $this->ulid,
-                'title' => $this->title,
-                'description' => $this->description,
-                'languages' => $this->languages,
-                'mime' => $this->mime,
-                'content' => $content,
-                'draft' => $this->draft,
-                'published' => $this->published_at !== null,
-                'published_at' => $this->published_at,
-                'created_at' => $this->created_at,
-                'updated_at' => $this->updated_at,
-            ])
-            ->all();
+        return [
+            'id' => $this->id,
+            'ulid' => $this->ulid,
+            'title' => $this->title,
+            'content' => $content->collect()->map(function($pageContent, $pageNumber){
+                // TODO: maybe this transformation should be driver specific
+                return [
+                    "metadata" => [
+                        "page_number" => $pageNumber
+                    ],
+                    "text" => $pageContent
+                ];
+            })->values()->toArray(),
+        ];
     }
 
     public function toConvertible(): ConversionRequest
@@ -219,5 +248,24 @@ class Document extends Model implements Convertible
             mimetype: $this->mime,
             title: $this->title
         );
+    }
+
+    public function asReference()
+    {
+        $path = null;
+
+        if($this->attributes['disk_path'] && Str::endsWith($this->attributes['disk_path'], ['.pdf'])){
+            $path = Storage::disk($this->attributes['disk_name'])
+                ->path($this->attributes['disk_path']);
+        }
+
+        if(isset($this->attributes['conversion_disk_path']) && $this->attributes['conversion_disk_path'] && Str::endsWith($this->attributes['conversion_disk_path'], ['.pdf'])){
+            $path = Storage::disk($this->attributes['conversion_disk_name'])
+                ->path($this->attributes['conversion_disk_path']);
+        }
+
+        return (new DocumentReference($this->mime))
+            ->path($path)
+            ->url($this->internalUrl());
     }
 }

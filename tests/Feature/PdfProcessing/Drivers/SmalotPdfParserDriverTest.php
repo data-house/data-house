@@ -4,6 +4,7 @@ namespace Tests\Feature\PdfProcessing\Drivers;
 
 use App\Models\Disk;
 use App\PdfProcessing\DocumentProperties;
+use App\PdfProcessing\DocumentReference;
 use App\PdfProcessing\Drivers\SmalotPdfParserDriver;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -17,7 +18,9 @@ class SmalotPdfParserDriverTest extends TestCase
     {
         $driver = new SmalotPdfParserDriver();
 
-        $info = $driver->properties(base_path('tests/fixtures/documents/data-house-test-doc.pdf'));
+        $reference = DocumentReference::build('application/pdf')->path(base_path('tests/fixtures/documents/data-house-test-doc.pdf'));
+
+        $info = $driver->properties($reference);
 
         $this->assertInstanceOf(DocumentProperties::class, $info);
         $this->assertEquals('Test document', $info->title);
@@ -35,7 +38,9 @@ class SmalotPdfParserDriverTest extends TestCase
     {
         $driver = new SmalotPdfParserDriver();
 
-        $text = $driver->text(base_path('tests/fixtures/documents/data-house-test-doc.pdf'));
+        $reference = DocumentReference::build('application/pdf')->path(base_path('tests/fixtures/documents/data-house-test-doc.pdf'));
+
+        $text = $driver->text($reference)->all();
 
         $this->assertStringContainsString("This is the header", $text);
         $this->assertStringContainsString("This is a test PDF to be used\t as input \tin unit \t\ntests", $text);

@@ -1,5 +1,6 @@
 <?php
 
+use App\Copilot\CopilotServiceProvider;
 use App\PdfProcessing\PdfProcessingServiceProvider;
 use App\Providers\ImportFilesystemProvider;
 use Illuminate\Support\Facades\Facade;
@@ -192,6 +193,7 @@ return [
 
         PdfProcessingServiceProvider::class,
         ImportFilesystemProvider::class,
+        CopilotServiceProvider::class,
 
         /*
          * Application Service Providers...
