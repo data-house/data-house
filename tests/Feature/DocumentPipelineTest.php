@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Jobs\Pipeline\Document\ConvertToPdf;
 use App\Jobs\Pipeline\Document\ExtractDocumentProperties;
+use App\Jobs\Pipeline\Document\MakeDocumentQuestionable;
 use App\Jobs\Pipeline\Document\MakeDocumentSearchable;
 use App\Models\Document;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -35,6 +36,7 @@ class DocumentPipelineTest extends TestCase
         Queue::assertPushedWithChain(ExtractDocumentProperties::class, [
             ConvertToPdf::class,
             MakeDocumentSearchable::class,
+            MakeDocumentQuestionable::class,
         ]);
 
         Queue::assertPushed(MakeDocumentSearchable::class, 1);

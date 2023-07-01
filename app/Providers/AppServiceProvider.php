@@ -7,6 +7,7 @@ use App\Models\Document;
 use App\Pipelines\Pipeline;
 use Illuminate\Support\ServiceProvider;
 use App\Jobs\Pipeline\Document\ExtractDocumentProperties;
+use App\Jobs\Pipeline\Document\MakeDocumentQuestionable;
 use App\Jobs\Pipeline\Document\MakeDocumentSearchable;
 use App\Pipelines\PipelineTrigger;
 
@@ -33,6 +34,7 @@ class AppServiceProvider extends ServiceProvider
             ExtractDocumentProperties::class,
             ConvertToPdf::class,
             MakeDocumentSearchable::class,
+            MakeDocumentQuestionable::class,
             // RecognizeLanguage
             // GenerateThumbnail
         ]);
