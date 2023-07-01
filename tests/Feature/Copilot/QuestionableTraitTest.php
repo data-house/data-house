@@ -181,30 +181,45 @@ class QuestionableTraitTest extends TestCase
         
         $document = Document::factory()->create();
 
-        Str::createUuidsUsing(fn () => "8ec0a880-3bd0-4819-a15f-b8d2c50ebc81");
+        
 
-        Http::fake([
-            'http://localhost:5000/question' => Http::response([
-                "q_id" => Str::uuid(),
-                "answer" => [
-                    "text" => "Yes, I can provide information and answer questions related to renewable energy and sustainable development based on the context information provided.",
-                    "references" => [
-                        [
-                            "doc_id" => 1,
-                            "page_number" => 2,
-                        ],
-                        [
-                            "doc_id" => 1,
-                            "page_number" => 4,
+        /**
+         * @var \App\Copilot\CopilotResponse
+         */
+        $answer = null;
+
+        $questionUuid = null;
+
+        Str::freezeUuids(function($uuid) use ($document, &$answer, &$questionUuid){
+
+            Http::fake([
+                'http://localhost:5000/question' => Http::response([
+                    "q_id" => $uuid,
+                    "answer" => [
+                        "text" => "Yes, I can provide information and answer questions related to renewable energy and sustainable development based on the context information provided.",
+                        "references" => [
+                            [
+                                "doc_id" => 1,
+                                "page_number" => 2,
+                            ],
+                            [
+                                "doc_id" => 1,
+                                "page_number" => 4,
+                            ]
                         ]
                     ]
-                ]
-            ], 200),
-        ]);
+                ], 200),
+            ]);
 
-        $answer = $document->question('Do you really reply to my question?');
+            $answer = $document->question('Do you really reply to my question?');
+
+            $questionUuid = $uuid;
+        });
+
 
         $expectedQuestionHash = hash('sha512', 'Do you really reply to my question?-' . $document->getKey());
+
+        $this->assertNotNull($questionUuid);
 
         $this->assertInstanceOf(CopilotResponse::class, $answer);
 
@@ -234,7 +249,7 @@ class QuestionableTraitTest extends TestCase
         $this->assertNotNull($cachedResponse);
         $this->assertInstanceOf(CopilotResponse::class, $cachedResponse);
 
-        $savedQuestion = Question::whereUuid("8ec0a880-3bd0-4819-a15f-b8d2c50ebc81")->first();
+        $savedQuestion = Question::whereUuid($questionUuid)->first();
 
         $this->assertNotNull($savedQuestion);
 
