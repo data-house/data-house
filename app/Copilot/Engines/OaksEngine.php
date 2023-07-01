@@ -161,13 +161,25 @@ class OaksEngine extends Engine
                 throw new Exception("Communication error with the copilot. Missing answer.");
             }
 
-            return new CopilotResponse($json['answer']['text'], $json['answer']['references'] ?? []);
+            logs()->info("Asking question", [
+                'question' => $question->jsonSerialize(),
+                'answer' => $json,
+            ]);
+
+            $answerText = $json['answer'][0]['text'] ?? $json['answer']['text'] ?? null;
+            $answerReferences = $json['answer'][0]['references'] ?? $json['answer']['references'] ?? [];
+
+            if(is_null($answerText)){
+                throw new Exception(__('There was a problem while obtaining the answer. Please report it.'));
+            }
+
+            return new CopilotResponse($answerText, $answerReferences);
         }
         catch(Throwable $ex)
         {
             // TODO: response body can contain error information // {"code":500,"message":"Error while parsing file","type":"Internal Server Error"}
             // {"code":422,"message":"No content found in request","type":"Unprocessable Entity"}
-            logs()->error("Error asking question copilot", ['error' => $ex->getMessage(), 'request' => $question, 'response' => $response?->body()]);
+            logs()->error("Error asking question copilot", ['error' => $ex->getMessage(), 'request' => $question]);
             throw $ex;
         }
     }

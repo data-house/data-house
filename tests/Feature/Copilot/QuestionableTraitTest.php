@@ -198,17 +198,19 @@ class QuestionableTraitTest extends TestCase
                 'http://localhost:5000/question' => Http::response([
                     "q_id" => $uuid,
                     "answer" => [
-                        "text" => "Yes, I can provide information and answer questions related to renewable energy and sustainable development based on the context information provided.",
-                        "references" => [
-                            [
-                                "doc_id" => 1,
-                                "page_number" => 2,
+                        [
+                            "text" => "Yes, I can provide information and answer questions related to renewable energy and sustainable development based on the context information provided.",
+                            "references" => [
+                                [
+                                    "doc_id" => 1,
+                                    "page_number" => 2,
+                                ],
+                                [
+                                    "doc_id" => 1,
+                                    "page_number" => 4,
+                                ]
                             ],
-                            [
-                                "doc_id" => 1,
-                                "page_number" => 4,
-                            ]
-                        ]
+                        ],
                     ]
                 ], 200),
             ]);
