@@ -12,6 +12,7 @@
 /public/images
 /storage/*.key
 /vendor
+/bin
 .env
 .env.backup
 .env.production

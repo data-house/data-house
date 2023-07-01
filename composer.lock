@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "acbf9d63619a49a96de9906f0574f6b4",
+    "content-hash": "ccfb01dc1ca1a6ce97ae60cf23059e2e",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -3231,6 +3231,72 @@
                 }
             ],
             "time": "2023-02-08T01:06:31+00:00"
+        },
+        {
+            "name": "oneofftech/laravel-language-recognizer",
+            "version": "v0.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/OneOffTech/laravel-language-recognizer.git",
+                "reference": "4d3d0994497bce20555c758599417a42cf813070"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/OneOffTech/laravel-language-recognizer/zipball/4d3d0994497bce20555c758599417a42cf813070",
+                "reference": "4d3d0994497bce20555c758599417a42cf813070",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/contracts": "^9.12|^10.0",
+                "illuminate/http": "^9.12|^10.0",
+                "illuminate/support": "^9.12|^10.0",
+                "php": "^8.0",
+                "symfony/process": "^6.0"
+            },
+            "require-dev": {
+                "brianium/paratest": "^6.2",
+                "guzzlehttp/guzzle": "^7.0.1",
+                "nunomaduro/collision": "^6.1|^7.0",
+                "orchestra/testbench": "^7.0|^8.0",
+                "phpunit/phpunit": "^9.5.10|^10.0",
+                "vimeo/psalm": "^4.8"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Oneofftech\\LaravelLanguageRecognizer\\LaravelLanguageRecognizerServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Oneofftech\\LaravelLanguageRecognizer\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Alessio",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Recognize language in text",
+            "homepage": "https://github.com/oneofftech/laravel-language-recognizer",
+            "keywords": [
+                "language",
+                "language detection",
+                "laravel",
+                "oneofftech"
+            ],
+            "support": {
+                "issues": "https://github.com/OneOffTech/laravel-language-recognizer/issues",
+                "source": "https://github.com/OneOffTech/laravel-language-recognizer/tree/v0.1.0"
+            },
+            "time": "2023-07-01T18:36:30+00:00"
         },
         {
             "name": "paragonie/constant_time_encoding",
