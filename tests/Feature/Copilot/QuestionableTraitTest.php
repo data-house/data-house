@@ -190,6 +190,8 @@ class QuestionableTraitTest extends TestCase
 
         $questionUuid = null;
 
+        $expectedQuestionHash = hash('sha512', 'Do you really reply to my question?-' . $document->getKey());
+
         Str::freezeUuids(function($uuid) use ($document, &$answer, &$questionUuid){
 
             Http::fake([
@@ -217,7 +219,13 @@ class QuestionableTraitTest extends TestCase
         });
 
 
-        $expectedQuestionHash = hash('sha512', 'Do you really reply to my question?-' . $document->getKey());
+        Http::assertSent(function (Request $request) use ($document) {
+            return $request->url() == 'http://localhost:5000/question' &&
+                   Str::isUuid($request['q_id']) &&
+                   $request['q'] == 'Do you really reply to my question?' &&
+                   $request['doc_id'][0] === ''.$document->getKey() &&
+                   is_null($request['lang']);
+        });
 
         $this->assertNotNull($questionUuid);
 
@@ -236,13 +244,7 @@ class QuestionableTraitTest extends TestCase
             ]
             ], $answer->references);
 
-        Http::assertSent(function (Request $request) {
-            return $request->url() == 'http://localhost:5000/question' &&
-                   Str::isUuid($request['q_id']) &&
-                   $request['q'] == 'Do you really reply to my question?' &&
-                   $request['doc_id'][0] === "1" &&
-                   is_null($request['lang']);
-        });
+        
 
         $cachedResponse = Cache::get('q-' . $expectedQuestionHash);
 
