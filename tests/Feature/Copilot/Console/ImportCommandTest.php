@@ -34,6 +34,10 @@ class ImportCommandTest extends TestCase
         $document = Document::factory()->create([
             'disk_path' => 'test.pdf',
         ]);
+        $additionalDocument = Document::factory()->create([
+            'mime' => 'text/markdown',
+            'disk_path' => 'test.md',
+        ]);
 
         Http::preventStrayRequests();
 

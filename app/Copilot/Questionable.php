@@ -197,7 +197,6 @@ trait Questionable
     protected function addAllToCopilotUsing(EloquentBuilder $query)
     {
         return $query->where('mime', 'application/pdf');
-            // ->orWhere('conversion_file_mime', 'application/pdf');
     }
 
     /**
