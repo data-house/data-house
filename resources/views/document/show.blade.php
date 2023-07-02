@@ -84,4 +84,9 @@
             </div>
         </div>
     </div>
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <x-document-chat :document="$document" />
+        </div>
+    </div>
 </x-app-layout>

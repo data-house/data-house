@@ -37,6 +37,24 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Rate and various limits
+    |--------------------------------------------------------------------------
+    |
+    | When interacting with artificial intelligence is mandatory to observe
+    | how users interact with the system and have control of the used
+    | resources. These settings allows you to control various
+    | usage limits
+    |
+    */
+
+    'limits' => [
+        'question_length' => 200,
+        'questions_per_day' => 10,
+        'questions_per_user' => 10,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Cache configuration
     |--------------------------------------------------------------------------
     |
