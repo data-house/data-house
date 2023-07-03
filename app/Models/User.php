@@ -67,4 +67,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Import::class, 'created_by');
     }
+    
+    public function questions()
+    {
+        return $this->hasMany(Question::class);
+    }
 }

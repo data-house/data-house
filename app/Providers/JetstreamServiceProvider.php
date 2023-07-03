@@ -63,6 +63,8 @@ class JetstreamServiceProvider extends ServiceProvider
             'import:create',
             'import:update',
             'import:delete',
+            'question:view',
+            'question:create',
         ])->description('Manager users can coordinate and allocate resources for activities.');
         
         Jetstream::role(Role::GUEST->value, 'Guest', [

@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Copilot\CopilotResponse;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\AsArrayObject;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -81,6 +83,18 @@ class Question extends Model
     public function questionable(): MorphTo
     {
         return $this->morphTo();
+    }
+
+    public function scopeHash(Builder $query, string $hash): void
+    {
+        $query->where('hash', $hash);
+    }
+
+
+    public function answerAsCopilotResponse()
+    {
+        return (new CopilotResponse($this->answer['text'], $this->answer['references']))
+            ->setExecutionTime($this->execution_time);
     }
 
 }

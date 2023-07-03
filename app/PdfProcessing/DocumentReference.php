@@ -31,7 +31,7 @@ class DocumentReference implements JsonSerializable
     }
 
 
-    public function path(string $path): self
+    public function path(?string $path): self
     {
         $this->path = $path;
 
