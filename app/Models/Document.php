@@ -252,17 +252,14 @@ class Document extends Model implements Convertible
 
     public function asReference()
     {
-        $path = null;
-
-        if($this->attributes['disk_path'] && Str::endsWith($this->attributes['disk_path'], ['.pdf'])){
-            $path = Storage::disk($this->attributes['disk_name'])
-                ->path($this->attributes['disk_path']);
-        }
+        $path = Storage::disk($this->attributes['disk_name'])
+            ->path($this->attributes['disk_path']);
 
         if(isset($this->attributes['conversion_disk_path']) && $this->attributes['conversion_disk_path'] && Str::endsWith($this->attributes['conversion_disk_path'], ['.pdf'])){
             $path = Storage::disk($this->attributes['conversion_disk_name'])
-                ->path($this->attributes['conversion_disk_path']);
+            ->path($this->attributes['conversion_disk_path']);
         }
+        
 
         return (new DocumentReference($this->mime))
             ->path($path)
