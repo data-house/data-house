@@ -84,9 +84,12 @@
             </div>
         </div>
     </div>
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <x-document-chat :document="$document" />
+
+    @can('viewAny', \App\Models\Question::class)
+        <div class="py-12">
+            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                <x-document-chat :document="$document" />
+            </div>
         </div>
-    </div>
+    @endcan
 </x-app-layout>

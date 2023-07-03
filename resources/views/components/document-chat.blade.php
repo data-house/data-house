@@ -13,6 +13,7 @@
         
         <livewire:question-list :document="$document" />
 
+        @can('create', \App\Models\Question::class)
 
         <div class="px-3 md:py-4 py-2.5 group transition-opacity message bg-stone-50">
             <div class="flex items-start max-w-4xl mx-auto space-x-3">
@@ -22,6 +23,8 @@
             </div>
 
         </div>
+
+        @endcan
 
     </div>
 
