@@ -102,15 +102,18 @@ trait Questionable
     {
         // TODO: recognize the language of the question
 
-        $request = new CopilotRequest(Str::uuid(), $query, [''.$this->getCopilotKey()]);
+        $request = new CopilotRequest(Str::uuid(), trim($query), [''.$this->getCopilotKey()]);
 
-        // TODO: check user's history // TODO: when we invalidate the answer question?
+        $previouslyExecutedQuestion = Question::hash($request->hash())->first();
+
+        if($previouslyExecutedQuestion){
+            return $previouslyExecutedQuestion->answerAsCopilotResponse();
+        }
 
         // We cache the response for each user as it requires time and resources.
         // This improves also the responsiveness of the system on the short run.
         // TODO: add a command that invalidates the questions based on the modified documents
 
-        // store(config('copilot.cache.store'))
         $response = Cache::remember('q-'.$request->hash(), config('copilot.cache.ttl'), function() use ($request) {
                 return $this->executeQuestionRequest($request);
             });
