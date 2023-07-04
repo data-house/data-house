@@ -52,7 +52,45 @@ class InternalDocumentDownloadControllerTest extends TestCase
 
         $response->assertStatus(200);
 
-        $response->assertDownload();
+        $response->assertDownload('test.pdf');
+    }
+    
+    public function test_converted_document_can_be_downloaded(): void
+    {
+        Storage::fake();
+
+        Storage::putFileAs('', new File(base_path('tests/fixtures/documents/data-house-test-doc.pdf')), 'converted.pdf');
+        Storage::putFileAs('', new File(base_path('tests/fixtures/documents/data-house-test-doc.docx')), 'test.docx');
+
+        $user = User::factory()->withPersonalTeam()->manager()->create();
+
+        config([
+            'app.url' => 'http://localhost/',
+            'app.internal_url' => 'http://localhost/',
+        ]);
+
+        $document = Document::factory()
+            ->for($user, 'uploader')
+            ->create([
+                'disk_name' => 'local',
+                'disk_path' => 'test.docx',
+                'mime' => 'docx',
+                'conversion_disk_path' => 'converted.pdf',
+                'conversion_disk_name' => 'local',
+                'conversion_file_mime' => 'application/pdf',
+            ]);
+
+        $ref = $document->asReference();
+
+        $response = $this->actingAs($user)
+            ->get($ref->url);
+
+        $this->assertEquals('application/pdf', $ref->mimeType);
+
+        $response->assertStatus(200);
+
+        $response->assertDownload('converted.pdf');
+
     }
     
 }

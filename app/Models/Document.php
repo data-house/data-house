@@ -258,6 +258,10 @@ class Document extends Model implements Convertible
         if(isset($this->attributes['conversion_disk_path']) && $this->attributes['conversion_disk_path'] && Str::endsWith($this->attributes['conversion_disk_path'], ['.pdf'])){
             $path = Storage::disk($this->attributes['conversion_disk_name'])
             ->path($this->attributes['conversion_disk_path']);
+
+            return (new DocumentReference($this->conversion_file_mime))
+                ->path($path)
+                ->url($this->internalUrl());
         }
         
 
