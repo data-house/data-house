@@ -41,15 +41,9 @@ class QuestionInput extends Component
     {
         $this->validate();
 
-        $this->askingQuestion = true;
-        
-        $this->emit('copilot_asking', $this->question);
-        
-        $answer = $this->document->question($this->question);
-        
-        $this->emit('copilot_answer', $answer);
-        
-        $this->askingQuestion = false;
+        $pendingQuestion = $this->document->question($this->question);
+
+        $this->emit('copilot_asking', $pendingQuestion->uuid);
     }
 
     public function handleAnswer()

@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use App\Copilot\CopilotRequest;
 use App\Copilot\CopilotResponse;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\AsArrayObject;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
@@ -10,9 +12,13 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Support\Benchmark;
+use Illuminate\Support\Facades\Cache;
 use Laravel\Scout\Searchable;
+use Illuminate\Support\Str;
+use Oneofftech\LaravelLanguageRecognizer\Support\Facades\LanguageRecognizer;
 
-class Question extends Model
+class Question extends Model implements Htmlable
 {
     use HasFactory;
 
@@ -46,7 +52,7 @@ class Question extends Model
 
     protected $casts = [
         // 'language' => LanguageAlpha2::class,
-        'published_at' => 'datetime',
+        'status' => QuestionStatus::class,
         'answer' => AsArrayObject::class,
         'execution_time' => 'float',
     ];
@@ -89,12 +95,157 @@ class Question extends Model
     {
         $query->where('hash', $hash);
     }
+    
+    public function scopeAnswered(Builder $query): void
+    {
+        $query->whereNotNull('answer');
+    }
+    
+    public function scopePending(Builder $query): void
+    {
+        $query->whereNull('answer');
+    }
+    
+    public function scopeAskedBy(Builder $query, User $user): void
+    {
+        $query->where('user_id', $user->getKey());
+    }
 
 
     public function answerAsCopilotResponse()
     {
         return (new CopilotResponse($this->answer['text'], $this->answer['references']))
             ->setExecutionTime($this->execution_time);
+    }
+
+    
+
+
+    
+    public function lockKey(): string
+    {
+        return 'question-lock:' . $this->uuid;
+    }
+
+    /**
+     * Ask the question to the Copilot and wait for an answer
+     */
+    public function ask(): self
+    {
+        // if($this->status !== QuestionStatus::CREATED){
+        //     return $this;
+        // }
+
+        $language = $this->language ?? $this->recognizeLanguage();
+
+        Cache::lock($this->lockKey())->block(30, function() use($language) {
+        
+            $this->fill([
+                'language' => $language,
+                'status' => QuestionStatus::ANSWERING,
+            ]);
+
+            $this->save();
+
+        });
+
+        $request = new CopilotRequest($this->uuid, $this->question, [''.$this->questionable->getCopilotKey()], $language);
+
+        // TODO: maybe a check on another user asking the same question
+        // $previouslyExecutedQuestion = Question::hash($request->hash())->first();
+
+        // if($previouslyExecutedQuestion){
+        //     return $previouslyExecutedQuestion->answerAsCopilotResponse();
+        // }
+        
+        // We cache the response for each user as it requires time and resources.
+        // This improves also the responsiveness of the system on the short run.
+        // TODO: add a command that invalidates the questions based on the modified documents
+
+        $response = Cache::remember('q-'.$request->hash(), config('copilot.cache.ttl'), function() use ($request) {
+            return $this->executeQuestionRequest($request);
+        });
+
+        Cache::lock($this->lockKey())->block(30, function() use($request, $response) {
+        
+            $this->fill([
+                'language' => $request->language,
+                'answer' => [
+                    'text' => $response->text,
+                    'references' => $response->references,
+                ],
+                'execution_time' => $response->executionTime,
+                'status' => QuestionStatus::PROCESSED,
+            ]);
+
+            $this->save();
+
+        });
+        
+        return $this->fresh();
+    }
+
+
+    protected function executeQuestionRequest(CopilotRequest $request): CopilotResponse
+    {
+        /**
+         * @var \App\Copilot\CopilotResponse
+         */
+        $response = null;
+
+        $timing = Benchmark::measure(function() use ($request, &$response) {
+            $response = $this->questionable->questionableUsing()->question($request);
+        });
+
+        $response?->setExecutionTime($timing);
+
+        return $response;
+    }
+
+    /**
+     * Attempt to recognize the language 
+     */
+    protected function recognizeLanguage(): ?string
+    {
+        $possibleLanguages = LanguageRecognizer::recognize($this->question);
+
+        if($possibleLanguages['eng'] ?? $possibleLanguages['en'] ?? false){
+            return 'en';
+        }
+
+        if($possibleLanguages['deu'] ?? $possibleLanguages['de'] ?? false){
+            return 'de';
+        }
+
+        return null;
+    }
+
+
+    /**
+     * Get the html representation of this response
+     */
+    public function toHtml()
+    {
+        return Str::markdown($this->answer['text'] ?? $this->generateProgressReports());
+    }
+
+    protected function generateProgressReports()
+    {
+        if(!$this->language){
+            return __('Recognizing the language of the question...');
+        }
+
+        if($this->status === QuestionStatus::PROCESSING){
+            return __('Reading your document...');
+        }
+
+        return __('Writing the answer...');
+    }
+
+
+    public function isPending()
+    {
+        return is_null($this->answer);
     }
 
 }

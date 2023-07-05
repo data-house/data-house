@@ -4,6 +4,7 @@ namespace Tests\Feature\Copilot;
 
 use App\Copilot\CopilotResponse;
 use App\Copilot\Engines\OaksEngine;
+use App\Jobs\AskQuestionJob;
 use App\Models\Disk;
 use App\Models\Document;
 use App\Models\Question;
@@ -181,10 +182,8 @@ class QuestionableTraitTest extends TestCase
         
         $document = Document::factory()->create();
 
-        
-
         /**
-         * @var \App\Copilot\CopilotResponse
+         * @var \App\Models\Question
          */
         $answer = null;
 
@@ -194,64 +193,21 @@ class QuestionableTraitTest extends TestCase
 
         Str::freezeUuids(function($uuid) use ($document, &$answer, &$questionUuid){
 
-            Http::fake([
-                'http://localhost:5000/question' => Http::response([
-                    "q_id" => $uuid,
-                    "answer" => [
-                        [
-                            "text" => "Yes, I can provide information and answer questions related to renewable energy and sustainable development based on the context information provided.",
-                            "references" => [
-                                [
-                                    "doc_id" => 1,
-                                    "page_number" => 2,
-                                ],
-                                [
-                                    "doc_id" => 1,
-                                    "page_number" => 4,
-                                ]
-                            ],
-                        ],
-                    ]
-                ], 200),
-            ]);
-
             $answer = $document->question('Do you really reply to my question?');
 
             $questionUuid = $uuid;
         });
 
 
-        Http::assertSent(function (Request $request) use ($document) {
-            return $request->url() == 'http://localhost:5000/question' &&
-                   Str::isUuid($request['q_id']) &&
-                   $request['q'] == 'Do you really reply to my question?' &&
-                   $request['doc_id'][0] === ''.$document->getKey() &&
-                   is_null($request['lang']);
+        Queue::assertPushed(AskQuestionJob::class, function($job) use ($answer) {
+            return $job->question->is($answer);
         });
+
+        Http::assertNothingSent();
 
         $this->assertNotNull($questionUuid);
 
-        $this->assertInstanceOf(CopilotResponse::class, $answer);
-
-        $this->assertEquals('<p>Yes, I can provide information and answer questions related to renewable energy and sustainable development based on the context information provided.</p>', trim($answer->toHtml()));
-        $this->assertEquals('Yes, I can provide information and answer questions related to renewable energy and sustainable development based on the context information provided.', $answer->text);
-        $this->assertEquals([
-            [
-                "doc_id" => 1,
-                "page_number" => 2,
-            ],
-            [
-                "doc_id" => 1,
-                "page_number" => 4,
-            ]
-            ], $answer->references);
-
-        
-
-        $cachedResponse = Cache::get('q-' . $expectedQuestionHash);
-
-        $this->assertNotNull($cachedResponse);
-        $this->assertInstanceOf(CopilotResponse::class, $cachedResponse);
+        $this->assertInstanceOf(Question::class, $answer);
 
         $savedQuestion = Question::whereUuid($questionUuid)->first();
 
@@ -259,14 +215,13 @@ class QuestionableTraitTest extends TestCase
 
         $this->assertNull($savedQuestion->user);
         $this->assertNull($savedQuestion->language);
-        $this->assertNotNull($savedQuestion->execution_time);
+        $this->assertNull($savedQuestion->execution_time);
+        $this->assertNull($savedQuestion->answer);
 
         $this->assertTrue($savedQuestion->questionable->is($document));
 
         $this->assertEquals($expectedQuestionHash, $savedQuestion->hash);
         $this->assertEquals('Do you really reply to my question?', $savedQuestion->question);
-        $this->assertEquals($answer->text, $savedQuestion->answer['text']);
-        $this->assertEquals($answer->references, $savedQuestion->answer['references']);
 
     }
 }

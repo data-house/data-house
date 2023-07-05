@@ -2,6 +2,7 @@
 
 namespace App\Copilot;
 
+use App\Jobs\AskQuestionJob;
 use App\Models\Question;
 use \Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
@@ -96,43 +97,36 @@ trait Questionable
      * Ask a question to the document using the configured Copilot engine
      * 
      * @param string $query
-     * @return \App\Copilot\CopilotResponse
+     * @return \App\Models\Question
      */
-    public function question(string $query): CopilotResponse
+    public function question(string $query): Question
     {
         // TODO: recognize the language of the question
 
-        $request = new CopilotRequest(Str::uuid(), trim($query), [''.$this->getCopilotKey()]);
+        $uuid = Str::uuid();
+
+        $request = new CopilotRequest($uuid, trim($query), [''.$this->getCopilotKey()]);
 
         $previouslyExecutedQuestion = Question::hash($request->hash())->first();
 
+        // TODO: decide if duplicate the question for the current user
+
         if($previouslyExecutedQuestion){
-            return $previouslyExecutedQuestion->answerAsCopilotResponse();
+            return $previouslyExecutedQuestion;
         }
-
-        // We cache the response for each user as it requires time and resources.
-        // This improves also the responsiveness of the system on the short run.
-        // TODO: add a command that invalidates the questions based on the modified documents
-
-        $response = Cache::remember('q-'.$request->hash(), config('copilot.cache.ttl'), function() use ($request) {
-                return $this->executeQuestionRequest($request);
-            });
 
         // Save question and response as part of user's history
 
-        $this->questions()->create([
+        $question = $this->questions()->create([
+            'uuid' => $uuid,
             'question' => $request->question,
             'hash' => $request->hash(),
             'user_id' => auth()->user()?->getKey(),
-            'language' => $request->language,
-            'answer' => [
-                'text' => $response->text,
-                'references' => $response->references,
-            ],
-            'execution_time' => $response->executionTime,
         ]);
 
-        return $response;
+        AskQuestionJob::dispatch($question);
+
+        return $question;
     }
 
     protected function executeQuestionRequest(CopilotRequest $request): CopilotResponse
