@@ -207,17 +207,24 @@ class Question extends Model implements Htmlable
      */
     protected function recognizeLanguage(): ?string
     {
-        $possibleLanguages = LanguageRecognizer::recognize($this->question);
+        try {
+            $possibleLanguages = LanguageRecognizer::recognize($this->question);
+    
+            if($possibleLanguages['eng'] ?? $possibleLanguages['en'] ?? false){
+                return 'en';
+            }
+    
+            if($possibleLanguages['deu'] ?? $possibleLanguages['de'] ?? false){
+                return 'de';
+            }
+    
+            return null;
+        } catch (\Throwable $th) {
+            
+            logs()->error("Failed to run language recognition", ['error' => $th->getMessage()]);
 
-        if($possibleLanguages['eng'] ?? $possibleLanguages['en'] ?? false){
-            return 'en';
+            return null;
         }
-
-        if($possibleLanguages['deu'] ?? $possibleLanguages['de'] ?? false){
-            return 'de';
-        }
-
-        return null;
     }
 
 
