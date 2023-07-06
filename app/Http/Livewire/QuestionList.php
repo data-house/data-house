@@ -44,7 +44,7 @@ class QuestionList extends Component
 
     public function render()
     {
-        $this->questions = $this->document->questions()->askedBy(auth()->user())->answered()->get();
+        $this->questions = $this->document->questions()->answered()->get();
 
         return view('livewire.question-list');
     }
