@@ -1,4 +1,4 @@
-@props(['question', 'id' => null])
+@props(['question', 'id' => null, 'poll' => false])
 
 
 @php
@@ -12,7 +12,7 @@ if($question->status === \App\Models\QuestionStatus::ERROR){
 }
 @endphp
 
-<div {{ $attributes->merge(['class' => 'px-3 md:py-4 py-2.5 group transition-opacity ' . $classes, 'id' => $id ?? $question->uuid]) }}>
+<div {{ $attributes->merge(['class' => 'px-3 md:py-4 py-2.5 group transition-opacity ' . $classes, 'id' => $id ?? $question->uuid]) }} {{ $poll ? 'wire:poll.visible' : ''}}>
     <div class="flex items-start max-w-4xl mx-auto space-x-3">
         <x-heroicon-s-user-circle class="w-6 h-6 flex-shrink-0 mt-[2px]" />
 

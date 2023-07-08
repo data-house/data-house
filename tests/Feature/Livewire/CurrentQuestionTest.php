@@ -28,6 +28,9 @@ class CurrentQuestionTest extends TestCase
         $component->assertSee('Do you really reply to my question?');
         $component->assertSee('Recognizing the language of the question...');
         $component->assertSee('bg-lime-200');
+        $component->assertSee('wire:poll.visible');
+        $component->assertDontSee(':wire:poll.visible=":wire:poll.visible"');
+        $component->assertDontSee('wire:poll.visible="wire:poll.visible"');
     }
 
     public function test_answering_question_rendered()

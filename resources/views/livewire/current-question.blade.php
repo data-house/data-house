@@ -2,7 +2,7 @@
 
     @if ($question && $question->isPending())
         
-        <x-question ::wire:poll.visible :id="$ref ?? null" :question="$question" />
+        <x-question :poll="true" :id="$ref ?? null" :question="$question" />
     
     @endif
 </div>
