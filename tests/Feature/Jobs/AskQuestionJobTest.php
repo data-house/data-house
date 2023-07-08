@@ -3,8 +3,10 @@
 namespace Tests\Feature\Jobs;
 
 use App\Copilot\CopilotResponse;
+use App\Copilot\Exceptions\CopilotException;
 use App\Jobs\AskQuestionJob;
 use App\Models\Question;
+use App\Models\QuestionStatus;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\Client\Request;
@@ -88,8 +90,63 @@ class AskQuestionJobTest extends TestCase
 
         $this->assertNotNull($savedQuestion);
 
+        $this->assertEquals(QuestionStatus::PROCESSED, $savedQuestion->status);
         $this->assertNotNull($savedQuestion->user);
         $this->assertEquals('en', $savedQuestion->language);
         $this->assertNotNull($savedQuestion->execution_time);
+    }
+    
+    public function test_errors_are_handled(): void
+    {
+        config([
+            'copilot.driver' => 'oaks',
+            'copilot.queue' => false,
+            'copilot.engines.oaks' => [
+                'host' => 'http://localhost:5000/',
+            ],
+        ]);
+
+        Http::preventStrayRequests();
+        
+        Http::fake([
+            'http://localhost:5000/question' => Http::response([
+                "code" => 422,
+                "message" => "No content found in request",
+                "type" => "Unprocessable Entity",
+            ], 422),
+        ]);
+        
+        $question = Question::factory()->create([
+            'question' => 'Do you really reply to my question?',
+        ]);
+
+        $job = new AskQuestionJob($question);
+
+        try {
+            $job->handle();
+        } catch (CopilotException $th) {
+            // This simulates what Laravel will do behind the scenes 
+            $job->failed();
+        }
+
+        Http::assertSent(function (Request $request) use ($question) {
+            return $request->url() == 'http://localhost:5000/question' &&
+                   $request['q_id'] === $question->uuid &&
+                   $request['q'] == 'Do you really reply to my question?' &&
+                   $request['doc_id'][0] === ''.$question->questionable_id &&
+                   $request['lang'];
+        });
+
+        $savedQuestion = $question->fresh();
+
+        $this->assertNull($savedQuestion->answer);
+        
+        $cachedResponse = Cache::get('q-' . $question->hash);
+
+        $this->assertNull($cachedResponse);
+
+        $this->assertNotNull($savedQuestion);
+
+        $this->assertEquals(QuestionStatus::ERROR, $savedQuestion->status);
     }
 }

@@ -48,6 +48,7 @@ class QuestionFactory extends Factory
                     'references' => [],
                 ],
                 'execution_time' => fake()->randomFloat(2, 10, 20),
+                'status' => QuestionStatus::PROCESSED,
             ];
         });
     }

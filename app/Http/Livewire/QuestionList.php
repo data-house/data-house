@@ -25,8 +25,6 @@ class QuestionList extends Component
     protected function getListeners()
     {
         return [
-            'copilot_asking' => 'handleAsking',
-            'copilot_asking' => '$refresh',
             'copilot_answer' => 'handleAnswer',
         ];
     }

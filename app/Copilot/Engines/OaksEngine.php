@@ -5,6 +5,7 @@ namespace App\Copilot\Engines;
 use App\Copilot\Questionable;
 use App\Copilot\CopilotRequest;
 use App\Copilot\CopilotResponse;
+use App\Copilot\Exceptions\CopilotException;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\Http;
@@ -150,15 +151,15 @@ class OaksEngine extends Engine
 
             if(isset($json['code']) && $json['code'] == 404){
                 logs()->error("Question cannot be answered [{$response->status()}]", ['response' => $json, 'request' => $question]);
-                throw new Exception("Document might not be ready to accept questions.");
+                throw new CopilotException("Document might not be ready to accept questions.");
             }
 
             if(empty($json['q_id'] ?? null) || $json['q_id'] && $json['q_id'] !== $question->id){
-                throw new Exception("Communication error with the copilot. [{$response->status()}]");
+                throw new CopilotException("Communication error with the copilot. [{$response->status()}]");
             }
             
             if(empty($json['answer'] ?? null)){
-                throw new Exception("Communication error with the copilot. Missing answer.");
+                throw new CopilotException("Communication error with the copilot. Missing answer.");
             }
 
             logs()->info("Asking question", [
@@ -170,7 +171,7 @@ class OaksEngine extends Engine
             $answerReferences = $json['answer'][0]['references'] ?? $json['answer']['references'] ?? [];
 
             if(is_null($answerText)){
-                throw new Exception(__('There was a problem while obtaining the answer. Please report it.'));
+                throw new CopilotException(__('There was a problem while obtaining the answer. Please report it.'));
             }
 
             return new CopilotResponse($answerText, $answerReferences);
