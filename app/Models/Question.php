@@ -47,6 +47,7 @@ class Question extends Model implements Htmlable
         'questionable',
         'language',
         'answer',
+        'status',
         'execution_time',
     ];
 
@@ -98,12 +99,21 @@ class Question extends Model implements Htmlable
     
     public function scopeAnswered(Builder $query): void
     {
-        $query->whereNotNull('answer');
+        $query
+            ->whereIn('status', [
+                QuestionStatus::CANCELLED->value,
+                QuestionStatus::ERROR->value,
+                QuestionStatus::PROCESSED->value,
+            ]);
     }
     
     public function scopePending(Builder $query): void
     {
-        $query->whereNull('answer');
+        $query->whereIn('status', [
+            QuestionStatus::PROCESSING->value,
+            QuestionStatus::ANSWERING->value,
+            QuestionStatus::CREATED->value,
+        ]);
     }
     
     public function scopeAskedBy(Builder $query, User $user): void
@@ -238,9 +248,18 @@ class Question extends Model implements Htmlable
 
     protected function generateProgressReports()
     {
+        if($this->status === QuestionStatus::ERROR){
+            return __('Cannot generate answer due to communication error.');
+        }
+
+        if($this->status === QuestionStatus::CANCELLED){
+            return __('Answer creation cancelled.');
+        }
+
         if(!$this->language){
             return __('Recognizing the language of the question...');
         }
+
 
         if($this->status === QuestionStatus::PROCESSING){
             return __('Reading your document...');
@@ -252,7 +271,16 @@ class Question extends Model implements Htmlable
 
     public function isPending()
     {
-        return is_null($this->answer);
+        return in_array($this->status, [
+            QuestionStatus::PROCESSING,
+            QuestionStatus::ANSWERING,
+            QuestionStatus::CREATED,
+        ]);
+    }
+    
+    public function hasError()
+    {
+        return $this->status == QuestionStatus::ERROR;
     }
 
 }
