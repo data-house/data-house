@@ -99,6 +99,8 @@ class QuestionFeedback extends Component
         $this->question = $this->question->fresh();
 
         $this->showingDislikeModal = true;
+
+        $this->emit('saved');
     }
 
     public function saveDislikeComment()
