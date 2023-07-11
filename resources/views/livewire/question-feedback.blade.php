@@ -6,7 +6,7 @@
             <x-heroicon-o-hand-thumb-up class="w-5 h-5 group-hover:text-emerald-600 transition-all" wire:target="like" wire:loading.class="animate-pulse -translate-y-2"  />
             {{ __('Like') }}
             
-            <span class="rounded-full p-1 w-6 h-6 bg-stone-100 text-stone-700 text-xs font-mono">
+            <span class="tabular-nums rounded-full p-1 w-6 h-6 bg-stone-100 text-stone-700 text-xs font-mono">
                 {{ $question->likes_count > 100 ? '99+' : $question->likes_count }}
             </span>
         </button>
@@ -14,7 +14,7 @@
             <x-heroicon-o-hand-thumb-down class="w-5 h-5 group-hover:text-red-600 transition-all" wire:target="dislike" wire:loading.class="animate-pulse translate-y-2"  />
             {{ __('Dislike') }}
 
-            <span class="rounded-full p-1 w-6 h-6 bg-stone-100 text-stone-700 text-xs font-mono">
+            <span class="tabular-nums rounded-full p-1 w-6 h-6 bg-stone-100 text-stone-700 text-xs font-mono">
                 {{ $question->dislikes_count > 100 ? '99+' : $question->dislikes_count }}
             </span>
         </button>
