@@ -48,7 +48,7 @@
                     </div>
             
                     <div>
-                        <x-label for="note" value="{{ __('Notes') }}" />
+                        <x-label for="note" value="{{ __('Notes') }} {{ __('(optional)') }}" />
                         <p class="text-sm text-stone-600">{{ __('If the answer is incorrect or partial, please quote the document with the correct answer or the pages where the answer can be found.') }}</p>
                         <x-textarea rows="3" id="note"  wire:model.defer="feedback.note" class="mt-1 block w-full"></x-textarea>
                         <x-input-error for="feedback.note" class="mt-2" />
