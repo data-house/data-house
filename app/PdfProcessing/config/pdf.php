@@ -41,6 +41,10 @@ return [
         PdfDriver::COPILOT->value => [
             'host' => env('PDF_PROCESSOR_COPILOT_URL'),
         ],
+        
+        PdfDriver::EXTRACTOR_SERVICE->value => [
+            'host' => env('PDF_EXTRACTOR_SERVICE_URL'),
+        ],
 
     ],
 ];

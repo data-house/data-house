@@ -7,6 +7,8 @@ use App\DocumentConversion\Contracts\Convertible;
 use App\DocumentConversion\ConversionRequest;
 use App\PdfProcessing\DocumentReference;
 use App\PdfProcessing\Facades\Pdf;
+use App\PdfProcessing\PaginatedDocumentContent;
+use App\PdfProcessing\PdfDriver;
 use App\Pipelines\Concerns\HasPipelines;
 use Carbon\Carbon;
 use Exception;
@@ -212,11 +214,12 @@ class Document extends Model implements Convertible
         $content = null;
 
         try{
-
-            // TODO: check if copilot pdf extractor driver is available and throw exception if not
-
             $reference = $this->asReference();
-            $content = Pdf::driver('copilot')->text($reference);
+            $content = Pdf::driver(PdfDriver::EXTRACTOR_SERVICE->value)->text($reference);
+
+            if(!$content instanceof PaginatedDocumentContent){
+                throw new Exception("Expecting paginated content from PDF processing. Copilot requires extracted text to be paginated.");
+            }
         }
         catch(Exception $ex)
         {
