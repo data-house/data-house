@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Jobs\StartImportJob;
 use App\Models\Import;
+use App\Models\ImportMap;
 use App\Models\ImportStatus;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -22,7 +23,9 @@ class StartImportControllerTest extends TestCase
         $user = User::factory()
             ->withPersonalTeam()
             ->manager()
-            ->has(Import::factory())
+            ->has(Import::factory()
+                ->state(['status' => ImportStatus::CREATED])
+                ->has(ImportMap::factory(), 'maps'))
             ->create();
 
         $import = Import::first();
@@ -41,6 +44,32 @@ class StartImportControllerTest extends TestCase
         });
 
         $this->assertEquals(ImportStatus::RUNNING, $import->fresh()->status);
+    }
+
+    public function test_import_qithout_import_maps_is_not_started(): void
+    {
+        Queue::fake();
+
+        $user = User::factory()
+            ->withPersonalTeam()
+            ->manager()
+            ->has(Import::factory()->state(['status' => ImportStatus::CREATED]))
+            ->create();
+
+        $import = Import::first();
+
+        $response = $this
+            ->actingAs($user)
+            ->from(route('imports.show', $import))
+            ->post('/imports-start/', [
+                'import' => $import->getKey(),
+            ]);
+
+        $response->assertRedirectToRoute('imports.show', $import);
+
+        Queue::assertNothingPushed();
+
+        $this->assertEquals(ImportStatus::CREATED, $import->fresh()->status);
     }
 
     public function test_cannot_start_import_created_by_another_user(): void
