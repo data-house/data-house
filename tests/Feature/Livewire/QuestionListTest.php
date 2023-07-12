@@ -5,6 +5,7 @@ namespace Tests\Feature\Livewire;
 use App\Http\Livewire\QuestionList;
 use App\Models\Question;
 use App\Models\QuestionStatus;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Storage;
@@ -17,19 +18,23 @@ class QuestionListTest extends TestCase
 
     public function test_answered_question_rendered()
     {
-        $question = Question::factory()->answered()->create([
-            'question' => 'Do you really reply to my question?',
-        ]);
+        $question = Question::factory()
+            ->answered()
+            ->create([
+                'question' => 'Do you really reply to my question?',
+            ]);
 
-        $this->actingAs($question->user);
+        $user = User::factory()->withPersonalTeam()->manager()->create();
 
-        $component = Livewire::test(QuestionList::class, ['document' => $question->questionable]);
+        $component = Livewire::actingAs($user)->test(QuestionList::class, ['document' => $question->questionable]);
 
         $component->assertStatus(200);
 
         $component->assertSee('Do you really reply to my question?');
         $component->assertSeeHtml($question->toHtml());
         $component->assertSee('bg-stone-50');
+        $component->assertSee('Like');
+        $component->assertSee('Dislike');
     }
 
     public function test_pending_question_not_rendered()

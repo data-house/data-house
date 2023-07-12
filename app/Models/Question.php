@@ -58,6 +58,16 @@ class Question extends Model implements Htmlable
         'execution_time' => 'float',
     ];
 
+    /**
+     * The relationship counts that should be eager loaded on every query.
+     *
+     * @var array
+     */
+    protected $withCount = [
+        'likes',
+        'dislikes',
+    ];
+
     
     /**
      * Get the columns that should receive a unique identifier.
@@ -90,6 +100,21 @@ class Question extends Model implements Htmlable
     public function questionable(): MorphTo
     {
         return $this->morphTo();
+    }
+
+    public function feedbacks()
+    {
+        return $this->hasMany(QuestionFeedback::class);
+    }
+    
+    public function likes()
+    {
+        return $this->feedbacks()->like();
+    }
+    
+    public function dislikes()
+    {
+        return $this->feedbacks()->dislike();
     }
 
     public function scopeHash(Builder $query, string $hash): void
