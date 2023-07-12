@@ -22,7 +22,7 @@ class OaksEngineTest extends TestCase
     {
 
         config([
-            'pdf.processors.copilot' => [
+            'pdf.processors.extractor' => [
                 'host' => 'http://localhost:9000',
             ],
             'copilot.engines.oaks' => [
@@ -84,7 +84,7 @@ class OaksEngineTest extends TestCase
     {
 
         config([
-            'pdf.processors.copilot' => [
+            'pdf.processors.extractor' => [
                 'host' => 'http://localhost:9000',
             ],
             'copilot.engines.oaks' => [
