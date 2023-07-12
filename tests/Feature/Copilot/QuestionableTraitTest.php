@@ -26,7 +26,7 @@ class QuestionableTraitTest extends TestCase
     public function test_model_can_be_made_synchronously_questionable(): void
     {
         config([
-            'pdf.processors.copilot' => [
+            'pdf.processors.extractor' => [
                 'host' => 'http://localhost:9000',
             ],
             'copilot.driver' => 'oaks',
@@ -84,7 +84,7 @@ class QuestionableTraitTest extends TestCase
     public function test_model_can_be_removed_synchronously_from_questionable(): void
     {
         config([
-            'pdf.processors.copilot' => [
+            'pdf.processors.extractor' => [
                 'host' => 'http://localhost:9000',
             ],
             'copilot.driver' => 'oaks',

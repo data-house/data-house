@@ -64,6 +64,12 @@ services:
                 - 'http://localhost:7700/health'
             retries: 3
             timeout: 5s
+    pdf-parsing:
+        image: "ghcr.io/data-house/pdf-text-extractor:v0.1.0"
+        networks:
+            - sail
+        ports:
+            - '${FORWARD_PARSING_PORT:-5002}:5000'
 networks:
     sail:
         driver: bridge

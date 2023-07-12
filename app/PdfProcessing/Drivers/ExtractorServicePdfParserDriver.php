@@ -2,43 +2,21 @@
 
 namespace App\PdfProcessing\Drivers;
 
-use App\PdfProcessing\Contracts\Driver;
-use App\PdfProcessing\DocumentContent;
-use App\PdfProcessing\DocumentProperties;
-use App\PdfProcessing\DocumentReference;
-use App\PdfProcessing\Exceptions\PdfParsingException;
-use App\PdfProcessing\Facades\Pdf;
-use App\PdfProcessing\PaginatedDocumentContent;
-use App\PdfProcessing\PdfDriver;
-use App\PdfProcessing\PdfProcessingManager;
-use Exception;
-use Http\Client\Exception\RequestException;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Facade;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Process;
-use InvalidArgumentException;
-use Smalot\PdfParser\Config;
-use Smalot\PdfParser\Parser;
 use Throwable;
+use InvalidArgumentException;
+use App\PdfProcessing\PdfDriver;
+use App\PdfProcessing\Facades\Pdf;
+use Illuminate\Support\Facades\Http;
+use App\PdfProcessing\Contracts\Driver;
+use App\PdfProcessing\DocumentReference;
+use App\PdfProcessing\DocumentProperties;
+use App\PdfProcessing\PaginatedDocumentContent;
+use App\PdfProcessing\Exceptions\PdfParsingException;
 
-/**
- * @deprecated Use ExtractorServicePdfParserDriver
- */
-class CopilotPdfParserDriver implements Driver
+class ExtractorServicePdfParserDriver implements Driver
 {
 
-    /*
-    |--------------------------------------------------------------------------
-    | Experimental
-    |--------------------------------------------------------------------------
-    |
-    | This driver make use of an external service that is currently not open source.
-    | The service assumes a specific kind of document and return a structure
-    | for furher processing using machine learning techniques
-    | (e.g. calculating embeddings)
-    |
-    */
+    protected const EXTRACT_ENDPOINT = '/extract-text';
 
     protected array $config;
 
@@ -46,7 +24,7 @@ class CopilotPdfParserDriver implements Driver
     {
 
         if(! isset($config['host'])){
-            throw new InvalidArgumentException('Host is required to create a CopilotPdfParser');
+            throw new InvalidArgumentException('Host is required to create an Extractor Service PDF Parser');
         }
 
         $this->config = $config;
@@ -62,7 +40,7 @@ class CopilotPdfParserDriver implements Driver
         try{
             $response = Http::acceptJson()
                 ->asJson()
-                ->post(rtrim($this->config['host'], '/') . '/extract-text', [
+                ->post(rtrim($this->config['host'], '/') . self::EXTRACT_ENDPOINT, [
                     "mime_type" => $document->mimeType,
                     "url" => $document->url
                 ])
@@ -86,7 +64,7 @@ class CopilotPdfParserDriver implements Driver
     public function properties(DocumentReference $reference): DocumentProperties
     {
         // This driver is not able to extract PDF metatata, 
-        // fallback to a local first driver
+        // fallback to the local native driver
 
         return Pdf::driver(PdfDriver::SMALOT_PDF->value)->properties($reference);
     }

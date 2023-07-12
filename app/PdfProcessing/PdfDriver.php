@@ -14,12 +14,19 @@ enum PdfDriver: string
     case SMALOT_PDF = 'smalot';
 
     /**
-     * The local driver implemented using command line process invokation
+     * The local driver implemented using XPDF command line
      */
     case XPDF = 'xpdf';
 
     /**
      * The remote experimental driver
+     * 
+     * @deprecated use @see PdfDriver::EXTRACTOR_SERVICE
      */
     case COPILOT = 'copilot';
+
+    /**
+     * The PDF Text Extractor service driver
+     */
+    case EXTRACTOR_SERVICE = 'extractor';
 }
