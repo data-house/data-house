@@ -83,6 +83,11 @@ class ImportMap extends Model
         return $this->belongsTo(User::class, 'mapped_uploader');
     }
 
+    public function scopeStatus($query, ImportStatus $status)
+    {
+        return $query->where('status', $status->value);
+    }
+
     public function lockKey(): string
     {
         return 'import-map-lock:' . $this->ulid;

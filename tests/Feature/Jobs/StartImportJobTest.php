@@ -39,6 +39,26 @@ class StartImportJobTest extends TestCase
         $this->assertEquals(ImportStatus::RUNNING, $import->fresh()->maps()->first()->status);
     }
 
+    public function test_completed_maps_are_not_started(): void
+    {
+        Queue::fake();
+
+        $import = Import::factory()
+            ->has(ImportMap::factory()->state([
+                'status' => ImportStatus::COMPLETED
+            ]), 'maps')
+            ->create([
+                'status' => ImportStatus::COMPLETED,
+            ]);
+
+        $import->start();
+
+        Queue::assertNothingPushed();
+        
+        $this->assertEquals(ImportStatus::COMPLETED, $import->fresh()->status);
+        $this->assertEquals(ImportStatus::COMPLETED, $import->fresh()->maps()->first()->status);
+    }
+
 
     public function test_import_start_job_triggers_import_maps()
     {
