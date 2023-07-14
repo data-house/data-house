@@ -75,7 +75,7 @@ class OnlyOfficeDriverTest extends TestCase
                    $data['key'] == $document->getKey() &&
                    $data['outputtype'] === 'pdf' &&
                    $data['title'] === $document->title &&
-                   $data['url'] === $document->internalUrl();
+                   str($data['url'])->startsWith("http://app.internal.url/documents/{$document->ulid}/internal-download");
         });
 
         $this->assertFileExists($convertedFile->absolutePath());
