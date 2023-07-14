@@ -91,15 +91,26 @@ class Import extends Model
      */
     public function start()
     {
-        Cache::lock($this->lockKey())->block(30, function() {
-            DB::transaction(function () {
+        $started = Cache::lock($this->lockKey())->block(30, function() {
+            return DB::transaction(function () {
+
+                if(! $this->maps()->status(ImportStatus::CREATED)->exists()){
+                    return false;
+                }
+
                 $this->status = ImportStatus::RUNNING;
 
                 $this->save();
 
-                $this->maps()->update(['status' => ImportStatus::RUNNING]);
+                $this->maps()->status(ImportStatus::CREATED)->update(['status' => ImportStatus::RUNNING]);
+
+                return true;
             });
         });
+
+        if(!$started){
+            return;
+        }
 
         StartImportJob::dispatch($this);
     }
