@@ -8,6 +8,7 @@ use App\Http\Controllers\ImportController;
 use App\Http\Controllers\ImportMapsController;
 use App\Http\Controllers\InternalDocumentDownloadController;
 use App\Http\Controllers\PdfViewerController;
+use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\StartImportController;
 use App\Http\Middleware\ValidateSignature;
 use Illuminate\Support\Facades\Route;
@@ -49,6 +50,8 @@ Route::middleware([
     Route::resource('imports.mappings', ImportMapsController::class)->shallow()->except(['index', 'show', 'update', 'destroy']);
     
     Route::post('/imports-start', StartImportController::class)->name('imports.start');
+    
+    Route::resource('questions', QuestionController::class)->only(['index', 'show']);
 });
 
 

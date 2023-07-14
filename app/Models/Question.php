@@ -276,6 +276,12 @@ class Question extends Model implements Htmlable
         return $this->answer['text'];
     }
 
+    
+    public function url()
+    {
+        return route('questions.show', $this);
+    }
+
     protected function generateProgressReports()
     {
         if($this->status === QuestionStatus::ERROR){
