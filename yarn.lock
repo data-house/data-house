@@ -155,6 +155,11 @@
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
 
+"@ryangjchandler/alpine-clipboard@^2.2.0":
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/@ryangjchandler/alpine-clipboard/-/alpine-clipboard-2.2.0.tgz#92e54d02bb7ff9213b23d6069454e0be725a2ea9"
+  integrity sha512-2kKHd2mA6K7RuYlC+1fikIUPVJeJLQlY2w9rNGrOgVfzXUZRotjTP+EjxouDizTEvqNRkVTJnmmNle32Uhb4zw==
+
 "@tailwindcss/forms@^0.5.2":
   version "0.5.3"
   resolved "https://registry.yarnpkg.com/@tailwindcss/forms/-/forms-0.5.3.tgz#e4d7989686cbcaf416c53f1523df5225332a86e7"
