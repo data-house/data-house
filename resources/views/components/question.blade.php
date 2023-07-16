@@ -11,8 +11,17 @@ if($question->status === \App\Models\QuestionStatus::ERROR){
 @endphp
 
     <div {{ $attributes->merge(['class' => 'px-3 md:py-4 py-2.5 group transition-opacity focus-within:bg-stone-100 target:bg-yellow-50 ' . $classes, 'id' => $id ?? $question->uuid]) }} {{ $poll ? 'wire:poll.visible' : ''}}>
-        <div class="flex items-center max-w-4xl mx-auto space-x-3 ">
-            <x-heroicon-s-user-circle class="w-6 h-6 flex-shrink-0 mt-[2px]" />
+        <div class="flex items-center max-w-4xl mx-auto space-x-3 relative">
+
+            <div>
+                <div class="absolute -left-8">
+                    <a href="#{{ $question->uuid }}" 
+                        title="{{ __('Anchor to question within chat') }}"
+                        class="font-mono text-lg relative z-20 flex items-center opacity-0 group-hover:opacity-100 group-focus:opacity-100  group-focus-within:opacity-100">#</a>
+                </div>
+                
+                <x-heroicon-s-user-circle class="w-6 h-6 flex-shrink-0 mt-[2px]" />
+            </div>
 
             <div class="w-full min-w-0 text-sm sm:text-base">
                 <div class="prose prose-stone prose-sm sm:prose-base prose-pre:rounded-md prose-p:whitespace-pre-wrap prose-p:break-words w-full flex-1 leading-6 prose-p:leading-7 prose-pre:bg-[#282c34] max-w-full">
@@ -22,7 +31,7 @@ if($question->status === \App\Models\QuestionStatus::ERROR){
 
             <div class="flex items-start mt-[2px]">
                 <div class="flex flex-row gap-2 items-center" data-state="closed">
-                    <x-copy-clipboard-button :value="$document ? route('documents.show', $document) . '#' . ($id ?? $question->uuid)  : $question->url()" title="{{ __('Copy link to question') }}" class="opacity-0 cursor-default group-hover:opacity-100 group-focus:opacity-100  group-focus-within:opacity-100">
+                    <x-copy-clipboard-button :value="$question->url()" title="{{ __('Copy link to question') }}" class="opacity-0 cursor-default group-hover:opacity-100 group-focus:opacity-100  group-focus-within:opacity-100">
                         <x-slot:icon><x-heroicon-m-link class="w-5 h-5" /></x-slot>
                         {{ __('Link') }}
                     </x-copy-clipboard-button>

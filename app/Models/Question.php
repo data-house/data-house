@@ -273,7 +273,7 @@ class Question extends Model implements Htmlable
     
     public function toText()
     {
-        return $this->answer['text'];
+        return $this->answer['text'] ?? '';
     }
 
     
