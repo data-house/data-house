@@ -29,7 +29,7 @@
                 <x-heroicon-m-document-duplicate class="w-5 h-5" />
             @endisset
         </span>
-        <x-heroicon-m-check-circle  x-show="copyNotification" class="w-5 h-5 text-green-500" />
+        <x-heroicon-m-check-circle x-cloak x-show="copyNotification" class="w-5 h-5 text-green-500" />
         
         <span class="hidden sm:inline">{{ $slot }}</span>
     </button>
