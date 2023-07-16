@@ -3,11 +3,9 @@
         {{ __('Digital Library') }}
     </x-slot>
     <x-slot name="header">
-        <div class="md:flex md:items-center md:justify-between relative">
-            <h2 class="font-semibold text-xl text-stone-800 leading-tight">
-                {{ __('Digital Library') }}
-            </h2>
-            <div class="flex gap-2">
+        <x-page-heading :title="__('Digital Library')">
+
+            <x-slot:actions>
                 @can('create', \App\Model\Document::class)
                     <x-button-link href="{{ route('documents.create') }}">
                         {{ __('Upload Document') }}
@@ -18,8 +16,10 @@
                         {{ __('Import Documents') }}
                     </x-button-link>
                 @endcan
-            </div>
-        </div>
+            </x-slot>
+
+            @include('library-navigation-menu')
+        </x-page-heading>
     </x-slot>
 
     <div class="py-12">

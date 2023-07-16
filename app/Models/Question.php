@@ -270,6 +270,17 @@ class Question extends Model implements Htmlable
     {
         return Str::markdown($this->answer['text'] ?? $this->generateProgressReports());
     }
+    
+    public function toText()
+    {
+        return $this->answer['text'] ?? '';
+    }
+
+    
+    public function url()
+    {
+        return route('questions.show', $this);
+    }
 
     protected function generateProgressReports()
     {
