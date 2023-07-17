@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Question;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 
 class QuestionController extends Controller
@@ -20,7 +21,15 @@ class QuestionController extends Controller
     {
         $searchQuery = $request->has('s') ? e($request->input('s')) : null;
 
-        $questions = $searchQuery ? Question::with(['questionable', 'user'])->search(e($searchQuery))->get() : Question::query()->with(['questionable', 'user'])->orderBy('status')->orderBy('created_at', 'DESC')->get();
+        $questions = $searchQuery ? 
+            Question::search(e($searchQuery))
+                ->query(fn (Builder $query) => $query->with(['questionable', 'user']))
+                ->get()
+            :
+            Question::query()->with(['questionable', 'user'])
+                ->orderBy('status')
+                ->orderBy('created_at', 'DESC')
+                ->get();
         
         return view('question.index', [
             'questions' => $questions,
