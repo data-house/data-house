@@ -15,7 +15,7 @@ class QuestionFeedback extends Component
      */
     public $question;
 
-    public $showingDislikeModal = false;
+    public $showingCommentModal = false;
 
     /**
      * @var \App\Models\QuestionFeedback
@@ -33,7 +33,7 @@ class QuestionFeedback extends Component
     public function mount($question)
     {
         $this->question = $question;
-        $this->showingDislikeModal = false;
+        $this->showingCommentModal = false;
     }
 
 
@@ -72,7 +72,7 @@ class QuestionFeedback extends Component
     /**
      * Track a like feedback
      */
-    public function like()
+    public function recordPositiveFeedback()
     {
         $this->feedback = $this->recordFeedback(FeedbackVote::LIKE);
 
@@ -84,11 +84,33 @@ class QuestionFeedback extends Component
     /**
      * Track a dislike feedback
      */
-    public function dislike()
+    public function recordNeutralFeedback()
     {
 
-        if($this->showingDislikeModal){
-            $this->showingDislikeModal = false;
+        if($this->showingCommentModal){
+            $this->showingCommentModal = false;
+            $this->feedback = null;
+
+            return;
+        }
+
+        $this->feedback = $this->recordFeedback(FeedbackVote::IMPROVABLE);
+
+        $this->question = $this->question->fresh();
+
+        $this->showingCommentModal = true;
+
+        $this->emit('saved');
+    }
+    
+    /**
+     * Track a dislike feedback
+     */
+    public function recordNegativeFeedback()
+    {
+
+        if($this->showingCommentModal){
+            $this->showingCommentModal = false;
             $this->feedback = null;
 
             return;
@@ -98,18 +120,18 @@ class QuestionFeedback extends Component
 
         $this->question = $this->question->fresh();
 
-        $this->showingDislikeModal = true;
+        $this->showingCommentModal = true;
 
         $this->emit('saved');
     }
 
-    public function saveDislikeComment()
+    public function saveComment()
     {
         $this->validate();
  
         $this->feedback->save();
 
-        $this->showingDislikeModal = false;
+        $this->showingCommentModal = false;
 
         $this->feedback = null;
 

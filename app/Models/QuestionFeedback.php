@@ -46,12 +46,17 @@ class QuestionFeedback extends Model
     }
 
 
-    public function scopeLike(Builder $query): void
+    public function scopePositive(Builder $query): void
     {
         $query->where('vote', FeedbackVote::LIKE->value);
     }
     
-    public function scopeDislike(Builder $query): void
+    public function scopeNeutral(Builder $query): void
+    {
+        $query->where('vote', FeedbackVote::IMPROVABLE->value);
+    }
+    
+    public function scopeNegative(Builder $query): void
     {
         $query->where('vote', FeedbackVote::DISLIKE->value);
     }
