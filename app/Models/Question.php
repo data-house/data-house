@@ -65,6 +65,7 @@ class Question extends Model implements Htmlable
      */
     protected $withCount = [
         'likes',
+        'improvables',
         'dislikes',
     ];
 
@@ -109,12 +110,17 @@ class Question extends Model implements Htmlable
     
     public function likes()
     {
-        return $this->feedbacks()->like();
+        return $this->feedbacks()->positive();
     }
     
+    public function improvables()
+    {
+        return $this->feedbacks()->neutral();
+    }
+
     public function dislikes()
     {
-        return $this->feedbacks()->dislike();
+        return $this->feedbacks()->negative();
     }
 
     public function scopeHash(Builder $query, string $hash): void
