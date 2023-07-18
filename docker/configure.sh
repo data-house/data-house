@@ -109,6 +109,7 @@ function install_or_update() {
     php artisan config:cache
     php artisan route:cache
     php artisan optimize
+    php artisan operations:process
 }
 
 function wait_services () {
