@@ -33,8 +33,8 @@ class QuestionListTest extends TestCase
         $component->assertSee('Do you really reply to my question?');
         $component->assertSeeHtml($question->toHtml());
         $component->assertSee('bg-stone-50');
-        $component->assertSee('Like');
-        $component->assertSee('Dislike');
+        $component->assertSee('Good');
+        $component->assertSee('Poor');
     }
 
     public function test_pending_question_not_rendered()
