@@ -2,6 +2,7 @@
 
 namespace App\Copilot;
 
+use Illuminate\Support\Arr;
 use JsonSerializable;
 
 class CopilotRequest implements JsonSerializable
@@ -16,6 +17,10 @@ class CopilotRequest implements JsonSerializable
     {
     }
 
+    public function multipleQuestionRequest(): bool
+    {
+        return is_array($this->documents) && count($this->documents) > 1;
+    }
 
     /**
      * Get the JSON serializable representation of the object.
@@ -25,6 +30,16 @@ class CopilotRequest implements JsonSerializable
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
+        if($this->multipleQuestionRequest()){
+            return [
+                'q_id' => $this->id,
+                'arguments' => ['text' => $this->question],
+                'template_id' => '0', // template id corresponding to free multiple question on the backend
+                'doc_list' => Arr::wrap($this->documents),
+                'lang' => $this->language,
+            ];
+        }
+
         return [
             'q_id' => $this->id,
             'q' => $this->question,
