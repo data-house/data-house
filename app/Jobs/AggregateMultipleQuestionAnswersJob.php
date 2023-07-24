@@ -53,23 +53,17 @@ class AggregateMultipleQuestionAnswersJob implements ShouldQueue
         if ($this->hasBeenCancelled()) {
             return;
         }
+
+        $pendingQuestions = $this->question->children()->pending()->count();
+
+        if($pendingQuestions > 1){
+
+            self::dispatch($this->question)->delay(10 * (int)($pendingQuestions / 2));
+
+            return;
+        }
         
-        // list($mainQuestion, $questions) = $this->question->decompose();
-
-        // Check if there are pending questions => if yes push back the job to the queue
-
-        // If single related question execution is finished
-
-        // - aggregate the answers
-        // - mark the question as processed
-
-        // if ( ! isset($report->nextPageToken)) {
-        //     $this->lastPage();
-        // } else {
-        //     // Dispatch next page
-        //     // TODO: dispatch the next page
-        //     // self::dispatch($this->importMap, $report->nextPageToken)->delay(now()->addSeconds(5));
-        // }
+        $this->question->aggregateAnswers();
     }
 
     public function failed()

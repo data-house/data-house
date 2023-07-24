@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Copilot\AnswerAggregationCopilotRequest;
 use App\Copilot\CopilotRequest;
 use App\Copilot\CopilotResponse;
 use Illuminate\Contracts\Support\Htmlable;
@@ -152,6 +153,14 @@ class Question extends Model implements Htmlable
             ->withPivot(['type']);
     }
 
+    /**
+     * Children of this question
+     */
+    public function children(): BelongsToMany
+    {
+        return $this->related()->wherePivot('type', QuestionRelation::CHILDREN);
+    }
+
     public function scopeHash(Builder $query, string $hash): void
     {
         $query->where('hash', $hash);
@@ -277,7 +286,7 @@ class Question extends Model implements Htmlable
 
         });
 
-        // TODO: make this generate as we cannot assume that the questionable will have a documents relation and all entries are of type Document
+        // TODO: make this generic as we cannot assume that the questionable will have a documents relation and all entries are of type Document
         $documents = $this->questionable->documents()->select(['documents.'.((new Document())->getCopilotKeyName())])->get()->map->getCopilotKey();
 
         $request = new CopilotRequest($this->uuid, $this->question, $documents->toArray(), $language);
@@ -301,17 +310,6 @@ class Question extends Model implements Htmlable
         $questions = null;
 
         Cache::lock($this->lockKey())->block(45, function() use($response, &$questions) {
-        
-            // TODO: generate question for each of the documents in the questionable collection
-
-            // array<doc_id, question>
-
-            // "text" => "",
-            // "references" => [
-            //     4 => "Question text",
-            //     12 => "Question text",
-            // ],
-
             $questions = DB::transaction(function() use($response) {
 
                 $questions = $this->questionable->documents->map(function($document) use ($response) {
@@ -330,6 +328,43 @@ class Question extends Model implements Htmlable
         return [$this->fresh(), $questions ?? collect()];
     }
 
+    /**
+     * Aggregate all children answers into a single answer
+     */
+    public function aggregateAnswers(): self
+    {
+        $subQuestions = $this->children()->select(['answer', 'execution_time'])->get();
+        $answers = $subQuestions->pluck('answer')->toArray();
+
+        $request = new AnswerAggregationCopilotRequest($this->uuid, $this->question, $answers, $this->language);
+        
+        // We cache the response for each user as it requires time and resources.
+        // This improves also the responsiveness of the system on the short run.
+        // TODO: add a command that invalidates the questions based on the modified documents
+        $response = Cache::remember('qa-'.$request->hash(), config('copilot.cache.ttl'), function() use ($request) {
+            return $this->executeAggregationRequest($request);
+        });
+
+        Cache::lock($this->lockKey())->block(30, function() use($request, $response, $subQuestions) {
+        
+            $this->fill([
+                'language' => $request->language,
+                'answer' => [
+                    'text' => $response->text,
+                    'references' => $response->references,
+                ],
+                'execution_time' => $response->executionTime + $subQuestions->sum('execution_time'),
+                'status' => QuestionStatus::PROCESSED,
+            ]);
+
+            $this->save();
+
+        });
+
+        
+        return $this->fresh();
+    }
+
 
     protected function executeQuestionRequest(CopilotRequest $request): CopilotResponse
     {
@@ -342,6 +377,24 @@ class Question extends Model implements Htmlable
 
         $timing = Benchmark::measure(function() use ($request, &$response) {
             $response = $this->questionable->questionableUsing()->question($request);
+        });
+
+        $response?->setExecutionTime($timing);
+
+        return $response;
+    }
+    
+    protected function executeAggregationRequest(AnswerAggregationCopilotRequest $request): CopilotResponse
+    {
+        /**
+         * @var \App\Copilot\CopilotResponse
+         */
+        $response = null;
+
+        // TODO: benchmarking should be at driver level
+
+        $timing = Benchmark::measure(function() use ($request, &$response) {
+            $response = $this->questionable->questionableUsing()->aggregate($request);
         });
 
         $response?->setExecutionTime($timing);

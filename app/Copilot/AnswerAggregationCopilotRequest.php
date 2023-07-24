@@ -24,4 +24,17 @@ class AnswerAggregationCopilotRequest extends CopilotRequest
         ];
     }
 
+    /**
+     * Calculate a hash representing the characteristics of the request.
+     * 
+     * This can be used to cache the request and the response.
+     * 
+     * @return string
+     */
+    public function hash(): string
+    {
+        // TODO: template should play a role here
+        return hash('sha512', $this->question . '-0-');
+    }
+
 }
