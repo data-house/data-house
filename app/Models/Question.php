@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Benchmark;
 use Illuminate\Support\Facades\Cache;
@@ -49,6 +50,7 @@ class Question extends Model implements Htmlable
         'answer',
         'status',
         'execution_time',
+        'target',
     ];
 
     protected $casts = [
@@ -56,6 +58,7 @@ class Question extends Model implements Htmlable
         'status' => QuestionStatus::class,
         'answer' => AsArrayObject::class,
         'execution_time' => 'float',
+        'target' => QuestionTarget::class,
     ];
 
     /**
@@ -69,7 +72,16 @@ class Question extends Model implements Htmlable
         'dislikes',
     ];
 
-    
+    /**
+     * The model's default values for attributes.
+     *
+     * @var array
+     */
+    protected $attributes = [
+        'status' => QuestionStatus::CREATED,
+        'target' => QuestionTarget::SINGLE,
+    ];
+
     /**
      * Get the columns that should receive a unique identifier.
      *
@@ -93,6 +105,11 @@ class Question extends Model implements Htmlable
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function team()
+    {
+        return $this->belongsTo(Team::class);
     }
 
     /**
@@ -121,6 +138,16 @@ class Question extends Model implements Htmlable
     public function dislikes()
     {
         return $this->feedbacks()->negative();
+    }
+
+    /**
+     * Related questions to this question
+     */
+    public function related(): BelongsToMany
+    {
+        return $this->belongsToMany(Question::class, 'question_relationship', 'source', 'target')
+            ->using(QuestionRelationship::class)
+            ->withPivot(['type']);
     }
 
     public function scopeHash(Builder $query, string $hash): void
