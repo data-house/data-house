@@ -7,6 +7,7 @@ use App\Copilot\CopilotResponse;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\AsArrayObject;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -15,6 +16,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Benchmark;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Laravel\Scout\Searchable;
 use Illuminate\Support\Str;
 use Oneofftech\LaravelLanguageRecognizer\Support\Facades\LanguageRecognizer;
@@ -253,6 +255,81 @@ class Question extends Model implements Htmlable
         return $this->fresh();
     }
 
+    /**
+     * Decompose the multiple question to single questions for each questionable item in the collection
+     */
+    public function decompose(): array
+    {
+        // if($this->status !== QuestionStatus::CREATED){
+        //     return $this;
+        // }
+
+        $language = $this->language ?? $this->recognizeLanguage();
+
+        Cache::lock($this->lockKey())->block(30, function() use($language) {
+        
+            $this->fill([
+                'language' => $language,
+                'status' => QuestionStatus::ANSWERING,
+            ]);
+
+            $this->save();
+
+        });
+
+        // TODO: make this generate as we cannot assume that the questionable will have a documents relation and all entries are of type Document
+        $documents = $this->questionable->documents()->select(['documents.'.((new Document())->getCopilotKeyName())])->get()->map->getCopilotKey();
+
+        $request = new CopilotRequest($this->uuid, $this->question, $documents->toArray(), $language);
+
+        // TODO: maybe a check on another user asking the same question
+        // $previouslyExecutedQuestion = Question::hash($request->hash())->first();
+
+        // if($previouslyExecutedQuestion){
+        //     return $previouslyExecutedQuestion->answerAsCopilotResponse();
+        // }
+        
+        // We cache the response for each user as it requires time and resources.
+        // This improves also the responsiveness of the system on the short run.
+        // TODO: add a command that invalidates the questions based on the modified documents
+
+
+        $response = Cache::remember('q-'.$request->hash(), config('copilot.cache.ttl'), function() use ($request) {
+            return $this->executeQuestionRequest($request);
+        });
+
+        $questions = null;
+
+        Cache::lock($this->lockKey())->block(45, function() use($response, &$questions) {
+        
+            // TODO: generate question for each of the documents in the questionable collection
+
+            // array<doc_id, question>
+
+            // "text" => "",
+            // "references" => [
+            //     4 => "Question text",
+            //     12 => "Question text",
+            // ],
+
+            $questions = DB::transaction(function() use($response) {
+
+                $questions = $this->questionable->documents->map(function($document) use ($response) {
+                    $question = $document->question($response->references[$document->getCopilotKey()], $this->language);
+    
+                    $this->related()->attach($question, ['type' => QuestionRelation::CHILDREN]);
+    
+                    return $question;
+                });
+
+                return $questions;
+            });
+        });
+
+        
+        return [$this->fresh(), $questions ?? collect()];
+    }
+
 
     protected function executeQuestionRequest(CopilotRequest $request): CopilotResponse
     {
@@ -260,6 +337,8 @@ class Question extends Model implements Htmlable
          * @var \App\Copilot\CopilotResponse
          */
         $response = null;
+
+        // TODO: benchmarking should be at driver level
 
         $timing = Benchmark::measure(function() use ($request, &$response) {
             $response = $this->questionable->questionableUsing()->question($request);
