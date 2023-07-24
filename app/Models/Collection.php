@@ -32,9 +32,12 @@ class Collection extends Model
      */
     protected $fillable = [
         'title',
+        'type',
         'visibility',
+        'strategy',
         'user_id',
         'team_id',
+        'draft',
     ];
 
     protected $casts = [

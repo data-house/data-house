@@ -11,9 +11,10 @@ enum CollectionStrategy: int
     case STATIC = 10;
 
     /**
-     * All documents, a shortcut to refer to all visible documents to the user
+     * All documents in the library.
+     * Collection contais all documents in the library
      */
-    case ALL_DOCUMENTS = 20;
+    case LIBRARY = 20;
 
     /**
      * Documents found using a search

@@ -3,6 +3,8 @@
 namespace App\Actions\Collection;
 
 use App\Models\Collection;
+use App\Models\CollectionStrategy;
+use App\Models\CollectionType;
 use App\Models\Team;
 use App\Models\User;
 use App\Models\Visibility;
@@ -24,7 +26,10 @@ class CreateCollection
 
         Validator::make($input, [
             'title' => ['required', 'string', 'min:1', 'max:255'],
-            'visibility' => [new Enum(Visibility::class)],
+            'visibility' => ['required', new Enum(Visibility::class)],
+            'type' => ['required', new Enum(CollectionType::class)],
+            'strategy' => ['nullable', new Enum(CollectionStrategy::class)],
+            'draft' => ['nullable', 'bool'],
             // TODO: handle validation in case of Team collection as team_id is required
         ])->validate();
 
@@ -32,6 +37,9 @@ class CreateCollection
             'user_id' => $user->getKey(),
             'title' => $input['title'],
             'visibility' => $input['visibility'],
+            'type' => $input['type'],
+            'strategy' => $input['strategy'] ?? CollectionStrategy::STATIC,
+            'draft' => $input['draft'],
         ]);
 
     }
