@@ -48,32 +48,36 @@
                 <div class="space-y-2">
                     
                     {{-- It is currently assumed that a questionable is always a document, but might not be the case in future --}}
+
+                    @if ($question->target === \App\Models\QuestionTarget::SINGLE)
                     
-                    <h2 class="font-semibold text-xl text-stone-800 leading-tight break-all">
-                        <a href="{{ route('documents.show', $question->questionable )}}">{{ $question->questionable->title }}</a>
-                    </h2>
-                    <div class="flex gap-2">
-                        @can('view', $question->questionable)
-                            <x-button-link href="{{ $question->questionable->viewerUrl() }}" target="_blank">
-                                {{ __('Open Document') }}
-                            </x-button-link>
-                        @endcan
-                    </div>
+                        <h2 class="font-semibold text-xl text-stone-800 leading-tight break-all">
+                            <a href="{{ route('documents.show', $question->questionable )}}">{{ $question->questionable->title }}</a>
+                        </h2>
+                        <div class="flex gap-2">
+                            @can('view', $question->questionable)
+                                <x-button-link href="{{ $question->questionable->viewerUrl() }}" target="_blank">
+                                    {{ __('Open Document') }}
+                                </x-button-link>
+                            @endcan
+                        </div>
 
-                    <div class="aspect-video bg-white flex items-center justify-center">
-                        {{-- Space for the thumbnail --}}
-                        <x-codicon-file-pdf class="text-gray-400 h-10 w-h-10" />
-                    </div>
+                        <div class="aspect-video bg-white flex items-center justify-center">
+                            {{-- Space for the thumbnail --}}
+                            <x-codicon-file-pdf class="text-gray-400 h-10 w-h-10" />
+                        </div>
 
-                    <div class="space-y-2">
-                        <h4 class="font-bold">{{ __('Details') }}</h4>
-                        
-                        <p><span class="text-xs uppercase block text-stone-700">{{ __('File type') }}</span>{{ $question->questionable->mime }}</p>
-                        <p><span class="text-xs uppercase block text-stone-700">{{ __('Uploaded by') }}</span>{{ $question->questionable->uploader->name }}</p>
-                        <p><span class="text-xs uppercase block text-stone-700">{{ __('Team') }}</span>{{ $question->questionable->team?->name }}</p>
-                        <p><span class="text-xs uppercase block text-stone-700">{{ __('Language') }}</span>{{ $question->questionable->languages?->join(',') }}</p>
-                        
-                    </div>
+                        <div class="space-y-2">
+                            <h4 class="font-bold">{{ __('Details') }}</h4>
+                            
+                            <p><span class="text-xs uppercase block text-stone-700">{{ __('File type') }}</span>{{ $question->questionable->mime }}</p>
+                            <p><span class="text-xs uppercase block text-stone-700">{{ __('Uploaded by') }}</span>{{ $question->questionable->uploader->name }}</p>
+                            <p><span class="text-xs uppercase block text-stone-700">{{ __('Team') }}</span>{{ $question->questionable->team?->name }}</p>
+                            <p><span class="text-xs uppercase block text-stone-700">{{ __('Language') }}</span>{{ $question->questionable->languages?->join(',') }}</p>
+                            
+                        </div>
+
+                    @endif
 
                 </div>
                 

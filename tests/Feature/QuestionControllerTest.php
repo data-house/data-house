@@ -56,5 +56,18 @@ class QuestionControllerTest extends TestCase
         $response->assertViewHas('question', $question);
     }
 
+    public function test_multiple_question_page_viewable(): void
+    {
+        $question = Question::factory()->multiple()->create();
+
+        $user = User::factory()->manager()->create();
+
+        $response = $this->actingAs($user)->get(route('questions.show', $question));
+
+        $response->assertSuccessful();
+
+        $response->assertViewHas('question', $question);
+    }
+
 
 }

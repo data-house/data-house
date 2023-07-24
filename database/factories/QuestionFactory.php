@@ -5,6 +5,7 @@ namespace Database\Factories;
 use App\Models\Collection;
 use App\Models\Document;
 use App\Models\QuestionStatus;
+use App\Models\QuestionTarget;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -67,6 +68,7 @@ class QuestionFactory extends Factory
                     return hash('sha512', $attributes['question'] . '-' . $documents->join('-'));
                 },
                 'questionable_type' => Collection::class,
+                'target' => QuestionTarget::MULTIPLE,
             ];
         });
     }

@@ -14,7 +14,7 @@ class DocumentLibraryController extends Controller
     {
         $searchQuery = $request->has('s') ? e($request->input('s')) : null;
 
-        $documents = $searchQuery ? Document::search(e($searchQuery))->get() : Document::all();
+        $documents = $searchQuery ? Document::search(e($searchQuery))->paginate(150) : Document::query()->paginate(150);
 
         return view('library.index', [
             'documents' => $documents,
