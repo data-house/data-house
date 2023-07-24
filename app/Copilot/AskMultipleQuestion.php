@@ -53,6 +53,7 @@ trait AskMultipleQuestion
             'question' => $request->question,
             'hash' => $request->hash(),
             'user_id' => auth()->user()?->getKey(),
+            'team_id' => auth()->user()?->currentTeam?->getKey(),
             'language' => $language,
             'target' => QuestionTarget::MULTIPLE,
         ]);
