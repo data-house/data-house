@@ -21,4 +21,10 @@ enum CollectionStrategy: int
      * Collections created from search results are examples of a dynamic collection
      */
     case SEARCH = 30;
+
+    /**
+     * Documents found using a search
+     * Collections created from search results are examples of a dynamic collection
+     */
+    case STARRED = 40;
 }
