@@ -39,7 +39,7 @@ class CreateCollection
             'visibility' => $input['visibility'],
             'type' => $input['type'],
             'strategy' => $input['strategy'] ?? CollectionStrategy::STATIC,
-            'draft' => $input['draft'],
+            'draft' => $input['draft'] ?? true,
         ]);
 
     }
