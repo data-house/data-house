@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\CollectionStrategy;
 use App\Models\CollectionType;
 use App\Models\User;
 use App\Models\Visibility;
@@ -23,7 +24,8 @@ class CollectionFactory extends Factory
             'title' => fake()->text(40),
             'user_id' => User::factory(),
             'type' => CollectionType::STATIC,
-            'visibility' => Visibility::PERSONAL,
+            'visibility' => Visibility::SYSTEM,
+            'strategy' => CollectionStrategy::LIBRARY,
             'team_id' => null,
         ];
     }

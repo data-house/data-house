@@ -198,6 +198,15 @@ class Question extends Model implements Htmlable
     }
 
     
+    public function isSingle()
+    {
+        return $this->target === QuestionTarget::SINGLE;
+    }
+    
+    public function isMultiple()
+    {
+        return $this->target === QuestionTarget::MULTIPLE;
+    }
 
 
     
@@ -313,7 +322,12 @@ class Question extends Model implements Htmlable
             $questions = DB::transaction(function() use($response) {
 
                 $questions = $this->questionable->documents->map(function($document) use ($response) {
+                    
+                    logs()->info('this', ['this' => $this->toArray(), 'document' => $document->toArray()]);
+                    
                     $question = $document->question($response->references[$document->getCopilotKey()], $this->language);
+                    
+                    logs()->info('created question', ['question' => $question->toArray(), 'document' => $document->toArray()]);
     
                     $this->related()->attach($question, ['type' => QuestionRelation::CHILDREN]);
     

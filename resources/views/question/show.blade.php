@@ -18,6 +18,13 @@
             
             <div>
                 <p class="flex items-center gap-4">
+                    
+                    @if ($question->isSingle())
+                        <x-heroicon-o-document class="w-4 h-4" title="{{ __('Question on a single document') }}" />
+                    @elseif ($question->isMultiple())
+                        <x-heroicon-o-archive-box class="w-4 h-4" title="{{ __('Question over a collection of documents') }}" />
+                    @endif
+                    
                     @if ($question->isPending())
                         <span class="px-1 py-0.5 rounded-md bg-lime-100 border border-lime-400 text-lime-800">{{ __('Answering') }}</span>
                     @elseif ($question->hasError())
@@ -37,7 +44,7 @@
                 <div class=" col-span-2 space-y-2">
 
                     <div class="bg-white">
-                        <x-question class="" :question="$question" :document="$question->questionable" />
+                        <livewire:question :question="$question" :poll="$question?->isPending() ?? false" />
                     </div>
                         
                     <p class="text-xs text-stone-600">
@@ -47,9 +54,7 @@
 
                 <div class="space-y-2">
                     
-                    {{-- It is currently assumed that a questionable is always a document, but might not be the case in future --}}
-
-                    @if ($question->target === \App\Models\QuestionTarget::SINGLE)
+                    @if ($question->isSingle())
                     
                         <h2 class="font-semibold text-xl text-stone-800 leading-tight break-all">
                             <a href="{{ route('documents.show', $question->questionable )}}">{{ $question->questionable->title }}</a>
@@ -77,11 +82,19 @@
                             
                         </div>
 
+                    @elseif($question->isMultiple())
+                        <h2 class="font-semibold text-xl text-stone-800 leading-tight break-all">
+                            <a href="{{ $question->questionable->url() }}">{{ $question->questionable->title }}</a>
+                        </h2>
                     @endif
 
                 </div>
                 
             </div>
         </div>
+
+        @if($question->isMultiple())
+            <livewire:child-questions :question="$question" />
+        @endif
     </div>
 </x-app-layout>

@@ -94,4 +94,13 @@ class Collection extends Model
         return $this->belongsToMany(Document::class);
     }
 
+    public function url()
+    {
+        if($this->visibility == Visibility::SYSTEM && $this->strategy == CollectionStrategy::LIBRARY){
+            return route('documents.library');
+        }
+
+        return route('collections.show', $this);
+    }
+
 }

@@ -12,6 +12,13 @@ if($question->status === \App\Models\QuestionStatus::ERROR){
 
 <div {{ $attributes->merge(['class' => 'relative flex flex-col gap-2 px-3 md:py-4 py-2.5 rounded shadow group transition-opacity focus:ring-lime-500 focus-within:ring-lime-500 ' . $classes]) }}>
     <p class="flex items-center gap-4 text-sm">
+
+        @if ($question->isSingle())
+            <x-heroicon-o-document class="w-4 h-4" title="{{ __('Question on a single document') }}" />
+        @elseif ($question->isMultiple())
+            <x-heroicon-o-archive-box class="w-4 h-4" title="{{ __('Question over a collection of documents') }}" />
+        @endif
+
         @if ($question->isPending())
             <span class="px-1 py-0.5 rounded-md bg-lime-100 border border-lime-400 text-lime-800">{{ __('Answering') }}</span>
         @elseif ($question->hasError())
