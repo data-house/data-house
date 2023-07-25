@@ -24,9 +24,29 @@ class CollectionFactory extends Factory
             'title' => fake()->text(40),
             'user_id' => User::factory(),
             'type' => CollectionType::STATIC,
-            'visibility' => Visibility::SYSTEM,
-            'strategy' => CollectionStrategy::LIBRARY,
+            'visibility' => Visibility::PERSONAL,
+            'strategy' => CollectionStrategy::STATIC,
             'team_id' => null,
         ];
+    }
+
+    public function library()
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'visibility' => Visibility::SYSTEM,
+                'strategy' => CollectionStrategy::LIBRARY,
+            ];
+        });
+    }
+    
+    public function starred()
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'visibility' => Visibility::SYSTEM,
+                'strategy' => CollectionStrategy::STARRED,
+            ];
+        });
     }
 }

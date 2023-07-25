@@ -103,4 +103,10 @@ class Collection extends Model
         return route('collections.show', $this);
     }
 
+
+    public function scopeWithoutSystem($query)
+    {
+        return $query->whereNot('visibility', Visibility::SYSTEM);
+    }
+
 }

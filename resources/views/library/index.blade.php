@@ -6,6 +6,12 @@
         <x-page-heading :title="__('Digital Library')">
 
             <x-slot:actions>
+                @can('viewAny', \App\Models\Collection::class)
+
+                    <livewire:collection-switcher />
+
+                @endcan
+
                 @can('create', \App\Model\Document::class)
                     <x-button-link href="{{ route('documents.create') }}">
                         {{ __('Upload Document') }}

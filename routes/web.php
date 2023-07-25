@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CollectionController;
 use App\Http\Controllers\CreateMultipleQuestionController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\DocumentDownloadController;
@@ -55,6 +56,8 @@ Route::middleware([
     Route::resource('questions', QuestionController::class)->only(['index', 'show']);
     
     Route::post('multiple-question', CreateMultipleQuestionController::class)->name('multiple-questions.store');
+    
+    Route::resource('collections', CollectionController::class);
 });
 
 
