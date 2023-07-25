@@ -231,8 +231,8 @@ class OaksEngine extends Engine
                 throw new CopilotException("Communication error with the copilot. Missing answer.");
             }
 
-            $answerText = $json['answer'][0]['text'] ?? $json['answer']['text'] ?? null;
-            $answerReferences = $json['answer'][0]['references'] ?? $json['answer']['references'] ?? [];
+            $answerText = $json['answer'][0]['text'] ?? $json['answer']['text'] ?? $json['answer'] ?? null;
+            $answerReferences = $json['answer'][0]['references'] ?? $json['answer']['references'] ?? $json['references'] ?? [];
 
             if(is_null($answerText)){
                 throw new CopilotException(__('There was a problem while obtaining the answer. Please report it.'));
