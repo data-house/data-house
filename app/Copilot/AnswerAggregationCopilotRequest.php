@@ -20,7 +20,9 @@ class AnswerAggregationCopilotRequest extends CopilotRequest
             'arguments' => ['text' => $this->question],
             'template_id' => '0', // template id corresponding to free multiple question on the backend
             'lang' => $this->language,
-            'answers' => $this->documents,
+            'answers' => collect($this->documents)->filter()
+                ->values()
+                ->toArray(),
         ];
     }
 
