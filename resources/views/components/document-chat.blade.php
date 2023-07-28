@@ -6,11 +6,6 @@
         <p class="mb-2 text-sm text-lime-700 flex items-center gap-1">
             <x-heroicon-s-sparkles class="text-lime-500 h-6 w-6" />{{ __('Explore document\'s content by asking questions...') }}
         </p>
-
-        <x-copy-clipboard-button value="{{ route('documents.show', $document) . '#chat' }}" title="{{ __('Copy link to the chat of this document') }}">
-            <x-slot:icon><x-heroicon-m-link class="w-5 h-5" /></x-slot>
-            {{ __('Link to chat') }}
-        </x-copy-clipboard-button>
     </div>
 
     <div class="divide-y bg-white">
