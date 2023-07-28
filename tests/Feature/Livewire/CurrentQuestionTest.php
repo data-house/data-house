@@ -71,7 +71,7 @@ class CurrentQuestionTest extends TestCase
         $component->assertDontSee('bg-lime-200');
     }
 
-    public function test_cancelled_question_not_rendered()
+    public function test_cancelled_question_rendered()
     {
         $question = Question::factory()->create([
             'question' => 'Do you really reply to my question?',
@@ -85,8 +85,8 @@ class CurrentQuestionTest extends TestCase
 
         $component->assertStatus(200);
 
-        $component->assertDontSee('Do you really reply to my question?');
-        $component->assertDontSee('Answer creation cancelled.');
+        $component->assertSee('Do you really reply to my question?');
+        $component->assertSee('Answer creation cancelled.');
         $component->assertDontSee('bg-lime-200');
     }
 }
