@@ -12,7 +12,10 @@ if($question->status === \App\Models\QuestionStatus::ERROR){
 
     <div {{ $attributes->merge(['class' => 'px-3 md:py-4 py-2.5 group transition-opacity focus-within:bg-stone-100 target:bg-yellow-50 ' . $classes, 'id' => $id ?? $question->uuid]) }} {{ $poll ? 'wire:poll.visible' : ''}}>
         <div class="flex items-center max-w-4xl mx-auto space-x-3 relative">
-
+            <div class="w-6"></div>
+            <div class="text-xs text-stone-600">{{ $question->user?->name ?? __('Question bot') }} / {{ $question->created_at->toDateString() }}</div>
+        </div>
+        <div class="flex items-center max-w-4xl mx-auto space-x-3 relative">
             <div>
                 <div class="absolute -left-8">
                     <a href="#{{ $question->uuid }}" 
@@ -21,15 +24,16 @@ if($question->status === \App\Models\QuestionStatus::ERROR){
                 </div>
                 
                 @if ($question->user_id)
-                    <x-heroicon-s-user-circle class="w-6 h-6 flex-shrink-0 mt-[2px]" />
+                    <x-heroicon-s-user-circle class="w-6 h-6 flex-shrink-0" />
                 @elseif ($question->team_id)
-                    <x-heroicon-s-user-group class="w-6 h-6 flex-shrink-0 mt-[2px]" />
+                    <x-heroicon-s-user-group class="w-6 h-6 flex-shrink-0" />
                 @else
-                    <x-heroicon-s-code-bracket-square class="w-6 h-6 flex-shrink-0 mt-[2px]" />
+                    <x-heroicon-s-code-bracket-square class="w-6 h-6 flex-shrink-0" />
                 @endif
             </div>
 
             <div class="w-full min-w-0 text-sm sm:text-base">
+                
                 <div class="prose prose-stone prose-sm sm:prose-base prose-pre:rounded-md prose-p:whitespace-pre-wrap prose-p:break-words w-full flex-1 leading-6 prose-p:leading-7 prose-pre:bg-[#282c34] max-w-full">
                     <p>{{ $question->question }}</p>
                 </div>

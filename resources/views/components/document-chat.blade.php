@@ -8,30 +8,29 @@
         </p>
     </div>
 
-    <div class="divide-y bg-white">
+    <div class="space-y-4">
         
-        <div class="divide-y bg-white">
-            <livewire:question-list :document="$document" />
-        </div>
-        
-
         @can('create', \App\Models\Question::class)
-
-            <div>
-                <livewire:current-question :document="$document" />
-            </div>
 
             <div class="px-3 md:py-4 py-2.5 group transition-opacity message bg-stone-50">
                 <div class="flex items-start max-w-4xl mx-auto space-x-3">
-
+                    
                     <livewire:question-input :document="$document" />
-
+                    
                 </div>
-
+                
+            </div>
+            <div>
+                {{-- Show the last question and answer as given by current user --}}
+                <livewire:current-question :document="$document" />
             </div>
 
         @endcan
 
-    </div>
+        <div class="h-10"></div>
+        
+        <livewire:question-list :document="$document" />
 
+    </div>
+    
 </div>

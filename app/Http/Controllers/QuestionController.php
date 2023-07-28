@@ -45,11 +45,12 @@ class QuestionController extends Controller
      */
     public function show(Question $question)
     {
-        $question->load(['questionable', 'user']);
-
-        if($question->isMultiple()){
-            $question->load('children.questionable');
-        }
+        $question->load([
+            'questionable',
+            'user',
+            'children.questionable',
+            'ancestors.questionable',
+        ]);
 
         return view('question.show', [
             'question' => $question,

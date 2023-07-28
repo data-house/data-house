@@ -41,7 +41,12 @@ class CurrentQuestion extends Component
 
     public function render()
     {
-        $this->question = $this->question ?? $this->document->questions()->askedBy(auth()->user())->pending()->first();
+        $this->question = $this->question ?? $this->document->questions()
+            ->askedBy(auth()->user())
+            ->where(function($query){
+                $query->pending()->orWhere->recentlyAsked();
+            })
+            ->first();
         $this->ref = $this->question?->uuid;
 
         if($this->question && !$this->question->isPending()){

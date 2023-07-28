@@ -13,8 +13,6 @@ class QuestionList extends Component
      */
     public $document;
 
-    public $questions;
-
     public $currentlyAskingQuestion;
 
     public function __construct($document)
@@ -42,8 +40,23 @@ class QuestionList extends Component
 
     public function render()
     {
-        $this->questions = $this->document->questions()->answered()->get();
+        $userQuestions = $this->document->questions()
+            ->with('user')
+            ->answered()
+            ->askedBy(auth()->user())
+            ->orderBy('created_at', 'DESC')
+            ->get();
+        
+        $otherQuestions = $this->document->questions()
+            ->with('user')
+            ->answered()
+            ->notAskedBy(auth()->user())
+            ->orderBy('created_at', 'DESC')
+            ->get();
 
-        return view('livewire.question-list');
+        return view('livewire.question-list', [
+            'userQuestions' => $userQuestions,
+            'otherQuestions' => $otherQuestions,
+        ]);
     }
 }
