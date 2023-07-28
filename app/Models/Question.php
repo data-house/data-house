@@ -160,6 +160,16 @@ class Question extends Model implements Htmlable
     {
         return $this->related()->wherePivot('type', QuestionRelation::CHILDREN);
     }
+    
+    /**
+     * Children of this question
+     */
+    public function ancestors(): BelongsToMany
+    {
+        return $this->belongsToMany(Question::class, 'question_relationship', 'target', 'source')
+            ->using(QuestionRelationship::class)
+            ->withPivot(['type']);
+    }
 
     public function scopeHash(Builder $query, string $hash): void
     {
@@ -188,6 +198,18 @@ class Question extends Model implements Htmlable
     public function scopeAskedBy(Builder $query, User $user): void
     {
         $query->where('user_id', $user->getKey());
+    }
+    
+    public function scopeNotAskedBy(Builder $query, User $user): void
+    {
+        $query->where(function($query) use ($user){
+            $query->whereNull('user_id')->orWhere('user_id', '!=', $user->getKey());
+        });
+    }
+
+    public function scopeRecentlyAsked(Builder $query, $minutes = 5)
+    {
+        $query->where('updated_at', '>=', now()->subMinutes($minutes));
     }
 
 
