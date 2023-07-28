@@ -190,6 +190,11 @@ class Question extends Model implements Htmlable
         $query->where('user_id', $user->getKey());
     }
 
+    public function scopeRecentlyAsked(Builder $query, $minutes = 5)
+    {
+        $query->where('updated_at', '>=', now()->subMinutes($minutes));
+    }
+
 
     public function answerAsCopilotResponse()
     {
