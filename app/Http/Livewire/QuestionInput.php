@@ -26,7 +26,7 @@ class QuestionInput extends Component
         'question' => 'required|min:10|max:200',
     ];
 
-    public function __construct($document)
+    public function mount($document)
     {
         $this->document = $document;
     }

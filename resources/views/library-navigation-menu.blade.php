@@ -3,5 +3,3 @@
 @can('viewAny', \App\Models\Question::class)
     <x-heading-nav-link href="{{ route('questions.index') }}" :active="request()->routeIs('questions.*')">{{ __('Questions') }}</x-heading-nav-link>
 @endcan
-
-{{-- <x-heading-nav-link href="#" >{{ __('Starred') }}</x-heading-nav-link> --}}

@@ -2,6 +2,7 @@
 
 namespace App\Copilot\Engines;
 
+use App\Copilot\AnswerAggregationCopilotRequest;
 use App\Copilot\CopilotRequest;
 use App\Copilot\CopilotResponse;
 
@@ -39,5 +40,6 @@ abstract class Engine
      */
     abstract public function question(CopilotRequest $question): CopilotResponse;
 
-
+    abstract public function aggregate(AnswerAggregationCopilotRequest $request): CopilotResponse;
+    
 }

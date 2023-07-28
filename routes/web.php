@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\CollectionController;
+use App\Http\Controllers\CreateMultipleQuestionController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\DocumentDownloadController;
 use App\Http\Controllers\DocumentLibraryController;
@@ -52,6 +54,10 @@ Route::middleware([
     Route::post('/imports-start', StartImportController::class)->name('imports.start');
     
     Route::resource('questions', QuestionController::class)->only(['index', 'show']);
+    
+    Route::post('multiple-question', CreateMultipleQuestionController::class)->name('multiple-questions.store');
+    
+    Route::resource('collections', CollectionController::class)->except(['index', 'destroy']);
 });
 
 

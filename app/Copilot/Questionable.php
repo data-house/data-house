@@ -4,6 +4,7 @@ namespace App\Copilot;
 
 use App\Jobs\AskQuestionJob;
 use App\Models\Question;
+use App\Models\QuestionStatus;
 use \Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
@@ -99,13 +100,11 @@ trait Questionable
      * @param string $query
      * @return \App\Models\Question
      */
-    public function question(string $query): Question
+    public function question(string $query, ?string $language = null): Question
     {
-        // TODO: recognize the language of the question
-
         $uuid = Str::uuid();
 
-        $request = new CopilotRequest($uuid, trim($query), [''.$this->getCopilotKey()]);
+        $request = new CopilotRequest($uuid, trim($query), [''.$this->getCopilotKey()], $language);
 
         $previouslyExecutedQuestion = Question::hash($request->hash())->first();
 
@@ -122,6 +121,7 @@ trait Questionable
             'question' => $request->question,
             'hash' => $request->hash(),
             'user_id' => auth()->user()?->getKey(),
+            'language' => $language,
         ]);
 
         AskQuestionJob::dispatch($question);

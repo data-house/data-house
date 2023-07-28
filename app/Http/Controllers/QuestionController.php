@@ -29,6 +29,9 @@ class QuestionController extends Controller
             Question::query()->with(['questionable', 'user'])
                 ->orderBy('status')
                 ->orderBy('created_at', 'DESC')
+                ->where(function($query){
+                    return $query->whereNotNull('user_id')->orWhereNotNull('team_id');
+                })
                 ->get();
         
         return view('question.index', [
@@ -43,6 +46,10 @@ class QuestionController extends Controller
     public function show(Question $question)
     {
         $question->load(['questionable', 'user']);
+
+        if($question->isMultiple()){
+            $question->load('children.questionable');
+        }
 
         return view('question.show', [
             'question' => $question,

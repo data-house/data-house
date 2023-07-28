@@ -2,6 +2,7 @@
 
 namespace App\Copilot\Engines;
 
+use App\Copilot\AnswerAggregationCopilotRequest;
 use App\Copilot\Questionable;
 use App\Copilot\CopilotRequest;
 use App\Copilot\CopilotResponse;
@@ -141,31 +142,42 @@ class OaksEngine extends Engine
     {
         try{
 
+            $endpoint = $question->multipleQuestionRequest() ? '/transform-question' : '/question';
+
             $response = Http::acceptJson()
                 ->timeout(2 * Carbon::SECONDS_PER_MINUTE)
                 ->asJson()
-                ->post(rtrim($this->config['host'], '/') . '/question', $question->jsonSerialize())
+                ->post(rtrim($this->config['host'], '/') . $endpoint, $question->jsonSerialize())
                 ->throwIfServerError();
 
             $json = $response->json();
+
+            logs()->info("Asking question", [
+                'question' => $question->jsonSerialize(),
+                'answer' => $json,
+            ]);
 
             if(isset($json['code']) && $json['code'] == 404){
                 logs()->error("Question cannot be answered [{$response->status()}]", ['response' => $json, 'request' => $question]);
                 throw new CopilotException("Document might not be ready to accept questions.");
             }
 
+            if($question->multipleQuestionRequest()){
+
+                // TODO: this is not a correct response handling, but for now transformation will be in answer
+                return new CopilotResponse('', $json);
+
+            }
+            
+            
             if(empty($json['q_id'] ?? null) || $json['q_id'] && $json['q_id'] !== $question->id){
+                // In case of a question decomposition request the original question id is not present
                 throw new CopilotException("Communication error with the copilot. [{$response->status()}]");
             }
             
             if(empty($json['answer'] ?? null)){
                 throw new CopilotException("Communication error with the copilot. Missing answer.");
             }
-
-            logs()->info("Asking question", [
-                'question' => $question->jsonSerialize(),
-                'answer' => $json,
-            ]);
 
             $answerText = $json['answer'][0]['text'] ?? $json['answer']['text'] ?? null;
             $answerReferences = $json['answer'][0]['references'] ?? $json['answer']['references'] ?? [];
@@ -181,6 +193,58 @@ class OaksEngine extends Engine
             // TODO: response body can contain error information // {"code":500,"message":"Error while parsing file","type":"Internal Server Error"}
             // {"code":422,"message":"No content found in request","type":"Unprocessable Entity"}
             logs()->error("Error asking question copilot", ['error' => $ex->getMessage(), 'request' => $question]);
+            throw $ex;
+        }
+    }
+
+
+    public function summarize()
+    {
+        
+    }
+    
+    public function aggregate(AnswerAggregationCopilotRequest $request): CopilotResponse
+    {
+        try{
+
+            $endpoint = '/answer-aggregation';
+
+            $response = Http::acceptJson()
+                ->timeout(2 * Carbon::SECONDS_PER_MINUTE)
+                ->asJson()
+                ->post(rtrim($this->config['host'], '/') . $endpoint, $request->jsonSerialize())
+                ->throwIfServerError();
+
+            $json = $response->json();
+
+            logs()->info("Aggregating question answers", [
+                'request' => $request->jsonSerialize(),
+                'answer' => $json,
+            ]);
+
+            if(isset($json['code']) && $json['code'] == 404){
+                logs()->error("Question cannot be answered [{$response->status()}]", ['response' => $json, 'request' => $question]);
+                throw new CopilotException("Document might not be ready to accept questions.");
+            }
+            
+            if(empty($json['answer'] ?? null)){
+                throw new CopilotException("Communication error with the copilot. Missing answer.");
+            }
+
+            $answerText = $json['answer'][0]['text'] ?? $json['answer']['text'] ?? $json['answer'] ?? null;
+            $answerReferences = $json['answer'][0]['references'] ?? $json['answer']['references'] ?? $json['references'] ?? [];
+
+            if(is_null($answerText)){
+                throw new CopilotException(__('There was a problem while obtaining the answer. Please report it.'));
+            }
+
+            return new CopilotResponse($answerText, $answerReferences);
+        }
+        catch(Throwable $ex)
+        {
+            // TODO: response body can contain error information // {"code":500,"message":"Error while parsing file","type":"Internal Server Error"}
+            // {"code":422,"message":"No content found in request","type":"Unprocessable Entity"}
+            logs()->error("Error asking question copilot", ['error' => $ex->getMessage(), 'request' => $request]);
             throw $ex;
         }
     }

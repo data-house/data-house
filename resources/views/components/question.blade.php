@@ -20,7 +20,13 @@ if($question->status === \App\Models\QuestionStatus::ERROR){
                         class="font-mono text-lg relative z-20 flex items-center opacity-0 group-hover:opacity-100 group-focus:opacity-100  group-focus-within:opacity-100">#</a>
                 </div>
                 
-                <x-heroicon-s-user-circle class="w-6 h-6 flex-shrink-0 mt-[2px]" />
+                @if ($question->user_id)
+                    <x-heroicon-s-user-circle class="w-6 h-6 flex-shrink-0 mt-[2px]" />
+                @elseif ($question->team_id)
+                    <x-heroicon-s-user-group class="w-6 h-6 flex-shrink-0 mt-[2px]" />
+                @else
+                    <x-heroicon-s-code-bracket-square class="w-6 h-6 flex-shrink-0 mt-[2px]" />
+                @endif
             </div>
 
             <div class="w-full min-w-0 text-sm sm:text-base">
@@ -65,9 +71,17 @@ if($question->status === \App\Models\QuestionStatus::ERROR){
                     {!! $question->toHtml() !!}
                 </div>
                 <div class="prose prose-stone prose-sm sm:prose-base prose-pre:rounded-md prose-p:whitespace-pre-wrap prose-p:break-words w-full flex-1 leading-6 prose-p:leading-7 prose-pre:bg-[#282c34] max-w-full space-x-2">
-                    @foreach (($question->answer['references'] ?? []) as $item)
-                        <a target="_blank" href="{{ $question->questionable->viewerUrl($item['page_number']) }}" class="no-underline rounded-sm font-mono px-1 py-0.5 text-sm  ring-stone-300 ring-1 bg-stone-200 hover:bg-lime-300 focus:bg-lime-300 hover:ring-lime-400 focus:ring-lime-400">{{ __('page :number', ['number' => $item['page_number']]) }}</a>
-                    @endforeach
+                    @if ($question->isSingle())
+                        {{-- pages within questionable --}}
+                        @foreach (($question->answer['references'] ?? []) as $item)
+                            <a target="_blank" href="{{ $question->questionable->viewerUrl($item['page_number']) }}" class="no-underline rounded-sm font-mono px-1 py-0.5 text-sm  ring-stone-300 ring-1 bg-stone-200 hover:bg-lime-300 focus:bg-lime-300 hover:ring-lime-400 focus:ring-lime-400">{{ __('page :number', ['number' => $item['page_number']]) }}</a>
+                        @endforeach
+                        
+                    @else
+                        {{-- pages and references of the id of the questionable --}}
+                        {{-- TODO: think on how to show references --}}
+                        {{-- @dump($question->answer['references'] ?? []) --}}
+                    @endif
                 </div>
             </div>
         </div>
