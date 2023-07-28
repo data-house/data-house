@@ -57,7 +57,7 @@ Route::middleware([
     
     Route::post('multiple-question', CreateMultipleQuestionController::class)->name('multiple-questions.store');
     
-    Route::resource('collections', CollectionController::class);
+    Route::resource('collections', CollectionController::class)->except(['index', 'destroy']);
 });
 
 

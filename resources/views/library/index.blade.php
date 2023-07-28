@@ -40,7 +40,7 @@
                             <x-heroicon-s-sparkles class="text-lime-500 h-6 w-6" />
                             @if ($searchQuery)
                                 {{ __('Ask a question to all documents found...') }}
-                                <span class="inline-block text-xs rounded-full px-2 py-0.5 bg-stone-200">
+                                <span class="inline-block text-xs rounded-full px-2 py-0.5 bg-stone-200 text-stone-600">
                                     {{ __('cooming soon') }}
                                 </span>
                             @else
@@ -70,37 +70,18 @@
 
                     @if ($searchQuery)
                     <p>
-                        <x-button class="text-xs">Save search as collection</x-button>
+                        <x-button class="text-xs">{{ __('Save search as collection') }}&nbsp;
+                            <span class="inline-block text-xs normal-case rounded-full px-2 py-0.5 bg-stone-200 text-stone-600">
+                                {{ __('cooming soon') }}
+                            </span>
+                        </x-button>
                     </p>
                     @endif
                 </div>
             </div>
 
-            <div class="mt-6 grid grid-cols-3 gap-4">
-                @forelse ($documents as $document)
-                    <div class="space-y-2 rounded overflow-hidden bg-white p-4 group relative">
-                        <div class="aspect-video bg-white -mx-4 -mt-4 flex items-center justify-center">
-                            {{-- Space for the thumbnail --}}
-                            <x-codicon-file-pdf class="text-gray-400 h-10 w-h-10" />
-                        </div>
+            <x-document-grid class="mt-6" :documents="$documents" empty="{{ __('No documents in the library') }}" />
 
-                        <a href="{{ route('documents.show', $document) }}" class="block font-bold truncate group-hover:text-blue-800">
-                            <span class="z-10 absolute inset-0"></span>{{ $document->title }}
-                        </a>
-                        <p>{{ $document->created_at }}</p>
-                        <p>
-                            @if ($document->draft)
-                                <span class="inline-block text-sm px-2 py-1 rounded-xl bg-gray-200 text-gray-900">{{ __('pending review') }}</span>
-                            @endif
-                        </p>
-                    </div>
-                @empty
-                    <div class="col-span-3">
-                        <p>{{ __('No documents in the library.') }}</p>
-                    </div>
-                @endforelse
-
-            </div>
             <div class="mt-2">{{ $documents?->links() }}</div>
         </div>
     </div>

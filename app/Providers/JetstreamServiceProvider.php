@@ -44,7 +44,7 @@ class JetstreamServiceProvider extends ServiceProvider
      */
     protected function configurePermissions(): void
     {
-        Jetstream::defaultApiTokenPermissions(['documents:view']);
+        Jetstream::defaultApiTokenPermissions(['documents:view', 'collection:view']);
 
         Jetstream::role(Role::ADMIN->value, 'Administrator', [
             '*',
@@ -75,6 +75,7 @@ class JetstreamServiceProvider extends ServiceProvider
         
         Jetstream::role(Role::GUEST->value, 'Guest', [
             'document:view',
+            'collection:view',
         ])->description('Guest users can access resources to see and observe.');
 
     }

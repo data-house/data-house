@@ -42,8 +42,10 @@
                 </x-dropdown-link>
 
                 @foreach ($collections as $collection)
-                    <x-dropdown-link class="inline-flex gap-2 items-center" href="#">
-                        <x-heroicon-o-archive-box class="w-6 h-6  {{ request()->routeIs('documents.*') ? 'text-lime-600' : 'text-stone-600' }}" />
+                    <x-dropdown-link class="inline-flex gap-2 items-center"
+                        href="{{ route('collections.show', $collection) }}"
+                        :active="request()->is('*/'.$collection->ulid)">
+                        <x-heroicon-o-archive-box class="w-6 h-6  {{ request()->is('*/'.$collection->ulid) ? 'text-lime-600' : 'text-stone-600' }}" />
                         {{ $collection->title }}
                     </x-dropdown-link>
                 @endforeach
