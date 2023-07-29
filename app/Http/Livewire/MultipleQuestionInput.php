@@ -10,6 +10,11 @@ class MultipleQuestionInput extends Component
 
     public $strategy; 
 
+    /**
+     * @var \App\Models\Collection|null
+     */
+    public $collection;
+
     public $question;
 
     public $length = 0;
@@ -22,10 +27,11 @@ class MultipleQuestionInput extends Component
         'question' => 'required|min:10|max:200',
     ];
 
-    public function mount($strategy)
+    public function mount($strategy, $collection = null)
     {
         // :target="DocumentSelection || Collection || Document || Askable"
         $this->strategy = $strategy;
+        $this->collection = $collection;
     }
     
     protected function getListeners()
@@ -36,11 +42,7 @@ class MultipleQuestionInput extends Component
 
     public function makeQuestion()
     {
-        $this->validate();
-
-        $pendingQuestion = $this->document->question($this->question);
-
-        $this->emit('copilot_asking', $pendingQuestion->uuid);
+        
     }
 
     public function handleAnswer()

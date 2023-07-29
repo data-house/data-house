@@ -18,9 +18,10 @@ class CreateMultipleQuestionController extends Controller
         $validated = $this->validate($request, [
             'question' => ['required', 'string', 'min:1', 'max:'.config('copilot.limits.question_length')],
             'strategy' => ['required', new Enum(CollectionStrategy::class)],
+            'collection' => ['nullable', 'exists:collections,id', 'required_if:strategy,' . CollectionStrategy::STATIC->value],
         ]);
 
-        $collection = Collection::query()
+        $collection = ($validated['collection'] ?? false) ? Collection::find($validated['collection']) : Collection::query()
             ->where('visibility', Visibility::SYSTEM->value)
             ->where('strategy', CollectionStrategy::LIBRARY->value)
             ->first();
