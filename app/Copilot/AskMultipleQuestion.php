@@ -7,6 +7,7 @@ use App\Jobs\AskQuestionJob;
 use App\Models\Question;
 use App\Models\QuestionStatus;
 use App\Models\QuestionTarget;
+use App\Models\QuestionType;
 use \Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
@@ -32,11 +33,11 @@ trait AskMultipleQuestion
      * @param string $query
      * @return \App\Models\Question
      */
-    public function question(string $query, ?string $language = null): Question
+    public function question(string $query, QuestionType $type = QuestionType::FREE, ?string $language = null): Question
     {
         $uuid = Str::uuid();
 
-        $request = new CopilotRequest($uuid, trim($query), [''.$this->getCopilotKey()], $language);
+        $request = new CopilotRequest($uuid, trim($query), [''.$this->getCopilotKey()], $language, $type->copilotTemplate());
 
         $previouslyExecutedQuestion = Question::hash($request->hash())->first();
 
@@ -56,6 +57,7 @@ trait AskMultipleQuestion
             'team_id' => auth()->user()?->currentTeam?->getKey(),
             'language' => $language,
             'target' => QuestionTarget::MULTIPLE,
+            'type' => $type,
         ]);
 
         AskMultipleQuestionJob::dispatch($question);

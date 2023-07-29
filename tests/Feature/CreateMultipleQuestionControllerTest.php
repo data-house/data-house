@@ -42,6 +42,7 @@ class CreateMultipleQuestionControllerTest extends TestCase
         $this->assertNotNull($question);
 
         $this->assertEquals(QuestionTarget::MULTIPLE, $question->target);
+        $this->assertEquals(QuestionType::FREE, $question->type);
         $this->assertTrue($question->questionable->is($collection));
 
         $response->assertRedirectToRoute('questions.show', $question);
@@ -72,6 +73,7 @@ class CreateMultipleQuestionControllerTest extends TestCase
         $this->assertNotNull($question);
 
         $this->assertEquals(QuestionTarget::MULTIPLE, $question->target);
+        $this->assertEquals(QuestionType::FREE, $question->type);
         $this->assertTrue($question->questionable->is($collection));
 
         $response->assertRedirectToRoute('questions.show', $question);
@@ -104,5 +106,37 @@ class CreateMultipleQuestionControllerTest extends TestCase
 
         $this->assertNull($question);
 
+    }
+
+    public function test_guided_multiple_question_created(): void
+    {
+        Queue::fake();
+
+        $user = User::factory()->withPersonalTeam()->guest()->create();
+
+        $collection = Collection::factory()->create([
+            'visibility' => Visibility::PERSONAL,
+            'strategy' => CollectionStrategy::STATIC,
+            'title' => 'My Collection'
+        ]);
+
+        $response = $this->actingAs($user)
+            ->from(route('collections.show', $collection))
+            ->post('/multiple-question', [
+                'question' => 'This is a sample question',
+                'strategy' => CollectionStrategy::STATIC->value,
+                'collection' => $collection->getKey(),
+                'guidance' => true,
+            ]);
+
+        $question = Question::first();
+
+        $this->assertNotNull($question);
+
+        $this->assertEquals(QuestionTarget::MULTIPLE, $question->target);
+        $this->assertEquals(QuestionType::DESCRIPTIVE, $question->type);
+        $this->assertTrue($question->questionable->is($collection));
+
+        $response->assertRedirectToRoute('questions.show', $question);
     }
 }

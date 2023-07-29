@@ -54,6 +54,7 @@ class Question extends Model implements Htmlable
         'status',
         'execution_time',
         'target',
+        'type',
     ];
 
     protected $casts = [

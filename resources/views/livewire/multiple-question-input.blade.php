@@ -1,12 +1,46 @@
 <div class="w-full">
     <form method="POST" x-ref="js_multiple_question_form" action="{{ route('multiple-questions.store') }}">
         @csrf
-        <x-label class="mb-1" for="question" value="{{ __('Enter your question. It can be one or more lines.') }}" />
-        <x-textarea wire:model="question" @keydown.ctrl.enter="$refs.js_multiple_question_form.submit()" name="question" id="question" class="min-w-full" rows="3" placeholder="{{ __('Ask a question...') }}">
-            {{ $questionQuery ?? null }}
-        </x-textarea>
+        @if ($guided)
+            <x-label class="mb-1" for="question" value="{{ __('Complete the question') }}" />
+            <div class="mb-2 p-3 border bg-white border-stone-300 focus-within:border-lime-500 focus-within:ring-lime-500 rounded-md shadow-sm min-w-full min-h-20 h-20">
+                <p class=" flex gap-1">
+                    <span>{{ __('What are the main') }}</span>
+                    <input class="border-b border-x-0 border-t-0 p-0 w-96 focus:border-x-0 focus:border-t-0 focus:border-lime-500 focus:border-2 focus:ring-0" autocomplete="none" type="text" wire:model="question" @keydown.ctrl.enter="$refs.js_multiple_question_form.submit()" name="question" id="question" value="{{ $questionQuery ?? null }}">
+                    <span>{{ __('in the reports?') }}</span>
+                </p>
+            </div>
+        @else
+            <x-label class="mb-1" for="question" value="{{ __('Enter your question (it can be one or more lines)') }}" />
+            <x-textarea wire:model="question" @keydown.ctrl.enter="$refs.js_multiple_question_form.submit()" name="question" id="question" class="mb-1 min-w-full min-h-20" rows="3" placeholder="{{ __('Ask a question...') }}">
+                {{ $questionQuery ?? null }}
+            </x-textarea>
+        @endif
+        <div class="">
+            @if ($guided)
+                <button type="button" wire:click="$toggle('guided')" class="group inline-flex gap-2 items-center bg-white/90 px-2 py-1 hover:bg-blue-100 focus:bg-blue-100 border border-blue-400 rounded-md font-semibold text-xs active:text-white  active:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                    <span class="inline-flex gap-1 items-center">
+                        <x-heroicon-s-cube-transparent class="w-5 h-5 text-stone-400 group-hover:text-blue-600 group-focus:text-blue-600" />
+                        <x-heroicon-s-arrow-small-left class="w-3 h-3 text-stone-600" />
+                        <x-heroicon-s-cube class="w-5 h-5 text-blue-600 group-hover:text-stone-400 group-focus:text-stone-400" />
+                    </span>
+                    {{ __('Switch back to open question mode') }}
+                </button>
+            @else
+                <button type="button" wire:click="$toggle('guided')" class="group inline-flex gap-2 items-center bg-white/90 px-2 py-1 hover:bg-blue-100 focus:bg-blue-100 border border-blue-400 rounded-md font-semibold text-xs active:text-white  active:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                    <span class="inline-flex gap-1 items-center">
+                        <x-heroicon-s-cube-transparent class="w-5 h-5 text-blue-600 group-hover:text-stone-400 group-focus:text-stone-400" />
+                        <x-heroicon-s-arrow-small-right class="w-3 h-3 text-stone-600" />
+                        <x-heroicon-s-cube class="w-5 h-5 text-stone-400 group-hover:text-blue-600 group-focus:text-blue-600" />
+                    </span>
+                    {{ __('Switch to guided question mode') }}
+                </button>
+            @endif
+        </div>
 
         <input type="hidden" name="strategy" value="{{ $strategy }}">
+        
+        <input type="hidden" name="guidance" value="{{ $guided }}">
         
         <input type="hidden" name="collection" value="{{ $collection?->getKey() }}">
         
