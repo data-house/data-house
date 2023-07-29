@@ -251,7 +251,7 @@ class Question extends Model implements Htmlable
         Cache::lock($this->lockKey())->block(30, function() use($language) {
         
             $this->fill([
-                'language' => $language,
+                'language' => $language ?? 'en',
                 'status' => QuestionStatus::ANSWERING,
             ]);
 
