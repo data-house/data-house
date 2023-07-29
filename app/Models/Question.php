@@ -62,6 +62,7 @@ class Question extends Model implements Htmlable
         'answer' => AsArrayObject::class,
         'execution_time' => 'float',
         'target' => QuestionTarget::class,
+        'type' => QuestionType::class,
     ];
 
     /**
@@ -83,6 +84,7 @@ class Question extends Model implements Htmlable
     protected $attributes = [
         'status' => QuestionStatus::CREATED,
         'target' => QuestionTarget::SINGLE,
+        'type' => QuestionType::FREE,
     ];
 
     /**
@@ -320,7 +322,7 @@ class Question extends Model implements Htmlable
         // TODO: make this generic as we cannot assume that the questionable will have a documents relation and all entries are of type Document
         $documents = $this->questionable->documents()->select(['documents.'.((new Document())->getCopilotKeyName())])->get()->map->getCopilotKey();
 
-        $request = new CopilotRequest($this->uuid, $this->question, $documents->toArray(), $language);
+        $request = new CopilotRequest($this->uuid, $this->question, $documents->toArray(), $language, $this->type?->copilotTemplate());
 
         // TODO: maybe a check on another user asking the same question
         // $previouslyExecutedQuestion = Question::hash($request->hash())->first();
@@ -372,7 +374,7 @@ class Question extends Model implements Htmlable
         $subQuestions = $this->children()->select(['answer', 'execution_time'])->get();
         $answers = $subQuestions->pluck('answer')->toArray();
 
-        $request = new AnswerAggregationCopilotRequest($this->uuid, $this->question, $answers, $this->language);
+        $request = new AnswerAggregationCopilotRequest($this->uuid, $this->question, $answers, $this->language, $this->type?->copilotTemplate());
         
         // We cache the response for each user as it requires time and resources.
         // This improves also the responsiveness of the system on the short run.

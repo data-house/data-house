@@ -18,7 +18,7 @@ class AnswerAggregationCopilotRequest extends CopilotRequest
         return [
             'q_id' => $this->id,
             'arguments' => ['text' => $this->question],
-            'template_id' => '0', // template id corresponding to free multiple question on the backend
+            'template_id' => $this->guidanceTemplate ?? '0', // template id corresponding to free multiple question on the backend
             'lang' => $this->language,
             'answers' => collect($this->documents)->filter()
                 ->values()
@@ -35,8 +35,7 @@ class AnswerAggregationCopilotRequest extends CopilotRequest
      */
     public function hash(): string
     {
-        // TODO: template should play a role here
-        return hash('sha512', $this->question . '-0-');
+        return hash('sha512', $this->question . '-'. ($this->guidanceTemplate ?? '0') .'-');
     }
 
 }
