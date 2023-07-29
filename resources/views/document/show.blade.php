@@ -33,11 +33,7 @@
                     <span class="">{{ __('Document under processing. Preview and search might not be available while the document is being processed.') }}</span>
                 </div>
             @endif
-            <div class="mb-4">
-                @if ($document->draft)
-                    <span class="inline-block text-sm px-2 py-1 rounded-xl bg-gray-200 text-gray-900">{{ __('pending review') }}</span>
-                @endif
-            </div>
+
             <div class="grid md:grid-cols-3">
 
                 <div class="col-span-2">
@@ -59,13 +55,24 @@
                         <x-codicon-file-pdf class="text-gray-400 h-10 w-h-10" />
                     </div>
 
+                    @if ($document->draft)
+                        <div>
+                            <span class="inline-block text-sm px-2 py-1 rounded-xl bg-gray-200 text-gray-900">{{ __('pending review') }}</span>
+                        </div>
+                    @endif
+
+                    <div class="space-y-2">
+                        <h4 class="font-bold">{{ __('Collections') }}</h4>
+                        
+                        <livewire:document-collections :document="$document" />
+                    </div>
+
                     <div class="space-y-2">
                         <h4 class="font-bold">{{ __('Details') }}</h4>
                         
                         <p><span class="text-xs uppercase block text-stone-700">{{ __('File type') }}</span>{{ $document->mime }}</p>
                         <p><span class="text-xs uppercase block text-stone-700">{{ __('Uploaded by') }}</span>{{ $document->uploader->name }}</p>
                         <p><span class="text-xs uppercase block text-stone-700">{{ __('Team') }}</span>{{ $document->team?->name }}</p>
-                        <p><span class="text-xs uppercase block text-stone-700">{{ __('Language') }}</span>{{ $document->languages?->join(',') }}</p>
                         
                     </div>
 
