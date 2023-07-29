@@ -6,6 +6,7 @@ use App\Actions\Collection\CreateCollection;
 use App\Models\Collection;
 use App\Models\CollectionStrategy;
 use App\Models\CollectionType;
+use App\Models\Document;
 use App\Models\Visibility;
 use Illuminate\Http\Request;
 
@@ -48,12 +49,16 @@ class CollectionController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Collection $collection)
+    public function show(Request $request, Collection $collection)
     {
-        $collection->load('documents');
+        $collection->load(['documents', 'questions' => function($query){
+            $query->orderBy('created_at', 'DESC')->limit(3);
+        }]);
 
         return view('collection.show', [
             'collection' => $collection,
+            'documents' => $collection->documents,
+            'questions' => $collection->questions,
         ]);
     }
 

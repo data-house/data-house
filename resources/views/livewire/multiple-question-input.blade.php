@@ -8,6 +8,8 @@
 
         <input type="hidden" name="strategy" value="{{ $strategy }}">
         
+        <input type="hidden" name="collection" value="{{ $collection?->getKey() }}">
+        
         <div class="flex items-center justify-between">
             <p class="text-sm {{ $exceededMaximumLength ? 'text-red-600 font-bold' : 'text-stone-600' }}">{{ $length }} / {{ config('copilot.limits.question_length') }} {{ trans_choice('character|characters', $length) }}</p>
 
