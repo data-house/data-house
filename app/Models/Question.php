@@ -350,7 +350,9 @@ class Question extends Model implements Htmlable
                     
                     logs()->info('this', ['this' => $this->toArray(), 'document' => $document->toArray()]);
                     
-                    $question = $document->question($response->references[$document->getCopilotKey()], $this->language);
+                    $singleQuestion = $response->references[$document->getCopilotKey()][0] ?? $response->references[$document->getCopilotKey()];
+
+                    $question = $document->question($singleQuestion, $this->language);
                     
                     logs()->info('created question', ['question' => $question->toArray(), 'document' => $document->toArray()]);
     

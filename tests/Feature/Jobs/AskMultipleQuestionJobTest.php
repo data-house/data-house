@@ -164,7 +164,7 @@ class AskMultipleQuestionJobTest extends TestCase
         
         Http::fake([
             'http://localhost:5000/transform-question' => Http::response($documents->mapWithKeys(function($doc){
-                return [$doc->getCopilotKey() => 'Question to execute on document'];})->toArray(), 200),
+                return [$doc->getCopilotKey() => ['Question to execute on document']];})->toArray(), 200),
             'http://localhost:5000/question' => Http::response([
                 "q_id" => $question->uuid,
                 "answer" => [
