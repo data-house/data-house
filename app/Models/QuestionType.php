@@ -35,4 +35,16 @@ enum QuestionType: int
                 break;
         } 
     }
+
+    public function formatQuestion(string $question)
+    {
+        switch ($this) {
+            case self::DESCRIPTIVE:
+                return "What are the main **{$question}** in the reports?";
+                break;
+            default:
+                return $question;
+                break;
+        }     
+    }
 }

@@ -482,6 +482,11 @@ class Question extends Model implements Htmlable
         return $this->answer['text'] ?? '';
     }
 
+    public function formattedText()
+    {
+        return $this->type ? str($this->type->formatQuestion($this->question))->markdown() : str($this->question)->markdown();
+    }
+
     
     public function url()
     {
