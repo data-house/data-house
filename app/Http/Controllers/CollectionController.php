@@ -58,7 +58,7 @@ class CollectionController extends Controller
         return view('collection.show', [
             'collection' => $collection,
             'documents' => $collection->documents,
-            'questions' => $collection->questions,
+            'questions' => $collection->questions ?? [],
         ]);
     }
 
@@ -85,8 +85,6 @@ class CollectionController extends Controller
 
         $collection->save();
 
-        return view('collection.show', [
-            'collection' => $collection,
-        ]);
+        return redirect()->route('collection.show', $collection);
     }
 }
