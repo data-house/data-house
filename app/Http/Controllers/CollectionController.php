@@ -85,6 +85,6 @@ class CollectionController extends Controller
 
         $collection->save();
 
-        return redirect()->route('collection.show', $collection);
+        return redirect()->route('collections.show', $collection);
     }
 }
