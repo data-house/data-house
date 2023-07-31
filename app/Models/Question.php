@@ -54,6 +54,7 @@ class Question extends Model implements Htmlable
         'status',
         'execution_time',
         'target',
+        'type',
     ];
 
     protected $casts = [
@@ -62,6 +63,7 @@ class Question extends Model implements Htmlable
         'answer' => AsArrayObject::class,
         'execution_time' => 'float',
         'target' => QuestionTarget::class,
+        'type' => QuestionType::class,
     ];
 
     /**
@@ -83,6 +85,7 @@ class Question extends Model implements Htmlable
     protected $attributes = [
         'status' => QuestionStatus::CREATED,
         'target' => QuestionTarget::SINGLE,
+        'type' => QuestionType::FREE,
     ];
 
     /**
@@ -320,7 +323,7 @@ class Question extends Model implements Htmlable
         // TODO: make this generic as we cannot assume that the questionable will have a documents relation and all entries are of type Document
         $documents = $this->questionable->documents()->select(['documents.'.((new Document())->getCopilotKeyName())])->get()->map->getCopilotKey();
 
-        $request = new CopilotRequest($this->uuid, $this->question, $documents->toArray(), $language);
+        $request = new CopilotRequest($this->uuid, $this->question, $documents->toArray(), $language, $this->type?->copilotTemplate());
 
         // TODO: maybe a check on another user asking the same question
         // $previouslyExecutedQuestion = Question::hash($request->hash())->first();
@@ -347,7 +350,9 @@ class Question extends Model implements Htmlable
                     
                     logs()->info('this', ['this' => $this->toArray(), 'document' => $document->toArray()]);
                     
-                    $question = $document->question($response->references[$document->getCopilotKey()], $this->language);
+                    $singleQuestion = $response->references[$document->getCopilotKey()][0] ?? $response->references[$document->getCopilotKey()];
+
+                    $question = $document->question($singleQuestion, $this->language);
                     
                     logs()->info('created question', ['question' => $question->toArray(), 'document' => $document->toArray()]);
     
@@ -372,7 +377,7 @@ class Question extends Model implements Htmlable
         $subQuestions = $this->children()->select(['answer', 'execution_time'])->get();
         $answers = $subQuestions->pluck('answer')->toArray();
 
-        $request = new AnswerAggregationCopilotRequest($this->uuid, $this->question, $answers, $this->language);
+        $request = new AnswerAggregationCopilotRequest($this->uuid, $this->question, $answers, $this->language, $this->type?->copilotTemplate());
         
         // We cache the response for each user as it requires time and resources.
         // This improves also the responsiveness of the system on the short run.
@@ -475,6 +480,11 @@ class Question extends Model implements Htmlable
     public function toText()
     {
         return $this->answer['text'] ?? '';
+    }
+
+    public function formattedText()
+    {
+        return $this->type ? str($this->type->formatQuestion($this->question))->markdown() : str($this->question)->markdown();
     }
 
     

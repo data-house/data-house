@@ -12,6 +12,7 @@ class CopilotRequest implements JsonSerializable
         public readonly string $question,
         public readonly string|array $documents,
         public readonly ?string $language = null,
+        public readonly ?string $guidanceTemplate = null,
 
         )
     {
@@ -34,7 +35,7 @@ class CopilotRequest implements JsonSerializable
             return [
                 'q_id' => $this->id,
                 'arguments' => ['text' => $this->question],
-                'template_id' => '0', // template id corresponding to free multiple question on the backend
+                'template_id' => $this->guidanceTemplate ?? '0', // template id corresponding to free multiple question on the backend
                 'doc_list' => Arr::wrap($this->documents),
                 'lang' => $this->language,
             ];

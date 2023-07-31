@@ -23,6 +23,8 @@ class MultipleQuestionInput extends Component
 
     public $askingQuestion = false;
 
+    public $guided = false;
+
     protected $rules = [
         'question' => 'required|min:10|max:200',
     ];
@@ -37,6 +39,16 @@ class MultipleQuestionInput extends Component
     protected function getListeners()
     {
         return ['copilot_answer' => 'handleAnswer'];
+    }
+
+    public function switchToGuided()
+    {
+        $this->guided = true;
+    }
+
+    public function switchToFreeForm()
+    {
+        $this->guided = false;
     }
 
 

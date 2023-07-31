@@ -35,7 +35,7 @@ if($question->status === \App\Models\QuestionStatus::ERROR){
             <div class="w-full min-w-0 text-sm sm:text-base">
                 
                 <div class="prose prose-stone prose-sm sm:prose-base prose-pre:rounded-md prose-p:whitespace-pre-wrap prose-p:break-words w-full flex-1 leading-6 prose-p:leading-7 prose-pre:bg-[#282c34] max-w-full">
-                    <p>{{ $question->question }}</p>
+                    {!! $question->formattedText() !!}
                 </div>
             </div>
 
