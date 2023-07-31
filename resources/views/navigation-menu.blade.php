@@ -15,7 +15,7 @@
                     <x-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
-                    <x-nav-link href="{{ route('documents.library') }}" :active="request()->routeIs('documents.*') || request()->routeIs('imports.*') || request()->routeIs('questions.*')">
+                    <x-nav-link href="{{ route('documents.library') }}" :active="request()->routeIs('documents.*') || request()->routeIs('imports.*') || request()->routeIs('questions.*') || request()->routeIs('collections.*')">
                         {{ __('Digital Library') }}
                     </x-nav-link>
                 </div>
