@@ -41,7 +41,7 @@
                             @if ($searchQuery)
                                 {{ __('Ask a question to all documents found...') }}
                                 <span class="inline-block text-xs rounded-full px-2 py-0.5 bg-stone-200 text-stone-600">
-                                    {{ __('cooming soon') }}
+                                    {{ __('coming soon') }}
                                 </span>
                             @else
                                 {{ __('Ask a question to all documents in the library...') }}
@@ -72,7 +72,7 @@
                     <p>
                         <x-button class="text-xs">{{ __('Save search as collection') }}&nbsp;
                             <span class="inline-block text-xs normal-case rounded-full px-2 py-0.5 bg-stone-200 text-stone-600">
-                                {{ __('cooming soon') }}
+                                {{ __('coming soon') }}
                             </span>
                         </x-button>
                     </p>

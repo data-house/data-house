@@ -37,7 +37,7 @@
                     {{ __('Starred') }}
 
                     <span class="inline-block text-xs rounded-full px-2 py-0.5 bg-stone-200">
-                        {{ __('cooming soon') }}
+                        {{ __('coming soon') }}
                     </span>
                 </x-dropdown-link>
 
