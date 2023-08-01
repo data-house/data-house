@@ -4,6 +4,9 @@ namespace App\Models;
 
 use Illuminate\Support\Collection;
 
+/** 
+ * Geographic regions as defined in UN M49 https://unstats.un.org/unsd/methodology/m49/overview
+ */
 class GeographicRegion
 {
     private static $countries;
