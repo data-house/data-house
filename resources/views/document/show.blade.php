@@ -71,7 +71,7 @@
                         <h4 class="font-bold">{{ __('Project') }}</h4>
                         
                         @if ($document->project)
-                            <div>{{ $document->project?->title }}</div>
+                            <div><a href="{{ route('projects.show', $document->project) }}">{{ $document->project?->title }}</a></div>
                             <div>
                                 <p class="text-xs uppercase block text-stone-700">{{ __('Topics') }}</p>
                                 @foreach ($document->project?->topics as $topic)
@@ -87,7 +87,7 @@
                                     <ul>
                                         @foreach ($document->project?->countries()->pluck('value') as $country)
                                             <li>{{ $country }}</li>
-                                    @endforeach 
+                                        @endforeach 
                                     </ul>
                                 </div>
                             </div>
@@ -97,7 +97,7 @@
                                     <ul>
                                         @foreach ($document->project?->regions() as $region)
                                             <li>{{ $region }}</li>
-                                    @endforeach 
+                                        @endforeach 
                                     </ul>
                                 </div>
                             </div>
