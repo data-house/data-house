@@ -71,36 +71,40 @@
                         <h4 class="font-bold">{{ __('Project') }}</h4>
                         
                         @if ($document->project)
-                            <div><a href="{{ route('projects.show', $document->project) }}">{{ $document->project?->title }}</a></div>
-                            <div>
-                                <p class="text-xs uppercase block text-stone-700">{{ __('Topics') }}</p>
-                                @foreach ($document->project?->topics as $topic)
-                                    <span class="flex gap-2 items-center text-sm px-2 py-1 rounded-xl bg-gray-200 text-gray-900">
-                                        <x-heroicon-o-hashtag class="w-5 h-5" />
-                                        {{ $topic }}
-                                    </span>
-                                @endforeach
-                            </div>
-                            <div>
-                                <p class="text-xs uppercase block text-stone-700">{{ __('Countries') }}</p>
-                                <div class="prose">
-                                    <ul>
-                                        @foreach ($document->project?->countries()->pluck('value') as $country)
-                                            <li>{{ $country }}</li>
-                                        @endforeach 
-                                    </ul>
+                            @can('view', $document->project)    
+                                <div><a href="{{ route('projects.show', $document->project) }}">{{ $document->project?->title }}</a></div>
+                                <div>
+                                    <p class="text-xs uppercase block text-stone-700">{{ __('Topics') }}</p>
+                                    @foreach ($document->project?->topics as $topic)
+                                        <span class="flex gap-2 items-center text-sm px-2 py-1 rounded-xl bg-gray-200 text-gray-900">
+                                            <x-heroicon-o-hashtag class="w-5 h-5" />
+                                            {{ $topic }}
+                                        </span>
+                                    @endforeach
                                 </div>
-                            </div>
-                            <div>
-                                <p class="text-xs uppercase block text-stone-700">{{ __('Regions') }}</p>
-                                <div class="prose">
-                                    <ul>
-                                        @foreach ($document->project?->regions() as $region)
-                                            <li>{{ $region }}</li>
-                                        @endforeach 
-                                    </ul>
+                                <div>
+                                    <p class="text-xs uppercase block text-stone-700">{{ __('Countries') }}</p>
+                                    <div class="prose">
+                                        <ul>
+                                            @foreach ($document->project?->countries()->pluck('value') as $country)
+                                                <li>{{ $country }}</li>
+                                            @endforeach 
+                                        </ul>
+                                    </div>
                                 </div>
-                            </div>
+                                <div>
+                                    <p class="text-xs uppercase block text-stone-700">{{ __('Regions') }}</p>
+                                    <div class="prose">
+                                        <ul>
+                                            @foreach ($document->project?->regions() as $region)
+                                                <li>{{ $region }}</li>
+                                            @endforeach 
+                                        </ul>
+                                    </div>
+                                </div>
+                            @else
+                                <p class="prose">{{ __('You are not allowed to see project details.') }}</p>
+                            @endcan
                         @else
                             <p class="prose">{{ __('Project not identified') }}</p>
                         @endif
