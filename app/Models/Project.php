@@ -93,10 +93,7 @@ class Project extends Model
      */
     public function regions(): Collection
     {
-        $topLevelRegion = $this->countries?->map->toCountryAlpha2()->map(fn($c) => country($c->value)?->getRegion()) ?? collect();
-        $subRegion = $this->countries?->map->toCountryAlpha2()->map(fn($c) => country($c->value)?->getSubregion()) ?? collect();
-
-        return $topLevelRegion->merge($subRegion)->unique();
+        return GeographicRegion::from($this->countries?->map->value);
     }
     
     /**

@@ -210,7 +210,7 @@ class Document extends Model implements Convertible
             'project' => $this->project ? [
                 'id' => $this->project->getKey(),
                 'title' => $this->project->title,
-                'region' => $this->project->region(),
+                'region' => $this->project->regions(),
                 'countries' => $this->project->countries(),
                 'topics' => $this->project->topics,
             ] : null,
