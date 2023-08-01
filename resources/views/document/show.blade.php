@@ -55,11 +55,11 @@
                         <x-codicon-file-pdf class="text-gray-400 h-10 w-h-10" />
                     </div>
 
-                    @if ($document->draft)
+                    {{-- @if ($document->draft)
                         <div>
                             <span class="inline-block text-sm px-2 py-1 rounded-xl bg-gray-200 text-gray-900">{{ __('pending review') }}</span>
                         </div>
-                    @endif
+                    @endif --}}
 
                     <div class="space-y-2">
                         <h4 class="font-bold">{{ __('Collections') }}</h4>
@@ -70,10 +70,36 @@
                     <div class="space-y-2">
                         <h4 class="font-bold">{{ __('Project') }}</h4>
                         
-                        <p>{{ $document->project?->title }}</p>
-                        <p>{{ $document->project?->topics->join(',') }}</p>
-                        <p>{{ $document->project?->countries()->pluck('value') }}</p>
-                        <p>{{ $document->project?->regions() }}</p>
+                        <div>{{ $document->project?->title }}</div>
+                        <div>
+                            <p class="text-xs uppercase block text-stone-700">{{ __('Topics') }}</p>
+                            @foreach ($document->project?->topics as $topic)
+                                <span class="flex gap-2 items-center text-sm px-2 py-1 rounded-xl bg-gray-200 text-gray-900">
+                                    <x-heroicon-o-hashtag class="w-5 h-5" />
+                                    {{ $topic }}
+                                </span>
+                            @endforeach
+                        </div>
+                        <div>
+                            <p class="text-xs uppercase block text-stone-700">{{ __('Countries') }}</p>
+                            <div class="prose">
+                                <ul>
+                                    @foreach ($document->project?->countries()->pluck('value') as $country)
+                                        <li>{{ $country }}</li>
+                                   @endforeach 
+                                </ul>
+                            </div>
+                        </div>
+                        <div>
+                            <p class="text-xs uppercase block text-stone-700">{{ __('Regions') }}</p>
+                            <div class="prose">
+                                <ul>
+                                    @foreach ($document->project?->regions() as $region)
+                                        <li>{{ $region }}</li>
+                                   @endforeach 
+                                </ul>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="space-y-2">
@@ -85,7 +111,7 @@
                         
                     </div>
 
-                    <div class="space-y-2">
+                    {{-- <div class="space-y-2">
                         <h4 class="font-bold">{{ __('Publication') }}</h4>
 
                         @if ($document->isPublished())
@@ -95,7 +121,7 @@
                         @else
                             <p class="prose">{{ __('Not yet published.') }}</p>
                         @endif
-                    </div>
+                    </div> --}}
                 </div>
             </div>
         </div>
