@@ -68,6 +68,15 @@
                     </div>
 
                     <div class="space-y-2">
+                        <h4 class="font-bold">{{ __('Project') }}</h4>
+                        
+                        <p>{{ $document->project?->title }}</p>
+                        <p>{{ $document->project?->topics->join(',') }}</p>
+                        <p>{{ $document->project?->countries()->pluck('value') }}</p>
+                        <p>{{ $document->project?->regions() }}</p>
+                    </div>
+
+                    <div class="space-y-2">
                         <h4 class="font-bold">{{ __('Details') }}</h4>
                         
                         <p><span class="text-xs uppercase block text-stone-700">{{ __('File type') }}</span>{{ $document->mime }}</p>
