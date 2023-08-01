@@ -41,7 +41,7 @@
                         {{ __('Copy') }}
                     </x-copy-clipboard-button>
     
-                    <livewire:question-feedback :wire:key="$child->uuid" :question="$question" />
+                    <livewire:question-feedback :wire:key="$child->uuid" :question="$child" />
                 </div>
             @endunless
         </div>
