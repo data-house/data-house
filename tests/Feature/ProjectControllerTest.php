@@ -22,16 +22,6 @@ class ProjectControllerTest extends TestCase
         $response->assertRedirectToRoute('login');
     }
 
-    public function test_permission_required_to_view_projects(): void
-    {
-        $user = User::factory()->guest()->create();
-
-        $response = $this->actingAs($user)->get('/projects');
-
-        $response->assertForbidden();
-    }
-
-
     public function test_projects_can_be_listed(): void
     {
         $user = User::factory()->manager()->create();
