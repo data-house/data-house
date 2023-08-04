@@ -119,15 +119,14 @@ class Project extends Model
             'id' => $this->id,
             'ulid' => $this->ulid,
             'title' => $this->title,
+            'title_alternate' => $this->properties['title_en'] ?? null,
             'description' => $this->description,
             'countries' => $this->countries(),
             'region' => $this->regions(), 
             'topics' => $this->topics,
             'starts_at' => $this->starts_at?->toDateString(),
             'ends_at' => $this->ends_at?->toDateString(),
-            'links' => $this->links,
             'organizations' => $this->organizations,
-            'properties' => $this->properties,
         ];
     }
 }
