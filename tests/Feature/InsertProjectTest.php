@@ -28,8 +28,8 @@ class InsertProjectTest extends TestCase
             'type' => 10,
             'topics' => ['test topic'],
             'countries' => ['DEU'],
-            'organizations' => ['test org'],
-            'properties' => ['nullable', 'array'],
+            'organizations' => ['implementers' => ['test org']],
+            'properties' => ['a-property' => 'a-value'],
             'slug' => 'test-project',
             'description' => 'sample description',
             'starts_at' => '2023-08-01',
@@ -42,7 +42,7 @@ class InsertProjectTest extends TestCase
         $this->assertEquals(ProjectType::BILATERAL, $project->type);
         $this->assertEquals(collect(['test topic']), $project->topics);
         $this->assertEquals(CountryAlpha3::Germany, $project->countries->first());
-        $this->assertEquals('test org', $project->organizations->first());
+        $this->assertEquals(collect(['implementers' => ['test org']]), $project->organizations);
         $this->assertEquals('test-project', $project->slug);
         $this->assertEquals('sample description', $project->description);
         $this->assertEquals('2023-08-01', $project->starts_at->toDateString());
@@ -61,8 +61,8 @@ class InsertProjectTest extends TestCase
             'type' => 10,
             'topics' => ['test topic'],
             'countries' => ['DEU'],
-            'organizations' => ['test org'],
-            'properties' => ['nullable', 'array'],
+            'organizations' => ['implementers' => ['test org']],
+            'properties' => ['a-property' => 'a-value'],
             'slug' => null,
         ]);
 
@@ -72,7 +72,7 @@ class InsertProjectTest extends TestCase
         $this->assertEquals(ProjectType::BILATERAL, $project->type);
         $this->assertEquals(collect(['test topic']), $project->topics);
         $this->assertEquals(CountryAlpha3::Germany, $project->countries->first());
-        $this->assertEquals('test org', $project->organizations->first());
+        $this->assertEquals(collect(['implementers' => ['test org']]), $project->organizations);
         $this->assertEquals('test-project', $project->slug);
         $this->assertNull($project->description);
         $this->assertNull($project->starts_at);
@@ -97,8 +97,8 @@ class InsertProjectTest extends TestCase
                 'type' => 10,
                 'topics' => ['test topic'],
                 'countries' => ['DEU'],
-                'organizations' => ['test org'],
-                'properties' => ['nullable', 'array'],
+                'organizations' => ['implementers' => ['test org']],
+                'properties' => ['a-property' => 'a-value'],
                 'slug' => null,
             ]);
         } catch (Throwable $th) {
@@ -127,8 +127,8 @@ class InsertProjectTest extends TestCase
                 'type' => 10,
                 'topics' => ['test topic'],
                 'countries' => ['DEU'],
-                'organizations' => ['test org'],
-                'properties' => ['nullable', 'array'],
+                'organizations' => ['implementers' => ['test org']],
+                'properties' => ['a-property' => 'a-value'],
                 'slug' => 'test-slug',
             ]);
         } catch (Throwable $th) {
