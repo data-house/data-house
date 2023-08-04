@@ -72,7 +72,7 @@
                         
                         @if ($document->project)
                             @can('view', $document->project)    
-                                <div><a href="{{ route('projects.show', $document->project) }}">{{ $document->project?->title }}</a></div>
+                                <div><a class="border-b pb-0.5 hover:border-blue-600 hover:text-blue-800 focus:text-blue-800" href="{{ route('projects.show', $document->project) }}">{{ $document->project?->title }}</a></div>
                                 <div>
                                     <p class="text-xs uppercase block text-stone-700">{{ __('Topics') }}</p>
                                     @foreach ($document->project?->topics as $topic)
