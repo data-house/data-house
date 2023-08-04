@@ -16,14 +16,20 @@
     <div class="pt-8 pb-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
+            <div class="mb-6 space-y-1">
+                <p class="inline px-2 py-1 rounded bg-lime-100 text-lime-900">
+                    {{ $project->type->name }}
+                </p>
+
+                <p class="text-4xl font-bold max-w-3xl">{{ $project->title }}</p>
+                @if ($project->properties['title_en'] ?? false)
+                    <p class="text-xl  max-w-prose">{{ $project->properties['title_en'] }}</p>
+                @endif
+            </div>
+
             <div class="grid grid-cols-3 gap-2">
 
                 <div class="space-y-4">
-
-                    <p class="inline px-2 py-1 rounded bg-lime-100 text-lime-900">
-                        {{ $project->type->name }}
-                    </p>
-
                     <p class="text-xs uppercase block text-stone-700">{{ __('Topics') }}</p>
                     <ul>
                         @foreach ($project->topics as $topic)
