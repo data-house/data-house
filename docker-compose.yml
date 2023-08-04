@@ -65,7 +65,7 @@ services:
             retries: 3
             timeout: 5s
     pdf-parsing:
-        image: "ghcr.io/data-house/pdf-text-extractor:v0.1.0"
+        image: "ghcr.io/data-house/pdf-text-extractor:v0.1.1"
         networks:
             - sail
         ports:
