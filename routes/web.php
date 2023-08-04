@@ -10,6 +10,7 @@ use App\Http\Controllers\ImportController;
 use App\Http\Controllers\ImportMapsController;
 use App\Http\Controllers\InternalDocumentDownloadController;
 use App\Http\Controllers\PdfViewerController;
+use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\StartImportController;
 use App\Http\Middleware\ValidateSignature;
@@ -58,6 +59,8 @@ Route::middleware([
     Route::post('multiple-question', CreateMultipleQuestionController::class)->name('multiple-questions.store');
     
     Route::resource('collections', CollectionController::class)->except(['index', 'destroy']);
+    
+    Route::resource('projects', ProjectController::class)->only(['index', 'show']);
 });
 
 

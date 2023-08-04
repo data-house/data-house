@@ -13,7 +13,9 @@ class ProjectPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->hasPermission('project:view');
+        return ($user->hasPermission('project:view') ||
+           $user->hasTeamPermission($user->currentTeam, 'project:view')) &&
+           $user->tokenCan('project:view');
     }
 
     /**
@@ -21,7 +23,9 @@ class ProjectPolicy
      */
     public function view(User $user, Project $project): bool
     {
-        return $user->hasPermission('project:view');
+        return ($user->hasPermission('project:view') ||
+           $user->hasTeamPermission($user->currentTeam, 'project:view')) &&
+           $user->tokenCan('project:view');
     }
 
     /**
@@ -29,7 +33,9 @@ class ProjectPolicy
      */
     public function create(User $user): bool
     {
-        return $user->hasPermission('project:create');
+        return ($user->hasPermission('project:create') ||
+           $user->hasTeamPermission($user->currentTeam, 'project:create')) &&
+           $user->tokenCan('project:create');
     }
 
     /**
@@ -37,7 +43,9 @@ class ProjectPolicy
      */
     public function update(User $user, Project $project): bool
     {
-        return $user->hasPermission('project:update');
+        return ($user->hasPermission('project:update') ||
+           $user->hasTeamPermission($user->currentTeam, 'project:update')) &&
+           $user->tokenCan('project:update');
     }
 
     /**
@@ -45,7 +53,9 @@ class ProjectPolicy
      */
     public function delete(User $user, Project $project): bool
     {
-        return $user->hasPermission('project:delete');
+        return ($user->hasPermission('project:delete') ||
+           $user->hasTeamPermission($user->currentTeam, 'project:delete')) &&
+           $user->tokenCan('project:delete');
     }
 
     /**
@@ -53,7 +63,9 @@ class ProjectPolicy
      */
     public function restore(User $user, Project $project): bool
     {
-        return $user->hasPermission('project:delete');
+        return ($user->hasPermission('project:delete') ||
+           $user->hasTeamPermission($user->currentTeam, 'project:delete')) &&
+           $user->tokenCan('project:delete');
     }
 
     /**
@@ -61,6 +73,8 @@ class ProjectPolicy
      */
     public function forceDelete(User $user, Project $project): bool
     {
-        return $user->hasPermission('project:delete');
+        return ($user->hasPermission('project:delete') ||
+           $user->hasTeamPermission($user->currentTeam, 'project:delete')) &&
+           $user->tokenCan('project:delete');
     }
 }

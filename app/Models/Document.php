@@ -113,6 +113,11 @@ class Document extends Model implements Convertible
     {
         return $this->belongsToMany(Collection::class);
     }
+
+    public function project()
+    {
+        return $this->belongsTo(Project::class);
+    }
     
     /**
      * Modify the query used to retrieve models when making all of the models searchable.
@@ -122,7 +127,7 @@ class Document extends Model implements Convertible
      */
     protected function makeAllSearchableUsing($query)
     {
-        return $query->with('team');
+        return $query->with(['team', 'project']);
     }
 
     /**
@@ -201,6 +206,14 @@ class Document extends Model implements Convertible
             'published_at' => $this->published_at,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
+            'team' => $this->team->name,
+            'project' => $this->project ? [
+                'id' => $this->project->getKey(),
+                'title' => $this->project->title,
+                'region' => $this->project->regions(),
+                'countries' => $this->project->countries(),
+                'topics' => $this->project->topics,
+            ] : null,
         ];
     }
     
@@ -238,6 +251,7 @@ class Document extends Model implements Convertible
             'title' => $this->title,
             'content' => $content->collect()->map(function($pageContent, $pageNumber){
                 // TODO: maybe this transformation should be driver specific
+                // TODO: prepend info coming from the project
                 return [
                     "metadata" => [
                         "page_number" => $pageNumber

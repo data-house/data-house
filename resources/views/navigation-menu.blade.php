@@ -18,6 +18,9 @@
                     <x-nav-link href="{{ route('documents.library') }}" :active="request()->routeIs('documents.*') || request()->routeIs('imports.*') || request()->routeIs('questions.*') || request()->routeIs('collections.*')">
                         {{ __('Digital Library') }}
                     </x-nav-link>
+                    <x-nav-link href="{{ route('projects.index') }}" :active="request()->routeIs('projects.*')">
+                        {{ __('Projects') }}
+                    </x-nav-link>
                 </div>
             </div>
 
@@ -145,6 +148,9 @@
             </x-responsive-nav-link>
             <x-responsive-nav-link href="{{ route('documents.library') }}" :active="request()->routeIs('documents.*') || request()->routeIs('imports.*') || request()->routeIs('questions.*')">
                 {{ __('Digital Library') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link href="{{ route('projects.index') }}" :active="request()->routeIs('projects.*')">
+                {{ __('Projects') }}
             </x-responsive-nav-link>
         </div>
 

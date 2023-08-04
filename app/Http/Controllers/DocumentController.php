@@ -67,7 +67,8 @@ class DocumentController extends Controller
     {
         $document->load([
             'uploader',
-            'team'
+            'team',
+            'project',
         ]);
 
         return view('document.show', [

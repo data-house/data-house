@@ -7,12 +7,26 @@ use Illuminate\Http\Request;
 
 class ProjectController extends Controller
 {
+
+    public function __construct()
+    {
+        $this->authorizeResource(Project::class);
+    }
+
+
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $searchQuery = $request->has('s') ? e($request->input('s')) : null;
+
+        $projects = $searchQuery ? Project::search(e($searchQuery))->paginate(50) : Project::query()->paginate(50);
+
+        return view('project.index', [
+            'projects' => $projects,
+            'searchQuery' => $searchQuery,
+        ]);
     }
 
     /**
@@ -36,7 +50,12 @@ class ProjectController extends Controller
      */
     public function show(Project $project)
     {
-        //
+        $project->load('documents');
+
+        return view('project.show', [
+            'project' => $project,
+            'documents' => $project->documents,
+        ]);
     }
 
     /**
