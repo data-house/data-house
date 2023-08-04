@@ -128,6 +128,11 @@ class OaksEngine extends Engine
             // TODO: response body can contain error information // {"code":500,"message":"Error while parsing file","type":"Internal Server Error"}
             // {"code":422,"message":"No content found in request","type":"Unprocessable Entity"}
             logs()->error("Error removing documents from copilot", ['error' => $ex->getMessage()]);
+
+            if($ex->getCode() === 404){
+                return;
+            }
+
             throw $ex;
         }
     }
