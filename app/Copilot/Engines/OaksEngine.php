@@ -6,6 +6,7 @@ use App\Copilot\AnswerAggregationCopilotRequest;
 use App\Copilot\Questionable;
 use App\Copilot\CopilotRequest;
 use App\Copilot\CopilotResponse;
+use App\Copilot\CopilotSummarizeRequest;
 use App\Copilot\Exceptions\CopilotException;
 use Carbon\Carbon;
 use Exception;
@@ -203,9 +204,36 @@ class OaksEngine extends Engine
     }
 
 
-    public function summarize()
+    public function summarize(CopilotSummarizeRequest $request): CopilotResponse
     {
-        
+        try{
+
+            $response = Http::acceptJson()
+                ->timeout(2 * Carbon::SECONDS_PER_MINUTE)
+                ->asJson()
+                ->post(rtrim($this->config['host'], '/') . '/summarize', $request->jsonSerialize())
+                ->throwIfServerError();
+
+            $json = $response->json();
+
+            logs()->info("Summarize text", [
+                'request' => $request->jsonSerialize(),
+                'response' => $json,
+            ]);
+            
+            if(empty($json['summary'] ?? null)){
+                throw new CopilotException("Communication error with the copilot. Missing answer.");
+            }
+
+            return new CopilotResponse($json['summary']);
+        }
+        catch(Throwable $ex)
+        {
+            // TODO: response body can contain error information // {"code":500,"message":"Error while parsing file","type":"Internal Server Error"}
+            // {"code":422,"message":"No content found in request","type":"Unprocessable Entity"}
+            logs()->error("Error asking summary to copilot", ['error' => $ex->getMessage(), 'request' => $question]);
+            throw $ex;
+        }
     }
     
     public function aggregate(AnswerAggregationCopilotRequest $request): CopilotResponse

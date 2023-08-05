@@ -6,6 +6,7 @@ use App\Copilot\AnswerAggregationCopilotRequest;
 use App\Copilot\CopilotManager;
 use App\Copilot\CopilotRequest;
 use App\Copilot\CopilotResponse;
+use App\Copilot\CopilotSummarizeRequest;
 use App\Models\Disk;
 use App\Models\Document;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -373,6 +374,54 @@ class OaksEngineTest extends TestCase
                    $request['answers'][0]['text'] == "First answer." &&
                    $request['arguments']['text'] == 'Question text' &&
                    $request['template_id'] == '0' &&
+                   $request['lang'] == 'en';
+        });
+    }
+
+    public function test_english_summary(): void
+    {
+        config([
+            'copilot.driver' => 'oaks',
+            'copilot.queue' => false,
+            'copilot.engines.oaks' => [
+                'host' => 'http://localhost:5000/',
+            ],
+        ]);
+
+        Queue::fake();
+
+        Http::preventStrayRequests();
+
+        $id = Str::uuid();
+
+        Http::fake([
+            'http://localhost:5000/summarize' => Http::response([
+                "doc_id" => $id,
+                "summary" => "Summary."
+            ], 200),
+        ]);
+
+        /**
+         * @var \App\Copilot\Engines\Engine
+         */
+        $engine = app(CopilotManager::class)->driver('oaks');
+        
+        $request = new CopilotSummarizeRequest($id, 'The text to summarize', 'en');
+
+        $response = $engine->summarize($request);
+
+        $this->assertInstanceOf(CopilotResponse::class, $response);
+
+        $this->assertEquals([
+            "text" => "Summary.",
+            "references" => [],
+        ], $response->jsonSerialize());
+
+        Http::assertSent(function (Request $request) use ($id) {
+            return $request->url() == 'http://localhost:5000/summarize' &&
+                   $request->method() === 'POST' &&
+                   $request['doc_id'] == $id &&
+                   $request['text'] == 'The text to summarize' &&
                    $request['lang'] == 'en';
         });
     }
