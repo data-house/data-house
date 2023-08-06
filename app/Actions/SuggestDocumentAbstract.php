@@ -21,7 +21,7 @@ class SuggestDocumentAbstract
      *
      * @param  \App\Models\Document  $document
      */
-    public function __invoke(Document $document, string $language = 'en', array $pageRange = []): ?string
+    public function __invoke(Document $document, string $language = 'en', array $pageRange = [], int $take = 1): ?string
     {
         $content = null;
 
@@ -37,7 +37,7 @@ class SuggestDocumentAbstract
         // that each document has an executive summary in
         // english and/or german between page 4 and 9
 
-        list($startPage, $endPage) = count($pageRange) < 2 ? [$isReport ? min(4, $totalPages) : 1, $pageRange[0] ?? ($isReport ? max(9, $totalPages) : 5)] : $pageRange;
+        list($startPage, $endPage) = count($pageRange) < 2 ? [$isReport ? min(4, $totalPages) : 1, $pageRange[0] ?? ($isReport ? min(9, $totalPages) : 5)] : $pageRange;
 
         if($endPage < $startPage){
             throw new InvalidArgumentException("End page must be greater or equal to start page [{$startPage}]. Given [{$endPage}].");
@@ -84,7 +84,18 @@ class SuggestDocumentAbstract
                     return Str::startsWith($item, ['ZUSAMMENFASSUNG', 'zusammenfassung']);
                 });
             })
+            ->take($take)
             ->join(PHP_EOL);
+
+        // Based on the structure of the reports we can discard some general data
+        // that will make the abstract too long.
+        // TODO: make abstract processing more general
+        if($isReport && $language === 'en'){
+            $content = 'Project description ' . Str::after($content, 'Project description');
+        }
+        if($isReport && $language === 'de'){
+            $content = 'Projektbeschreibung ' . Str::after($content, 'Projektbeschreibung');
+        }
 
         $response = $document->questionableUsing()->summarize(new CopilotSummarizeRequest($document->ulid, $content, $language));
 
@@ -92,7 +103,7 @@ class SuggestDocumentAbstract
     }
 
 
-    protected function getText(Document $document, array $range = []): Collection
+    protected function getText(Document $document, array $range): Collection
     {
         try{
             $reference = $document->asReference();
@@ -107,7 +118,6 @@ class SuggestDocumentAbstract
         }
         catch(Exception $ex)
         {
-            dump($ex);
             logs()->error("Summary action: Error extracting text from document [{$document->id}]", ['error' => $ex->getMessage()]);
             throw $ex;
         }
