@@ -90,10 +90,10 @@ class SuggestDocumentAbstract
         // Based on the structure of the reports we can discard some general data
         // that will make the abstract too long.
         // TODO: make abstract processing more general
-        if($isReport && $language === 'en'){
+        if($isReport && $language === 'en' && Str::contains($content, 'Project description')){
             $content = 'Project description ' . Str::after($content, 'Project description');
         }
-        if($isReport && $language === 'de'){
+        if($isReport && $language === 'de' && Str::contains($content, 'Projektbeschreibung')){
             $content = 'Projektbeschreibung ' . Str::after($content, 'Projektbeschreibung');
         }
 

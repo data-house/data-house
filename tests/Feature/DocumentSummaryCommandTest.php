@@ -19,6 +19,8 @@ class DocumentSummaryCommandTest extends TestCase
             'pdf.processors.extractor' => [
                 'host' => 'http://localhost:9000',
             ],
+            'copilot.driver' => 'oaks',
+            'copilot.queue' => false,
             'copilot.engines.oaks' => [
                 'host' => 'http://localhost:5000/',
             ],
@@ -69,6 +71,8 @@ class DocumentSummaryCommandTest extends TestCase
             'pdf.processors.extractor' => [
                 'host' => 'http://localhost:9000',
             ],
+            'copilot.driver' => 'oaks',
+            'copilot.queue' => false,
             'copilot.engines.oaks' => [
                 'host' => 'http://localhost:5000/',
             ],
