@@ -5,6 +5,7 @@ namespace App\Copilot\Engines;
 use App\Copilot\AnswerAggregationCopilotRequest;
 use App\Copilot\CopilotRequest;
 use App\Copilot\CopilotResponse;
+use App\Copilot\CopilotSummarizeRequest;
 
 class NullEngine extends Engine
 {
@@ -45,5 +46,10 @@ class NullEngine extends Engine
     {
         return new CopilotResponse('');
     }
-
+    
+    public function summarize(CopilotSummarizeRequest $request): CopilotResponse
+    {
+        return new CopilotResponse('');
+    }
+    
 }

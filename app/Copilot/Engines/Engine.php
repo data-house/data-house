@@ -5,9 +5,12 @@ namespace App\Copilot\Engines;
 use App\Copilot\AnswerAggregationCopilotRequest;
 use App\Copilot\CopilotRequest;
 use App\Copilot\CopilotResponse;
+use App\Copilot\CopilotSummarizeRequest;
 
 abstract class Engine
 {
+    // TODO: Maybe a Copilot should have different engines based on purposes, e.g. document chat, summary, ...
+
     protected readonly array $config;
 
     public function __construct(array $config = [])
@@ -41,5 +44,13 @@ abstract class Engine
     abstract public function question(CopilotRequest $question): CopilotResponse;
 
     abstract public function aggregate(AnswerAggregationCopilotRequest $request): CopilotResponse;
+
+    /**
+     * Summarize a text
+     * 
+     * @param  \App\Copilot\CopilotSummarizeRequest  $request
+     * @return \App\Copilot\CopilotResponse
+     */
+    abstract public function summarize(CopilotSummarizeRequest $request): CopilotResponse;
     
 }
