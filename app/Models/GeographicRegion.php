@@ -42,6 +42,27 @@ class GeographicRegion
             ])->values())
             ->flatten()
             ->filter()
-            ->unique();
+            ->unique()
+            ->values();
+    }
+    
+    /**
+     * Get the geographic regions for facets 
+     */
+    public static function facets(Collection $countryCodes): Collection
+    {
+        static::all();
+
+        return $countryCodes?->map(fn($c) => static::$countries[$c])
+            ->filter()
+            ->map(fn($e) => collect($e)->only([
+                // "region-name",
+                "sub-region-name",
+                // "intermediate-region-name",
+            ])->values())
+            ->flatten()
+            ->filter()
+            ->unique()
+            ->values();
     }
 }
