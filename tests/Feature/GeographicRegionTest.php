@@ -13,6 +13,8 @@ class GeographicRegionTest extends TestCase
     
     public function test_regions_can_be_loaded(): void
     {
+        GeographicRegion::$dataset = "data/geographic-regions.json";
+
         $regions = GeographicRegion::all();
 
         $this->assertCount(248, $regions);
@@ -35,6 +37,8 @@ class GeographicRegionTest extends TestCase
 
     public function test_all_regions_returned_for_country()
     {
+        GeographicRegion::$dataset = "data/geographic-regions.json";
+        
         $regions = GeographicRegion::from(collect(['DEU']));
 
         $this->assertEquals([

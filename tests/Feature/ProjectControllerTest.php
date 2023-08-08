@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Document;
+use App\Models\GeographicRegion;
 use App\Models\Project;
 use App\Models\ProjectType;
 use App\Models\User;
@@ -46,6 +47,8 @@ class ProjectControllerTest extends TestCase
 
     public function test_projects_can_be_searched(): void
     {
+        GeographicRegion::$dataset = "data/geographic-regions.json";
+
         $user = User::factory()->manager()->create();
 
         $project = Project::factory()->create();
