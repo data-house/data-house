@@ -17,7 +17,7 @@ class GeographicRegion
             return static::$countries;
         }
 
-        $file = file_get_contents(resource_path('data/geographic-regions.json'));
+        $file = file_get_contents(resource_path('data/iki-geographic-regions.json'));
 
         static::$countries = json_decode($file, true);
 
@@ -56,13 +56,14 @@ class GeographicRegion
         return $countryCodes?->map(fn($c) => static::$countries[$c])
             ->filter()
             ->map(fn($e) => collect($e)->only([
-                // "region-name",
-                "sub-region-name",
+                "region-name",
+                // "sub-region-name",
                 // "intermediate-region-name",
             ])->values())
             ->flatten()
             ->filter()
             ->unique()
-            ->values();
+            ->values()
+            ->sort();
     }
 }
