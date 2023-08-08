@@ -140,11 +140,16 @@ return [
             Document::class => [
                 'filterableAttributes'=> [
                     'id',
+                    'draft',
                     'languages',
                     'mime',
-                    'draft',
+                    'type',
+                    'team',
                     'published',
                     'published_at',
+                    'project.countries',
+                    'project.region',
+                    'project.topics',
                 ],
                 'sortableAttributes' => [
                     'updated_at',

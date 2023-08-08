@@ -209,14 +209,14 @@ class Document extends Model implements Convertible
             'published_at' => $this->published_at,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
-            'team' => $this->team->name,
-            'project' => $this->project ? [
-                'id' => $this->project->getKey(),
-                'title' => $this->project->title,
-                'region' => $this->project->regions(),
-                'countries' => $this->project->countries(),
-                'topics' => $this->project->topics,
-            ] : null,
+            'team' => $this->team?->name,
+            'project' => [
+                'id' => $this->project?->getKey(),
+                'title' => $this->project?->title,
+                'region' => $this->project?->regions(),
+                'countries' => $this->project?->countries(),
+                'topics' => $this->project?->topics,
+            ],
         ];
     }
     
