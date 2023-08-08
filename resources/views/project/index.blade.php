@@ -127,7 +127,11 @@
                     </div>
                 @empty
                     <div class="col-span-3">
-                        <p>{{ __('No projects fetched from the project database.') }}</p>
+                        @if ($is_search)
+                            <p>{{ __('No projects matching the search criteria.') }}</p>
+                        @else
+                            <p>{{ __('No projects fetched from the project database.') }}</p>
+                        @endif
                     </div>
                 @endforelse
             

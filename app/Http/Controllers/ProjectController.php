@@ -44,6 +44,7 @@ class ProjectController extends Controller
             'projects' => $projects,
             'searchQuery' => $searchQuery,
             'filters' => $filters,
+            'is_search' => $searchQuery || $filters,
             'facets' => $facets,
             'applied_filters_count' => count(array_keys($filters ?? [] )),
         ]);
