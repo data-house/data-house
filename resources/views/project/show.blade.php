@@ -16,10 +16,15 @@
     <div class="pt-8 pb-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
-            <div class="mb-6 space-y-1">
-                <p class="inline px-2 py-1 rounded bg-lime-100 text-lime-900">
-                    {{ $project->type->name }}
-                </p>
+            <div class="mb-6 space-y-2">
+                <div class="flex gap-2">
+                    <p class="inline px-2 py-1 rounded bg-indigo-100 text-indigo-900">
+                        {{ $project->status->name }}
+                    </p>
+                    <p class="inline px-2 py-1 rounded bg-lime-100 text-lime-900">
+                        {{ $project->type->name }}
+                    </p>
+                </div>
 
                 <p class="text-4xl font-bold max-w-3xl">{{ $project->title }}</p>
                 @if ($project->properties['title_en'] ?? false)
@@ -27,8 +32,14 @@
                 @endif
             </div>
 
-            <div class="grid grid-cols-3 gap-2">
+            <div class="grid grid-cols-3 gap-4">
 
+                <div class="space-y-4 col-span-2">
+                    <p class="text-xs uppercase block text-stone-700">{{ __('Description') }}</p>
+                    <div class="prose">
+                        {{ $project->description }}
+                    </div>
+                </div>
                 <div class="space-y-4">
                     <p class="text-xs uppercase block text-stone-700">{{ __('Topics') }}</p>
                     <ul>
@@ -58,6 +69,18 @@
                                 <li>{{ $region }}</li>
                             @endforeach 
                         </ul>
+                    </div>
+                </div>
+                <div>
+                    <p class="text-xs uppercase block text-stone-700">{{ __('IKI Funding') }}</p>
+                    <div class="prose">
+                        
+                        @if ($project->funding['iki'] ?? false)
+                            <x-currency :value="$project->funding['iki']" />
+                        @else
+                            <p>{{ __('Currently not available') }}</p>
+                        @endif
+                        
                     </div>
                 </div>
 

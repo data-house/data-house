@@ -46,6 +46,8 @@ class Project extends Model
         'description',
         'starts_at',
         'ends_at',
+        'funding',
+        'status',
         'website',
     ];
 
@@ -58,6 +60,8 @@ class Project extends Model
         'properties' => AsArrayObject::class,
         'topics' => AsCollection::class,
         'type' => ProjectType::class,
+        'status' => ProjectStatus::class,
+        'funding' => AsArrayObject::class,
     ];
 
 
@@ -127,6 +131,7 @@ class Project extends Model
             'starts_at' => $this->starts_at?->toDateString(),
             'ends_at' => $this->ends_at?->toDateString(),
             'organizations' => $this->organizations,
+            'type' => $this->type->name,
         ];
     }
 }

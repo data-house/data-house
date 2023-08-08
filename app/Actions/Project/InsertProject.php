@@ -3,9 +3,11 @@
 namespace App\Actions\Project;
 
 use App\Models\Project;
+use App\Models\ProjectStatus;
 use App\Models\ProjectType;
 use App\Models\User;
 use App\Models\Visibility;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rules\Enum;
 use PrinsFrank\Standards\Country\CountryAlpha3;
@@ -36,6 +38,8 @@ class InsertProject
             'description' => ['nullable', 'string'],
             'starts_at' => ['nullable', 'date'],
             'ends_at' => ['nullable', 'date', 'after:starts_at'],
+            'status' => ['required', new Enum(ProjectStatus::class)],
+            'iki-funding' => ['nullable', 'numeric'],
         ])->validate();
 
         return Project::create([
@@ -47,8 +51,12 @@ class InsertProject
             'properties' => $validated['properties'] ?? [],
             'slug' => $validated['slug'] ?? str($validated['title'])->substr(0, 240)->slug()->toString(),
             'description' => $validated['description'] ?? null,
-            'starts_at' => $validated['starts_at'] ?? null,
-            'ends_at' => $validated['ends_at'] ?? null,
+            'starts_at' => $validated['starts_at'] ? Carbon::parse($validated['starts_at']) : null,
+            'ends_at' => $validated['ends_at'] ? Carbon::parse($validated['ends_at']) : null,
+            'status' => $validated['status'],
+            'funding' => [
+                'iki' => $validated['iki-funding'] ?? null,
+            ],
         ]);
 
     }

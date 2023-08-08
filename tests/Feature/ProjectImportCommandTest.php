@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Document;
 use App\Models\Project;
+use App\Models\ProjectStatus;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Storage;
@@ -40,7 +41,11 @@ class ProjectImportCommandTest extends TestCase
                 },
                 "properties": null,
                 "slug": "assigned-slug",
-                "description": "Project Description"
+                "description": "Project Description",
+                "status": 20,
+                "starts_at": "2008-12-15 00:00:00",
+                "ends_at": "2012-08-31 00:00:00",
+                "iki-funding": 3650000.56
             }
         ]
         json;
@@ -55,12 +60,18 @@ class ProjectImportCommandTest extends TestCase
         $projects = Project::query()->get();
 
         $this->assertCount(1, $projects);
+
+        $project = $projects->first();
         
-        $this->assertEquals('Importiertes Projekt', $projects->first()->title);
-        $this->assertEquals('Imported Project', $projects->first()->properties['title_en']);
+        $this->assertEquals('Importiertes Projekt', $project->title);
+        $this->assertEquals('Imported Project', $project->properties['title_en']);
+        $this->assertEquals(ProjectStatus::COMPLETED, $project->status);
+        $this->assertEquals('2008-12-15', $project->starts_at->toDateString());
+        $this->assertEquals('2012-08-31', $project->ends_at->toDateString());
+        $this->assertEquals(3650000.56, $project->funding['iki']);
         $this->assertEquals([
             "Some organization"
-        ], $projects->first()->organizations['implementers']);
+        ], $project->organizations['implementers']);
 
     }
 
