@@ -10,7 +10,7 @@
 
         @empty
 
-            <div class="text-stone-600 max-w-4xl mx-auto py-4">{{ __('You didn\'t aks a question so far.') }}</div>
+            <div class="text-stone-600 max-w-4xl mx-auto py-4">{{ __('No questions yet.') }}</div>
         
         @endforelse
     </div>
