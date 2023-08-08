@@ -51,8 +51,8 @@ class InsertProject
             'properties' => $validated['properties'] ?? [],
             'slug' => $validated['slug'] ?? str($validated['title'])->substr(0, 240)->slug()->toString(),
             'description' => $validated['description'] ?? null,
-            'starts_at' => $validated['starts_at'] ? Carbon::parse($validated['starts_at']) : null,
-            'ends_at' => $validated['ends_at'] ? Carbon::parse($validated['ends_at']) : null,
+            'starts_at' => ($validated['starts_at'] ?? false) ? Carbon::parse($validated['starts_at']) : null,
+            'ends_at' => ($validated['ends_at'] ?? false) ? Carbon::parse($validated['ends_at']) : null,
             'status' => $validated['status'],
             'funding' => [
                 'iki' => $validated['iki-funding'] ?? null,
