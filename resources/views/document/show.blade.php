@@ -67,12 +67,19 @@
                         <livewire:document-collections :document="$document" />
                     </div>
 
-                    <div class="space-y-2">
+                    <div class="space-y-3">
                         <h4 class="font-bold">{{ __('Project') }}</h4>
                         
                         @if ($document->project)
                             @can('view', $document->project)    
-                                <div><a class="border-b pb-0.5 hover:border-blue-600 hover:text-blue-800 focus:text-blue-800" href="{{ route('projects.show', $document->project) }}">{{ $document->project?->title }}</a></div>
+                                <div class="space-y-1">
+                                    <p class="inline px-2 py-1 rounded bg-white text-stone-900 text-sm">
+                                        {{ $document->project?->slug }}
+                                    </p>
+                                    <p>
+                                        <a class="border-b pb-0.5 hover:border-blue-600 hover:text-blue-800 focus:text-blue-800" href="{{ route('projects.show', $document->project) }}">{{ $document->project?->title }}</a>
+                                    </p>
+                                </div>
                                 <div>
                                     <p class="text-xs uppercase block text-stone-700">{{ __('Topics') }}</p>
                                     @foreach ($document->project?->topics as $topic)

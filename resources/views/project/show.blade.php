@@ -18,6 +18,9 @@
 
             <div class="mb-6 space-y-2">
                 <div class="flex gap-2">
+                    <p class="inline px-2 py-1 rounded bg-white text-stone-900">
+                        {{ $project->slug }}
+                    </p>
                     @if ($project->status)
                         <p class="inline px-2 py-1 rounded bg-indigo-100 text-indigo-900">
                             {{ $project->status->name }}
