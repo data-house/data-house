@@ -18,9 +18,11 @@
 
             <div class="mb-6 space-y-2">
                 <div class="flex gap-2">
-                    <p class="inline px-2 py-1 rounded bg-indigo-100 text-indigo-900">
-                        {{ $project->status->name }}
-                    </p>
+                    @if ($project->status)
+                        <p class="inline px-2 py-1 rounded bg-indigo-100 text-indigo-900">
+                            {{ $project->status->name }}
+                        </p>
+                    @endif
                     <p class="inline px-2 py-1 rounded bg-lime-100 text-lime-900">
                         {{ $project->type->name }}
                     </p>

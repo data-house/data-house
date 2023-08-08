@@ -34,6 +34,7 @@ class InsertProjectTest extends TestCase
             'description' => 'sample description',
             'starts_at' => '2023-08-01',
             'ends_at' => '2023-08-31',
+            'status' => 10,
         ]);
 
         $this->assertNotNull($project);
@@ -64,6 +65,7 @@ class InsertProjectTest extends TestCase
             'organizations' => ['implementers' => ['test org']],
             'properties' => ['a-property' => 'a-value'],
             'slug' => null,
+            'status' => 10,
         ]);
 
         $this->assertNotNull($project);
@@ -100,6 +102,7 @@ class InsertProjectTest extends TestCase
                 'organizations' => ['implementers' => ['test org']],
                 'properties' => ['a-property' => 'a-value'],
                 'slug' => null,
+                'status' => 10,
             ]);
         } catch (Throwable $th) {
             $this->assertInstanceOf(ValidationException::class, $th);
@@ -130,6 +133,7 @@ class InsertProjectTest extends TestCase
                 'organizations' => ['implementers' => ['test org']],
                 'properties' => ['a-property' => 'a-value'],
                 'slug' => 'test-slug',
+                'status' => 10,
             ]);
         } catch (Throwable $th) {
             $this->assertInstanceOf(ValidationException::class, $th);

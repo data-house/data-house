@@ -106,7 +106,11 @@ class ProjectImportCommandTest extends TestCase
                 "properties": null,
                 "slug": "assigned-slug",
                 "description": "Project Description",
-                "documents": "document-title.pdf"
+                "documents": "document-title.pdf",
+                "status": 20,
+                "starts_at": "2008-12-15 00:00:00",
+                "ends_at": "2012-08-31 00:00:00",
+                "iki-funding": 3650000.56
             }
         ]
         json;
