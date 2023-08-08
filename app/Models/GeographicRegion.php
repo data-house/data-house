@@ -10,6 +10,8 @@ use Illuminate\Support\Collection;
 class GeographicRegion
 {
     private static $countries;
+
+    public static $dataset;
     
     public static function all()
     {
@@ -17,7 +19,7 @@ class GeographicRegion
             return static::$countries;
         }
 
-        $file = file_get_contents(resource_path('data/iki-geographic-regions.json'));
+        $file = file_get_contents(resource_path(static::$dataset ?? "data/iki-geographic-regions.json"));
 
         static::$countries = json_decode($file, true);
 
