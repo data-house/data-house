@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Document;
+use App\Models\Project;
 
 return [
 
@@ -148,6 +149,16 @@ return [
                     'updated_at',
                     'created_at',
                     'published_at',
+                ],
+            ],
+            Project::class => [
+                'filterableAttributes'=> [
+                    'type',
+                    'countries',
+                    'region',
+                    'topics',
+                    'organizations',
+                    'status',
                 ],
             ],
         ],

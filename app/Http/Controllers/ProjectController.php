@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\GeographicRegion;
 use App\Models\Project;
+use App\Models\ProjectType;
 use Illuminate\Http\Request;
 
 class ProjectController extends Controller
@@ -21,11 +23,29 @@ class ProjectController extends Controller
     {
         $searchQuery = $request->has('s') ? e($request->input('s')) : null;
 
-        $projects = $searchQuery ? Project::search(e($searchQuery))->paginate(50) : Project::query()->paginate(50);
+        $filters = $request->hasAny(['countries', 'type', 'region', 'topics']) ? $request->only(['countries', 'type', 'region', 'topics']) : [];
+
+        $projects = $searchQuery || $filters 
+            ? Project::advancedSearch(e($searchQuery), $filters)->paginate(50)
+            : Project::query()->paginate(50);
+
+
+        $countries = Project::pluck('countries')->flatten()->unique('value');
+
+        $facets = [
+            'type' => ProjectType::cases(),
+            'countries' => $countries->map->toCountryName(),
+            'regions' => GeographicRegion::facets($countries?->map->value),
+            'organizations' => [],
+            'topic' => Project::pluck('topics')->flatten()->unique(),
+        ];
 
         return view('project.index', [
             'projects' => $projects,
             'searchQuery' => $searchQuery,
+            'filters' => $filters,
+            'facets' => $facets,
+            'applied_filters_count' => count(array_keys($filters ?? [] )),
         ]);
     }
 
