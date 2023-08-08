@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
-use Laravel\Scout\Searchable;
+use App\Searchable;
 use PrinsFrank\Standards\Country\CountryAlpha3;
 use PrinsFrank\Standards\Language\LanguageAlpha2;
 
@@ -131,7 +131,8 @@ class Project extends Model
             'starts_at' => $this->starts_at?->toDateString(),
             'ends_at' => $this->ends_at?->toDateString(),
             'organizations' => $this->organizations,
-            'type' => $this->type->name,
+            'type' => $this->type?->name,
+            'status' => $this->status?->name,
         ];
     }
 }
