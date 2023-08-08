@@ -530,4 +530,37 @@ class Question extends Model implements Htmlable
         return $this->status == QuestionStatus::ERROR;
     }
 
+    /**
+     * Modify the query used to retrieve models when making all of the models searchable.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    protected function makeAllSearchableUsing($query)
+    {
+        return $query->with(['team', 'user']);
+    }
+
+    /**
+     * Get the indexable data array for the model.
+     *
+     * @return array
+     */
+    public function toSearchableArray()
+    {
+        logs()->info("Making question [{$this->id}] searchable");
+
+        return [
+            'id' => $this->id,
+            'question' => $this->question,
+            'answer' => $this->answer['text'] ?? null,
+            'created_at' => $this->created_at,
+            'author' => $this->user?->name,
+            'team' => $this->team?->name,
+            'target' => $this->target?->name,            
+            'type' => $this->type?->name,
+            'language' => $this->language,
+        ];
+    }
+
 }

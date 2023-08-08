@@ -2,6 +2,7 @@
 
 use App\Models\Document;
 use App\Models\Project;
+use App\Models\Question;
 
 return [
 
@@ -159,6 +160,15 @@ return [
                     'topics',
                     'organizations',
                     'status',
+                ],
+            ],
+            Question::class => [
+                'filterableAttributes'=> [
+                    'type',
+                    'target',
+                    'language',
+                    'author',
+                    'team',
                 ],
             ],
         ],
