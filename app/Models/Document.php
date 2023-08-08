@@ -68,6 +68,7 @@ class Document extends Model implements Convertible
         'published_by',
         'published_to_url',
         'properties',
+        'type',
     ];
 
     protected $casts = [
@@ -75,6 +76,7 @@ class Document extends Model implements Convertible
         'languages' => AsEnumCollection::class.':'. LanguageAlpha2::class,
         'published_at' => 'datetime',
         'properties' => AsArrayObject::class,
+        'type' => DocumentType::class,
     ];
 
 
@@ -200,6 +202,7 @@ class Document extends Model implements Convertible
             'description' => $this->description,
             'languages' => $this->languages,
             'mime' => $this->mime,
+            'type' => $this->type?->name,
             'content' => $content,
             'draft' => $this->draft,
             'published' => $this->published_at !== null,

@@ -4,6 +4,7 @@ namespace App\Actions;
 
 use App\Copilot\CopilotSummarizeRequest;
 use App\Models\Document;
+use App\Models\DocumentType;
 use App\Models\User;
 use App\Models\Visibility;
 use App\PdfProcessing\DocumentContent;
@@ -29,7 +30,7 @@ class SuggestDocumentAbstract
             throw new InvalidArgumentException("Could not determine the number of pages in the document");
         }
 
-        $isReport = str($document->title)->contains(['Evaluierungsbericht', 'evaluierungsbericht', 'evaluation']);
+        $isReport = $document->type == DocumentType::EVALUATION_REPORT || str($document->title)->contains(['Evaluierungsbericht', 'evaluierungsbericht', 'evaluation']);
 
         $totalPages = (int)$document->properties['pages'];
 
