@@ -4,7 +4,9 @@ namespace App\Console\Commands;
 
 use App\Actions\Project\InsertProject;
 use App\Models\Document;
+use App\Models\ProjectStatus;
 use App\Models\ProjectType;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
@@ -69,6 +71,10 @@ class ProjectImportCommand extends Command
                             'title_en' => $p['title']['en'] ?? null
                         ],
                         'description' => $p['description'],
+                        'starts_at' => $p['starts_at'],
+                        'ends_at' => $p['ends_at'],
+                        'status' => ProjectStatus::from($p['status']),
+                        'iki-funding' => $p['iki-funding'] ?? null,
                     ]);
 
                     $documents = Collection::wrap($p['documents'] ?? []);
@@ -85,7 +91,6 @@ class ProjectImportCommand extends Command
                     });
 
                 } catch (Throwable $th) {
-                    dump($th);
                     $this->error("Failed to add project [{$p['slug']}]: {$th->getMessage()}]");
                 }
 
