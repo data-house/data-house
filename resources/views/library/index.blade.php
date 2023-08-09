@@ -87,12 +87,12 @@
                             <fieldset>
                               <legend class="block font-medium">{{ __('Topic') }}</legend>
                               <div class="space-y-6 pt-6 sm:space-y-4 sm:pt-4 max-h-72 overflow-y-auto">
-                                @foreach ($facets['topic'] as $item)
-                                    <div class="flex items-center text-base sm:text-sm">
-                                    <input id="topic-{{ $item }}" name="project_topics[]" value="{{ $item }}" type="checkbox" @checked(in_array($item, $filters['project_topics'] ?? [])) class="h-4 w-4 flex-shrink-0 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
-                                    <label for="topic-{{ $item }}" class="ml-3 min-w-0 flex-1 text-gray-600">{{ $item }}</label>
-                                    </div>
-                                @endforeach
+                                @foreach ($facets['topic'] as $topicKey => $topic)
+                                <div class="flex items-center text-base sm:text-sm">
+                                <input id="topic-{{ $topicKey }}" name="project_topics[]" value="{{ $topicKey }}" type="checkbox" @checked(in_array($topicKey, $filters['project_topics'] ?? [])) class="h-4 w-4 flex-shrink-0 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                                <label for="topic-{{ $topicKey }}" class="ml-3 min-w-0 flex-1 text-gray-600">{{ $topic }}</label>
+                                </div>
+                            @endforeach
                               </div>
                             </fieldset>
                           </div>

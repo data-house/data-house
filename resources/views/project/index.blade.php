@@ -51,10 +51,10 @@
                         <fieldset>
                           <legend class="block font-medium">{{ __('Topic') }}</legend>
                           <div class="space-y-6 pt-6 sm:space-y-4 sm:pt-4 max-h-72 overflow-y-auto">
-                            @foreach ($facets['topic'] as $item)
+                            @foreach ($facets['topic'] as $topicKey => $topic)
                                 <div class="flex items-center text-base sm:text-sm">
-                                <input id="topic-{{ $item }}" name="topic[]" value="{{ $item }}" type="checkbox" @checked(in_array($item, $filters['topic'] ?? [])) class="h-4 w-4 flex-shrink-0 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
-                                <label for="topic-{{ $item }}" class="ml-3 min-w-0 flex-1 text-gray-600">{{ $item }}</label>
+                                <input id="topic-{{ $topicKey }}" name="topics[]" value="{{ $topicKey }}" type="checkbox" @checked(in_array($topicKey, $filters['topics'] ?? [])) class="h-4 w-4 flex-shrink-0 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                                <label for="topic-{{ $topicKey }}" class="ml-3 min-w-0 flex-1 text-gray-600">{{ $topic }}</label>
                                 </div>
                             @endforeach
                           </div>
@@ -119,12 +119,14 @@
                             <span class="z-10 absolute inset-0"></span>{{ $project->title }}
                         </a>
 
-                        @foreach ($project->topics as $topic)
-                            <span class="flex gap-2 items-center text-xs px-2 py-1 rounded-xl bg-stone-100 text-stone-900">
-                                <x-heroicon-o-hashtag class="w-4 h-4" />
-                                {{ $topic }}
-                            </span>
-                        @endforeach
+                        <div class="flex flex-wrap gap-2">
+                            @foreach ($project->topics as $topic)
+                                <span class="inline-flex gap-2 items-center text-xs px-2 py-1 rounded-xl bg-stone-100 text-stone-900">
+                                    <x-heroicon-o-hashtag class="w-4 h-4" />
+                                    {{ $topic }}
+                                </span>
+                            @endforeach
+                        </div>
 
                         <div class="space-x-1 text-sm">
                             <span>{{ $project->countries()->pluck('value')->join(', ') }}</span>

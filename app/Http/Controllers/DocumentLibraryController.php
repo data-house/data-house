@@ -6,6 +6,7 @@ use App\Models\Document;
 use App\Models\DocumentType;
 use App\Models\GeographicRegion;
 use App\Models\Project;
+use App\Models\Topic;
 use Illuminate\Http\Request;
 
 class DocumentLibraryController extends Controller
@@ -30,7 +31,7 @@ class DocumentLibraryController extends Controller
             'countries' => $countries->map->toCountryName(),
             'regions' => GeographicRegion::facets($countries?->map->value),
             'organizations' => [],
-            'topic' => Project::pluck('topics')->flatten()->unique(),
+            'topic' => Topic::facets(),
         ];
 
         return view('library.index', [

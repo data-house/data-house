@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\GeographicRegion;
 use App\Models\Project;
 use App\Models\ProjectType;
+use App\Models\Topic;
 use Illuminate\Http\Request;
 
 class ProjectController extends Controller
@@ -37,7 +38,7 @@ class ProjectController extends Controller
             'countries' => $countries->map->toCountryName(),
             'regions' => GeographicRegion::facets($countries?->map->value),
             'organizations' => [],
-            'topic' => Project::pluck('topics')->flatten()->unique(),
+            'topic' => Topic::facets(), // Project::pluck('topics')->flatten()->unique(),
         ];
 
         return view('project.index', [
@@ -76,6 +77,7 @@ class ProjectController extends Controller
         return view('project.show', [
             'project' => $project,
             'documents' => $project->documents,
+            'topics' => Topic::from($project->topics),
         ]);
     }
 

@@ -82,12 +82,15 @@
                                 </div>
                                 <div>
                                     <p class="text-xs uppercase block text-stone-700">{{ __('Topics') }}</p>
-                                    @foreach ($document->project?->topics as $topic)
-                                        <span class="flex gap-2 items-center text-sm px-2 py-1 rounded-xl bg-gray-200 text-gray-900">
-                                            <x-heroicon-o-hashtag class="w-5 h-5" />
-                                            {{ $topic }}
-                                        </span>
-                                    @endforeach
+
+                                    <p class="flex flex-wrap gap-2">
+                                        @foreach ($document->project?->topics as $topic)
+                                            <span class="inline-flex gap-2 items-center text-sm px-2 py-1 rounded-xl bg-gray-200 text-gray-900">
+                                                <x-heroicon-o-hashtag class="w-4 h-4" />
+                                                {{ $topic }}
+                                            </span>
+                                        @endforeach
+                                    </p>
                                 </div>
                                 <div>
                                     <p class="text-xs uppercase block text-stone-700">{{ __('Countries') }}</p>
