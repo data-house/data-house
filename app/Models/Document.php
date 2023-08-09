@@ -79,7 +79,9 @@ class Document extends Model implements Convertible
         'type' => DocumentType::class,
     ];
 
-
+    protected $with = [
+        'project',
+    ];
     
     /**
      * Get the columns that should receive a unique identifier.
