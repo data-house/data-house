@@ -19,6 +19,13 @@
                 <form action="" method="get">
                     <x-input type="text" :value="$searchQuery ?? null" name="s" id="s" class="min-w-full" placeholder="{{ __('Search the question library...') }}" />
                 </form>
+                @if ($searchQuery && $questions->isNotEmpty())
+                    <div class="text-sm mt-3 py-2 text-right">{{ trans_choice(':total question found|:total questions found', $questions->total(), ['total' => $questions->total()]) }}</div>
+                @endif
+
+                @if (!$searchQuery && $questions->isNotEmpty())
+                    <div class="text-sm mt-3 py-2 text-right">{{ trans_choice(':total question in the library|:total questions in the library', $questions->total(), ['total' => $questions->total()]) }}</div>
+                @endif
             </div>
 
             <div class="mt-6 grid grid-cols-3 gap-4">
@@ -30,6 +37,7 @@
                     </div>
                 @endforelse
             </div>
+            <div class="mt-2">{{ $questions?->links() }}</div>
         </div>
     </div>
 </x-app-layout>

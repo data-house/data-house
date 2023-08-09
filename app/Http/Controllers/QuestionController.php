@@ -24,7 +24,7 @@ class QuestionController extends Controller
         $questions = $searchQuery ? 
             Question::search(e($searchQuery))
                 ->query(fn (Builder $query) => $query->with(['questionable', 'user']))
-                ->get()
+                ->paginate(200)
             :
             Question::query()->with(['questionable', 'user'])
                 ->orderBy('status')
@@ -32,7 +32,7 @@ class QuestionController extends Controller
                 ->where(function($query){
                     return $query->whereNotNull('user_id')->orWhereNotNull('team_id');
                 })
-                ->get();
+                ->paginate(200);
         
         return view('question.index', [
             'questions' => $questions,
