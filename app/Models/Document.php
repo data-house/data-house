@@ -22,7 +22,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
 use PrinsFrank\Standards\Language\LanguageAlpha2;
-use Laravel\Scout\Searchable;
+use App\Searchable;
 use MeiliSearch\Exceptions\JsonEncodingException;
 use Symfony\Component\HttpFoundation\HeaderUtils;
 
@@ -68,6 +68,7 @@ class Document extends Model implements Convertible
         'published_by',
         'published_to_url',
         'properties',
+        'type',
     ];
 
     protected $casts = [
@@ -75,6 +76,7 @@ class Document extends Model implements Convertible
         'languages' => AsEnumCollection::class.':'. LanguageAlpha2::class,
         'published_at' => 'datetime',
         'properties' => AsArrayObject::class,
+        'type' => DocumentType::class,
     ];
 
 
@@ -200,20 +202,19 @@ class Document extends Model implements Convertible
             'description' => $this->description,
             'languages' => $this->languages,
             'mime' => $this->mime,
+            'type' => $this->type?->name,
             'content' => $content,
             'draft' => $this->draft,
             'published' => $this->published_at !== null,
             'published_at' => $this->published_at,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
-            'team' => $this->team->name,
-            'project' => $this->project ? [
-                'id' => $this->project->getKey(),
-                'title' => $this->project->title,
-                'region' => $this->project->regions(),
-                'countries' => $this->project->countries(),
-                'topics' => $this->project->topics,
-            ] : null,
+            'team' => $this->team?->name,
+            'project_id' => $this->project?->getKey(),
+            'project_title' => $this->project?->title,
+            'project_region' => $this->project?->regions(),
+            'project_countries' => $this->project?->countries(),
+            'project_topics' => $this->project?->topics,
         ];
     }
     

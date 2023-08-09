@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Actions\ClassifyDocumentType;
 use App\Jobs\Pipeline\Document\ExtractDocumentProperties;
 use App\Models\Document;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -29,7 +30,7 @@ class ExtractDocumentPropertiesJobTest extends TestCase
 
         $job = new ExtractDocumentProperties($model, $model->latestPipelineRun);
 
-        $job->handle();
+        $job->handle(app()->make(ClassifyDocumentType::class));
 
         $document = $model->fresh();
 

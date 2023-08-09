@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Pipeline\Document;
 
+use App\Actions\ClassifyDocumentType;
 use App\Models\Document;
 use App\Models\MimeType;
 use App\PdfProcessing\Facades\Pdf;
@@ -19,7 +20,7 @@ class ExtractDocumentProperties extends PipelineJob
     /**
      * Execute the job.
      */
-    public function handle(): void
+    public function handle(ClassifyDocumentType $classifyType): void
     {
         if(! $this->model instanceof Document){
             return;
@@ -28,6 +29,8 @@ class ExtractDocumentProperties extends PipelineJob
         if(!$this->isSupported($this->model->mime)){
             return;
         }
+
+        $this->model->type = $classifyType($this->model);
 
         $this->model->properties = Pdf::properties($this->model->asReference());
 

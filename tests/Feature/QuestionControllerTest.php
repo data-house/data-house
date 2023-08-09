@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Question;
 use App\Models\User;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
@@ -39,7 +40,16 @@ class QuestionControllerTest extends TestCase
 
         $response->assertSuccessful();
 
-        $response->assertViewHas('questions', $questions);
+        $response->assertViewHas('questions');
+
+        $viewQuestions = $response->viewData('questions');
+
+        $this->assertInstanceOf(LengthAwarePaginator::class, $viewQuestions);
+
+        $this->assertEquals(2, $viewQuestions->total());
+
+        $viewQuestions->each(fn ($item, $index) => $this->assertTrue($questions->get($index)->is($item)));
+
         $response->assertViewHas('searchQuery', null);
     }
 
