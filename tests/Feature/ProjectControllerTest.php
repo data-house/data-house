@@ -47,8 +47,6 @@ class ProjectControllerTest extends TestCase
 
     public function test_projects_can_be_searched(): void
     {
-        GeographicRegion::$dataset = "data/geographic-regions.json";
-
         $user = User::factory()->manager()->create();
 
         $project = Project::factory()->create();

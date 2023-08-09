@@ -20,8 +20,6 @@ class ProjectDetailsInDocumentsTest extends TestCase
 
     public function test_projects_details_shown_while_viewing_document(): void
     {
-        GeographicRegion::$dataset = "data/geographic-regions.json";
-        
         $user = User::factory()->manager()->create();
 
         $document = Document::factory()
