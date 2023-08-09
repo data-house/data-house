@@ -1,0 +1,94 @@
+{
+    "NAMA": {
+        "id": "BI-2",
+        "name": "NAMA",
+        "children": [
+            {
+                "id": "BI-2-0",
+                "name": "NAMA"
+            }
+        ]
+    },
+    "measurement, reporting and verification": {
+        "id": "BI-3",
+        "name": "measurement, reporting and verification",
+        "children": [
+            {
+                "id": "BI-3-0",
+                "name": "measurement, reporting and verification"
+            }
+        ]
+    },
+    "carbon market": {
+        "id": "BI-4",
+        "name": "carbon market",
+        "children": [
+            {
+                "id": "BI-4-0",
+                "name": "carbon market"
+            }
+        ]
+    },
+    "sustainable energy supply": {
+        "id": "BI-5",
+        "name": "sustainable energy supply",
+        "children": [
+            {
+                "id": "BI-5-1",
+                "name": "renewable energies"
+            },
+            {
+                "id": "BI-5-2",
+                "name": "energy efficiency"
+            }
+        ]
+    },
+    "sustainable consumption and production": {
+        "id": "BI-6",
+        "name": "sustainable consumption and production",
+        "children": [
+            {
+                "id": "BI-6-0",
+                "name": "sustainable consumption and production"
+            }
+        ]
+    },
+    "sustainable mobility": {
+        "id": "BI-7",
+        "name": "sustainable mobility",
+        "children": [
+            {
+                "id": "BI-7-0",
+                "name": "sustainable mobility"
+            }
+        ]
+    },
+    "highly potent greenhouse gases": {
+        "id": "BI-9",
+        "name": "highly potent greenhouse gases",
+        "children": [
+            {
+                "id": "BI-9-0",
+                "name": "highly potent greenhouse gases"
+            }
+        ]
+    },
+    "recycling economy and waste": {
+        "id": "BI-8",
+        "name": "recycling economy and waste",
+        "children": [
+            {
+                "id": "BI-8-1",
+                "name": "recycling economy"
+            },
+            {
+                "id": "BI-8-2",
+                "name": "waste water"
+            },
+            {
+                "id": "BI-8-3",
+                "name": "resources"
+            }
+        ]
+    }
+}
