@@ -22,7 +22,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
 use PrinsFrank\Standards\Language\LanguageAlpha2;
-use Laravel\Scout\Searchable;
+use App\Searchable;
 use MeiliSearch\Exceptions\JsonEncodingException;
 use Symfony\Component\HttpFoundation\HeaderUtils;
 
@@ -210,13 +210,11 @@ class Document extends Model implements Convertible
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'team' => $this->team?->name,
-            'project' => [
-                'id' => $this->project?->getKey(),
-                'title' => $this->project?->title,
-                'region' => $this->project?->regions(),
-                'countries' => $this->project?->countries(),
-                'topics' => $this->project?->topics,
-            ],
+            'project_id' => $this->project?->getKey(),
+            'project_title' => $this->project?->title,
+            'project_region' => $this->project?->regions(),
+            'project_countries' => $this->project?->countries(),
+            'project_topics' => $this->project?->topics,
         ];
     }
     

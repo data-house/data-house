@@ -147,9 +147,9 @@ return [
                     'team',
                     'published',
                     'published_at',
-                    'project.countries',
-                    'project.region',
-                    'project.topics',
+                    'project_countries',
+                    'project_region',
+                    'project_topics',
                 ],
                 'sortableAttributes' => [
                     'updated_at',
