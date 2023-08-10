@@ -174,16 +174,24 @@
                 </div>
             </div>
 
-            @if ($is_search && $documents->isNotEmpty())
-                <div class="text-sm mt-3 py-2 text-right">{{ trans_choice(':total document found|:total documents found', $documents->total(), ['total' => $documents->total()]) }}</div>
-            @endif
+            <div class="flex space-x-4 mt-3 divide-x divide-stone-200 items-center justify-end">
+                @if ($is_search && $documents->isNotEmpty())
+                    <div class="text-sm py-2 text-right">{{ trans_choice(':total document found|:total documents found', $documents->total(), ['total' => $documents->total()]) }}</div>
+                @endif
+    
+                @if (!$is_search && $documents->isNotEmpty())
+                    <div class="text-sm py-2 text-right">{{ trans_choice(':total document in the library|:total documents in the library', $documents->total(), ['total' => $documents->total()]) }}</div>
+                @endif
 
-            @if (!$is_search && $documents->isNotEmpty())
-                <div class="text-sm mt-3 py-2 text-right">{{ trans_choice(':total document in the library|:total documents in the library', $documents->total(), ['total' => $documents->total()]) }}</div>
-            @endif
+                <x-visualization-style-switcher :user="auth()->user()" class="pl-4" />
+            </div>
 
-            <x-document-grid class="mt-3" :documents="$documents" empty="{{ $is_search ? __('No documents matching the search criteria.') :__('No documents in the library') }}" />
+            @php
+                $visualizationStyle = 'document-' . (auth()->user()->getPreference(\App\Models\Preference::VISUALIZATION_LAYOUT)?->value ?? 'grid');
+            @endphp
 
+            <x-dynamic-component :component="$visualizationStyle" class="mt-3" :documents="$documents" empty="{{ $is_search ? __('No documents matching the search criteria.') :__('No documents in the library') }}" />
+            
             <div class="mt-2">{{ $documents?->links() }}</div>
         </div>
     </div>

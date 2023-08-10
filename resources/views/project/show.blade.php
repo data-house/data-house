@@ -110,11 +110,18 @@
 
             <div class="h-10"></div>
 
-            <div class="max-w-7xl mx-auto mb-2">
+            <div class="max-w-7xl mx-auto mb-2 flex justify-between items-center">
                 <h3 class="text-lg font-semibold">{{ __('Project reports and documents') }}</h3>
+
+                <x-visualization-style-switcher :user="auth()->user()" />
             </div>
 
-            <x-document-grid class="mt-6" :documents="$project->documents" empty="{{ __('No documents available for the project.') }}" />
+            @php
+                $visualizationStyle = 'document-' . (auth()->user()->getPreference(\App\Models\Preference::VISUALIZATION_LAYOUT)?->value ?? 'grid');
+            @endphp
+
+            <x-dynamic-component :component="$visualizationStyle" class="mt-6" :documents="$project->documents" empty="{{ __('No documents available for the project.') }}" />
+            {{-- <x-document-grid class="mt-6" :documents="$project->documents" empty="{{ __('No documents available for the project.') }}" /> --}}
             
             
         </div>
