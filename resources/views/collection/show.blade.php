@@ -75,8 +75,6 @@
 
             <x-dynamic-component :component="$visualizationStyle" class="mt-3" :documents="$documents" empty="{{ __('Collection is empty') }}" />
             
-
-            {{-- <x-document-grid class="mt-6" :documents="$documents" empty="{{ __('Collection is empty') }}" /> --}}
             
             <div class="mb-4">
                 @if ($collection->draft)

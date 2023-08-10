@@ -121,7 +121,6 @@
             @endphp
 
             <x-dynamic-component :component="$visualizationStyle" class="mt-6" :documents="$project->documents" empty="{{ __('No documents available for the project.') }}" />
-            {{-- <x-document-grid class="mt-6" :documents="$project->documents" empty="{{ __('No documents available for the project.') }}" /> --}}
             
             
         </div>
