@@ -41,9 +41,7 @@ class GeographicRegion
                 "region-name",
                 "sub-region-name",
                 "intermediate-region-name",
-            ])->values())
-            ->flatten()
-            ->filter()
+            ])->filter()->values())
             ->unique()
             ->values();
     }

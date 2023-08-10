@@ -32,6 +32,5 @@ class ProjectDetailsInDocumentsTest extends TestCase
         $response->assertSuccessful();
         $response->assertViewHas('document', $document);
         $response->assertSee('Germany');
-        $response->assertSee('Europe');
     }
 }

@@ -131,7 +131,7 @@
                         <div class="space-x-1 text-sm">
                             <span>{{ $project->countries()->pluck('value')->join(', ') }}</span>
                             <span>/</span>
-                            <span>{{ $project->regions()->join(', ') }}</span>
+                            <span>{{ $project->facetRegions()->join(', ') }}</span>
                         </div>
 
                     </div>

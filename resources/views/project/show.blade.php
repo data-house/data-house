@@ -88,7 +88,25 @@
                     <div class="prose">
                         <ul>
                             @foreach ($project->regions() as $region)
-                                <li>{{ $region }}</li>
+                                @php
+                                    $chunks = $region->split(3);                                
+                                @endphp
+                                <li>
+                                    {{ $chunks[0]->first() }}
+                                    @if ($chunks[1] ?? null)
+                                        <ul>
+                                            <li>
+                                                {{ $chunks[1]->first() }}
+                                                @if ($chunks[2] ?? null)
+                                                <ul>
+                                                    <li>{{ $chunks[2]->first() }}</li>
+                                                </ul>
+                                                @endif
+                                            </li>
+                                        </ul>
+                                        
+                                    @endif
+                                </li>
                             @endforeach 
                         </ul>
                     </div>

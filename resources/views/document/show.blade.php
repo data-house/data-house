@@ -34,22 +34,24 @@
                 </div>
             @endif
 
-            <div class="grid md:grid-cols-3">
+            <div class="grid md:grid-cols-3 gap-3">
 
                 <div class="col-span-2">
 
-                    @if ($document->description)
-                        <div class="prose prose-green">
-                            {!! \Illuminate\Support\Str::markdown($document->description) !!}
-                        </div>
-                    @else
-                        <div class="prose prose-green">
-                            {!! \Illuminate\Support\Str::markdown(__('This document doesn\'t have an abstract. [Be the first one to contribute](:url).', ['url' => route('documents.edit', $document)])) !!}
-                        </div>
-                    @endif
+                    <div class="max-h-60 overflow-y-auto">
+                        @if ($document->description)
+                            <div class="prose prose-green">
+                                {!! \Illuminate\Support\Str::markdown($document->description) !!}
+                            </div>
+                        @else
+                            <div class="prose prose-green">
+                                {!! \Illuminate\Support\Str::markdown(__('This document doesn\'t have an abstract. [Be the first one to contribute](:url).', ['url' => route('documents.edit', $document)])) !!}
+                            </div>
+                        @endif
+                    </div>
                 </div>
 
-                <div class="space-y-4">
+                {{-- <div class="space-y-4"> --}}
                     <div class="aspect-video bg-white flex items-center justify-center">
                         {{-- Space for the thumbnail --}}
                         <x-codicon-file-pdf class="text-gray-400 h-10 w-h-10" />
@@ -102,16 +104,6 @@
                                         </ul>
                                     </div>
                                 </div>
-                                <div>
-                                    <p class="text-xs uppercase block text-stone-700">{{ __('Regions') }}</p>
-                                    <div class="prose">
-                                        <ul>
-                                            @foreach ($document->project?->regions() as $region)
-                                                <li>{{ $region }}</li>
-                                            @endforeach 
-                                        </ul>
-                                    </div>
-                                </div>
                             @else
                                 <p class="prose">{{ __('You are not allowed to see project details.') }}</p>
                             @endcan
@@ -140,7 +132,7 @@
                             <p class="prose">{{ __('Not yet published.') }}</p>
                         @endif
                     </div> --}}
-                </div>
+                {{-- </div> --}}
             </div>
         </div>
     </div>

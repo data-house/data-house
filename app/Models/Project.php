@@ -101,6 +101,15 @@ class Project extends Model
     }
     
     /**
+     * Get the geographic region according to the UN M49 classification
+     * of this project based on the countries
+     */
+    public function facetRegions(): Collection
+    {
+        return GeographicRegion::facets($this->countries?->map->value);
+    }
+    
+    /**
      * Get the countries targetted by the project
      */
     public function countries(): Collection
@@ -126,7 +135,7 @@ class Project extends Model
             'title_alternate' => $this->properties['title_en'] ?? null,
             'description' => $this->description,
             'countries' => $this->countries(),
-            'region' => $this->regions(), 
+            'region' => $this->regions()->flatten(), 
             'topics' => $this->topics,
             'starts_at' => $this->starts_at?->toDateString(),
             'ends_at' => $this->ends_at?->toDateString(),
