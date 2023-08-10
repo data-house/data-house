@@ -2,9 +2,11 @@
 
 namespace Database\Factories;
 
+use App\Models\Preference;
 use App\Models\Role;
 use App\Models\Team;
 use App\Models\User;
+use App\Models\UserPreference;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 use Laravel\Jetstream\Features;
@@ -111,6 +113,17 @@ class UserFactory extends Factory
                     return ['name' => $user->name.'\'s Team', 'user_id' => $user->id, 'personal_team' => true];
                 }),
             'ownedTeams'
+        );
+    }
+
+    public function withPreference(Preference $preference, $value)
+    {
+        return $this->has(
+            UserPreference::factory()
+                ->state([
+                    'setting' => $preference,
+                    'value' => $value,
+                ]),
         );
     }
 }
