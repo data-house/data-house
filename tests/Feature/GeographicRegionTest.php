@@ -40,7 +40,7 @@ class GeographicRegionTest extends TestCase
         $this->assertEquals([
             "Europe",
             "Western Europe",
-        ], $regions->toArray());
+        ], $regions->flatten()->toArray());
         
         $regions = GeographicRegion::from(collect(['CRI']));
 
@@ -48,7 +48,7 @@ class GeographicRegionTest extends TestCase
             "Americas",
             "Latin America and the Caribbean",
             "Central America",
-        ], $regions->toArray());
+        ], $regions->flatten()->toArray());
         
     }
 }
