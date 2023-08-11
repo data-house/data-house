@@ -55,6 +55,7 @@ class Question extends Model implements Htmlable
         'execution_time',
         'target',
         'type',
+        'visibility',
     ];
 
     protected $casts = [
@@ -64,6 +65,7 @@ class Question extends Model implements Htmlable
         'execution_time' => 'float',
         'target' => QuestionTarget::class,
         'type' => QuestionType::class,
+        'visibility' => Visibility::class,
     ];
 
     /**
@@ -86,6 +88,7 @@ class Question extends Model implements Htmlable
         'status' => QuestionStatus::CREATED,
         'target' => QuestionTarget::SINGLE,
         'type' => QuestionType::FREE,
+        'visibility' => Visibility::TEAM,
     ];
 
     /**
