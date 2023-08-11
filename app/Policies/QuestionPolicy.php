@@ -33,8 +33,8 @@ class QuestionPolicy
      */
     public function create(User $user): bool
     {
-        return ($user->hasPermission('question:create') ||
-           $user->hasTeamPermission($user->currentTeam, 'question:create')) &&
+        return $user->hasPermission('question:create') ||
+           $user->hasTeamPermission($user->currentTeam, 'question:create') ||
            $user->tokenCan('question:create');
     }
 

@@ -7,6 +7,7 @@ use App\Models\CollectionStrategy;
 use App\Models\Question;
 use App\Models\QuestionTarget;
 use App\Models\QuestionType;
+use App\Models\Team;
 use App\Models\User;
 use App\Models\Visibility;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -52,7 +53,15 @@ class CreateMultipleQuestionControllerTest extends TestCase
     {
         Queue::fake();
 
-        $user = User::factory()->withPersonalTeam()->guest()->create();
+        $team = Team::factory()
+            ->state(['name' => 'Team','personal_team' => true])
+            ->create();
+
+        $user = User::factory()->recycle($team)
+            ->withPersonalTeam()
+            ->withCurrentTeam()
+            ->guest()
+            ->create();
 
         $collection = Collection::factory()->create([
             'visibility' => Visibility::PERSONAL,
@@ -75,6 +84,8 @@ class CreateMultipleQuestionControllerTest extends TestCase
         $this->assertEquals(QuestionTarget::MULTIPLE, $question->target);
         $this->assertEquals(QuestionType::FREE, $question->type);
         $this->assertTrue($question->questionable->is($collection));
+        $this->assertTrue($question->user->is($user));
+        $this->assertTrue($question->team->is($user->currentTeam));
 
         $response->assertRedirectToRoute('questions.show', $question);
     }

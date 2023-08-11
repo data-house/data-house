@@ -4,6 +4,7 @@ namespace App\Http\Livewire;
 
 use App\Copilot\CopilotResponse;
 use App\Models\Document;
+use App\Models\Visibility;
 use Livewire\Component;
 
 class QuestionList extends Component
@@ -51,6 +52,10 @@ class QuestionList extends Component
             ->with('user')
             ->answered()
             ->notAskedBy(auth()->user())
+            ->where(function($query){
+                return $query->where('visibility', '>=', Visibility::PROTECTED->value)
+                    ->when(auth()->user()->currentTeam, fn($subQuery) => $subQuery->orWhere('team_id', auth()->user()->currentTeam->getKey()));
+            })
             ->orderBy('created_at', 'DESC')
             ->get();
 

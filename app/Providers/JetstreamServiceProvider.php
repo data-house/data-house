@@ -77,6 +77,7 @@ class JetstreamServiceProvider extends ServiceProvider
             'document:view',
             'collection:view',
             'project:view',
+            'question:view',
         ])->description('Guest users can access resources to see and observe.');
 
     }
