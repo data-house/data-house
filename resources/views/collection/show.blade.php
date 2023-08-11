@@ -53,7 +53,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="grid grid-cols-3">
+                <div class="grid grid-cols-3 gap-2">
                     @foreach ($questions as $question)
                         <x-question-card :question="$question" />
                     @endforeach

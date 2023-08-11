@@ -1,4 +1,4 @@
-@aware(['question', 'id' => null, 'poll' => false, 'document' => null])
+@aware(['question', 'id' => null, 'poll' => false, 'document' => null, 'collapsed' => false])
 
 @php
 $classes = ($question?->isPending() ?? false)
@@ -10,7 +10,9 @@ if($question->status === \App\Models\QuestionStatus::ERROR){
 }
 @endphp
 
-    <div {{ $attributes->merge(['class' => 'px-3 md:py-4 py-2.5 group transition-opacity focus-within:bg-stone-100 target:bg-yellow-50 ' . $classes, 'id' => $id ?? $question->uuid]) }} {{ $poll ? 'wire:poll.visible' : ''}}>
+<div class="divide-y" x-data="{collapsed: {{$collapsed ? 'true' : 'false' }}}">
+
+    <div {{ $attributes->merge(['class' => 'px-3 md:py-4 py-2.5 group transition-opacity focus-within:bg-white target:bg-yellow-50 ' . $classes, 'id' => $id ?? $question->uuid]) }} {{ $poll ? 'wire:poll.visible' : ''}}>
         <div class="flex items-center max-w-4xl mx-auto space-x-3 relative">
             <div class="w-6"></div>
             <div class="text-xs text-stone-600">{{ $question->user?->name ?? __('Question bot') }} / {{ $question->created_at->toDateString() }}</div>
@@ -34,7 +36,7 @@ if($question->status === \App\Models\QuestionStatus::ERROR){
 
             <div class="w-full min-w-0 text-sm sm:text-base">
                 
-                <div class="prose prose-stone prose-sm sm:prose-base prose-pre:rounded-md prose-p:whitespace-pre-wrap prose-p:break-words w-full flex-1 leading-6 prose-p:leading-7 prose-pre:bg-[#282c34] max-w-full">
+                <div class="prose prose-stone prose-sm sm:prose-base prose-pre:rounded-md prose-p:whitespace-pre-wrap prose-p:m-0 prose-p:break-words w-full flex-1 leading-6 prose-p:leading-7 prose-pre:bg-[#282c34] max-w-full relative">
                     {!! $question->formattedText() !!}
                 </div>
             </div>
@@ -48,12 +50,26 @@ if($question->status === \App\Models\QuestionStatus::ERROR){
                     <x-copy-clipboard-button :value="$question->question" title="{{ __('Copy question text') }}" class="opacity-0 cursor-default group-hover:opacity-100 group-focus:opacity-100  group-focus-within:opacity-100">
                         {{ __('Copy') }}
                     </x-copy-clipboard-button>
+
+                    <button type="button" x-on:click="collapsed = !collapsed" class="p-1 rounded ring-1 hover:ring-indigo-600 hover:bg-indigo-100 focus:outline-none focus:ring-indigo-600 focus:bg-indigo-100" x-bind:class="{'ring-indigo-400 text-indigo-600 bg-indigo-50': !collapsed, 'ring-stone-400': collapsed}" title="{{ __('Expand/Collapse question')}}">
+                        <x-heroicon-o-chevron-up-down class="w-4 h-4" />
+                    </button>
+
                 </div>
             </div>
         </div>
     </div>
     
-    <div class="relative px-3 md:py-4 py-2.5 group transition-opacity message">
+    <div class="relative px-3 md:py-4 py-2.5 group"
+        {{ $collapsed ? 'x-cloak' : '' }}
+        x-transition:enter="transition ease-out duration-200"
+        x-transition:enter-start="transform opacity-0"
+        x-transition:enter-end="transform opacity-100"
+        x-transition:leave="transition ease-in duration-75"
+        x-transition:leave-start="transform opacity-100"
+        x-transition:leave-end="transform opacity-0"
+        x-show="!collapsed"
+        >
         <div class="flex items-start max-w-4xl mx-auto space-x-3">
             <div class="w-6 h-6 flex flex-shrink-0 justify-center items-center mt-[2px]">
                 @if ($question->isPending())
@@ -100,3 +116,4 @@ if($question->status === \App\Models\QuestionStatus::ERROR){
             </div>
         @endunless
     </div>
+</div>
