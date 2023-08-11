@@ -1,12 +1,25 @@
 @foreach ($question->children as $child)
 
-    <div class="bg-white max-w-4xl">
+    <div class="bg-white max-w-4xl"  x-data="{collapsed: true}">
         <div class=" px-3 md:py-4 py-2.5 text-lg font-semibold text-stone-700 flex gap-2 items-center">
             <x-codicon-file-pdf class="text-gray-400 h-5 w-h-5" />
             <a href="{{ route('documents.show', $child->questionable) }}" target="_blank">{{ $child->questionable->title }}</a>
+
+            <div class="grow"></div>
+            <button type="button" x-on:click="collapsed = !collapsed" class="p-1 rounded ring-1 hover:ring-indigo-600 hover:bg-indigo-100 focus:outline-none focus:ring-indigo-600 focus:bg-indigo-100" x-bind:class="{'ring-indigo-400 text-indigo-600 bg-indigo-50': !collapsed, 'ring-stone-400': collapsed}" title="{{ __('Expand/Collapse question')}}">
+                <x-heroicon-o-chevron-up-down class="w-4 h-4" />
+            </button>
         </div>
         
-        <div class="relative px-3 md:py-4 py-2.5 group transition-opacity message">
+        <div class="relative px-3 md:py-4 py-2.5 group" x-cloak
+            x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="transform opacity-0"
+            x-transition:enter-end="transform opacity-100"
+            x-transition:leave="transition ease-in duration-75"
+            x-transition:leave-start="transform opacity-100"
+            x-transition:leave-end="transform opacity-0"
+            x-show="!collapsed"
+        >
             <div class="flex items-start max-w-4xl  space-x-3">
                 <div class="w-6 h-6 flex flex-shrink-0 justify-center items-center mt-[2px]">
                     @if ($child->isPending())

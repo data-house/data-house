@@ -6,7 +6,7 @@
     <div class="divide-y bg-white">
         @forelse ($userQuestions as $question)
         
-        <x-question :question="$question" />
+        <x-question collapsed="true" :question="$question" />
 
         @empty
 
@@ -24,7 +24,7 @@
     <div class="divide-y bg-white">
         @forelse ($otherQuestions as $question)
         
-        <x-question :question="$question" />
+        <x-question collapsed="true" :question="$question" />
 
         @empty
 
