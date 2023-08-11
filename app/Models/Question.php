@@ -48,6 +48,7 @@ class Question extends Model implements Htmlable
         'question',
         'hash',
         'user_id',
+        'team_id',
         'questionable',
         'language',
         'answer',
