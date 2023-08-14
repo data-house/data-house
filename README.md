@@ -83,7 +83,7 @@ If you discover a security vulnerability within Data House, please send an e-mai
 
 ## License
 
-The Data House is open-sourced software licensed under the [GNU Affero General Public License v3.0 `AGPL-3.0-only`](https://opensource.org/license/agpl-v3/).
+The Data House code is currently open, but use requires to get a license from OneOff-Tech. Contact us at info@oneofftech.xyz.
 
 Copyright (c) 2023-Present OneOff-tech UG, Germany [www.oneofftech.xyz](https://oneofftech.xyz)
 
