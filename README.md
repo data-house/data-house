@@ -3,22 +3,22 @@
 
 ## About Data House
 
-Data House is a web application designed for testing and assessing relevance of Knowledge Management interventions.
-It is specifically designed to run Proof of Concepts (PoC) or Pilots.
+Data House is a web application designed for studying knowledge management requirements and sustaining digital transformation in complex organisations and project networks.
 
-It is designed to collect feedback from users in a small scale test while giving users a set of features to evaluate. Users are more eager to share opinions if they can try something concretely.
+It can be used and customised for proof of concept (PoC), prototype or minimum viable product (MVP) development.
 
-The Data House is currently a Digital Library:
+The following features are currently available in the Data House:
 
-- Authorization and user permission
-- Group users in Teams and manage thei access levels
-- Upload documents (PDF, Word document, Power Point presentation, images)
-- Import from external sources via WebDAV (e.g. Nextcloud)
-- Full Text search over uploaded documents
-- AI enhanced interactions that includes summarization, question answering over single and multiple documents (_coming soon_)
+- Authorisation and user permissions
+- Group users into teams and manage their access levels
+- Upload documents (PDF, Word document, PowerPoint presentation, images)
+- Import files from external sources via WebDAV (e.g. Nextcloud)
+- Full-text search of uploaded documents
+- AI-powered interactions including summarisation, question answering across single and multiple documents (_coming soon_)
 - Extensible architecture
 
-> **Info** the Data House is under active development. Some features might not be fully available or stable.
+> **note**
+> The Data House is under active development. Some documentation may be missing or incomplete. If you have any further questions, please send a message to [info@oneofftech.xyz](mailto:info@oneofftech.xyz).
 
 ## Installation
 
@@ -63,7 +63,7 @@ php artisan test
 # or ./vendor/bin/phpunit
 ```
 
-Tests execution requires a running instance of MySQL. If you use the given [Docker Compose](./docker-compose.yml) file a test db is already generated for you.
+Tests execution requires a running instance of MySQL. If you use the given [Docker Compose](./docker-compose.yml) file a test database is already generated for you.
 
 
 ## Contributing
