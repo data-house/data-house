@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Models\Question;
 use App\Models\User;
+use App\Models\Visibility;
 use Illuminate\Auth\Access\Response;
 
 class QuestionPolicy
@@ -23,9 +24,18 @@ class QuestionPolicy
      */
     public function view(User $user, Question $question): bool
     {
-        return ($user->hasPermission('question:view') ||
-           $user->hasTeamPermission($user->currentTeam, 'question:view')) &&
-           $user->tokenCan('question:view');
+        $permissions = ($user->hasPermission('question:view') ||
+            $user->hasTeamPermission($user->currentTeam, 'question:view')) &&
+            $user->tokenCan('question:view');
+
+        if($question->visibility?->value >= Visibility::PROTECTED->value){
+            return $permissions;
+        }
+
+        return $permissions && (
+            $question->user_id === $user->getKey() ||
+            ($question->team_id && $user->currentTeam && $question->team_id === $user->currentTeam->getKey())
+        );
     }
 
     /**

@@ -69,7 +69,6 @@ class QuestionControllerTest extends TestCase
 
         Question::factory()
             ->count(2)
-            ->recycle($user)
             ->create();
 
         $response = $this->actingAs($user)->get(route('questions.index'));
@@ -104,7 +103,6 @@ class QuestionControllerTest extends TestCase
 
         Question::factory()
             ->count(2)
-            ->recycle($user)
             ->create();
 
         $response = $this->actingAs($user)->get(route('questions.index'));
@@ -157,11 +155,60 @@ class QuestionControllerTest extends TestCase
         $response->assertViewHas('searchQuery', null);
     }
 
-    public function test_question_page_viewable(): void
+    public function test_question_page_not_viewable(): void
     {
         $question = Question::factory()->create();
 
         $user = User::factory()->manager()->create();
+
+        $response = $this->actingAs($user)->get(route('questions.show', $question));
+
+        $response->assertForbidden();
+    }
+
+    public function test_question_page_viewable_by_creator(): void
+    {
+        $user = User::factory()->manager()->create();
+
+        $question = Question::factory()
+            ->recycle($user)
+            ->create();
+
+        $response = $this->actingAs($user)->get(route('questions.show', $question));
+
+        $response->assertSuccessful();
+
+        $response->assertViewHas('question', $question);
+    }
+    
+    public function test_question_page_viewable_by_team(): void
+    {
+        $user = User::factory()
+            ->manager()
+            ->withPersonalTeam()
+            ->withCurrentTeam()
+            ->create();
+
+        $question = Question::factory()
+            ->recycle($user->currentTeam)
+            ->create();
+
+        $response = $this->actingAs($user)->get(route('questions.show', $question));
+
+        $response->assertSuccessful();
+
+        $response->assertViewHas('question', $question);
+    }
+    
+    public function test_question_page_viewable_by_visibility(): void
+    {
+        $user = User::factory()
+            ->manager()
+            ->create();
+
+        $question = Question::factory()
+            ->visibility(Visibility::PROTECTED)
+            ->create();
 
         $response = $this->actingAs($user)->get(route('questions.show', $question));
 
@@ -172,9 +219,12 @@ class QuestionControllerTest extends TestCase
 
     public function test_multiple_question_page_viewable(): void
     {
-        $question = Question::factory()->multiple()->create();
-
         $user = User::factory()->manager()->create();
+
+        $question = Question::factory()
+            ->multiple()
+            ->recycle($user)
+            ->create();
 
         $response = $this->actingAs($user)->get(route('questions.show', $question));
 
