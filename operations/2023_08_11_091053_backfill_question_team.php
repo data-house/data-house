@@ -9,7 +9,7 @@ return new class extends OneTimeOperation
     /**
      * Determine if the operation is being processed asyncronously.
      */
-    protected bool $async = true;
+    protected bool $async = false;
 
     /**
      * The queue that the job will be dispatched to.
@@ -27,12 +27,16 @@ return new class extends OneTimeOperation
     public function process(): void
     {
         // Backfill question team based on user that asked the question
-        // Currently using the currentTeam as users with multiple teams are not important
+        // Using the current team can be border-line as it might not be
+        // the same team when the question was created. 
+        // Considering the currently deployed instances (as of  
+        // september 2023) this is safe as all users have only
+        //  one team and is the current one
 
-        // First, process all single questions
         Question::whereNull('team_id')
+            ->with(['user', 'user.currentTeam'])
             ->each(function(Question $question) {
-                $question->visibility = Visibility::TEAM;
+                $question->team_id = $question->user?->currentTeam?->getKey();
 
                 $question->saveQuietly();
             });
