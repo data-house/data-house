@@ -52,7 +52,10 @@ class CollectionController extends Controller
     public function show(Request $request, Collection $collection)
     {
         $collection->load(['documents', 'questions' => function($query){
-            $query->orderBy('created_at', 'DESC')->limit(3);
+            $query
+                ->viewableBy(auth()->user())
+                ->orderBy('created_at', 'DESC')
+                ->limit(3);
         }]);
 
         return view('collection.show', [

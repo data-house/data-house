@@ -6,7 +6,9 @@ use App\Models\Collection;
 use App\Models\Document;
 use App\Models\QuestionStatus;
 use App\Models\QuestionTarget;
+use App\Models\Team;
 use App\Models\User;
+use App\Models\Visibility;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -24,6 +26,7 @@ class QuestionFactory extends Factory
         return [
             'question' => fake()->sentence(),
             'user_id' => User::factory(),
+            'team_id' => Team::factory(),
             'questionable_id' => Document::factory(),
             'hash' => function (array $attributes){
                 return hash('sha512', $attributes['question'] . '-' . $attributes['questionable_id']);
@@ -69,6 +72,15 @@ class QuestionFactory extends Factory
                 },
                 'questionable_type' => Collection::class,
                 'target' => QuestionTarget::MULTIPLE,
+            ];
+        });
+    }
+    
+    public function visibility(Visibility $visibility)
+    {
+        return $this->state(function (array $attributes) use ($visibility) {
+            return [
+                'visibility' => $visibility,
             ];
         });
     }

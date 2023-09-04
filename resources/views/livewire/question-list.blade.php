@@ -20,8 +20,12 @@
         <div class="h-10"></div>
     @endcan
 
-    <div class="max-w-4xl mx-auto mb-2">
+    <div class="max-w-4xl mx-auto mb-2 flex items-center justify-between">
         <h3 class="text-lg font-semibold">{{ __('Asked by other users and/or teammates') }}</h3>
+
+        @if (auth()->user()->currentTeam)
+            <p class="text-stone-600">{{ __('Team: :name', ['name' => auth()->user()->currentTeam->name]) }} </p>
+        @endif
     </div>
 
     <div class="divide-y bg-white">

@@ -58,6 +58,27 @@ class QuestionListTest extends TestCase
         $component->assertSeeHtml($question->toHtml());
         $component->assertSee('bg-stone-50');
     }
+    
+    public function test_user_questions_rendered_when_current_team_not_specified()
+    {
+        $user = User::factory()->manager()->create();
+
+        $question = Question::factory()
+            ->answered()
+            ->recycle($user)
+            ->create([
+                'question' => 'Do you really reply to my question?',
+                'visibility' => Visibility::TEAM,
+            ]);
+
+        $component = Livewire::actingAs($user)->test(QuestionList::class, ['document' => $question->questionable]);
+
+        $component->assertStatus(200);
+
+        $component->assertSee('Do you really reply to my question?');
+        $component->assertSeeHtml($question->toHtml());
+        $component->assertSee('bg-stone-50');
+    }
 
     public function test_pending_question_not_rendered()
     {

@@ -219,6 +219,18 @@ class Question extends Model implements Htmlable
         $query->where('updated_at', '>=', now()->subMinutes($minutes));
     }
 
+    /**
+     * Filter for questions that the user can view
+     */
+    public function scopeViewableBy(Builder $query, User $user)
+    {
+        $query->where(function($query) use ($user){
+            return $query->where('visibility', '>=', Visibility::PROTECTED->value)
+                ->orWhere('user_id', $user->getKey())
+                ->when($user->currentTeam, fn($subQuery) => $subQuery->orWhere('team_id', $user->currentTeam->getKey()));
+        });
+    }
+
 
     public function answerAsCopilotResponse()
     {

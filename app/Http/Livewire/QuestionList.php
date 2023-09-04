@@ -52,10 +52,7 @@ class QuestionList extends Component
             ->with('user')
             ->answered()
             ->notAskedBy(auth()->user())
-            ->where(function($query){
-                return $query->where('visibility', '>=', Visibility::PROTECTED->value)
-                    ->when(auth()->user()->currentTeam, fn($subQuery) => $subQuery->orWhere('team_id', auth()->user()->currentTeam->getKey()));
-            })
+            ->viewableBy(auth()->user())
             ->orderBy('created_at', 'DESC')
             ->get();
 

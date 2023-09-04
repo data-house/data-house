@@ -32,6 +32,7 @@ class QuestionController extends Controller
                 ->where(function($query){
                     return $query->whereNotNull('user_id')->orWhereNotNull('team_id');
                 })
+                ->viewableBy($request->user())
                 ->paginate(200);
         
         return view('question.index', [
