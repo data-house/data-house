@@ -571,11 +571,14 @@ class Question extends Model implements Htmlable
             'question' => $this->question,
             'answer' => $this->answer['text'] ?? null,
             'created_at' => $this->created_at,
+            'user_id' => $this->user?->getKey(),
+            'team_id' => $this->team?->getKey(),
             'author' => $this->user?->name,
-            'team' => $this->team?->name,
+            'team_name' => $this->team?->name,
             'target' => $this->target?->name,            
             'type' => $this->type?->name,
             'language' => $this->language,
+            'visibility' => $this->visibility?->value,
         ];
     }
 
