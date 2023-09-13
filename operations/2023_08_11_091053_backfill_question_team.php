@@ -1,7 +1,6 @@
 <?php
 
 use App\Models\Question;
-use App\Models\Visibility;
 use TimoKoerber\LaravelOneTimeOperations\OneTimeOperation;
 
 return new class extends OneTimeOperation
@@ -33,7 +32,9 @@ return new class extends OneTimeOperation
         // september 2023) this is safe as all users have only
         //  one team and is the current one
 
-        Question::whereNull('team_id')
+        Question::query()
+            ->whereNull('team_id')
+            ->doesntHave('ancestors')
             ->with(['user', 'user.currentTeam'])
             ->each(function(Question $question) {
                 $question->team_id = $question->user?->currentTeam?->getKey();

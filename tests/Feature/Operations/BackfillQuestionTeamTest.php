@@ -9,6 +9,7 @@ use App\Models\Document;
 use App\Models\DocumentType;
 use App\Models\Question;
 use App\Models\QuestionFeedback;
+use App\Models\QuestionRelation;
 use App\Models\User;
 use App\Models\Visibility;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -63,48 +64,71 @@ class BackfillQuestionTeamTest extends TestCase
         $this->assertNull($updatedQuestion->team);
     }
     
-    // public function test_user_team_applied_to_multiple_questions(): void
-    // {
-    //     $user = User::factory()->withPersonalTeam()->withCurrentTeam()->manager()->create();
+    public function test_user_team_applied_to_multiple_questions(): void
+    {
+        $user = User::factory()->withPersonalTeam()->withCurrentTeam()->manager()->create();
 
-    //     $question = Question::factory()
-    //         ->recycle($user)
-    //         ->multiple()
-    //         ->create([
-    //             'visibility' => Visibility::TEAM,
-    //         ]);
+        $collection = Collection::factory()
+            ->for($user)
+            ->hasAttached(
+                Document::factory()->count(2),
+            )
+            ->create();
 
-    //         $subQuestions = Question::factory()
-    //         ->count(2)
-    //         ->answered()
-    //         ->sequence(
-    //             [
-    //                 'questionable_id' => $documents->first()->getKey(),
-    //                 'execution_time' => 120,
-    //             ],
-    //             [
-    //                 'questionable_id' => $documents->last()->getKey(),
-    //                 'execution_time' => 200,
-    //             ],
-    //         )
-    //         ->create([
-    //             'language' => 'en',
-    //         ]);
+        $documents = $collection->documents;
 
-    //     $subQuestions->each(function($q) use ($question) {
-    //         $question->related()->attach($q->getKey(), ['type' => QuestionRelation::CHILDREN]);
-    //     });
+        $question = Question::factory()
+            ->recycle($user)
+            ->recycle($collection)
+            ->multiple()
+            ->create([
+                'visibility' => Visibility::TEAM,
+                'team_id' => null,
+            ]);
 
-    //     $this->artisan('operations:process 2023_08_11_091053_backfill_question_team')
-    //         ->assertExitCode(0);
+        $subQuestions = Question::factory()
+            ->count(2)
+            ->answered()
+            ->sequence(
+                [
+                    'questionable_id' => $documents->first()->getKey(),
+                    'execution_time' => 120,
+                    'visibility' => Visibility::SYSTEM,
+                    'team_id' => null,
+                    'user_id' => null,
+                ],
+                [
+                    'questionable_id' => $documents->last()->getKey(),
+                    'execution_time' => 200,
+                    'visibility' => Visibility::SYSTEM,
+                    'team_id' => null,
+                    'user_id' => null,
+                ],
+            )
+            ->create([
+                'language' => 'en',
+            ]);
 
-    //     $updatedQuestion = $question->fresh();
+        $subQuestions->each(function($q) use ($question) {
+            $question->related()->attach($q->getKey(), ['type' => QuestionRelation::CHILDREN]);
+        });
 
-    //     $this->assertNotNull($updatedQuestion->team_id);
+        $this->artisan('operations:process 2023_08_11_091053_backfill_question_team')
+            ->assertExitCode(0);
 
-    //     $this->assertTrue($updatedQuestion->user->is($user));
-    //     $this->assertTrue($updatedQuestion->team->is($user->currentTeam));
-    // }
+        $updatedQuestion = $question->fresh();
+
+        $this->assertNotNull($updatedQuestion->team_id);
+
+        $this->assertTrue($updatedQuestion->user->is($user));
+        $this->assertTrue($updatedQuestion->team->is($user->currentTeam));
+
+
+        $subQuestions->map->fresh()->each(function($q) {
+            $this->assertNull($q->team_id);
+            $this->assertNull($q->user_id);
+        });
+    }
     
     public function test_questions_with_team_not_updated(): void
     {
