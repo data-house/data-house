@@ -15,6 +15,7 @@ use App\Models\QuestionStatus;
 use App\Models\QuestionTarget;
 use App\Models\QuestionType;
 use App\Models\User;
+use App\Models\Visibility;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\Client\Request;
@@ -114,7 +115,9 @@ class AskMultipleQuestionJobTest extends TestCase
         $this->assertEquals(QuestionTarget::SINGLE, $related->target);
         $this->assertEquals(QuestionRelation::CHILDREN, $related->pivot->type);
         $this->assertNull($related->user);
+        $this->assertNull($related->team);
         $this->assertEquals('en', $related->language);
+        $this->assertEquals(Visibility::TEAM, $related->visibility);
         $this->assertNull($related->execution_time);
 
         $relatedQuestions->each(function($q){

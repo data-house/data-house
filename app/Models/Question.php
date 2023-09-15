@@ -48,6 +48,7 @@ class Question extends Model implements Htmlable
         'question',
         'hash',
         'user_id',
+        'team_id',
         'questionable',
         'language',
         'answer',
@@ -55,6 +56,7 @@ class Question extends Model implements Htmlable
         'execution_time',
         'target',
         'type',
+        'visibility',
     ];
 
     protected $casts = [
@@ -64,6 +66,7 @@ class Question extends Model implements Htmlable
         'execution_time' => 'float',
         'target' => QuestionTarget::class,
         'type' => QuestionType::class,
+        'visibility' => Visibility::class,
     ];
 
     /**
@@ -86,6 +89,7 @@ class Question extends Model implements Htmlable
         'status' => QuestionStatus::CREATED,
         'target' => QuestionTarget::SINGLE,
         'type' => QuestionType::FREE,
+        'visibility' => Visibility::TEAM,
     ];
 
     /**
@@ -213,6 +217,18 @@ class Question extends Model implements Htmlable
     public function scopeRecentlyAsked(Builder $query, $minutes = 5)
     {
         $query->where('updated_at', '>=', now()->subMinutes($minutes));
+    }
+
+    /**
+     * Filter for questions that the user can view
+     */
+    public function scopeViewableBy(Builder $query, User $user)
+    {
+        $query->where(function($query) use ($user){
+            return $query->where('visibility', '>=', Visibility::PROTECTED->value)
+                ->orWhere('user_id', $user->getKey())
+                ->when($user->currentTeam, fn($subQuery) => $subQuery->orWhere('team_id', $user->currentTeam->getKey()));
+        });
     }
 
 
@@ -555,11 +571,14 @@ class Question extends Model implements Htmlable
             'question' => $this->question,
             'answer' => $this->answer['text'] ?? null,
             'created_at' => $this->created_at,
+            'user_id' => $this->user?->getKey(),
+            'team_id' => $this->team?->getKey(),
             'author' => $this->user?->name,
-            'team' => $this->team?->name,
+            'team_name' => $this->team?->name,
             'target' => $this->target?->name,            
             'type' => $this->type?->name,
             'language' => $this->language,
+            'visibility' => $this->visibility?->value,
         ];
     }
 
