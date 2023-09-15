@@ -24,7 +24,7 @@ class QuestionController extends Controller
         $searchQuery = $request->has('s') ? e($request->input('s')) : null;
 
         $user_id = auth()->user()->getKey();
-        $team_id = auth()->user()->currentTeam->getKey();
+        $team_id = auth()->user()->currentTeam?->getKey();
         $visibility = Visibility::PROTECTED->value;
 
 
@@ -37,7 +37,7 @@ class QuestionController extends Controller
 
                     // Filtering questions to respect permission levels
 
-                    $options["filter"] = "user_id IN [{$user_id}] OR team_id IN [{$team_id}] OR visibility IN [{$visibility}]";
+                    $options["filter"] = $team_id ? "user_id IN [{$user_id}] OR team_id IN [{$team_id}] OR visibility IN [{$visibility}]" : "user_id IN [{$user_id}] OR visibility IN [{$visibility}]";
                     
                     return $meilisearch->rawSearch($query, $options);
         
