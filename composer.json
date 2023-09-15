@@ -68,6 +68,13 @@
             "dont-discover": []
         }
     },
+    "replace": {
+        "symfony/polyfill-php80": "*",
+        "symfony/polyfill-php74": "*",
+        "symfony/polyfill-php73": "*",
+        "symfony/polyfill-php72": "*",
+        "symfony/polyfill-php70": "*"
+    },
     "config": {
         "optimize-autoloader": true,
         "preferred-install": "dist",
