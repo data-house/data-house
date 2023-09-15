@@ -35,18 +35,18 @@ jobs:
         php: [8.1]
     
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 1
     
     - name: Cache dependencies
-      uses: actions/cache@v1
+      uses: actions/cache@v3
       with:
         path: ~/.composer/cache/files
         key: dependencies-php-${{ matrix.php }}-composer-${{ hashFiles('composer.json') }}
 
     - name: Cache JS dependencies
-      uses: actions/cache@v1
+      uses: actions/cache@v3
       with:
         path: ~/.yarn/
         key: dependencies-js-${{ matrix.php }}-yarn-${{ hashFiles('yarn.lock') }}
@@ -55,6 +55,7 @@ jobs:
       run: |
         rm -f /usr/local/etc/php/conf.d/docker-php-ext-pcov.ini
         composer install --prefer-dist
+        composer config cache-dir
         php artisan language-recognizer:install-local-driver
         chmod +x ./bin/language-recognizer
         yarn config set cache-folder ~/.yarn/
