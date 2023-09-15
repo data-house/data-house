@@ -42,7 +42,7 @@ jobs:
     - name: Cache dependencies
       uses: actions/cache@v3
       with:
-        path: ~/.composer/cache/files
+        path: ~/.composer/cache
         key: dependencies-php-${{ matrix.php }}-composer-${{ hashFiles('composer.json') }}
 
     - name: Cache JS dependencies
@@ -55,7 +55,6 @@ jobs:
       run: |
         rm -f /usr/local/etc/php/conf.d/docker-php-ext-pcov.ini
         composer install --prefer-dist
-        composer config cache-dir
         php artisan language-recognizer:install-local-driver
         chmod +x ./bin/language-recognizer
         yarn config set cache-folder ~/.yarn/
