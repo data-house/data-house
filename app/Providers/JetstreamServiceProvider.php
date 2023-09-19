@@ -72,6 +72,21 @@ class JetstreamServiceProvider extends ServiceProvider
             'collection:create',
             'collection:update',
         ])->description('Manager users can manage documents, projects and how are organized.');
+
+        Jetstream::role(Role::CONTRIBUTOR->value, 'Contributor', [
+            'project:view',
+            'project:create',
+            'project:update',
+            'project:delete',
+            'document:view',
+            'document:update',
+            'question:view',
+            'question:create',
+            'collection:view',
+            'question-feedback:view',
+            'question-feedback:create',
+            'question-feedback:update',
+        ])->description('Contribute to daily activities.');
         
         Jetstream::role(Role::GUEST->value, 'Guest', [
             'document:view',
