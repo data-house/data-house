@@ -14,9 +14,11 @@
                     {{ __('Collections') }}
                 </h4>
                 
-                <x-button-link href="{{ route('collections.create') }}">
-                    {{ __('New') }}
-                </x-button-link>
+                @can('create', \App\Models\Collection::class)
+                    <x-button-link href="{{ route('collections.create') }}">
+                        {{ __('New') }}
+                    </x-button-link>
+                @endcan
 
                 <div class="mt-1 basis-full prose prose-sm prose-stone prose-p:text-sm prose-p:mb-0">
                     <p class="">{{ __('A document can simultaneously belong to multiple collections. The same document is synced across all collections to which it belongs in order to avoid duplicates.') }}</p>

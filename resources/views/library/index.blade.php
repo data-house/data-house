@@ -166,15 +166,17 @@
                         @endfeature
                     </div>
 
-                    @if ($searchQuery)
-                    <p>
-                        <x-button class="text-xs">{{ __('Save search as collection') }}&nbsp;
-                            <span class="inline-block text-xs normal-case rounded-full px-2 py-0.5 bg-stone-200 text-stone-600">
-                                {{ __('coming soon') }}
-                            </span>
-                        </x-button>
-                    </p>
-                    @endif
+                    @can('create', \App\Models\Collection::class)
+                        @if ($searchQuery)
+                        <p>
+                            <x-button class="text-xs">{{ __('Save search as collection') }}&nbsp;
+                                <span class="inline-block text-xs normal-case rounded-full px-2 py-0.5 bg-stone-200 text-stone-600">
+                                    {{ __('coming soon') }}
+                                </span>
+                            </x-button>
+                        </p>
+                        @endif
+                    @endcan
                 </div>
             </div>
 
