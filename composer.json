@@ -13,6 +13,7 @@
         "http-interop/http-factory-guzzle": "^1.2",
         "laravel/framework": "^10.0",
         "laravel/jetstream": "^3.0",
+        "laravel/pennant": "^1.5",
         "laravel/sanctum": "^3.2",
         "laravel/scout": "^10.1",
         "laravel/tinker": "^2.8",

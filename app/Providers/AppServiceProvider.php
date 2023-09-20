@@ -9,7 +9,10 @@ use Illuminate\Support\ServiceProvider;
 use App\Jobs\Pipeline\Document\ExtractDocumentProperties;
 use App\Jobs\Pipeline\Document\MakeDocumentQuestionable;
 use App\Jobs\Pipeline\Document\MakeDocumentSearchable;
+use App\Models\Role;
+use App\Models\User;
 use App\Pipelines\PipelineTrigger;
+use Laravel\Pennant\Feature;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -43,6 +46,21 @@ class AppServiceProvider extends ServiceProvider
             MakeDocumentSearchable::class,
         ]);
 
-        
+        $this->configureFeatureFlags();
+    }
+
+    /**
+     * Configure the feature flags.
+     * This serves to set the default value of a feature flag.
+     * 
+     * https://laravel.com/docs/10.x/pennant#defining-features
+     */
+    protected function configureFeatureFlags()
+    {
+        Feature::define('ai.question-whole-library', fn (User $user) => match (true) {
+            $user->hasRole(Role::ADMIN->value) => true,
+            $user->hasRole(Role::MANAGER->value) => true,
+            default => false,
+        });
     }
 }

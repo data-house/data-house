@@ -23,7 +23,7 @@ class CreateMultipleQuestionControllerTest extends TestCase
     {
         Queue::fake();
 
-        $user = User::factory()->withPersonalTeam()->guest()->create();
+        $user = User::factory()->withPersonalTeam()->manager()->create();
 
         $collection = Collection::factory()->create([
             'visibility' => Visibility::SYSTEM,
@@ -47,6 +47,30 @@ class CreateMultipleQuestionControllerTest extends TestCase
         $this->assertTrue($question->questionable->is($collection));
 
         $response->assertRedirectToRoute('questions.show', $question);
+    }
+    
+    public function test_multiple_question_not_created_from_library_if_feature_flag_disabled(): void
+    {
+        Queue::fake();
+
+        $user = User::factory()->withPersonalTeam()->guest()->create();
+
+        $collection = Collection::factory()->create([
+            'visibility' => Visibility::SYSTEM,
+            'strategy' => CollectionStrategy::LIBRARY,
+            'title' => 'All Documents'
+        ]);
+
+        $response = $this->actingAs($user)
+            ->from(route('documents.library'))
+            ->post('/multiple-question', [
+                'question' => 'This is a sample question',
+                'strategy' => CollectionStrategy::LIBRARY->value,
+            ]);
+
+        $response->assertBadRequest();
+
+        $this->assertNull(Question::first());
     }
 
     public function test_multiple_question_created_from_collection(): void

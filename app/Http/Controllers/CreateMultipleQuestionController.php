@@ -8,6 +8,7 @@ use App\Models\QuestionType;
 use App\Models\Visibility;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rules\Enum;
+use Laravel\Pennant\Feature;
 
 class CreateMultipleQuestionController extends Controller
 {
@@ -22,6 +23,9 @@ class CreateMultipleQuestionController extends Controller
             'collection' => ['nullable', 'exists:collections,id', 'required_if:strategy,' . CollectionStrategy::STATIC->value],
             'guidance' => ['sometimes', 'nullable', 'boolean'],
         ]);
+
+        // Strategy LIBRARY is only available is feature flag 'ai.question-whole-library' is set
+        abort_if($validated['strategy'] === CollectionStrategy::LIBRARY->value && Feature::inactive('ai.question-whole-library'), 400);
 
         $useTemplate = $request->boolean('guidance', false);
 
