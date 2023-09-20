@@ -8,7 +8,9 @@ use App\Models\QuestionType;
 use App\Models\Visibility;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rules\Enum;
+use Illuminate\Validation\ValidationException;
 use Laravel\Pennant\Feature;
+use Nette\InvalidStateException;
 
 class CreateMultipleQuestionController extends Controller
 {
@@ -34,8 +36,12 @@ class CreateMultipleQuestionController extends Controller
             ->where('strategy', CollectionStrategy::LIBRARY->value)
             ->first();
 
-        $question = $collection->question($validated['question'], $useTemplate ? QuestionType::DESCRIPTIVE : QuestionType::FREE);
-
-        return redirect()->route('questions.show', $question);
+        try {
+            $question = $collection->question($validated['question'], $useTemplate ? QuestionType::DESCRIPTIVE : QuestionType::FREE);
+    
+            return redirect()->route('questions.show', $question);
+        } catch (InvalidStateException $th) {
+            throw ValidationException::withMessages(['question' => $th->getMessage()]);
+        }
     }
 }

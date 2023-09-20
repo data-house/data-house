@@ -4,6 +4,8 @@ namespace App\Copilot;
 
 use App\Copilot\Engines\NullEngine;
 use App\Copilot\Engines\OaksEngine;
+use App\Models\User;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Manager;
 
 class CopilotManager extends Manager
@@ -78,5 +80,55 @@ class CopilotManager extends Manager
         }
 
         return $driver;
+    }
+
+
+    /**
+     * Retrieve the current daily questions limit for the user
+     */
+    public static function questionLimitFor(User|null $user): int
+    {
+        if(is_null($user)){
+            return max(0, config('copilot.limits.questions_per_user_per_day'));
+        }
+
+        return max(0, RateLimiter::remaining('questions:'.$user->getKey(), config('copilot.limits.questions_per_user_per_day')));
+    }
+
+
+    /**
+     * Track user question against daily limit
+     */
+    public static function trackQuestionHitFor(User|null $user): void
+    {
+        if(is_null($user)){
+            return ;
+        }
+
+        // The rate limiter will auto-expire and the end of the calendar day UTC timezone
+        // This is opposed to the Laravel daily rate limit that consider to reset
+        // the limiter after 24 hours from the first hit
+
+        RateLimiter::hit(
+            key: 'questions:'.$user?->getKey(),
+            decaySeconds: $secondsUntilEndOfCalendarDay = today()->endOfDay()->diffInSeconds()
+        );
+    }
+
+    /**
+     * Check if a given using still has questions left
+     */
+    public static function hasRemainingQuestions(User|null $user): bool
+    {
+        
+        if(is_null($user)){
+            return true;
+        }
+
+        if(config('copilot.limits.questions_per_user_per_day') <= 0){
+            return false;
+        }
+
+        return ! RateLimiter::tooManyAttempts('questions:'.$user->getKey(), config('copilot.limits.questions_per_user_per_day'));
     }
 }

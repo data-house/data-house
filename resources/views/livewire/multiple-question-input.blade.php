@@ -45,7 +45,11 @@
         <input type="hidden" name="collection" value="{{ $collection?->getKey() }}">
         
         <div class="flex items-center justify-between">
-            <p class="text-sm {{ $exceededMaximumLength ? 'text-red-600 font-bold' : 'text-stone-600' }}">{{ $length }} / {{ config('copilot.limits.question_length') }} {{ trans_choice('character|characters', $length) }}</p>
+            <div class="inline-flex gap-2 divide-x divide-stone-300">
+                <p class="text-sm {{ $exceededMaximumLength ? 'text-red-600 font-bold' : 'text-stone-600' }}">{{ $length }} / {{ config('copilot.limits.question_length') }} {{ trans_choice('character|characters', $length) }}</p>
+
+                <p class="pl-2 text-sm {{ $dailyQuestionLimit <= 10 ? 'text-red-600' : 'text-stone-600' }}">{{ trans_choice(':amount question left for today|:amount questions left for today', $dailyQuestionLimit, ['amount' => $dailyQuestionLimit]) }}</p>
+            </div>
 
             <x-button type="submit">
                 <span wire:loading.remove wire:target="makeQuestion">

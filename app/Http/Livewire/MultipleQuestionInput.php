@@ -2,6 +2,7 @@
 
 namespace App\Http\Livewire;
 
+use App\Copilot\CopilotManager;
 use Livewire\Component;
 use Illuminate\Support\Str;
 
@@ -24,6 +25,8 @@ class MultipleQuestionInput extends Component
     public $askingQuestion = false;
 
     public $guided = false;
+
+    public $dailyQuestionLimit = null;
 
     protected $rules = [
         'question' => 'required|min:10|max:200',
@@ -69,6 +72,8 @@ class MultipleQuestionInput extends Component
         $this->length = Str::length($this->question ?? '');
 
         $this->exceededMaximumLength = $this->length > config('copilot.limits.question_length');
+
+        $this->dailyQuestionLimit = CopilotManager::questionLimitFor(auth()->user());
 
         return view('livewire.multiple-question-input');
     }

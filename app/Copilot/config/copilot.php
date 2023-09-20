@@ -49,8 +49,7 @@ return [
 
     'limits' => [
         'question_length' => 200,
-        'questions_per_day' => 10,
-        'questions_per_user' => 10,
+        'questions_per_user_per_day' => (int)env('COPILOT_DAILY_QUESTIONS_PER_USER', 100),
     ],
 
     /*

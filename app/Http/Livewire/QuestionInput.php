@@ -2,10 +2,13 @@
 
 namespace App\Http\Livewire;
 
+use App\Copilot\CopilotManager;
 use App\Copilot\CopilotResponse;
 use App\Models\Document;
 use Livewire\Component;
 use \Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
+use Nette\InvalidStateException;
 
 class QuestionInput extends Component
 {
@@ -21,6 +24,8 @@ class QuestionInput extends Component
     public $exceededMaximumLength = false;
 
     public $askingQuestion = false;
+
+    public $dailyQuestionLimit = null;
 
     protected $rules = [
         'question' => 'required|min:10|max:200',
@@ -41,9 +46,13 @@ class QuestionInput extends Component
     {
         $this->validate();
 
-        $pendingQuestion = $this->document->question($this->question);
-
-        $this->emit('copilot_asking', $pendingQuestion->uuid);
+        try {
+            $pendingQuestion = $this->document->question($this->question);
+    
+            $this->emit('copilot_asking', $pendingQuestion->uuid);
+        } catch (InvalidStateException $th) {
+            throw ValidationException::withMessages(['question' => $th->getMessage()]);
+        }
     }
 
     public function handleAnswer()
@@ -59,6 +68,7 @@ class QuestionInput extends Component
 
         $this->exceededMaximumLength = $this->length > config('copilot.limits.question_length');
 
+        $this->dailyQuestionLimit = CopilotManager::questionLimitFor(auth()->user());
 
         return view('livewire.question-input');
     }
