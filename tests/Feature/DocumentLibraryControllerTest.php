@@ -36,6 +36,34 @@ class DocumentLibraryControllerTest extends TestCase
         $response->assertSee('Upload Document');
     }
     
+    public function test_ask_questions_to_library_allowed(): void
+    {
+        $user = User::factory()->withPersonalTeam()->manager()->create();
+
+        $response = $this->actingAs($user)
+            ->get('/library');
+
+        $response->assertOk();
+
+        $response->assertViewIs('library.index');
+
+        $response->assertSee('Ask a question to all documents in the library...');
+    }
+    
+    public function test_ask_questions_to_library_not_allowed(): void
+    {
+        $user = User::factory()->withPersonalTeam()->guest()->create();
+
+        $response = $this->actingAs($user)
+            ->get('/library');
+
+        $response->assertOk();
+
+        $response->assertViewIs('library.index');
+
+        $response->assertDontSee('Ask a question to all documents in the library...');
+    }
+    
     public function test_library_shows_documents(): void
     {
 
