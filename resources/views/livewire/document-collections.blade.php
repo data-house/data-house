@@ -20,14 +20,19 @@
                 </button>
             </x-slot>
             <x-slot name="content">
-                <div class="relative w-full text-base font-normal min-h-[12rem] max-h-[12rem] overflow-y-auto">
-                    @foreach ($selectableCollections as $collection)
+                <div class="relative w-full text-base font-normal min-h-[12rem] max-h-[12rem] overflow-y-auto {{ $selectableCollections->isEmpty() ? 'grid content-center' : ''}}">
+                    @forelse ($selectableCollections as $collection)
                         <button class="inline-flex gap-2 items-center w-full px-4 py-2 text-left text-sm leading-5 focus:outline-none transition duration-150 ease-in-out text-stone-700 hover:bg-stone-100 focus:bg-stone-100"
                             wire:click="add({{$collection->getKey()}})">
                             <x-heroicon-o-archive-box class="w-6 h-6 text-stone-600" />
                             {{ $collection->title }}
                         </button>
-                    @endforeach
+                    @empty
+                        <div class="p-2 flex flex-col items-center">
+                            <x-heroicon-o-rectangle-stack class="w-20 h-20 text-stone-300" />
+                            <p class="text-stone-600 text-center px-10">{{ __('The document is already in all available collections') }}</p>
+                        </div>
+                    @endforelse
                 </div>
             </x-slot>
         </x-dropdown>
