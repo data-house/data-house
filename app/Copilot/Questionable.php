@@ -5,6 +5,7 @@ namespace App\Copilot;
 use App\Jobs\AskQuestionJob;
 use App\Models\Question;
 use App\Models\QuestionStatus;
+use Exception;
 use \Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
@@ -12,6 +13,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Benchmark;
 use Illuminate\Support\Collection as BaseCollection;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\RateLimiter;
+use Nette\InvalidStateException;
 
 trait Questionable
 {
@@ -114,6 +117,12 @@ trait Questionable
             return $previouslyExecutedQuestion;
         }
 
+        if(!CopilotManager::hasRemainingQuestions(auth()->user())){
+            throw new InvalidStateException(__('You reached your daily limit of :amount questions/day. You will be able to ask questions tomorrow.', [
+                'amount' => config('copilot.limits.questions_per_user_per_day'),
+            ]));
+        }
+
         // Save question and response as part of user's history
 
         $question = $this->questions()->create([
@@ -124,6 +133,8 @@ trait Questionable
             'team_id' => auth()->user()?->currentTeam?->getKey(),
             'language' => $language,
         ]);
+
+        CopilotManager::trackQuestionHitFor(auth()->user());
 
         AskQuestionJob::dispatch($question);
 

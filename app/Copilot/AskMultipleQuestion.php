@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Benchmark;
 use Illuminate\Support\Collection as BaseCollection;
 use Illuminate\Support\Facades\Cache;
+use Nette\InvalidStateException;
 
 trait AskMultipleQuestion
 {
@@ -45,6 +46,12 @@ trait AskMultipleQuestion
 
         if($previouslyExecutedQuestion){
             return $previouslyExecutedQuestion;
+        }
+
+        if(!CopilotManager::hasRemainingQuestions(auth()->user())){
+            throw new InvalidStateException(__('You reached your daily limit of :amount questions/day. You will be able to ask questions tomorrow.', [
+                'amount' => config('copilot.limits.questions_per_user_per_day'),
+            ]));
         }
 
         // Save question and response as part of user's history

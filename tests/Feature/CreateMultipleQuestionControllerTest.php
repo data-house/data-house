@@ -72,6 +72,36 @@ class CreateMultipleQuestionControllerTest extends TestCase
 
         $this->assertNull(Question::first());
     }
+    
+    public function test_multiple_question_not_created_from_library_if_rate_limit_exceeded(): void
+    {
+        config([
+            'copilot.driver' => 'null',
+            'copilot.queue' => false,
+            'copilot.limits.questions_per_user_per_day' => 0,
+        ]);
+
+        Queue::fake();
+
+        $user = User::factory()->withPersonalTeam()->manager()->create();
+
+        $collection = Collection::factory()->create([
+            'visibility' => Visibility::SYSTEM,
+            'strategy' => CollectionStrategy::LIBRARY,
+            'title' => 'All Documents'
+        ]);
+
+        $response = $this->actingAs($user)
+            ->from(route('documents.library'))
+            ->post('/multiple-question', [
+                'question' => 'This is a sample question',
+                'strategy' => CollectionStrategy::LIBRARY->value,
+            ]);
+
+        $response->assertSessionHasErrors(['question' => 'You reached your daily limit of 0 questions/day. You will be able to ask questions tomorrow.']);
+
+        $this->assertNull(Question::first());
+    }
 
     public function test_multiple_question_created_from_collection(): void
     {
