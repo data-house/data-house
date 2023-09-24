@@ -2,7 +2,7 @@
 
     @if ($question)
         
-        <x-question :poll="true" :id="$ref ?? null" :collapsed="false" :question="$question" />
+        <x-question :poll="$question?->isPending() ?? false" :id="$ref ?? $question?->uuid" :collapsed="false" :question="$question" />
     
     @endif
     
