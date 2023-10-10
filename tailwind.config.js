@@ -11,7 +11,7 @@ module.exports = {
 
     theme: {
         extend: {
-            sans: ['Figtree', ...defaultTheme.fontFamily.sans],
+            
         },
     },
 
