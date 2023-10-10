@@ -1,7 +1,7 @@
 <div class="w-full">
-    <form method="get" wire:submit.prevent="makeQuestion">
+    <form method="get" wire:submit="makeQuestion">
         <x-label class="mb-1" for="question" value="{{ __('Enter your question. It can be one or more lines.') }}" />
-        <x-textarea wire:keydown.ctrl.enter="makeQuestion" wire:model="question" name="question" id="question" class="min-w-full" rows="3" placeholder="{{ __('Ask a question...') }}">
+        <x-textarea wire:keydown.ctrl.enter="makeQuestion" wire:model.live="question" name="question" id="question" class="min-w-full" rows="3" placeholder="{{ __('Ask a question...') }}">
             
         </x-textarea>
         

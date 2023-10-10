@@ -83,6 +83,7 @@ class JetstreamServiceProvider extends ServiceProvider
             'question:view',
             'question:create',
             'collection:view',
+            'question-feedback:view',
         ])->description('Contribute to daily activities.');
         
         Jetstream::role(Role::GUEST->value, 'Guest', [

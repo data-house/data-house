@@ -1,11 +1,13 @@
 <?php
 
-namespace App\Http\Livewire;
+namespace App\Livewire;
 
 use App\Models\FeedbackReason;
 use App\Models\FeedbackVote;
 use App\Models\Question;
+use App\Models\QuestionFeedback as ModelsQuestionFeedback;
 use Illuminate\Validation\Rules\Enum;
+use Livewire\Attributes\Locked;
 use Livewire\Component;
 
 class QuestionFeedback extends Component
@@ -13,27 +15,43 @@ class QuestionFeedback extends Component
     /**
      * @var \App\Models\Question
      */
-    public $question;
+    public Question $question;
 
     public $showingCommentModal = false;
 
     /**
-     * @var \App\Models\QuestionFeedback
+     * @var string
      */
-    public $feedback = null;
+    public $note = null;
+
+    /**
+     * @var \App\Models\FeedbackReason
+     */
+    public $reason = null;
+
+    public ?ModelsQuestionFeedback $feedback;
     
     protected function rules()
     {
         return [
-            'feedback.note' => 'nullable|string|min:1|max:400',
-            'feedback.reason' => ['required', new Enum(FeedbackReason::class)],
+            'note' => 'nullable|string|min:1|max:400',
+            'reason' => ['required', new Enum(FeedbackReason::class)],
         ];
     }
     
     public function mount($question)
     {
+        /**
+         * @var \App\Models\User
+         */
+        $user = auth()->user();
+
         $this->question = $question;
         $this->showingCommentModal = false;
+
+        $this->feedback = $this->question->feedbacks()->author($user)->first();
+        $this->note = $this->feedback?->note;
+        $this->reason = $this->feedback?->reason?->value;
     }
 
 
@@ -53,6 +71,8 @@ class QuestionFeedback extends Component
                 $existing->fill([
                     'vote' => $vote,
                     'points' => $vote->points(),
+                    'note' => $this->note,
+                    'reason' => $this->reason,
                 ]);
 
                 $existing->save();
@@ -61,10 +81,12 @@ class QuestionFeedback extends Component
             return $existing;
         }
 
-        return $this->question->feedbacks()->create([
+        return $this->feedback = $this->question->feedbacks()->create([
             'user_id' => $user->getKey(),
             'vote' => $vote,
             'points' => $vote->points(),
+            'note' => $this->note,
+            'reason' => $this->reason,
         ]);
     }
 
@@ -74,9 +96,9 @@ class QuestionFeedback extends Component
      */
     public function recordPositiveFeedback()
     {
-        $this->feedback = $this->recordFeedback(FeedbackVote::LIKE);
+        $this->recordFeedback(FeedbackVote::LIKE);
 
-        $this->emit('saved');
+        $this->dispatch('saved');
 
         $this->question = $this->question->fresh();
     }
@@ -89,18 +111,19 @@ class QuestionFeedback extends Component
 
         if($this->showingCommentModal){
             $this->showingCommentModal = false;
-            $this->feedback = null;
+            $this->note = null;
+            $this->reason = null;
 
             return;
         }
 
-        $this->feedback = $this->recordFeedback(FeedbackVote::IMPROVABLE);
+        $this->recordFeedback(FeedbackVote::IMPROVABLE);
 
         $this->question = $this->question->fresh();
 
         $this->showingCommentModal = true;
 
-        $this->emit('saved');
+        $this->dispatch('saved');
     }
     
     /**
@@ -111,38 +134,41 @@ class QuestionFeedback extends Component
 
         if($this->showingCommentModal){
             $this->showingCommentModal = false;
-            $this->feedback = null;
+            $this->note = null;
+            $this->reason = null;
 
             return;
         }
 
-        $this->feedback = $this->recordFeedback(FeedbackVote::DISLIKE);
+        $this->recordFeedback(FeedbackVote::DISLIKE);
 
         $this->question = $this->question->fresh();
 
         $this->showingCommentModal = true;
 
-        $this->emit('saved');
+        $this->dispatch('saved');
     }
 
     public function saveComment()
     {
         $this->validate();
  
+        $this->feedback->reason = $this->reason;
+        $this->feedback->note = $this->note;
         $this->feedback->save();
+
 
         $this->showingCommentModal = false;
 
-        $this->feedback = null;
-
-        $this->emit('saved');
+        $this->dispatch('saved');
     }
 
 
     public function updatedShowingDislikeModal($value)
     {
         if(!$value){
-            $this->feedback = null;
+            $this->note = null;
+            $this->reason = null;
         }
     }
     

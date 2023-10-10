@@ -2,8 +2,8 @@
 
 namespace Tests\Feature\Livewire;
 
-use App\Http\Livewire\CurrentQuestion;
-use App\Http\Livewire\QuestionInput;
+use App\Livewire\CurrentQuestion;
+use App\Livewire\QuestionInput;
 use App\Models\Document;
 use App\Models\Question;
 use App\Models\QuestionStatus;
@@ -123,7 +123,7 @@ class QuestionInputTest extends TestCase
         $this->assertTrue($question->team->is($user->currentTeam));
         $this->assertTrue($question->questionable->is($document));
         
-        $component->assertEmitted('copilot_asking', $question->uuid);
+        $component->assertDispatched('copilot_asking', $question->uuid);
     }
     
     public function test_ask_question_is_rate_limited()

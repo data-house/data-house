@@ -1,27 +1,23 @@
 <?php
 
-namespace App\Http\Livewire;
+namespace App\Livewire;
 
 use Livewire\Component;
 
-class Question extends Component
+class ChildQuestions extends Component
 {
     /**
      * @var \App\Models\Question
      */
     public $question;
 
-    public $poll;
-
-    public function mount($question, $poll)
+    public function mount($question)
     {
         $this->question = $question;
-        $this->poll = $poll;
     }
-
-
+    
     public function render()
     {
-        return view('livewire.question');
+        return view('livewire.child-questions');
     }
 }

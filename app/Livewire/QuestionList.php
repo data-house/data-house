@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Livewire;
+namespace App\Livewire;
 
 use App\Copilot\CopilotResponse;
 use App\Models\Document;
@@ -16,7 +16,7 @@ class QuestionList extends Component
 
     public $currentlyAskingQuestion;
 
-    public function __construct($document)
+    public function mount($document)
     {
         $this->document = $document;
     }

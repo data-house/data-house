@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Livewire;
+namespace App\Livewire;
 
 use App\Models\Question;
 use Livewire\Component;
@@ -19,8 +19,8 @@ class CurrentQuestion extends Component
     protected $queryString = [
         'ref',
     ];
-    
-    public function __construct($document)
+
+    public function mount($document)
     {
         $this->document = $document;
     }
@@ -50,7 +50,7 @@ class CurrentQuestion extends Component
         $this->ref = $this->question?->uuid;
 
         if($this->question && !$this->question->isPending()){
-            $this->emit('copilot_answer', $this->question->uuid);
+            $this->dispatch('copilot_answer', $this->question->uuid);
         }
 
         return view('livewire.current-question');

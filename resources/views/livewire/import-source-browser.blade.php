@@ -32,7 +32,7 @@
         @foreach ($directories as $folderKey => $folder)
             <div class="flex gap-4 items-center p-1">
                 <label for="folder-{{ $folderKey }}" class="flex items-center">
-                    <x-radio id="folder-{{ $folderKey }}" name="selection" value="{{ $folderKey }}" wire:model="selection" />
+                    <x-radio id="folder-{{ $folderKey }}" name="selection" value="{{ $folderKey }}" wire:model.live="selection" />
                     {{--  wire:click="select('{{ $folderKey }}')" --}}
                     <span class="ml-2 text-stone-800 sr-only">{{ __('Select :entry', ['entry' => $folder]) }}</span>
                 </label>
@@ -45,7 +45,7 @@
         @foreach ($files as $fileKey => $file)
             <div class="flex gap-4 items-center p-1">
                 <label for="file-{{ $fileKey }}" class="flex items-center">
-                    <x-radio id="file-{{ $fileKey }}" name="selection" value="{{ $fileKey }}" wire:model="selection" />
+                    <x-radio id="file-{{ $fileKey }}" name="selection" value="{{ $fileKey }}" wire:model.live="selection" />
                     <span class="ml-2 text-stone-800 sr-only">{{ __('Select :entry', ['entry' => $file]) }}</span>
                 </label>
                 <button type="button" class="flex gap-2 items-center">

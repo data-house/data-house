@@ -2,8 +2,8 @@
 
 namespace Tests\Feature\Livewire;
 
-use App\Http\Livewire\QuestionFeedback;
-use App\Http\Livewire\QuestionList;
+use App\Livewire\QuestionFeedback;
+use App\Livewire\QuestionList;
 use App\Models\FeedbackReason;
 use App\Models\FeedbackVote;
 use App\Models\Question;
@@ -74,7 +74,7 @@ class QuestionFeedbackTest extends TestCase
 
         $component->assertStatus(200);
 
-        $component->assertEmitted('saved');
+        $component->assertDispatched('saved');
 
         $component->assertSeeInOrder(['Good', 1]);
 
@@ -108,7 +108,7 @@ class QuestionFeedbackTest extends TestCase
 
         $component->assertStatus(200);
 
-        $component->assertEmitted('saved');
+        $component->assertDispatched('saved');
 
         $component->assertSet('showingCommentModal', true);
 
@@ -141,19 +141,20 @@ class QuestionFeedbackTest extends TestCase
         $component = Livewire::actingAs($user)
             ->test(QuestionFeedback::class, ['question' => $question])
             ->call('recordNegativeFeedback')
-            ->set('feedback.reason', FeedbackReason::WRONG_ANSWER->value)
-            ->set('feedback.note', 'A note')
+            ->set('reason', FeedbackReason::WRONG_ANSWER->value)
+            ->set('note', 'A note')
             ->call('saveComment');
 
         $component->assertStatus(200);
 
         $component->assertSet('showingCommentModal', false);
         
-        $component->assertSet('feedback', null);
         $component->assertSeeInOrder(['Poor', 1]);
-
+        
         $feedback = ModelsQuestionFeedback::first();
-
+        
+        $component->assertSet('feedback', fn($actual) => $feedback->is($actual));
+        
         $this->assertTrue($feedback->question->is($question));
         $this->assertTrue($feedback->user->is($user));
         $this->assertEquals(FeedbackVote::DISLIKE, $feedback->vote);
@@ -175,18 +176,19 @@ class QuestionFeedbackTest extends TestCase
         $component = Livewire::actingAs($user)
             ->test(QuestionFeedback::class, ['question' => $question])
             ->call('recordNeutralFeedback')
-            ->set('feedback.reason', FeedbackReason::WRONG_ANSWER->value)
-            ->set('feedback.note', 'A note')
+            ->set('reason', FeedbackReason::WRONG_ANSWER->value)
+            ->set('note', 'A note')
             ->call('saveComment');
 
         $component->assertStatus(200);
 
         $component->assertSet('showingCommentModal', false);
         
-        $component->assertSet('feedback', null);
         $component->assertSeeInOrder(['Improvable', 1]);
-
+        
         $feedback = ModelsQuestionFeedback::first();
+        
+        $component->assertSet('feedback', fn($actual) => $feedback->is($actual));
 
         $this->assertTrue($feedback->question->is($question));
         $this->assertTrue($feedback->user->is($user));
@@ -209,7 +211,7 @@ class QuestionFeedbackTest extends TestCase
         $component = Livewire::actingAs($user)
             ->test(QuestionFeedback::class, ['question' => $question])
             ->call('recordNegativeFeedback')
-            ->set('feedback.note', 'A note')
+            ->set('note', 'A note')
             ->call('saveComment');
 
         $component->assertStatus(200);
@@ -222,7 +224,7 @@ class QuestionFeedbackTest extends TestCase
             return $actual instanceof ModelsQuestionFeedback && $actual->is($feedback);
         });
 
-        $component->assertHasErrors(['feedback.reason']);
+        $component->assertHasErrors(['reason']);
     }
 
 }
