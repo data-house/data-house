@@ -1,21 +1,20 @@
 <?php
 
-namespace App\Http\Livewire;
+namespace App\Livewire;
 
 use App\Copilot\CopilotManager;
-use App\Copilot\CopilotResponse;
-use App\Models\Document;
 use Livewire\Component;
-use \Illuminate\Support\Str;
-use Illuminate\Validation\ValidationException;
-use Nette\InvalidStateException;
+use Illuminate\Support\Str;
 
-class QuestionInput extends Component
+class MultipleQuestionInput extends Component
 {
+
+    public $strategy; 
+
     /**
-     * @var \App\Models\Document
+     * @var \App\Models\Collection|null
      */
-    public $document;
+    public $collection;
 
     public $question;
 
@@ -25,15 +24,19 @@ class QuestionInput extends Component
 
     public $askingQuestion = false;
 
+    public $guided = false;
+
     public $dailyQuestionLimit = null;
 
     protected $rules = [
         'question' => 'required|min:10|max:200',
     ];
 
-    public function mount($document)
+    public function mount($strategy, $collection = null)
     {
-        $this->document = $document;
+        // :target="DocumentSelection || Collection || Document || Askable"
+        $this->strategy = $strategy;
+        $this->collection = $collection;
     }
     
     protected function getListeners()
@@ -41,18 +44,20 @@ class QuestionInput extends Component
         return ['copilot_answer' => 'handleAnswer'];
     }
 
+    public function switchToGuided()
+    {
+        $this->guided = true;
+    }
+
+    public function switchToFreeForm()
+    {
+        $this->guided = false;
+    }
+
 
     public function makeQuestion()
     {
-        $this->validate();
-
-        try {
-            $pendingQuestion = $this->document->question($this->question);
-    
-            $this->emit('copilot_asking', $pendingQuestion->uuid);
-        } catch (InvalidStateException $th) {
-            throw ValidationException::withMessages(['question' => $th->getMessage()]);
-        }
+        
     }
 
     public function handleAnswer()
@@ -70,6 +75,6 @@ class QuestionInput extends Component
 
         $this->dailyQuestionLimit = CopilotManager::questionLimitFor(auth()->user());
 
-        return view('livewire.question-input');
+        return view('livewire.multiple-question-input');
     }
 }

@@ -6,13 +6,13 @@
             <div class="mb-2 p-3 border bg-white border-stone-300 focus-within:border-lime-500 focus-within:ring-lime-500 rounded-md shadow-sm min-w-full min-h-20 h-20">
                 <p class=" flex gap-1">
                     <span>{{ __('What are the main') }}</span>
-                    <input class="border-b border-x-0 border-t-0 p-0 w-96 focus:border-x-0 focus:border-t-0 focus:border-lime-500 focus:border-2 focus:ring-0" autocomplete="none" type="text" wire:model="question" @keydown.ctrl.enter="$refs.js_multiple_question_form.submit()" name="question" id="question" value="{{ $questionQuery ?? null }}">
+                    <input class="border-b border-x-0 border-t-0 p-0 w-96 focus:border-x-0 focus:border-t-0 focus:border-lime-500 focus:border-2 focus:ring-0" autocomplete="none" type="text" wire:model.live="question" @keydown.ctrl.enter="$refs.js_multiple_question_form.submit()" name="question" id="question" value="{{ $questionQuery ?? null }}">
                     <span>{{ __('in the reports?') }}</span>
                 </p>
             </div>
         @else
             <x-label class="mb-1" for="question" value="{{ __('Enter your question (it can be one or more lines)') }}" />
-            <x-textarea wire:model="question" @keydown.ctrl.enter="$refs.js_multiple_question_form.submit()" name="question" id="question" class="mb-1 min-w-full min-h-20" rows="3" placeholder="{{ __('Ask a question...') }}">
+            <x-textarea wire:model.live="question" @keydown.ctrl.enter="$refs.js_multiple_question_form.submit()" name="question" id="question" class="mb-1 min-w-full min-h-20" rows="3" placeholder="{{ __('Ask a question...') }}">
                 {{ $questionQuery ?? null }}
             </x-textarea>
         @endif

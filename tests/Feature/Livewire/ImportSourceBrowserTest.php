@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Livewire;
 
-use App\Http\Livewire\ImportSourceBrowser;
+use App\Livewire\ImportSourceBrowser;
 use App\Models\Import;
 use App\Models\ImportMap;
 use App\Models\ImportStatus;

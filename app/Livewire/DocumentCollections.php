@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Livewire;
+namespace App\Livewire;
 
 use App\Actions\Collection\AddDocument;
 use App\Actions\Collection\RemoveDocument;

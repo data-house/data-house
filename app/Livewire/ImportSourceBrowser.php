@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Livewire;
+namespace App\Livewire;
 
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
@@ -26,7 +26,7 @@ class ImportSourceBrowser extends Component
     
     public $files = null;
 
-    public function __construct($import)
+    public function mount($import)
     {
         $this->import = $import;
         $this->path = [];

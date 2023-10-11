@@ -29,7 +29,7 @@
             </button>
         </div>
 
-        <x-dialog-modal :wire:key="$question->uuid" wire:model="showingCommentModal" maxWidth="3xl">
+        <x-dialog-modal :wire:key="$question->uuid" wire:model.live="showingCommentModal" maxWidth="3xl">
             <x-slot name="title">
                 {{ __('Could you tell us more about your feedback?') }}
             </x-slot>
@@ -39,7 +39,7 @@
                     <p class="mb-4 text-sm text-stone-600">{{ __('You originally expressed the feedback on :date.', ['date' => $feedback->created_at]) }}</p>
                 @endif
                 
-                <form action="#" wire:submit.prevent="saveComment">
+                <form action="#" wire:submit="saveComment">
                     <div class="mb-4">
                         <x-label for="reason" value="{{ __('Reason') }}" />
                         <p class="text-sm text-stone-600">{{ __('Please select one reason.') }}</p>
@@ -47,7 +47,7 @@
                         <div class="mt-1 flex flex-col gap-2">
                             @foreach (\App\Models\FeedbackReason::cases() as $reason)
                                 <x-label class="flex items-start gap-1 rounded hover:bg-stone-100 p-1">
-                                    <x-radio class="mt-0.5" name="reason" wire:model.defer="feedback.reason" :value="$reason->value" />
+                                    <x-radio class="mt-0.5" name="reason" wire:model="reason" :value="$reason->value" />
                                     <span>
                                         {{ $reason->label() }}
                                         <span class="block font-normal text-xs text-stone-600">{{ $reason->description() }}</span>
@@ -56,14 +56,14 @@
                             @endforeach
                         </div>
 
-                        <x-input-error for="feedback.reason" class="mt-2" />
+                        <x-input-error for="reason" class="mt-2" />
                     </div>
             
                     <div>
                         <x-label for="note" value="{{ __('Notes') }} {{ __('(optional)') }}" />
                         <p class="text-sm text-stone-600">{{ __('If the answer is incorrect or partial, please quote the document with the correct answer or the pages where the answer can be found.') }}</p>
-                        <x-textarea rows="3" id="note"  wire:model.defer="feedback.note" class="mt-1 block w-full"></x-textarea>
-                        <x-input-error for="feedback.note" class="mt-2" />
+                        <x-textarea rows="3" id="note"  wire:model="note" class="mt-1 block w-full"></x-textarea>
+                        <x-input-error for="note" class="mt-2" />
                     </div>  
                 </form>     
             </x-slot>

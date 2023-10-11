@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Livewire;
 
-use App\Http\Livewire\QuestionList;
+use App\Livewire\QuestionList;
 use App\Models\Question;
 use App\Models\QuestionStatus;
 use App\Models\User;

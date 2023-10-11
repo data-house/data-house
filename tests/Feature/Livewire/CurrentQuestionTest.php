@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Livewire;
 
-use App\Http\Livewire\CurrentQuestion;
+use App\Livewire\CurrentQuestion;
 use App\Models\Question;
 use App\Models\QuestionStatus;
 use Illuminate\Foundation\Testing\RefreshDatabase;
