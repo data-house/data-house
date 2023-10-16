@@ -28,6 +28,7 @@ class ImportDocument extends Model
         'status',
         'document_date',
         'document_size',
+        'document_hash',
         'import_hash',
     ];
 
@@ -47,6 +48,15 @@ class ImportDocument extends Model
         'status' => ImportDocumentStatus::PENDING,
     ];
 
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'uploaded_by');
+    }
+    
+    public function team()
+    {
+        return $this->belongsTo(Team::class);
+    }
 
     public function import()
     {
@@ -85,13 +95,9 @@ class ImportDocument extends Model
     public function moveToDisk(Disk|string $disk): string
     {        
         $path = basename($this->disk_path);
+
         Storage::disk(is_string($disk) ? $disk : $disk->value)
             ->writeStream($path, Storage::disk($this->disk_name)->readStream($this->disk_path));
-
-        $this->processed_at = now();
-        $this->save();
-
-        // TODO: track status file transferred to disk?
 
         return $path;
     }

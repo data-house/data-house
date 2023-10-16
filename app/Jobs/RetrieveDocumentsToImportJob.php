@@ -138,8 +138,11 @@ class RetrieveDocumentsToImportJob extends ImportJobBase
             ->filter()
             ->filter(function($path){
                 // Filtering only fully supported documents so far
+                // TODO: define a list of supported formats to check against
                 return MimeType::fromFilename($path) !== ModelsMimeType::APPLICATION_PDF;
             });
+
+        // TODO: maybe I can prevent something knowing that source_path hash is duplicate
 
         return $entries->map(function($file) use ($disk) {
             return [

@@ -69,6 +69,9 @@ class Document extends Model implements Convertible
         'published_to_url',
         'properties',
         'type',
+        'document_date',
+        'document_size',
+        'document_hash',
     ];
 
     protected $casts = [
@@ -77,6 +80,7 @@ class Document extends Model implements Convertible
         'published_at' => 'datetime',
         'properties' => AsArrayObject::class,
         'type' => DocumentType::class,
+        'document_date' => 'datetime',
     ];
 
     protected $with = [

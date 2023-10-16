@@ -26,6 +26,11 @@ enum ImportDocumentStatus: int
     case CANCELLED = 40;
 
     /**
+     * Import cancelled for document as user doesn't have permissions
+     */
+    case CANCELLED_MISSING_PERMISSION = 41;
+
+    /**
      * Import skipped for document, no reason
      */
     case SKIPPED = 50;
