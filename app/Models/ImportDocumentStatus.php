@@ -11,9 +11,9 @@ enum ImportDocumentStatus: int
     case PENDING = 10;
 
     /**
-     * Document is downloading from source disk
+     * Document is being imported from source disk
      */
-    case DOWNLOADING = 20;
+    case IMPORTING = 20;
 
     /**
      * Document imported

@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Models\Disk;
 use App\Models\ImportDocument;
+use App\Models\ImportDocumentStatus;
 use App\Models\ImportMap;
 use App\Models\ImportReport;
 use GuzzleHttp\Psr7\MimeType;
@@ -20,6 +21,8 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use \Illuminate\Support\Str;
+use League\Flysystem\InvalidStreamProvided;
+use Throwable;
 
 class ImportFileDataJob extends ImportJobBase
 {
@@ -56,6 +59,8 @@ class ImportFileDataJob extends ImportJobBase
             ->lazyById(5)
             ->each(function($importDocument) use ($processed, $lastProcessed, $disk) {
 
+                $importDocument->status = ImportDocumentStatus::IMPORTING;
+
                 $this->downloadDocument($disk, $importDocument);
 
                 $lastProcessed = $importDocument->getKey();
@@ -75,9 +80,33 @@ class ImportFileDataJob extends ImportJobBase
 
         $localPath = $document->generateLocalPath();
 
-        Storage::disk($document->disk_name)
-            ->writeStream($localPath, $disk->readStream($document->source_path));
+        $importDisk = Storage::disk($document->disk_name);
+
+        try{
+            $importDisk->writeStream($localPath, $disk->readStream($document->source_path));
+        }
+        catch(InvalidStreamProvided $th){
+
+            logs()->error("Import file data download error", ['ex' => $th, 'import_document' => $document->getKey()]);
+
+            $document->status = ImportDocumentStatus::SKIPPED_MISSING_SOURCE;
+    
+            $document->save();
+
+            return;
+        }
+        catch(Throwable $th){
+
+            logs()->error("Import file data download error", ['ex' => $th, 'import_document' => $document->getKey()]);
+
+            $document->status = ImportDocumentStatus::FAILED_DOWNLOAD_ERROR;
+    
+            $document->save();
+
+            return;
+        }
         
+        $document->document_hash = $importDisk->checksum($localPath, ['checksum_algo' => 'sha256']);
         $document->retrieved_at = now();
         $document->disk_path = $localPath;
 
