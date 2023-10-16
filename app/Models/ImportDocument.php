@@ -25,11 +25,26 @@ class ImportDocument extends Model
         'mime',
         'uploaded_by',
         'team_id',
+        'status',
+        'document_date',
+        'document_size',
+        'import_hash',
     ];
 
     protected $casts = [
         'retrieved_at' => 'datetime',
         'processed_at' => 'datetime',
+        'document_date' => 'datetime',
+        'status' => ImportDocumentStatus::class,
+    ];
+
+    /**
+     * The model's default values for attributes.
+     *
+     * @var array
+     */
+    protected $attributes = [
+        'status' => ImportDocumentStatus::PENDING,
     ];
 
 
@@ -75,6 +90,8 @@ class ImportDocument extends Model
 
         $this->processed_at = now();
         $this->save();
+
+        // TODO: track status file transferred to disk?
 
         return $path;
     }

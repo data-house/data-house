@@ -3,12 +3,14 @@
 namespace App\Jobs;
 
 use App\Models\Disk;
+use App\Models\ImportDocumentStatus;
 use App\Models\ImportMap;
 use App\Models\ImportReport;
 use App\Models\MimeType as ModelsMimeType;
 use GuzzleHttp\Psr7\MimeType;
 use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Contracts\Filesystem\Filesystem;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -139,7 +141,7 @@ class RetrieveDocumentsToImportJob extends ImportJobBase
                 return MimeType::fromFilename($path) !== ModelsMimeType::APPLICATION_PDF;
             });
 
-        return $entries->map(function($file){
+        return $entries->map(function($file) use ($disk) {
             return [
                 'source_path' => $file,
                 'disk_name' => Disk::IMPORTS->value,
@@ -147,6 +149,9 @@ class RetrieveDocumentsToImportJob extends ImportJobBase
                 'mime' => MimeType::fromFilename($file),
                 'uploaded_by' => $this->importMap->mapped_uploader,
                 'team_id' => $this->importMap->mapped_team,
+                'document_date' => Carbon::createFromTimestamp($disk->lastModified($file)),
+                'document_size' => $disk->size($file),
+                'import_hash' => hash('sha256', $file),
             ];
         });
     }
