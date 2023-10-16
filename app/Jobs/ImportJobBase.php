@@ -104,7 +104,7 @@ abstract class ImportJobBase implements ShouldQueue
                 $import->status = ImportStatus::FAILED;
                 $import->save();
             
-                $import->maps()->update(['status' => ImportStatus::FAILED]);
+                $import->maps()->whereIn('status', [ImportStatus::CREATED, ImportStatus::RUNNING])->update(['status' => ImportStatus::FAILED]);
             
                 // $import->wipeData(); // Not sure in case of a failed import if we need to clean-it up
             });
