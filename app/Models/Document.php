@@ -72,6 +72,7 @@ class Document extends Model implements Convertible
         'document_date',
         'document_size',
         'document_hash',
+        'visibility',
     ];
 
     protected $casts = [
@@ -81,10 +82,15 @@ class Document extends Model implements Convertible
         'properties' => AsArrayObject::class,
         'type' => DocumentType::class,
         'document_date' => 'datetime',
+        'visibility' => Visibility::class,
     ];
 
     protected $with = [
         'project',
+    ];
+
+    protected $attributes = [
+        'visibility' => Visibility::TEAM,
     ];
     
     /**
@@ -221,6 +227,7 @@ class Document extends Model implements Convertible
             'project_region' => $this->project?->regions(),
             'project_countries' => $this->project?->countries(),
             'project_topics' => $this->project?->topics,
+            'visibility' => $this->visibility?->value,
         ];
     }
     

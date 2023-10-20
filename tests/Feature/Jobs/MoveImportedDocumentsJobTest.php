@@ -16,6 +16,7 @@ use App\Models\ImportSource;
 use App\Models\ImportStatus;
 use App\Models\Team;
 use App\Models\User;
+use App\Models\Visibility;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\File;
@@ -85,6 +86,7 @@ class MoveImportedDocumentsJobTest extends TestCase
         $this->assertEquals(70610, $document->document_size);
         $this->assertNotNull($document->document_date);
         $this->assertTrue($document->document_date->isToday());
+        $this->assertEquals(Visibility::TEAM, $document->visibility);
 
         $updatedImportDocument = $importDocument->fresh();
         $this->assertNotNull($updatedImportDocument->processed_at);

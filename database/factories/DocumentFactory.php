@@ -6,6 +6,7 @@ use App\Models\Disk;
 use App\Models\MimeType;
 use App\Models\Team;
 use App\Models\User;
+use App\Models\Visibility;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -24,6 +25,7 @@ class DocumentFactory extends Factory
             'disk_name' => Disk::DOCUMENTS->value,
             'disk_path' => fake()->md5() . '.pdf',
             'draft' => true,
+            'visibility' => Visibility::TEAM,
             'title' => fake()->text(40),
             'mime' => MimeType::APPLICATION_PDF->value,
             'uploaded_by' => User::factory(),

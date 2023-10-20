@@ -42,4 +42,12 @@ enum Visibility: int
             self::PUBLIC => __('Public'),
         };
     }
+
+    /**
+     * Get the list of visibilities that can be used with \App\Models\Document
+     */
+    public static function forDocuments(): array
+    {
+        return array_slice(self::cases(), 1);
+    }
 }
