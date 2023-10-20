@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Models\Disk;
 use App\Models\Document;
 use App\Models\ImportDocument;
+use App\Models\ImportDocumentStatus;
 use App\Models\ImportReport;
 use App\Models\ImportStatus;
 use Illuminate\Bus\Queueable;
@@ -17,17 +18,17 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class MoveImportedDocumentsJob extends ImportJobBase
 {
 
     public function runImport(): mixed
     {
-        // TODO: Move files to documents location
-        // TODO: copy entries in the Documents table
+        // TODO: verify again that user can access the specified team
 
-
-        $rows = $this->importMap->documents()->whereNull('processed_at');
+        $rows = $this->importMap->documents()->whereNull('processed_at')->with(['user', 'team']);
+        //TODO: skip entries that have errors
 
         $processed = 0;
 
@@ -88,7 +89,42 @@ class MoveImportedDocumentsJob extends ImportJobBase
 
     protected function insertDocuments(ImportDocument $import)
     {
+        // Checking for possible duplicates based on document hash
+        // Focusing to documents that are accessible in the user's team
+
+        if($import->team_id && !$import->user->hasTeamPermission($import->team, 'import:create')){
+            $import->status = ImportDocumentStatus::CANCELLED_MISSING_PERMISSION;
+    
+            $import->save();
+
+            return;
+        }
+
+
+        $teams = collect($import->team_id ?? $import->user?->allTeams()->modelKeys());
+
+        if($import->document_hash && Document::where('document_hash', $import->document_hash)->whereIn('team_id', $teams)->exists()){
+            $import->status = ImportDocumentStatus::SKIPPED_DUPLICATE;
+    
+            $import->save();
+
+            return;
+        }
+
         $path = $import->moveToDisk(Disk::DOCUMENTS->value);
+
+        $checksum = Storage::disk(Disk::DOCUMENTS->value)->checksum($path, ['checksum_algo' => 'sha256']);
+
+        if($import->document_hash && $import->document_hash !== $checksum){
+
+            // Data transfer error
+
+            $import->status = ImportDocumentStatus::FAILED;
+    
+            $import->save();
+
+            return;
+        }
 
         $document = Document::create([
             'disk_name' => Disk::DOCUMENTS->value,
@@ -97,6 +133,13 @@ class MoveImportedDocumentsJob extends ImportJobBase
             'mime' => $import->mime,
             'uploaded_by' => $import->uploaded_by,
             'team_id' => $import->team_id,
+            'document_hash' => $checksum,
+            'document_date' => $import->document_date,
+            'document_size' => $import->document_size,
         ]);
+
+        $import->processed_at = now();
+        $import->status = ImportDocumentStatus::COMPLETED;
+        $import->save();
     }
 }

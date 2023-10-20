@@ -10,9 +10,12 @@ use App\Models\Disk;
 use App\Models\Document;
 use App\Models\Import;
 use App\Models\ImportDocument;
+use App\Models\ImportDocumentStatus;
 use App\Models\ImportMap;
 use App\Models\ImportSource;
 use App\Models\ImportStatus;
+use App\Models\Team;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\File;
@@ -59,7 +62,11 @@ class MoveImportedDocumentsJobTest extends TestCase
             'disk_path' => 'test.pdf',
             'mime' => "application/pdf",
             'uploaded_by' => $import->creator->getKey(),
-            'team_id' => null
+            'team_id' => null,
+            'document_size' => 70610,
+            'document_date' => today(),
+            'document_hash' => $fakeImportDisk->checksum('test.pdf', ['checksum_algo' => 'sha256']),
+            'import_hash' => hash('sha256', 'test.pdf'),
         ]);
 
         (new MoveImportedDocumentsJob($importMap))->handle();
@@ -72,10 +79,16 @@ class MoveImportedDocumentsJobTest extends TestCase
         $this->assertEquals('application/pdf', $document->mime);
         $this->assertTrue($document->uploader->is($import->creator));
         $this->assertNull($document->team);
-        // $this->assertTrue($document->team->is($user->currentTeam));
         $this->assertNotNull($document->disk_path);
 
-        $this->assertNotNull($importDocument->fresh()->processed_at);
+        $this->assertEquals($importDocument->document_hash, $document->document_hash);
+        $this->assertEquals(70610, $document->document_size);
+        $this->assertNotNull($document->document_date);
+        $this->assertTrue($document->document_date->isToday());
+
+        $updatedImportDocument = $importDocument->fresh();
+        $this->assertNotNull($updatedImportDocument->processed_at);
+        $this->assertEquals(ImportDocumentStatus::COMPLETED, $updatedImportDocument->status);
 
         Storage::disk(Disk::DOCUMENTS->value)->assertExists($document->disk_path);
 
@@ -83,5 +96,199 @@ class MoveImportedDocumentsJobTest extends TestCase
         $this->assertEquals(ImportStatus::COMPLETED, $import->fresh()->status);
 
         Queue::assertPushed(ExtractDocumentProperties::class);
+    }
+
+    public function test_different_hash_after_transfer_raises_failure(): void
+    {
+        $fakeImportDisk = Storage::fake(Disk::IMPORTS->value);
+        
+        $fakeDocumentDisk = Storage::fake(Disk::DOCUMENTS->value);
+
+        Queue::fake();
+
+        $fakeImportDisk->putFileAs('', new File(base_path('tests/fixtures/documents/data-house-test-doc.pdf')), 'test.pdf');
+
+
+        $import = Import::factory()->create([
+            'source' => ImportSource::LOCAL,
+            'status' => ImportStatus::RUNNING,
+            'configuration' => [
+                'root' => $fakeImportDisk->path(''), // only used to make the import configuration looks correct
+            ],
+        ]);
+
+        $importMap = $import->maps()->create([
+            'status' => ImportStatus::RUNNING,
+            'mapped_team' => null,
+            'mapped_uploader' => $import->creator->getKey(),
+            'recursive' => false,
+            'filters' => [
+                'paths' => "test.pdf"
+            ],
+        ]);
+
+        $importDocument = $importMap->documents()->create([
+            'source_path' => "test.pdf",
+            'disk_name' => "imports",
+            'disk_path' => 'test.pdf',
+            'mime' => "application/pdf",
+            'uploaded_by' => $import->creator->getKey(),
+            'team_id' => null,
+            'document_size' => 70610,
+            'document_date' => today(),
+            'document_hash' => 'fake-hash-to-simulate-transfer-error',
+            'import_hash' => hash('sha256', 'test.pdf'),
+        ]);
+
+        (new MoveImportedDocumentsJob($importMap))->handle();
+
+        $document = Document::first();
+
+        $this->assertNull($document);
+
+        $updatedImportDocument = $importDocument->fresh();
+        $this->assertNull($updatedImportDocument->processed_at);
+        $this->assertEquals(ImportDocumentStatus::FAILED, $updatedImportDocument->status);
+
+        $this->assertEquals(ImportStatus::COMPLETED, $importMap->fresh()->status);
+        $this->assertEquals(ImportStatus::COMPLETED, $import->fresh()->status);
+
+        Queue::assertNothingPushed();
+    }
+
+    public function test_skipping_possible_duplicate_in_user_teams(): void
+    {
+        $fakeImportDisk = Storage::fake(Disk::IMPORTS->value);
+        
+        $fakeDocumentDisk = Storage::fake(Disk::DOCUMENTS->value);
+
+        $fakeImportDisk->putFileAs('', new File(base_path('tests/fixtures/documents/data-house-test-doc.pdf')), 'test.pdf');
+        
+        $fakeDocumentDisk->putFileAs('', new File(base_path('tests/fixtures/documents/data-house-test-doc.pdf')), 'test.pdf');
+
+        $user = User::factory()->manager()->withPersonalTeam()->create();
+
+        $document = Document::factory()->create([
+            'document_hash' => $fakeDocumentDisk->checksum('test.pdf', ['checksum_algo' => 'sha256']),
+            'uploaded_by' => $user->getKey(),
+            'team_id' => $user->personalTeam()->getKey(),
+        ]);
+
+        Queue::fake();
+
+        $import = Import::factory()->create([
+            'source' => ImportSource::LOCAL,
+            'status' => ImportStatus::RUNNING,
+            'created_by' => $user->getKey(),
+            'configuration' => [
+                'root' => $fakeImportDisk->path(''), // only used to make the import configuration looks correct
+            ],
+        ]);
+
+        $importMap = $import->maps()->create([
+            'status' => ImportStatus::RUNNING,
+            'mapped_team' => null,
+            'mapped_uploader' => $user->getKey(),
+            'recursive' => false,
+            'filters' => [
+                'paths' => "test.pdf"
+            ],
+        ]);
+
+        $importDocument = $importMap->documents()->create([
+            'source_path' => "test.pdf",
+            'disk_name' => "imports",
+            'disk_path' => 'test.pdf',
+            'mime' => "application/pdf",
+            'uploaded_by' => $user->getKey(),
+            'team_id' => null, // the test ensure that duplicate check uses all user accessible teams
+            'document_size' => 70610,
+            'document_date' => today(),
+            'document_hash' => $fakeImportDisk->checksum('test.pdf', ['checksum_algo' => 'sha256']),
+            'import_hash' => hash('sha256', 'test.pdf'),
+        ]);
+
+        (new MoveImportedDocumentsJob($importMap))->handle();
+
+        $this->assertTrue(Document::first()->is($document));
+        $this->assertEquals(1, Document::count());
+
+        $updatedImportDocument = $importDocument->fresh();
+        $this->assertNull($updatedImportDocument->processed_at);
+        $this->assertEquals(ImportDocumentStatus::SKIPPED_DUPLICATE, $updatedImportDocument->status);
+
+        $this->assertEquals(ImportStatus::COMPLETED, $importMap->fresh()->status);
+        $this->assertEquals(ImportStatus::COMPLETED, $import->fresh()->status);
+
+        Queue::assertNothingPushed();
+    }
+
+    public function test_move_imported_documents_cancelled_if_user_does_not_have_permissions_anymore(): void
+    {
+        $fakeImportDisk = Storage::fake(Disk::IMPORTS->value);
+        
+        $fakeDocumentDisk = Storage::fake(Disk::DOCUMENTS->value);
+
+        $fakeImportDisk->putFileAs('', new File(base_path('tests/fixtures/documents/data-house-test-doc.pdf')), 'test.pdf');
+        
+        $fakeDocumentDisk->putFileAs('', new File(base_path('tests/fixtures/documents/data-house-test-doc.pdf')), 'test.pdf');
+
+        $user = User::factory()->manager()->withPersonalTeam()->create();
+
+        $document = Document::factory()->create([
+            'document_hash' => $fakeDocumentDisk->checksum('test.pdf', ['checksum_algo' => 'sha256']),
+            'uploaded_by' => $user->getKey(),
+            'team_id' => $user->personalTeam()->getKey(),
+        ]);
+
+        Queue::fake();
+
+        $import = Import::factory()->create([
+            'source' => ImportSource::LOCAL,
+            'status' => ImportStatus::RUNNING,
+            'created_by' => $user->getKey(),
+            'configuration' => [
+                'root' => $fakeImportDisk->path(''), // only used to make the import configuration looks correct
+            ],
+        ]);
+
+        $team = Team::factory()->create();
+
+        $importMap = $import->maps()->create([
+            'status' => ImportStatus::RUNNING,
+            'mapped_team' =>null,
+            'mapped_uploader' => $user->getKey(),
+            'recursive' => false,
+            'filters' => [
+                'paths' => "test.pdf"
+            ],
+        ]);
+
+        $importDocument = $importMap->documents()->create([
+            'source_path' => "test.pdf",
+            'disk_name' => "imports",
+            'disk_path' => 'test.pdf',
+            'mime' => "application/pdf",
+            'uploaded_by' => $user->getKey(),
+            'team_id' => $team->getKey(), // current user do not have access to this team
+            'document_size' => 70610,
+            'document_date' => today(),
+            'document_hash' => $fakeImportDisk->checksum('test.pdf', ['checksum_algo' => 'sha256']),
+            'import_hash' => hash('sha256', 'test.pdf'),
+        ]);
+
+        (new MoveImportedDocumentsJob($importMap))->handle();
+
+        $this->assertTrue(Document::first()->is($document));
+        $this->assertEquals(1, Document::count());
+
+        $updatedImportDocument = $importDocument->fresh();
+        $this->assertNull($updatedImportDocument->processed_at);
+        $this->assertEquals(ImportDocumentStatus::CANCELLED_MISSING_PERMISSION, $updatedImportDocument->status);
+
+        $this->assertEquals(ImportStatus::COMPLETED, $importMap->fresh()->status);
+        $this->assertEquals(ImportStatus::COMPLETED, $import->fresh()->status);
+
+        Queue::assertNothingPushed();
     }
 }

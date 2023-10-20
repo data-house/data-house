@@ -46,7 +46,35 @@ class StartImportControllerTest extends TestCase
         $this->assertEquals(ImportStatus::RUNNING, $import->fresh()->status);
     }
 
-    public function test_import_qithout_import_maps_is_not_started(): void
+    public function test_import_without_import_maps_is_not_started(): void
+    {
+        Queue::fake();
+
+        $user = User::factory()
+            ->withPersonalTeam()
+            ->manager()
+            ->has(Import::factory()
+                ->state(['status' => ImportStatus::FAILED])
+                ->has(ImportMap::factory()->state(['status' => ImportStatus::FAILED]), 'maps'))
+            ->create();
+
+        $import = Import::first();
+
+        $response = $this
+            ->actingAs($user)
+            ->from(route('imports.show', $import))
+            ->post('/imports-start/', [
+                'import' => $import->getKey(),
+            ]);
+
+        $response->assertRedirectToRoute('imports.show', $import);
+
+        Queue::assertNothingPushed();
+
+        $this->assertEquals(ImportStatus::FAILED, $import->fresh()->status);
+    }
+    
+    public function test_import_without_pending_import_maps_not_started(): void
     {
         Queue::fake();
 

@@ -49,10 +49,11 @@ class StartImportJob implements ShouldQueue, ShouldBeUnique
     {
 
         // TODO: check if connection to service can be established
-        
-        $this->import->maps()->each(function($map){
-            dispatch(new RetrieveDocumentsToImportJob($map));
-        });
+        $this->import->maps()
+            ->where('status', ImportStatus::CREATED)
+            ->each(function($map){
+                dispatch(new RetrieveDocumentsToImportJob($map));
+            });
 
     }
 }

@@ -10,6 +10,7 @@ use App\Models\ImportMap;
 use App\Models\ImportStatus;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
@@ -57,6 +58,29 @@ class StartImportJobTest extends TestCase
         
         $this->assertEquals(ImportStatus::COMPLETED, $import->fresh()->status);
         $this->assertEquals(ImportStatus::COMPLETED, $import->fresh()->maps()->first()->status);
+    }
+    
+    public function test_failed_maps_are_not_started(): void
+    {
+        Bus::fake();
+
+        $import = Import::factory()
+            ->has(ImportMap::factory()->state([
+                'status' => ImportStatus::FAILED
+            ]), 'maps')
+            ->create([
+                'status' => ImportStatus::CREATED,
+            ]);
+
+        
+        $map = $import->maps->first();
+
+        (new StartImportJob($import))->handle();
+
+        Bus::assertNothingDispatched();
+        
+        $this->assertEquals(ImportStatus::CREATED, $import->fresh()->status);
+        $this->assertEquals(ImportStatus::FAILED, $import->fresh()->maps()->first()->status);
     }
 
 
