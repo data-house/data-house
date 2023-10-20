@@ -49,7 +49,7 @@ enum ImportDocumentStatus: int
     /**
      * Import skipped as the same file appear to be existing in a different version in the Digital Library
      */
-    case SKIPPED_DIFFERENT_VERSION = 62;
+    case SKIPPED_DIFFERENT_VERSION = 53;
 
     /**
      * Import failed, no clear reason
