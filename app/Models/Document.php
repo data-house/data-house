@@ -113,6 +113,24 @@ class Document extends Model implements Convertible
         return 'ulid';
     }
 
+    /**
+     * Scope the query to return only documents that are viewable by a user
+     */
+    public function scopeVisibleBy($query, User $user)
+    {
+        // Visibility::PUBLIC,
+        // Visibility::PROTECTED,
+        // Visibility::TEAM && team = $user->currentTeam->getKey()
+        // Visibility::PERSONAL && uploader_id = $user->getKey()
+
+        return $query
+            ->where(fn($q) => $q->whereIn('visibility', [Visibility::PUBLIC, Visibility::PROTECTED]))
+            ->when($user->currentTeam, function ($query, Team $team) {
+                $query->orWhere(fn($q) => $q->where('visibility', Visibility::TEAM)->where('team_id', $team->getKey()));
+            })
+            ->orWhere(fn($q) => $q->where('visibility', Visibility::PERSONAL)->where('uploaded_by', $user->getKey()));
+    }
+
     public function uploader()
     {
         return $this->belongsTo(User::class, 'uploaded_by');

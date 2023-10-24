@@ -67,7 +67,10 @@ class DocumentLibraryControllerTest extends TestCase
     public function test_library_shows_documents(): void
     {
 
-        $documents = Document::factory()->count(2)->create();
+        $documents = Document::factory()
+            ->visibleByAnyUser()
+            ->count(2)
+            ->create();
 
         $user = User::factory()->withPersonalTeam()->guest()->create();
 
@@ -87,7 +90,10 @@ class DocumentLibraryControllerTest extends TestCase
     public function test_library_shows_documents_when_user_prefer_list_view(): void
     {
 
-        $documents = Document::factory()->count(2)->create();
+        $documents = Document::factory()
+            ->visibleByAnyUser()
+            ->count(2)
+            ->create();
 
         $user = User::factory()
             ->withPersonalTeam()
@@ -114,5 +120,44 @@ class DocumentLibraryControllerTest extends TestCase
         $actualDocuments = $response->viewData('documents');
 
         $this->assertEquals($documents->pluck('id')->toArray(), $actualDocuments->pluck('id')->toArray());
+    }
+
+
+    public function test_only_visible_documents_are_listed()
+    {
+        $user = User::factory()
+            ->withPersonalTeam()
+            ->manager()
+            ->create();
+
+        $documentsVisibleByTeam = Document::factory()
+            ->recycle($user)
+            ->recycle($user->currentTeam)
+            ->count(2)
+            ->create();
+
+        $documentsVisibleAllUsers = Document::factory()
+            ->visibleByAnyUser()
+            ->count(2)
+            ->create();
+
+        $notAccessibleDocuments = Document::factory()
+            ->count(2)
+            ->create();
+
+        $visibleDocuments = $documentsVisibleByTeam->merge($documentsVisibleAllUsers);
+
+        $response = $this->actingAs($user)
+            ->get('/library');
+
+        $response->assertOk();
+
+        $response->assertViewIs('library.index');
+
+        $response->assertViewHas('documents');
+
+        $actualDocuments = $response->viewData('documents');
+
+        $this->assertEquals($visibleDocuments->pluck('id')->toArray(), $actualDocuments->pluck('id')->toArray());
     }
 }

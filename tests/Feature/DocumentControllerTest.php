@@ -69,6 +69,8 @@ class DocumentControllerTest extends TestCase
 
     public function test_document_details_page_loads()
     {
+        // TODO: test user and team visibility and page load
+        
         $user = User::factory()->withPersonalTeam()->manager()->create();
 
         $document = Document::factory()

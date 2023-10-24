@@ -40,4 +40,40 @@ class DocumentFactory extends Factory
             'properties' => [],
         ];
     }
+
+    public function visibleByTeamMembers()
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'visibility' => Visibility::TEAM,
+            ];
+        });
+    }
+
+    public function visibleByAnyUser()
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'visibility' => Visibility::PROTECTED,
+            ];
+        });
+    }
+    
+    public function visibleByUploader()
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'visibility' => Visibility::PERSONAL,
+            ];
+        });
+    }
+    
+    public function visiblePublicly()
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'visibility' => Visibility::PUBLIC,
+            ];
+        });
+    }
 }
