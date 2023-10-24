@@ -129,7 +129,7 @@ class UserFactory extends Factory
             return $this->state([]);
         }
 
-        return $this->for(
+        return $this->has(
             Team::factory()
                 ->state(fn (array $attributes, User $user)  => [
                     'name' => $user->name.'\'s Team',
