@@ -23,7 +23,7 @@ class DocumentLibraryController extends Controller
         // TODO: SEARCH should show protected and public doc + user visibility doc + doc with team visibility that are part of current_team
 
         $documents = ($searchQuery || $filters)
-            ? Document::advancedSearch(e($searchQuery), $filters)->paginate(150)
+            ? Document::tenantSearch(e($searchQuery), $filters)->paginate(150)
             : Document::query()->visibleBy(auth()->user())->paginate(150);
 
         $countries = Project::pluck('countries')->flatten()->unique('value');
