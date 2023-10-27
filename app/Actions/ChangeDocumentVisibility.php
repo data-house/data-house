@@ -2,19 +2,11 @@
 
 namespace App\Actions;
 
-use App\Copilot\CopilotSummarizeRequest;
-use App\Models\Document;
-use App\Models\DocumentType;
 use App\Models\User;
+use App\Models\Document;
 use App\Models\Visibility;
-use App\PdfProcessing\DocumentContent;
-use App\PdfProcessing\Facades\Pdf;
-use App\PdfProcessing\PdfDriver;
-use Exception;
-use Illuminate\Auth\Access\AuthorizationException;
-use Illuminate\Support\Collection;
 use InvalidArgumentException;
-use \Illuminate\Support\Str;
+use Illuminate\Auth\Access\AuthorizationException;
 
 class ChangeDocumentVisibility
 {
