@@ -23,11 +23,9 @@ class DocumentPolicy
      */
     public function view(User $user, Document $document): bool
     {
-        // TODO: check user, team and visibility of document
-
         return ($user->hasPermission('document:view') ||
-           $user->hasTeamPermission($user->currentTeam, 'document:view')) &&
-           $user->tokenCan('document:view');
+           $user->hasTeamPermission($user->currentTeam, 'document:view') ||
+           $user->tokenCan('document:view')) && $document->isVisibleBy($user);
     }
 
     /**
@@ -45,11 +43,10 @@ class DocumentPolicy
      */
     public function update(User $user, Document $document): bool
     {
-        // TODO: check user, team and visibility of document
-
         return ($user->hasPermission('document:update') ||
-           $user->hasTeamPermission($user->currentTeam, 'document:update')) &&
-           $user->tokenCan('document:update');
+           $user->hasTeamPermission($user->currentTeam, 'document:update') || 
+           $user->tokenCan('document:update'))
+           && $document->isVisibleBy($user);
     }
 
     /**
@@ -57,11 +54,9 @@ class DocumentPolicy
      */
     public function delete(User $user, Document $document): bool
     {
-        // TODO: check user, team and visibility of document
-
         return ($user->hasPermission('document:delete') ||
-           $user->hasTeamPermission($user->currentTeam, 'document:delete')) &&
-           $user->tokenCan('document:delete');
+           $user->hasTeamPermission($user->currentTeam, 'document:delete') ||
+           $user->tokenCan('document:delete')) && $document->isVisibleBy($user);
     }
 
     /**
@@ -69,22 +64,18 @@ class DocumentPolicy
      */
     public function restore(User $user, Document $document): bool
     {
-        // TODO: check user, team and visibility of document
-
         return ($user->hasPermission('document:delete') ||
-           $user->hasTeamPermission($user->currentTeam, 'document:delete')) &&
-           $user->tokenCan('document:delete');
+           $user->hasTeamPermission($user->currentTeam, 'document:delete') ||
+           $user->tokenCan('document:delete')) && $document->isVisibleBy($user);
     }
 
     /**
      * Determine whether the user can permanently delete the model.
      */
     public function forceDelete(User $user, Document $document): bool
-    {
-        // TODO: check user, team and visibility of document
-        
+    {       
         return ($user->hasPermission('document:delete') ||
-           $user->hasTeamPermission($user->currentTeam, 'document:delete')) &&
-           $user->tokenCan('document:delete');
+           $user->hasTeamPermission($user->currentTeam, 'document:delete') ||
+           $user->tokenCan('document:delete')) && $document->isVisibleBy($user);
     }
 }

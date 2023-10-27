@@ -11,7 +11,7 @@ class VisibilityTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_visibilities_for_documents_do_not_include_system(): void
+    public function test_visibilities_for_documents_do_not_include_system_and_public(): void
     {
         $options = Visibility::forDocuments();
 
@@ -19,7 +19,6 @@ class VisibilityTest extends TestCase
             Visibility::PERSONAL,
             Visibility::TEAM,
             Visibility::PROTECTED,
-            Visibility::PUBLIC,
         ], $options);
     }
 }

@@ -115,14 +115,10 @@ class Document extends Model implements Convertible
 
     /**
      * Scope the query to return only documents that are viewable by a user
+     * given visibility and team access
      */
     public function scopeVisibleBy($query, User $user)
     {
-        // Visibility::PUBLIC,
-        // Visibility::PROTECTED,
-        // Visibility::TEAM && team = $user->currentTeam->getKey()
-        // Visibility::PERSONAL && uploader_id = $user->getKey()
-
         return $query
             ->where(fn($q) => $q->whereIn('visibility', [Visibility::PUBLIC, Visibility::PROTECTED]))
             ->when($user->currentTeam, function ($query, Team $team) {
@@ -202,6 +198,26 @@ class Document extends Model implements Convertible
     public function isPublished()
     {
         return !is_null($this->published_at);
+    }
+
+    /**
+     * Check if the document is viewable by a user given visibility and team access
+     */
+    public function isVisibleBy(User $user): bool
+    {        
+        if(in_array($this->visibility, [Visibility::PUBLIC, Visibility::PROTECTED])){
+            return true;
+        }
+
+
+        return (
+                $this->visibility === Visibility::TEAM &&
+                $user->currentTeam &&
+                $user->currentTeam->getKey() === $this->team_id
+            ) || (
+                $this->visibility === Visibility::PERSONAL &&
+                $user->getKey() === $this->uploaded_by
+            );
     }
     
     /**

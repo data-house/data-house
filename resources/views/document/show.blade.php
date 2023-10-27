@@ -3,8 +3,8 @@
         {{ $document->title }}
     </x-slot>
     <x-slot name="header">
-        <div class="md:flex md:items-center md:justify-between relative">
-            <h2 class="font-semibold text-xl text-stone-800 leading-tight">
+        <div class="space-y-2 md:space-y-0 md:flex md:items-center md:justify-between relative">
+            <h2 class="font-semibold text-xl text-stone-800 leading-tight space-y-2 sm:space-y-0 sm:flex sm:gap-4 md:items-center">
                 {{ $document->title }}
 
                 <x-document-visibility-badge class="ml-4" :value="$document->visibility" />
@@ -19,6 +19,8 @@
                     <x-button-link href="{{ route('documents.edit', $document) }}">
                         {{ __('Edit') }}
                     </x-button-link>
+
+                    <livewire:document-visibility-selector :document="$document" />
                 @endcan
             </div>
         </div>
