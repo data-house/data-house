@@ -59,9 +59,16 @@ class DocumentFactory extends Factory
         });
     }
     
-    public function visibleByUploader()
+    /**
+     * Generates a document that is only visible by the uploader
+     *
+     * @param \App\Models\User|null The user the document is visible to. Default to null hence no user is set as uploader
+     */
+    public function visibleByUploader(?User $user = null)
     {
-        return $this->state(function (array $attributes) {
+        return $this
+            ->when($user, fn($f) => $this->for($user, 'uploader'))
+            ->state(function (array $attributes) {
             return [
                 'visibility' => Visibility::PERSONAL,
             ];

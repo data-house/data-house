@@ -74,7 +74,7 @@ class DocumentControllerTest extends TestCase
         $user = User::factory()->withPersonalTeam()->manager()->create();
 
         $document = Document::factory()
-            ->for($user, 'uploader')
+            ->visibleByUploader($user)
             ->create([
                 'title' => 'The title of the document'
             ]);
@@ -98,7 +98,7 @@ class DocumentControllerTest extends TestCase
         $user = User::factory()->withPersonalTeam()->manager()->create();
 
         $document = Document::factory()
-            ->for($user, 'uploader')
+            ->visibleByUploader($user)
             ->create([
                 'title' => 'The title of the document'
             ]);
@@ -120,7 +120,7 @@ class DocumentControllerTest extends TestCase
         $user = User::factory()->withPersonalTeam()->manager()->create();
 
         $document = Document::factory()
-            ->for($user, 'uploader')
+            ->visibleByUploader($user)
             ->create([
                 'title' => 'The title of the document'
             ]);
@@ -158,7 +158,7 @@ class DocumentControllerTest extends TestCase
         $user = User::factory()->withPersonalTeam()->manager()->create();
 
         $document = Document::factory()
-            ->for($user, 'uploader')
+            ->visibleByUploader($user)
             ->create([
                 'title' => 'The title of the document'
             ]);
@@ -195,7 +195,7 @@ class DocumentControllerTest extends TestCase
         $user = User::factory()->withPersonalTeam()->manager()->create();
 
         $document = Document::factory()
-            ->for($user, 'uploader')
+            ->visibleByUploader($user)
             ->create([
                 'title' => 'The title of the document',
                 'description' => 'The original abstract',
