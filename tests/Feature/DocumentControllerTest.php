@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Livewire\DocumentVisibilitySelector;
 use Tests\TestCase;
 use App\Models\User;
 use App\Models\Document;
@@ -91,6 +92,7 @@ class DocumentControllerTest extends TestCase
         $response->assertSee('The title of the document');
         $response->assertSee(Visibility::TEAM->label());
         $response->assertSee($user->name);
+        $response->assertSeeLivewire(DocumentVisibilitySelector::class);
     }
 
     public function test_document_editing_page_loads()
