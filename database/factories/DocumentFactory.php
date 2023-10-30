@@ -6,6 +6,7 @@ use App\Models\Disk;
 use App\Models\MimeType;
 use App\Models\Team;
 use App\Models\User;
+use App\Models\Visibility;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -24,6 +25,7 @@ class DocumentFactory extends Factory
             'disk_name' => Disk::DOCUMENTS->value,
             'disk_path' => fake()->md5() . '.pdf',
             'draft' => true,
+            'visibility' => Visibility::TEAM,
             'title' => fake()->text(40),
             'mime' => MimeType::APPLICATION_PDF->value,
             'uploaded_by' => User::factory(),
@@ -37,5 +39,48 @@ class DocumentFactory extends Factory
             'published_to_url' => null,
             'properties' => [],
         ];
+    }
+
+    public function visibleByTeamMembers()
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'visibility' => Visibility::TEAM,
+            ];
+        });
+    }
+
+    public function visibleByAnyUser()
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'visibility' => Visibility::PROTECTED,
+            ];
+        });
+    }
+    
+    /**
+     * Generates a document that is only visible by the uploader
+     *
+     * @param \App\Models\User|null The user the document is visible to. Default to null hence no user is set as uploader
+     */
+    public function visibleByUploader(?User $user = null)
+    {
+        return $this
+            ->when($user, fn($f) => $this->for($user, 'uploader'))
+            ->state(function (array $attributes) {
+            return [
+                'visibility' => Visibility::PERSONAL,
+            ];
+        });
+    }
+    
+    public function visiblePublicly()
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'visibility' => Visibility::PUBLIC,
+            ];
+        });
     }
 }

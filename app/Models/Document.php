@@ -72,6 +72,7 @@ class Document extends Model implements Convertible
         'document_date',
         'document_size',
         'document_hash',
+        'visibility',
     ];
 
     protected $casts = [
@@ -81,10 +82,15 @@ class Document extends Model implements Convertible
         'properties' => AsArrayObject::class,
         'type' => DocumentType::class,
         'document_date' => 'datetime',
+        'visibility' => Visibility::class,
     ];
 
     protected $with = [
         'project',
+    ];
+
+    protected $attributes = [
+        'visibility' => Visibility::TEAM,
     ];
     
     /**
@@ -105,6 +111,20 @@ class Document extends Model implements Convertible
     public function getRouteKeyName()
     {
         return 'ulid';
+    }
+
+    /**
+     * Scope the query to return only documents that are viewable by a user
+     * given visibility and team access
+     */
+    public function scopeVisibleBy($query, User $user)
+    {
+        return $query
+            ->where(fn($q) => $q->whereIn('visibility', [Visibility::PUBLIC, Visibility::PROTECTED]))
+            ->when($user->currentTeam, function ($query, Team $team) {
+                $query->orWhere(fn($q) => $q->where('visibility', Visibility::TEAM)->where('team_id', $team->getKey()));
+            })
+            ->orWhere(fn($q) => $q->where('visibility', Visibility::PERSONAL)->where('uploaded_by', $user->getKey()));
     }
 
     public function uploader()
@@ -179,6 +199,26 @@ class Document extends Model implements Convertible
     {
         return !is_null($this->published_at);
     }
+
+    /**
+     * Check if the document is viewable by a user given visibility and team access
+     */
+    public function isVisibleBy(User $user): bool
+    {        
+        if(in_array($this->visibility, [Visibility::PUBLIC, Visibility::PROTECTED])){
+            return true;
+        }
+
+
+        return (
+                $this->visibility === Visibility::TEAM &&
+                $user->currentTeam &&
+                $user->currentTeam->getKey() === $this->team_id
+            ) || (
+                $this->visibility === Visibility::PERSONAL &&
+                $user->getKey() === $this->uploaded_by
+            );
+    }
     
     /**
      * Get the indexable data array for the model.
@@ -215,12 +255,15 @@ class Document extends Model implements Convertible
             'published_at' => $this->published_at,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
-            'team' => $this->team?->name,
+            'uploaded_by' => $this->uploaded_by,
+            'team_id' => $this->team_id,
+            'team_name' => $this->team?->name,
             'project_id' => $this->project?->getKey(),
             'project_title' => $this->project?->title,
             'project_region' => $this->project?->regions(),
             'project_countries' => $this->project?->countries(),
             'project_topics' => $this->project?->topics,
+            'visibility' => $this->visibility?->value,
         ];
     }
     

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Support\Arr;
 
 enum Visibility: int
 {
@@ -41,5 +42,24 @@ enum Visibility: int
             self::PROTECTED => __('Authenticated users'),
             self::PUBLIC => __('Public'),
         };
+    }
+        
+    public function icon(): string
+    {
+        return match ($this) {
+            Visibility::PERSONAL => 'heroicon-m-lock-closed',
+            Visibility::TEAM => 'heroicon-m-lock-closed',
+            Visibility::PROTECTED => 'heroicon-m-building-library',
+            Visibility::PUBLIC => 'heroicon-m-globe-europe-africa',
+            null => 'heroicon-o-eye',
+        };
+    }
+
+    /**
+     * Get the list of visibilities that can be used with \App\Models\Document
+     */
+    public static function forDocuments(): array
+    {
+        return tap(collect(self::cases())->skip(1), fn($c) => $c->pop(1))->values()->all();
     }
 }

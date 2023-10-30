@@ -2,9 +2,11 @@
 
 namespace Tests\Feature;
 
+use App\Livewire\DocumentVisibilitySelector;
 use Tests\TestCase;
 use App\Models\User;
 use App\Models\Document;
+use App\Models\Visibility;
 use Illuminate\Support\Str;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -59,6 +61,7 @@ class DocumentControllerTest extends TestCase
         $this->assertEquals('image/jpeg', $document->mime);
         $this->assertTrue($document->uploader->is($user));
         $this->assertTrue($document->team->is($user->currentTeam));
+        $this->assertEquals(Visibility::TEAM, $document->visibility);
 
         $this->assertStringNotContainsString('/', $document->disk_path);
 
@@ -67,10 +70,12 @@ class DocumentControllerTest extends TestCase
 
     public function test_document_details_page_loads()
     {
+        // TODO: test user and team visibility and page load
+        
         $user = User::factory()->withPersonalTeam()->manager()->create();
 
         $document = Document::factory()
-            ->for($user, 'uploader')
+            ->visibleByUploader($user)
             ->create([
                 'title' => 'The title of the document'
             ]);
@@ -85,7 +90,9 @@ class DocumentControllerTest extends TestCase
         $response->assertSee('Open');
         $response->assertSee('Edit');
         $response->assertSee('The title of the document');
+        $response->assertSee(Visibility::TEAM->label());
         $response->assertSee($user->name);
+        $response->assertSeeLivewire(DocumentVisibilitySelector::class);
     }
 
     public function test_document_editing_page_loads()
@@ -93,7 +100,7 @@ class DocumentControllerTest extends TestCase
         $user = User::factory()->withPersonalTeam()->manager()->create();
 
         $document = Document::factory()
-            ->for($user, 'uploader')
+            ->visibleByUploader($user)
             ->create([
                 'title' => 'The title of the document'
             ]);
@@ -115,7 +122,7 @@ class DocumentControllerTest extends TestCase
         $user = User::factory()->withPersonalTeam()->manager()->create();
 
         $document = Document::factory()
-            ->for($user, 'uploader')
+            ->visibleByUploader($user)
             ->create([
                 'title' => 'The title of the document'
             ]);
@@ -153,7 +160,7 @@ class DocumentControllerTest extends TestCase
         $user = User::factory()->withPersonalTeam()->manager()->create();
 
         $document = Document::factory()
-            ->for($user, 'uploader')
+            ->visibleByUploader($user)
             ->create([
                 'title' => 'The title of the document'
             ]);
@@ -190,7 +197,7 @@ class DocumentControllerTest extends TestCase
         $user = User::factory()->withPersonalTeam()->manager()->create();
 
         $document = Document::factory()
-            ->for($user, 'uploader')
+            ->visibleByUploader($user)
             ->create([
                 'title' => 'The title of the document',
                 'description' => 'The original abstract',

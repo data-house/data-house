@@ -7,10 +7,9 @@ use App\Models\Document;
 use App\Models\Team;
 use App\Models\User;
 use App\Models\Visibility;
-use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rules\Enum;
-use Laravel\Jetstream\Contracts\UpdatesTeamNames;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Auth\AuthenticationException;
+
 
 class AddDocument
 {
@@ -19,12 +18,19 @@ class AddDocument
      *
      * @param  array  $input
      */
-    public function __invoke(Document $document, Collection $collection): void
+    public function __invoke(Document $document, Collection $collection, ?User $user = null): void
     {
-        // Gate::forUser($user)->authorize('update', $team);
+        $user = $user ?? auth()->user();
 
-        // TODO: how I can verify that a user is entitled to add a document to a collection
+        if(is_null($user)){
+            throw new AuthenticationException(__('Unauthenticated. Authentication is required to add a document to a collection'));
+        }
 
+        if ($user->cannot('update', $document) || $user->cannot('view', $collection)) { 
+            throw new AuthorizationException(__('User not allowed to add document to collection'));
+        }
+
+        // TODO: Collection should have a comparable visibility of the document
 
         $collection->documents()->attach($document->getKey());
     }

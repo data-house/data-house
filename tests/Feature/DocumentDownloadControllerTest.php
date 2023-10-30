@@ -36,7 +36,7 @@ class DocumentDownloadControllerTest extends TestCase
         $user = User::factory()->withPersonalTeam()->manager()->create();
 
         $document = Document::factory()
-            ->for($user, 'uploader')
+            ->visibleByUploader($user)
             ->create([
                 'disk_name' => 'local',
                 'disk_path' => 'test.pdf',
@@ -59,7 +59,7 @@ class DocumentDownloadControllerTest extends TestCase
         $user = User::factory()->withPersonalTeam()->manager()->create();
 
         $document = Document::factory()
-            ->for($user, 'uploader')
+            ->visibleByUploader($user)
             ->create([
                 'disk_name' => 'local',
                 'disk_path' => 'test.pdf',
@@ -83,7 +83,7 @@ class DocumentDownloadControllerTest extends TestCase
         $user = User::factory()->withPersonalTeam()->manager()->create();
 
         $document = Document::factory()
-            ->for($user, 'uploader')
+            ->visibleByUploader($user)
             ->create([
                 'disk_name' => 'local',
                 'disk_path' => 'test.pdf',
@@ -107,7 +107,7 @@ class DocumentDownloadControllerTest extends TestCase
         $user = User::factory()->withPersonalTeam()->manager()->create();
 
         $document = Document::factory()
-            ->for($user, 'uploader')
+            ->visibleByUploader($user)
             ->create([
                 'disk_name' => 'local',
                 'disk_path' => 'test.pdf',
@@ -134,7 +134,7 @@ class DocumentDownloadControllerTest extends TestCase
         $user = User::factory()->withPersonalTeam()->manager()->create();
 
         $document = Document::factory()
-            ->for($user, 'uploader')
+            ->visibleByUploader($user)
             ->create([
                 'mime' => 'image/png',
                 'disk_name' => 'local',

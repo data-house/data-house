@@ -23,6 +23,7 @@ class ProjectDetailsInDocumentsTest extends TestCase
         $user = User::factory()->manager()->create();
 
         $document = Document::factory()
+            ->visibleByUploader($user)
             ->for(Project::factory())
             ->create();
 

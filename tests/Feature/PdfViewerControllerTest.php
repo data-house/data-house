@@ -60,7 +60,7 @@ class PdfViewerControllerTest extends TestCase
         $user = User::factory()->withPersonalTeam()->manager()->create();
 
         $document = Document::factory()
-            ->for($user, 'uploader')
+            ->visibleByUploader($user)
             ->create();
 
         $response = $this->actingAs($user)
@@ -79,7 +79,7 @@ class PdfViewerControllerTest extends TestCase
         $user = User::factory()->withPersonalTeam()->manager()->create();
 
         $document = Document::factory()
-            ->for($user, 'uploader')
+            ->visibleByUploader($user)
             ->create([
                 'mime' => 'image/png',
             ]);
@@ -100,7 +100,7 @@ class PdfViewerControllerTest extends TestCase
         $user = User::factory()->withPersonalTeam()->manager()->create();
 
         $document = Document::factory()
-            ->for($user, 'uploader')
+            ->visibleByUploader($user)
             ->create([
                 'mime' => 'image/png',
                 'conversion_disk_name' => 'local',
@@ -129,7 +129,7 @@ class PdfViewerControllerTest extends TestCase
         $user = User::factory()->withPersonalTeam()->manager()->create();
 
         $document = Document::factory()
-            ->for($user, 'uploader')
+            ->visibleByUploader($user)
             ->create([
                 'mime' => 'image/png',
                 'conversion_disk_name' => 'local',

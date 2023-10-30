@@ -3,9 +3,11 @@
         {{ $document->title }}
     </x-slot>
     <x-slot name="header">
-        <div class="md:flex md:items-center md:justify-between relative">
-            <h2 class="font-semibold text-xl text-stone-800 leading-tight">
+        <div class="space-y-2 md:space-y-0 md:flex md:items-center md:justify-between relative">
+            <h2 class="font-semibold text-xl text-stone-800 leading-tight space-y-2 sm:space-y-0 sm:flex sm:gap-4 md:items-center">
                 {{ $document->title }}
+
+                <x-document-visibility-badge class="ml-4" :value="$document->visibility" />
             </h2>
             <div class="flex gap-2">
                 @can('view', $document)
@@ -17,6 +19,8 @@
                     <x-button-link href="{{ route('documents.edit', $document) }}">
                         {{ __('Edit') }}
                     </x-button-link>
+
+                    <livewire:document-visibility-selector :document="$document" />
                 @endcan
             </div>
         </div>
@@ -56,12 +60,6 @@
                         {{-- Space for the thumbnail --}}
                         <x-codicon-file-pdf class="text-gray-400 h-10 w-h-10" />
                     </div>
-
-                    {{-- @if ($document->draft)
-                        <div>
-                            <span class="inline-block text-sm px-2 py-1 rounded-xl bg-gray-200 text-gray-900">{{ __('pending review') }}</span>
-                        </div>
-                    @endif --}}
 
                     <div class="space-y-2">
                         <h4 class="font-bold">{{ __('Collections') }}</h4>
