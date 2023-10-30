@@ -46,8 +46,6 @@ class StartImportControllerTest extends TestCase
         $this->assertEquals(ImportStatus::RUNNING, $import->fresh()->status);
 
         $this->assertEquals(ImportStatus::CREATED, $import->maps()->first()->status);
-
-        // TODO: assert import maps do not change status
     }
 
     public function test_import_without_import_maps_is_not_started(): void
