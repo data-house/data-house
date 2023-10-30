@@ -37,7 +37,7 @@ class StartImportJobTest extends TestCase
         });
         
         $this->assertEquals(ImportStatus::RUNNING, $import->fresh()->status);
-        $this->assertEquals(ImportStatus::RUNNING, $import->fresh()->maps()->first()->status);
+        $this->assertEquals(ImportStatus::CREATED, $import->fresh()->maps()->first()->status);
     }
 
     public function test_completed_maps_are_not_started(): void
@@ -100,6 +100,7 @@ class StartImportJobTest extends TestCase
 
         (new StartImportJob($import))->handle();
 
+        $this->assertEquals(ImportStatus::RUNNING, $map->fresh()->status);
 
         Queue::assertPushed(RetrieveDocumentsToImportJob::class, function($job) use ($map) {
             return $job->importMap->is($map);
