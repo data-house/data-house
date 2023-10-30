@@ -102,8 +102,6 @@ class Import extends Model
 
                 $this->save();
 
-                $this->maps()->status(ImportStatus::CREATED)->update(['status' => ImportStatus::RUNNING]);
-
                 return true;
             });
         });
