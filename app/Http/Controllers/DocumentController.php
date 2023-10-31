@@ -69,6 +69,8 @@ class DocumentController extends Controller
             'uploader',
             'team',
             'project',
+            'importDocument',
+            'importDocument.import',
         ]);
 
         return view('document.show', [

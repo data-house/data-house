@@ -140,6 +140,7 @@ class MoveImportedDocumentsJob extends ImportJobBase
 
         $import->processed_at = now();
         $import->status = ImportDocumentStatus::COMPLETED;
+        $import->document_id = $document->getKey();
         $import->save();
     }
 }

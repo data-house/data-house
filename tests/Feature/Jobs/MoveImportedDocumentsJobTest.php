@@ -91,6 +91,10 @@ class MoveImportedDocumentsJobTest extends TestCase
         $updatedImportDocument = $importDocument->fresh();
         $this->assertNotNull($updatedImportDocument->processed_at);
         $this->assertEquals(ImportDocumentStatus::COMPLETED, $updatedImportDocument->status);
+        
+        $this->assertNotNull($updatedImportDocument->document_id);
+        $this->assertTrue($updatedImportDocument->document->is($document));
+        $this->assertTrue($document->importDocument->is($updatedImportDocument));
 
         Storage::disk(Disk::DOCUMENTS->value)->assertExists($document->disk_path);
 
