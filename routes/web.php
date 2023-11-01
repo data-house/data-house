@@ -51,7 +51,7 @@ Route::middleware([
     
     Route::resource('/imports', ImportController::class);
     
-    Route::resource('imports.mappings', ImportMapsController::class)->shallow()->except(['index', 'show', 'update', 'destroy']);
+    Route::resource('imports.mappings', ImportMapsController::class)->shallow()->except(['index', 'update', 'destroy']);
     
     Route::post('/imports-start', StartImportController::class)->name('imports.start');
     

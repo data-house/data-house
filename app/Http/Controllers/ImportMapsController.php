@@ -11,6 +11,22 @@ class ImportMapsController extends Controller
 {
 
     /**
+     * Display the specified resource.
+     */
+    public function show(ImportMap $mapping)
+    {
+        $this->authorize($mapping);
+
+        $mapping->load(['import', 'documents']);
+
+        return view('import-map.show', [
+            'mapping' => $mapping,
+            'import' => $mapping->import,
+            'documents' => $mapping->documents,
+        ]);
+    }
+
+    /**
      * Show the form for creating a new resource.
      */
     public function create(Import $import)
