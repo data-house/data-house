@@ -89,7 +89,7 @@ class ImportDocument extends Model
 
     public function generateLocalPath()
     {
-        $hash = $this->getKey() .'/'. Str::random(60);
+        $hash = $this->import_map_id .'/'. Str::random(60);
 
         if ($extension = $this->guessExtension()) {
             $extension = '.'.$extension;
