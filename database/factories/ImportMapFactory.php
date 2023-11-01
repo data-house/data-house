@@ -2,6 +2,8 @@
 
 namespace Database\Factories;
 
+use App\Models\Import;
+use App\Models\ImportStatus;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,7 +19,8 @@ class ImportMapFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'import_id' => Import::factory(),
+            'status' => ImportStatus::CREATED->value,
         ];
     }
 }
