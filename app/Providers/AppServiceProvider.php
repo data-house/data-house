@@ -6,6 +6,7 @@ use App\Jobs\Pipeline\Document\ConvertToPdf;
 use App\Models\Document;
 use App\Pipelines\Pipeline;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Str;
 use App\Jobs\Pipeline\Document\ExtractDocumentProperties;
 use App\Jobs\Pipeline\Document\MakeDocumentQuestionable;
 use App\Jobs\Pipeline\Document\MakeDocumentSearchable;
@@ -47,6 +48,8 @@ class AppServiceProvider extends ServiceProvider
         ]);
 
         $this->configureFeatureFlags();
+
+        $this->configureHelpers();
     }
 
     /**
@@ -61,6 +64,18 @@ class AppServiceProvider extends ServiceProvider
             $user->hasRole(Role::ADMIN->value) => true,
             $user->hasRole(Role::MANAGER->value) => true,
             default => false,
+        });
+    }
+
+    protected function configureHelpers()
+    {
+        Str::macro('domain', function($value){
+
+            if(!Str::isUrl($value)){
+                return $value;
+            }
+
+            return parse_url($value, PHP_URL_HOST);
         });
     }
 }

@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class Import extends Model
 {
@@ -35,6 +36,7 @@ class Import extends Model
      */
     protected $fillable = [
         'source',
+        'name',
         'configuration',
         'created_by',
     ];
@@ -158,6 +160,12 @@ class Import extends Model
             ...$this->configuration,
         ]);
         return $disk;
+    }
+
+
+    public function label(): string
+    {
+        return $this->name ?? __('Import from :source', ['source' => Str::domain($this->configuration['url'])]);
     }
 
 }

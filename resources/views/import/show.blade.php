@@ -1,12 +1,18 @@
 <x-app-layout>
     <x-slot name="title">
-        {{ __('Import from :source', ['source' => $import->source->name]) }}
+        {{ __(':label - Import', ['label' => $import->label()]) }}
     </x-slot>
     <x-slot name="header">
         <div class="md:flex md:items-center md:justify-between relative">
             <h2 class="font-semibold text-xl text-stone-800 leading-tight">
-                {{ __('Import from :source', ['source' => $import->source->name]) }}
-                <p class="text-sm font-mono text-stone-700">{{ $import->configuration['url'] ?? '' }}</p>
+                <a href="{{ route('imports.index') }}" class="px-1 py-0.5 bg-blue-50 rounded text-base inline-flex items-center text-blue-700 underline hover:text-blue-800" title="{{ __('Back to the import list') }}">
+                    <x-heroicon-m-arrow-left class="w-4 h-4" />
+                    {{ __('Imports') }}
+                </a>
+                {{ $import->label() }}
+                <span class="inline-flex gap-1 text-xs items-center px-3 py-1 rounded-xl ring-0 ring-stone-300 bg-stone-100 text-stone-900">
+                    {{ $import->source->name }}
+                </span>
             </h2>
             <div class="flex gap-2">
                 @can('update', $import)
@@ -39,10 +45,17 @@
                             @foreach ($import->maps as $mapping)
                                 
                                 <tr>
-                                    <td class="p-2">{{ $mapping->filters['paths'][0] }}</td>
+                                    <td class="p-2">{{ $mapping->label() }}</td>
                                     <td class="p-2">{{ $mapping->mappedTeam->name }}</td>
                                     <td class="p-2">{{ $mapping->status->name }}</td>
-                                    <td class="p-2"><a class="underline" href="{{ route('mappings.edit', $mapping) }}">{{ __('Edit') }}</a></td>
+                                    <td class="p-2">
+                                        @can('view', $mapping)
+                                            <a class="underline" href="{{ route('mappings.show', $mapping) }}">{{ __('View') }}</a>
+                                        @endcan
+                                        @can('update', $mapping)
+                                            <a class="underline" href="{{ route('mappings.edit', $mapping) }}">{{ __('Edit') }}</a>
+                                        @endcan
+                                    </td>
                                 </tr>
                             @endforeach
                         </tbody>

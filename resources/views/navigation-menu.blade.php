@@ -15,7 +15,7 @@
                     <x-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
-                    <x-nav-link href="{{ route('documents.library') }}" :active="request()->routeIs('documents.*') || request()->routeIs('imports.*') || request()->routeIs('questions.*') || request()->routeIs('collections.*')">
+                    <x-nav-link href="{{ route('documents.library') }}" :active="request()->routeIs('documents.*') || request()->routeIs('imports.*') || request()->routeIs('mappings.*') || request()->routeIs('questions.*') || request()->routeIs('collections.*')">
                         {{ __('Digital Library') }}
                     </x-nav-link>
                     <x-nav-link href="{{ route('projects.index') }}" :active="request()->routeIs('projects.*')">
@@ -146,7 +146,7 @@
             {{-- <x-responsive-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link> --}}
-            <x-responsive-nav-link href="{{ route('documents.library') }}" :active="request()->routeIs('documents.*') || request()->routeIs('imports.*') || request()->routeIs('questions.*')">
+            <x-responsive-nav-link href="{{ route('documents.library') }}" :active="request()->routeIs('documents.*') || request()->routeIs('imports.*') || request()->routeIs('mappings.*') || request()->routeIs('questions.*') || request()->routeIs('collections.*')">
                 {{ __('Digital Library') }}
             </x-responsive-nav-link>
             <x-responsive-nav-link href="{{ route('projects.index') }}" :active="request()->routeIs('projects.*')">

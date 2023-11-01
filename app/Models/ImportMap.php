@@ -29,6 +29,7 @@ class ImportMap extends Model
      * @var string[]
      */
     protected $fillable = [
+        'name',
         'mapped_team',
         'mapped_uploader',
         'recursive',
@@ -91,5 +92,15 @@ class ImportMap extends Model
     public function lockKey(): string
     {
         return 'import-map-lock:' . $this->ulid;
+    }
+
+    public function label()
+    {
+        return $this->name ?? $this->filters['paths'][0];
+    }
+
+    public function isStarted()
+    {
+        return $this->status === ImportStatus::RUNNING;
     }
 }
