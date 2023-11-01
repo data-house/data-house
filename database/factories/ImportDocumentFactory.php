@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Disk;
+use App\Models\ImportMap;
 use App\Models\MimeType;
 use App\Models\Team;
 use App\Models\User;
@@ -21,6 +22,7 @@ class ImportDocumentFactory extends Factory
     public function definition(): array
     {
         return [
+            'import_map_id' => ImportMap::factory(),
             'source_path' => fake()->name(),
             'disk_name' => Disk::IMPORTS->value,
             'disk_path' => null,

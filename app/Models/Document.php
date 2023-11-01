@@ -146,6 +146,11 @@ class Document extends Model implements Convertible
     {
         return $this->belongsTo(Project::class);
     }
+
+    public function importDocument()
+    {
+        return $this->hasOne(ImportDocument::class);
+    }
     
     /**
      * Modify the query used to retrieve models when making all of the models searchable.

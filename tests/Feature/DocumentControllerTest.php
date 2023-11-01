@@ -6,6 +6,7 @@ use App\Livewire\DocumentVisibilitySelector;
 use Tests\TestCase;
 use App\Models\User;
 use App\Models\Document;
+use App\Models\ImportDocument;
 use App\Models\Visibility;
 use Illuminate\Support\Str;
 use Illuminate\Http\UploadedFile;
@@ -68,10 +69,23 @@ class DocumentControllerTest extends TestCase
         Storage::disk('documents')->assertExists($document->disk_path);
     }
 
-    public function test_document_details_page_loads()
+    public function test_document_details_page_not_loadable_if_user_doesnt_have_view_permission()
     {
-        // TODO: test user and team visibility and page load
-        
+        $user = User::factory()->withPersonalTeam()->manager()->create();
+
+        $document = Document::factory()
+            ->create([
+                'title' => 'The title of the document'
+            ]);
+
+        $response = $this->actingAs($user)
+            ->get('/documents/' . $document->ulid);
+
+        $response->assertForbidden();
+    }
+
+    public function test_document_details_page_loads()
+    {        
         $user = User::factory()->withPersonalTeam()->manager()->create();
 
         $document = Document::factory()
@@ -92,6 +106,41 @@ class DocumentControllerTest extends TestCase
         $response->assertSee('The title of the document');
         $response->assertSee(Visibility::TEAM->label());
         $response->assertSee($user->name);
+        $response->assertSeeLivewire(DocumentVisibilitySelector::class);
+    }
+    
+    public function test_document_details_page_shows_import_source()
+    {        
+        $user = User::factory()->withPersonalTeam()->manager()->create();
+
+        $document = Document::factory()
+            ->visibleByUploader($user)
+            ->create([
+                'title' => 'The title of the document'
+            ]);
+
+        $importDoc = ImportDocument::factory()
+            ->create([
+                'uploaded_by' => $user->getKey(),
+                'team_id' => $user->currentTeam->getKey(),
+                'document_id' => $document->getKey(),
+            ]);
+
+        $response = $this->actingAs($user)
+            ->get('/documents/' . $document->ulid);
+
+        $response->assertOk();
+
+        $response->assertViewIs('document.show');
+        
+        $response->assertSee('Open');
+        $response->assertSee('Edit');
+        $response->assertSee('The title of the document');
+        $response->assertSee(Visibility::TEAM->label());
+        $response->assertSee($user->name);
+        $response->assertSee('Imported from');
+        $response->assertSee($importDoc->source_path);
+        $response->assertSee($importDoc->import->source->name);
         $response->assertSeeLivewire(DocumentVisibilitySelector::class);
     }
 

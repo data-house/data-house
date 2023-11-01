@@ -30,6 +30,7 @@ class ImportDocument extends Model
         'document_size',
         'document_hash',
         'import_hash',
+        'document_id',
     ];
 
     protected $casts = [
@@ -60,7 +61,17 @@ class ImportDocument extends Model
 
     public function import()
     {
-        return $this->belongsTo(Import::class);
+        return $this->hasOneThrough(Import::class, ImportMap::class, 'import_id', 'id', 'import_map_id');
+    }
+    
+    public function importMap()
+    {
+        return $this->belongsTo(ImportMap::class);
+    }
+    
+    public function document()
+    {
+        return $this->belongsTo(Document::class);
     }
     
     public function lockKey(): string
