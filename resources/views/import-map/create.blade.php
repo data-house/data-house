@@ -28,11 +28,11 @@
                     </div>
     
                     <div>
-                        <x-label for="team" value="{{ __('Sub-folders handling') }}" />
-                        <x-input-error for="team" class="mt-2" />
+                        <x-label for="recursive" value="{{ __('Sub-folders handling') }}" />
+                        <x-input-error for="recursive" class="mt-2" />
                         
                         <label for="recursive" class="flex items-center">
-                            <x-checkbox id="recursive" name="recursive" />
+                            <x-checkbox id="recursive" name="recursive" value="1" />
                             <span class="ml-2 text-stone-800">{{ __('Recursively import all files in sub-folders') }}</span>
                         </label>
                     </div>
