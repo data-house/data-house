@@ -25,9 +25,9 @@
                 <table class="w-full">
                     <thead>
                         <tr>
-                            <td>Source</td>
-                            <td>Status</td>
-                            <td>Action</td>
+                            <td>{{ __('Import') }}</td>
+                            <td>{{ __('Status') }}</td>
+                            <td>{{ __('Action') }}</td>
                         </tr>
                     </thead>
                     <tbody>
@@ -35,8 +35,13 @@
 
                             <tr>
                                 <td>
-                                    <p><a href="{{ route('imports.show', $import) }}">{{ $import->source->name }}</a></p>
-                                    <p class="text-xs font-mono text-stone-700">{{ $import->configuration['url'] ?? '' }}</p>
+                                    <p><a href="{{ route('imports.show', $import) }}">
+                                        {{ $import->label() }}
+                                        <span class="inline-flex gap-1 text-xs items-center px-3 py-1 rounded-xl ring-0 ring-stone-300 bg-stone-100 text-stone-900">
+                                            {{ $import->source->name }}
+                                        </span>
+
+                                    </a></p>
                                 </td>
                                 <td>{{ $import->status->name }}</td>
                                 <td><a href="{{ route('imports.show', $import) }}">{{ __('View') }}</a></td>
