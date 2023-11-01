@@ -21,6 +21,7 @@ class ImportMapFactory extends Factory
         return [
             'import_id' => Import::factory(),
             'status' => ImportStatus::CREATED->value,
+            'filters' => ['paths' => [fake()->filePath()]],
         ];
     }
 }
