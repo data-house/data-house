@@ -143,6 +143,39 @@ class DocumentControllerTest extends TestCase
         $response->assertSee($importDoc->import->source->name);
         $response->assertSeeLivewire(DocumentVisibilitySelector::class);
     }
+    
+    public function test_document_details_page_shows_import_source_only_if_browsed_by_owning_team()
+    {        
+        $user = User::factory()->withPersonalTeam()->manager()->create();
+
+        $document = Document::factory()
+            ->visibleByAnyUser()
+            ->create([
+                'title' => 'The title of the document'
+            ]);
+
+        $importDoc = ImportDocument::factory()
+            ->create([
+                'document_id' => $document->getKey(),
+            ]);
+
+        $response = $this->actingAs($user)
+            ->get('/documents/' . $document->ulid);
+
+        $response->assertOk();
+
+        $response->assertViewIs('document.show');
+        
+        $response->assertSee('Open');
+        $response->assertSee('Edit');
+        $response->assertSee('The title of the document');
+        $response->assertSee(Visibility::TEAM->label());
+        $response->assertSee($user->name);
+        $response->assertDontSee('Imported from');
+        $response->assertDontSee($importDoc->source_path);
+        $response->assertDontSee($importDoc->import->source->name);
+        $response->assertSeeLivewire(DocumentVisibilitySelector::class);
+    }
 
     public function test_document_editing_page_loads()
     {

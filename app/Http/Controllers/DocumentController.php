@@ -76,6 +76,7 @@ class DocumentController extends Controller
         return view('document.show', [
             'document' => $document,
             'hasActivePipelines' => $document->hasActivePipelines(),
+            'importDocument' => $document->importDocument && $document->importDocument->isVisibleBy(auth()->user()) ? $document->importDocument : null,
         ]);
     }
 
