@@ -120,9 +120,17 @@
                         @if ($importDocument)
                             <p>
                                 <span class="text-xs uppercase block text-stone-700">{{ __('Imported from') }}</span>
-                                {{ $document->importDocument->import?->source->name }}
-                                {{ $document->importDocument->source_path }}
                             </p>
+
+                            <div class="flex border border-stone-800 bg-stone-100 rounded-sm overflow-hidden">
+                                <span class="bg-stone-800 text-white px-2 py-1">
+                                    {{ $importDocument->import?->source->name }}
+                                </span>
+                                <span class=" px-2 py-1 whitespace-nowrap">
+                                    {{ $importDocument->source_path }}
+                                </span>
+
+                            </div>
                         @endif
                         
                     </div>
