@@ -6,9 +6,11 @@ use App\Actions\Collection\AddDocument;
 use App\Models\Collection;
 use App\Models\Document;
 use App\Models\User;
+use App\Models\Visibility;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use InvalidArgumentException;
 use Tests\TestCase;
 
 class AddDocumentCollectionTest extends TestCase
@@ -44,14 +46,37 @@ class AddDocumentCollectionTest extends TestCase
         (new AddDocument)($document, $collection, $user);
     }
 
-    public function test_document_added_to_collection(): void
+    public function test_add_denied_if_document_visible_to_team_and_collection_protected(): void
     {
         $user = User::factory()->manager()->create();
 
-        $collection = Collection::factory()->for($user)->create();
+        $collection = Collection::factory()
+            ->for($user)
+            ->create(['visibility' => Visibility::PROTECTED]);
 
         $document = Document::factory()
             ->visibleByUploader($user)
+            ->create();
+
+        $this->expectException(InvalidArgumentException::class);
+        
+        $this->expectExceptionMessage('Team document cannot be added to a collection visible by all authenticated users.');
+
+        (new AddDocument)($document, $collection, $user);
+
+        $this->assertNull($document->collections()->first());
+        $this->assertNull($collection->documents()->first());
+    }
+
+    public function test_document_added_to_collection(): void
+    {
+        $user = User::factory()->manager()->withPersonalTeam()->create();
+
+        $collection = Collection::factory()->for($user)->team()->create();
+
+        $document = Document::factory()
+            ->recycle($user->currentTeam)
+            ->visibleByTeamMembers()
             ->create();
 
         (new AddDocument)($document, $collection, $user);

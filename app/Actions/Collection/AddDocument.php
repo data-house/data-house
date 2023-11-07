@@ -9,7 +9,7 @@ use App\Models\User;
 use App\Models\Visibility;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
-
+use InvalidArgumentException;
 
 class AddDocument
 {
@@ -30,7 +30,9 @@ class AddDocument
             throw new AuthorizationException(__('User not allowed to add document to collection'));
         }
 
-        // TODO: Collection should have a comparable visibility of the document
+        if($document->visibility !== Visibility::PROTECTED && $collection->visibility === Visibility::PROTECTED){
+            throw new InvalidArgumentException(__('Team document cannot be added to a collection visible by all authenticated users.'));
+        }
 
         $collection->documents()->attach($document->getKey());
     }
