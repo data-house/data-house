@@ -37,7 +37,7 @@ class CollectionController extends Controller
 
         $collection = $createCollection(auth()->user(), [
             ...$validated,
-            'visibility' => Visibility::PERSONAL,
+            'visibility' => Visibility::TEAM,
             'type' => CollectionType::STATIC,
             'strategy' => CollectionStrategy::STATIC,
             'draft' => false,

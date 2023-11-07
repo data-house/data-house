@@ -11,6 +11,7 @@ use App\Models\Visibility;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rules\Enum;
+use Illuminate\Validation\ValidationException;
 use Laravel\Jetstream\Contracts\UpdatesTeamNames;
 
 class CreateCollection
@@ -30,16 +31,20 @@ class CreateCollection
             'type' => ['required', new Enum(CollectionType::class)],
             'strategy' => ['nullable', new Enum(CollectionStrategy::class)],
             'draft' => ['nullable', 'bool'],
-            // TODO: handle validation in case of Team collection as team_id is required
         ])->validate();
+
+        if($input['visibility'] == Visibility::TEAM && is_null($user->currentTeam)){
+            throw ValidationException::withMessages(['team' => __('Team required, but User doesn\'t have a current team set.')]);
+        }
 
         return Collection::create([
             'user_id' => $user->getKey(),
             'title' => $input['title'],
-            'visibility' => $input['visibility'],
+            'visibility' => $input['visibility'] ?? Visibility::TEAM,
             'type' => $input['type'],
             'strategy' => $input['strategy'] ?? CollectionStrategy::STATIC,
             'draft' => $input['draft'] ?? true,
+            'team_id' => $user->currentTeam?->getKey(),
         ]);
 
     }
