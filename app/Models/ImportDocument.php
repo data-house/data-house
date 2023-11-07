@@ -112,4 +112,17 @@ class ImportDocument extends Model
 
         return $path;
     }
+
+    /**
+     * Check if the document is viewable by a user given visibility and team access
+     */
+    public function isVisibleBy(User $user): bool
+    {        
+        return (
+                $user->currentTeam &&
+                $user->currentTeam->getKey() === $this->team_id
+            ) || 
+            $user->getKey() === $this->uploaded_by
+            ;
+    }
 }

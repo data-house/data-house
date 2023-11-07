@@ -117,7 +117,7 @@
                         <p><span class="text-xs uppercase block text-stone-700">{{ __('Uploaded by') }}</span>{{ $document->uploader->name }}</p>
                         <p><span class="text-xs uppercase block text-stone-700">{{ __('Team') }}</span>{{ $document->team?->name }}</p>
                         
-                        @if ($document->importDocument)
+                        @if ($importDocument)
                             <p>
                                 <span class="text-xs uppercase block text-stone-700">{{ __('Imported from') }}</span>
                                 {{ $document->importDocument->import?->source->name }}
