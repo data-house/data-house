@@ -10,6 +10,7 @@ use App\Models\Visibility;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Validation\ValidationException;
 use InvalidArgumentException;
 use Tests\TestCase;
 
@@ -58,7 +59,7 @@ class AddDocumentCollectionTest extends TestCase
             ->visibleByUploader($user)
             ->create();
 
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(ValidationException::class);
         
         $this->expectExceptionMessage('Team document cannot be added to a collection visible by all authenticated users.');
 
