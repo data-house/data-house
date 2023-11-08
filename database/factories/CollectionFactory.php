@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\CollectionStrategy;
 use App\Models\CollectionType;
+use App\Models\Team;
 use App\Models\User;
 use App\Models\Visibility;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -46,6 +47,16 @@ class CollectionFactory extends Factory
             return [
                 'visibility' => Visibility::SYSTEM,
                 'strategy' => CollectionStrategy::STARRED,
+            ];
+        });
+    }
+
+    public function team()
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'visibility' => Visibility::TEAM,
+                'team_id' => Team::factory(),
             ];
         });
     }

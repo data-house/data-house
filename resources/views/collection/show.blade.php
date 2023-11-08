@@ -4,8 +4,10 @@
     </x-slot>
     <x-slot name="header">
         <div class="md:flex md:items-center md:justify-between relative">
-            <h2 class="font-semibold text-xl text-stone-800 leading-tight">
+            <h2 class="font-semibold text-xl text-stone-800 leading-tight space-y-2 sm:space-y-0 sm:flex sm:gap-4 md:items-center">
                 {{ $collection->title }}
+
+                <x-document-visibility-badge class="ml-4" :value="$collection->visibility" />
             </h2>
             <div class="flex gap-2">
 

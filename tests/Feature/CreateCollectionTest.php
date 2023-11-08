@@ -65,4 +65,43 @@ class CreateCollectionTest extends TestCase
             'type' => CollectionType::STATIC,
         ]);
     }
+
+
+    public function test_team_collection_can_be_created(): void
+    {
+        $user = User::factory()->manager()->withPersonalTeam()->create();
+
+        $collection = (new CreateCollection)($user, [
+            'title' => 'Collection title',
+            'visibility' => Visibility::TEAM,
+            'type' => CollectionType::STATIC,
+            'strategy' => CollectionStrategy::LIBRARY,
+            'draft' => true,
+        ]);
+
+        $this->assertInstanceOf(Collection::class, $collection);
+        $this->assertEquals('Collection title', $collection->title);
+        $this->assertEquals(Visibility::TEAM, $collection->visibility);
+        $this->assertTrue($collection->team->is($user->currentTeam));
+        $this->assertEquals(CollectionType::STATIC, $collection->type);
+        $this->assertEquals(CollectionStrategy::LIBRARY, $collection->strategy);
+        $this->assertTrue($collection->draft);
+    }
+    
+    public function test_team_collection_requires_current_team(): void
+    {
+        $user = User::factory()->manager()->create();
+
+        $this->expectException(ValidationException::class);
+
+        $this->expectExceptionMessage('Team required, but User doesn\'t have a current team set.');
+
+        $collection = (new CreateCollection)($user, [
+            'title' => 'Collection title',
+            'visibility' => Visibility::TEAM,
+            'type' => CollectionType::STATIC,
+            'strategy' => CollectionStrategy::LIBRARY,
+            'draft' => true,
+        ]);
+    }
 }
