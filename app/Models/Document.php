@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Copilot\Questionable;
 use App\DocumentConversion\Contracts\Convertible;
 use App\DocumentConversion\ConversionRequest;
+use App\PdfProcessing\DocumentContent;
 use App\PdfProcessing\DocumentReference;
 use App\PdfProcessing\Facades\Pdf;
 use App\PdfProcessing\PaginatedDocumentContent;
@@ -24,6 +25,7 @@ use Illuminate\Support\Str;
 use PrinsFrank\Standards\Language\LanguageAlpha2;
 use App\Searchable;
 use MeiliSearch\Exceptions\JsonEncodingException;
+use Oneofftech\LaravelLanguageRecognizer\Support\Facades\LanguageRecognizer;
 use Symfony\Component\HttpFoundation\HeaderUtils;
 
 class Document extends Model implements Convertible
@@ -345,5 +347,21 @@ class Document extends Model implements Convertible
         return (new DocumentReference($this->mime))
             ->path($path)
             ->url($this->internalUrl());
+    }
+
+    /**
+     * Get the textual content of the document
+     */
+    public function getContent(): DocumentContent
+    {
+        try{
+            return Pdf::text($this->asReference());
+        }
+        catch(Exception $ex)
+        {
+            logs()->error("Error extracting text from document [{$this->id}]", ['error' => $ex->getMessage()]);
+
+            throw $ex;
+        }
     }
 }

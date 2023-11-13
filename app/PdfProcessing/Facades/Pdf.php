@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Facade;
 
 /**
  * @method static \App\PdfProcessing\Contracts\Driver driver(string $driver = null)
- * @method static string text(\App\PdfProcessing\DocumentReference $document)
+ * @method static \App\PdfProcessing\DocumentContent text(\App\PdfProcessing\DocumentReference $document)
  * @method static \App\PdfProcessing\DocumentProperties properties(\App\PdfProcessing\DocumentReference $document)
  *
  * @see \App\PdfProcessing\PdfProcessingManager
