@@ -44,10 +44,6 @@ class SuggestDocumentAbstract
         if($endPage < $startPage){
             throw new InvalidArgumentException("End page must be greater or equal to start page [{$startPage}]. Given [{$endPage}].");
         }
-
-        if($endPage-$startPage > 6){
-            throw new InvalidArgumentException("The pages to summarize exceed the maximum supported of 6 pages");
-        }
         
         if($endPage > $totalPages){
             throw new InvalidArgumentException("The ending page [{$endPage}] is outside of the document [1, {$totalPages}]");

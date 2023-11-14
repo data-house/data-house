@@ -49,37 +49,6 @@ class SuggestDocumentAbstractTest extends TestCase
         $abstract = $action($document, LanguageAlpha2::English, [10, 5]);
     }
     
-    public function test_cannot_summarize_more_than_six_pages(): void
-    {
-        config([
-            'pdf.processors.extractor' => [
-                'host' => 'http://localhost:9000',
-            ],
-            'copilot.driver' => 'oaks',
-            'copilot.queue' => false,
-            'copilot.engines.oaks' => [
-                'host' => 'http://localhost:5000/',
-            ],
-        ]);
-
-        Storage::fake('local');
-
-        $document = Document::factory()->create([
-            'properties' => [
-                'pages' => 20,
-            ]
-        ]);
-
-        Http::preventStrayRequests();
-
-        $action = new SuggestDocumentAbstract();
-
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('The pages to summarize exceed the maximum supported of 6 pages');
-
-        $abstract = $action($document, LanguageAlpha2::English, [1, 8]);
-    }
-    
     public function test_total_pages_metadata_required(): void
     {
         config([
@@ -183,7 +152,7 @@ class SuggestDocumentAbstractTest extends TestCase
 
         $action = new SuggestDocumentAbstract();
 
-        $abstract = $action($document);
+        $abstract = $action($document, LanguageAlpha2::English, [1, 10]);
 
         $this->assertNotNull($abstract);
         $this->assertEquals("Summary.", $abstract);
