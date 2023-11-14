@@ -11,6 +11,7 @@ use App\Models\Role;
 use App\Pipelines\PipelineTrigger;
 use Illuminate\Validation\ValidationException;
 use Laravel\Jetstream\Jetstream;
+use PrinsFrank\Standards\Language\LanguageAlpha2;
 
 class DocumentSummaryCommand extends Command
 {
@@ -50,7 +51,7 @@ class DocumentSummaryCommand extends Command
             return empty($document->description);
         })
         ->each(function($document) use ($action){
-            $abstract = $action($document, 'en');
+            $abstract = $action($document, $document->language ?? LanguageAlpha2::English);
             
             $document->description = $abstract;
             

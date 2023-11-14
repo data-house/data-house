@@ -29,7 +29,7 @@ class QuestionFactory extends Factory
             'team_id' => Team::factory(),
             'questionable_id' => Document::factory(),
             'hash' => function (array $attributes){
-                return hash('sha512', $attributes['question'] . '-' . $attributes['questionable_id']);
+                return hash('sha512', $attributes['question'] . '-' . Document::find($attributes['questionable_id'])->getCopilotKey());
             },
             'questionable_type' => Document::class,
             'language' => null,

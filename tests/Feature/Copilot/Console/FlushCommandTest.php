@@ -30,7 +30,7 @@ class FlushCommandTest extends TestCase
                 'model' => Document::class
             ])
             ->assertSuccessful()
-            ->expectsOutput('Removed [App\Models\Document] models up to ID: '.$document->getCopilotKey())
+            ->expectsOutput('Removed [App\Models\Document] models up to ID: '.$document->getKey())
             ->expectsOutput('All [App\Models\Document] records have been removed.');
     }
 }

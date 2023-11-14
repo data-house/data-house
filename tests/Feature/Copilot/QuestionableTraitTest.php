@@ -74,8 +74,10 @@ class QuestionableTraitTest extends TestCase
 
         Http::assertSent(function (Request $request) use ($document, $textContent) {
             return $request->url() == 'http://localhost:5000/documents' &&
-                   $request['id'] == $document->getCopilotKey() &&
+                   $request['id'] === $document->getCopilotKey() &&
+                   Str::isUuid($document->getCopilotKey()) && 
                    $request['key_name'] == $document->getCopilotKeyName() &&
+                   $request['lang'] === 'en' &&
                    $request['content'] == $textContent;
         });
 
@@ -189,7 +191,7 @@ class QuestionableTraitTest extends TestCase
 
         $questionUuid = null;
 
-        $expectedQuestionHash = hash('sha512', 'Do you really reply to my question?-' . $document->getKey());
+        $expectedQuestionHash = hash('sha512', 'Do you really reply to my question?-' . $document->getCopilotKey());
 
         Str::freezeUuids(function($uuid) use ($document, &$answer, &$questionUuid){
 
