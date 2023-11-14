@@ -3,13 +3,14 @@
 namespace App\Copilot;
 
 use JsonSerializable;
+use PrinsFrank\Standards\Language\LanguageAlpha2;
 
 class CopilotSummarizeRequest implements JsonSerializable
 {
     public function __construct(
         public readonly string $id,
         public readonly string $text,
-        public readonly ?string $language = null,
+        public readonly ?LanguageAlpha2 $language = null,
 
         )
     {
@@ -27,7 +28,7 @@ class CopilotSummarizeRequest implements JsonSerializable
         return [
             'id' => $this->id,
             'text' => $this->text,
-            'lang' => $this->language,
+            'lang' => $this->language?->value,
         ];
     }
 

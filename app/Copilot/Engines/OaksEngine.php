@@ -12,10 +12,17 @@ use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\Http;
 use InvalidArgumentException;
+use PrinsFrank\Standards\Language\LanguageAlpha2;
 use Throwable;
 
 class OaksEngine extends Engine
 {
+
+    protected const SUPPORTED_LANGUAGES = [
+        LanguageAlpha2::English,
+        LanguageAlpha2::German,
+        LanguageAlpha2::Spanish_Castilian,
+    ];
 
     public function __construct(array $config = [])
     {
@@ -207,6 +214,13 @@ class OaksEngine extends Engine
 
     public function summarize(CopilotSummarizeRequest $request): CopilotResponse
     {
+        if(!in_array($request->language, self::SUPPORTED_LANGUAGES)){
+            throw new InvalidArgumentException(__(':Document_language language not supported. Automated summaries are supported only for text in :languages.', [
+                'languages' => collect(self::SUPPORTED_LANGUAGES)->map->name->join(', '),
+                'document_language' => $request->language->name,
+            ]));
+        }
+
         try{
 
             $response = Http::acceptJson()
@@ -232,7 +246,7 @@ class OaksEngine extends Engine
         {
             // TODO: response body can contain error information // {"code":500,"message":"Error while parsing file","type":"Internal Server Error"}
             // {"code":422,"message":"No content found in request","type":"Unprocessable Entity"}
-            logs()->error("Error asking summary to copilot", ['error' => $ex->getMessage(), 'request' => $question]);
+            logs()->error("Error asking summary to copilot", ['error' => $ex->getMessage(), 'request' => $request]);
             throw $ex;
         }
     }

@@ -17,6 +17,8 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
+use InvalidArgumentException;
+use PrinsFrank\Standards\Language\LanguageAlpha2;
 use Tests\TestCase;
 
 class OaksEngineTest extends TestCase
@@ -406,7 +408,7 @@ class OaksEngineTest extends TestCase
          */
         $engine = app(CopilotManager::class)->driver('oaks');
         
-        $request = new CopilotSummarizeRequest($id, 'The text to summarize', 'en');
+        $request = new CopilotSummarizeRequest($id, 'The text to summarize', LanguageAlpha2::English);
 
         $response = $engine->summarize($request);
 
@@ -424,5 +426,41 @@ class OaksEngineTest extends TestCase
                    $request['text'] == 'The text to summarize' &&
                    $request['lang'] == 'en';
         });
+    }
+
+    public function test_cannot_summarize_text_in_french(): void
+    {
+        config([
+            'copilot.driver' => 'oaks',
+            'copilot.queue' => false,
+            'copilot.engines.oaks' => [
+                'host' => 'http://localhost:5000/',
+            ],
+        ]);
+
+        Queue::fake();
+
+        Http::preventStrayRequests();
+
+        $id = Str::uuid();
+
+        Http::fake([
+            'http://localhost:5000/summarize' => Http::response([
+                "doc_id" => $id,
+                "summary" => "Summary."
+            ], 200),
+        ]);
+
+        /**
+         * @var \App\Copilot\Engines\Engine
+         */
+        $engine = app(CopilotManager::class)->driver('oaks');
+        
+        $request = new CopilotSummarizeRequest($id, 'The text to summarize', LanguageAlpha2::French);
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('French language not supported. Automated summaries are supported only for text in English, German, Spanish_Castilian.');
+
+        $response = $engine->summarize($request);
     }
 }

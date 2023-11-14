@@ -11,6 +11,7 @@ use Illuminate\Http\File;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use InvalidArgumentException;
+use PrinsFrank\Standards\Language\LanguageAlpha2;
 use Tests\TestCase;
 
 class SuggestDocumentAbstractTest extends TestCase
@@ -45,7 +46,7 @@ class SuggestDocumentAbstractTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('End page must be greater or equal to start page [10]. Given [5].');
 
-        $abstract = $action($document, 'en', [10, 5]);
+        $abstract = $action($document, LanguageAlpha2::English, [10, 5]);
     }
     
     public function test_cannot_summarize_more_than_six_pages(): void
@@ -76,7 +77,7 @@ class SuggestDocumentAbstractTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('The pages to summarize exceed the maximum supported of 6 pages');
 
-        $abstract = $action($document, 'en', [1, 8]);
+        $abstract = $action($document, LanguageAlpha2::English, [1, 8]);
     }
     
     public function test_total_pages_metadata_required(): void
@@ -103,7 +104,7 @@ class SuggestDocumentAbstractTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Could not determine the number of pages in the document');
 
-        $abstract = $action($document, 'en', [1, 5]);
+        $abstract = $action($document, LanguageAlpha2::English, [1, 5]);
     }
     
     public function test_ending_range_must_be_within_document_pages(): void
@@ -134,7 +135,7 @@ class SuggestDocumentAbstractTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('The ending page [21] is outside of the document [1, 20]');
 
-        $abstract = $action($document, 'en', [18, 21]);
+        $abstract = $action($document, LanguageAlpha2::English, [18, 21]);
     }
 
     public function test_abstract_suggested(): void
@@ -175,7 +176,7 @@ class SuggestDocumentAbstractTest extends TestCase
                 "status" => "ok"
             ], 200),
             'http://localhost:5000/summarize' => Http::response([
-                "doc_id" => $document->ulid,
+                "id" => $document->getCopilotKey(),
                 "summary" => "Summary."
             ], 200),
         ]);
@@ -190,7 +191,7 @@ class SuggestDocumentAbstractTest extends TestCase
         Http::assertSent(function (Request $request) use ($document) {
             return $request->url() == 'http://localhost:5000/summarize' &&
                    $request->method() === 'POST' &&
-                   $request['doc_id'] == $document->ulid &&
+                   $request['id'] == $document->getCopilotKey() &&
                    $request['text'] == 'Content of the document' &&
                    $request['lang'] == 'en';
         });
@@ -265,7 +266,7 @@ class SuggestDocumentAbstractTest extends TestCase
                 "status" => "ok"
             ], 200),
             'http://localhost:5000/summarize' => Http::response([
-                "doc_id" => $document->ulid,
+                "id" => $document->getCopilotKey(),
                 "summary" => "Summary."
             ], 200),
         ]);
@@ -280,7 +281,7 @@ class SuggestDocumentAbstractTest extends TestCase
         Http::assertSent(function (Request $request) use ($document) {
             return $request->url() == 'http://localhost:5000/summarize' &&
                    $request->method() === 'POST' &&
-                   $request['doc_id'] == $document->ulid &&
+                   $request['id'] == $document->getCopilotKey() &&
                    $request['text'] == 'SUMMARY Content of the document' &&
                    $request['lang'] == 'en';
         });
@@ -355,14 +356,14 @@ class SuggestDocumentAbstractTest extends TestCase
                 "status" => "ok"
             ], 200),
             'http://localhost:5000/summarize' => Http::response([
-                "doc_id" => $document->ulid,
+                "id" => $document->getCopilotKey(),
                 "summary" => "Summary."
             ], 200),
         ]);
 
         $action = new SuggestDocumentAbstract();
 
-        $abstract = $action($document, 'de');
+        $abstract = $action($document, LanguageAlpha2::German);
 
         $this->assertNotNull($abstract);
         $this->assertEquals("Summary.", $abstract);
@@ -370,7 +371,7 @@ class SuggestDocumentAbstractTest extends TestCase
         Http::assertSent(function (Request $request) use ($document) {
             return $request->url() == 'http://localhost:5000/summarize' &&
                    $request->method() === 'POST' &&
-                   $request['doc_id'] == $document->ulid &&
+                   $request['id'] == $document->getCopilotKey() &&
                    $request['text'] == 'ZUSAMMENFASSUNG Content of the document' &&
                    $request['lang'] == 'de';
         });

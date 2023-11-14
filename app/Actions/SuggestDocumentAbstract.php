@@ -14,6 +14,7 @@ use Exception;
 use Illuminate\Support\Collection;
 use InvalidArgumentException;
 use \Illuminate\Support\Str;
+use PrinsFrank\Standards\Language\LanguageAlpha2;
 
 class SuggestDocumentAbstract
 {
@@ -22,7 +23,7 @@ class SuggestDocumentAbstract
      *
      * @param  \App\Models\Document  $document
      */
-    public function __invoke(Document $document, string $language = 'en', array $pageRange = [], int $take = 1): ?string
+    public function __invoke(Document $document, LanguageAlpha2 $language = LanguageAlpha2::English, array $pageRange = [], int $take = 1): ?string
     {
         $content = null;
 
@@ -55,7 +56,7 @@ class SuggestDocumentAbstract
         // Extract pages to summarize 
 
         $content = $this->getText($document, [$startPage, $endPage])
-            ->when($isReport && $language === 'en', function($collection, $value){
+            ->when($isReport && $language === LanguageAlpha2::English, function($collection, $value){
 
                 // If it is a report we know that there is a section called summary we can take
                 // We don't know in which order it can be, so we try both combination, after the DE summary or before
@@ -70,7 +71,7 @@ class SuggestDocumentAbstract
                     return Str::startsWith($item, ['ZUSAMMENFASSUNG', 'zusammenfassung']);
                 });
             })
-            ->when($isReport && $language === 'de', function($collection, $value){
+            ->when($isReport && $language === LanguageAlpha2::German, function($collection, $value){
                 
                 // If it is a report we know that there is a section called summary we can take
                 // We don't know in which order it can be, so we try both combination, after the EN summary or before
@@ -91,14 +92,14 @@ class SuggestDocumentAbstract
         // Based on the structure of the reports we can discard some general data
         // that will make the abstract too long.
         // TODO: make abstract processing more general
-        if($isReport && $language === 'en' && Str::contains($content, 'Project description')){
+        if($isReport && $language === LanguageAlpha2::English && Str::contains($content, 'Project description')){
             $content = 'Project description ' . Str::after($content, 'Project description');
         }
-        if($isReport && $language === 'de' && Str::contains($content, 'Projektbeschreibung')){
+        if($isReport && $language === LanguageAlpha2::German && Str::contains($content, 'Projektbeschreibung')){
             $content = 'Projektbeschreibung ' . Str::after($content, 'Projektbeschreibung');
         }
 
-        $response = $document->questionableUsing()->summarize(new CopilotSummarizeRequest($document->ulid, $content, $language));
+        $response = $document->questionableUsing()->summarize(new CopilotSummarizeRequest($document->getCopilotKey(), $content, $language));
 
         return $response->text;
     }
