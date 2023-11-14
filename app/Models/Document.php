@@ -24,11 +24,15 @@ use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
 use PrinsFrank\Standards\Language\LanguageAlpha2;
 use App\Searchable;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use MeiliSearch\Exceptions\JsonEncodingException;
 use Oneofftech\LaravelLanguageRecognizer\Support\Facades\LanguageRecognizer;
 use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\Uid\Ulid;
 
+/**
+ *  @property \PrinsFrank\Standards\Language\LanguageAlpha2|null language
+ */
 class Document extends Model implements Convertible
 {
     use HasFactory;
@@ -114,6 +118,16 @@ class Document extends Model implements Convertible
     public function getRouteKeyName()
     {
         return 'ulid';
+    }
+
+    /**
+     * Get the documents's language.
+     */
+    protected function language(): Attribute
+    {
+        return Attribute::make(
+            get: fn (?string $value) => optional($this->languages[0] ?? null)->value,
+        );
     }
 
     /**
@@ -348,7 +362,7 @@ class Document extends Model implements Convertible
             'id' => $this->getCopilotKey(),
             'ulid' => $this->ulid,
             'title' => $this->title,
-            'lang' => $this->languages[0]->value ?? 'en',
+            'lang' => $this->language?->value ?? LanguageAlpha2::English->value,
             'content' => $content->collect()->map(function($pageContent, $pageNumber){
                 // TODO: maybe this transformation should be driver specific
                 // TODO: prepend info coming from the project
