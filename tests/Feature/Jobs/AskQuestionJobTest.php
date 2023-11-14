@@ -65,7 +65,7 @@ class AskQuestionJobTest extends TestCase
             return $request->url() == 'http://localhost:5000/question' &&
                    $request['q_id'] === $question->uuid &&
                    $request['q'] == 'Do you really reply to my question?' &&
-                   $request['doc_id'][0] === ''.$question->questionable_id &&
+                   $request['doc_id'][0] === ''.$question->questionable->getCopilotKey() &&
                    $request['lang'];
         });
 
@@ -133,7 +133,7 @@ class AskQuestionJobTest extends TestCase
             return $request->url() == 'http://localhost:5000/question' &&
                    $request['q_id'] === $question->uuid &&
                    $request['q'] == 'Do you really reply to my question?' &&
-                   $request['doc_id'][0] === ''.$question->questionable_id &&
+                   $request['doc_id'][0] === ''.$question->questionable->getCopilotKey() &&
                    $request['lang'];
         });
 
