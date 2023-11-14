@@ -61,7 +61,7 @@ class ImportCommandTest extends TestCase
                 'model' => Document::class
             ])
             ->assertSuccessful()
-            ->expectsOutput('Imported [App\Models\Document] models up to ID: '.$document->getCopilotKey())
+            ->expectsOutput('Imported [App\Models\Document] models up to ID: '.$document->getKey())
             ->expectsOutput('All [App\Models\Document] records have been imported.');
     }
 }

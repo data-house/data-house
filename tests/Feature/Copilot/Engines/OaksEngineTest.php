@@ -420,7 +420,7 @@ class OaksEngineTest extends TestCase
         Http::assertSent(function (Request $request) use ($id) {
             return $request->url() == 'http://localhost:5000/summarize' &&
                    $request->method() === 'POST' &&
-                   $request['doc_id'] == $id &&
+                   $request['id'] == $id &&
                    $request['text'] == 'The text to summarize' &&
                    $request['lang'] == 'en';
         });

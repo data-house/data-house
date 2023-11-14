@@ -25,7 +25,7 @@ class CopilotSummarizeRequest implements JsonSerializable
     public function jsonSerialize()
     {
         return [
-            'doc_id' => $this->id,
+            'id' => $this->id,
             'text' => $this->text,
             'lang' => $this->language,
         ];

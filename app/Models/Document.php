@@ -27,6 +27,7 @@ use App\Searchable;
 use MeiliSearch\Exceptions\JsonEncodingException;
 use Oneofftech\LaravelLanguageRecognizer\Support\Facades\LanguageRecognizer;
 use Symfony\Component\HttpFoundation\HeaderUtils;
+use Symfony\Component\Uid\Ulid;
 
 class Document extends Model implements Convertible
 {
@@ -274,6 +275,47 @@ class Document extends Model implements Convertible
         ];
     }
     
+
+    /**
+     * Get the value used to index the model.
+     *
+     * Override the method from the Questionable trait in order to transform the Ulid into a valid UUID
+     * As the Copilot API accepts only a valid UUID
+     * 
+     * @return mixed
+     */
+    public function getCopilotKey()
+    {
+        $keyName = $this->getCopilotKeyName();
+        $key = $this->getAttribute($keyName);
+
+        if(in_array($keyName, $this->uniqueIds()) && $keyName === 'ulid'){
+            // Starting from version 0.5 of the copilot service
+            // document identifiers must be UUID.
+            // We do have a Ulid instead and so, as a
+            // workaround we convert it to a UUID.
+            // The ideal solution could be to switch to UUID for documents,
+            // but it requires to handle all existing URLs generated using
+            // ULIDs as well. Considering that ULID and UUID have
+            // the same binary representation we can be confident
+            // that this conversion result in a unique value
+            return Ulid::fromString($key)->toRfc4122();
+        }
+
+        return $key;
+    }
+
+
+    /**
+     * Get the key name used to index the model.
+     *
+     * @return mixed
+     */
+    public function getCopilotKeyName()
+    {
+        return 'ulid';
+    }
+
     /**
      * Get the questionable data array for the model.
      *
@@ -303,9 +345,10 @@ class Document extends Model implements Convertible
         }
 
         return [
-            'id' => $this->id,
+            'id' => $this->getCopilotKey(),
             'ulid' => $this->ulid,
             'title' => $this->title,
+            'lang' => $this->languages[0]->value ?? 'en',
             'content' => $content->collect()->map(function($pageContent, $pageNumber){
                 // TODO: maybe this transformation should be driver specific
                 // TODO: prepend info coming from the project

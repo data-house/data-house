@@ -82,7 +82,8 @@ class OaksEngine extends Engine
         }
         catch(Throwable $ex)
         {
-            // TODO: response body can contain error information // {"code":500,"message":"Error while parsing file","type":"Internal Server Error"}
+            // TODO: response body can contain error information
+            // {"code":500,"message":"Error while parsing file","type":"Internal Server Error"}
             // {"code":422,"message":"No content found in request","type":"Unprocessable Entity"}
             logs()->error("Error adding documents to copilot", ['error' => $ex->getMessage()]);
             throw $ex;
