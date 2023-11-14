@@ -223,7 +223,7 @@ class SuggestDocumentAbstractTest extends TestCase
                         "metadata" => [
                             "page_number" => 5
                         ],
-                        "text" => "ZUSAMMENFASSUNG"
+                        "text" => "ZUSAMMENFASSUNG (and other content)"
                     ],
                     [
                         "metadata" => [
@@ -251,7 +251,7 @@ class SuggestDocumentAbstractTest extends TestCase
             return $request->url() == 'http://localhost:5000/summarize' &&
                    $request->method() === 'POST' &&
                    $request['id'] == $document->getCopilotKey() &&
-                   $request['text'] == 'SUMMARY Content of the document' &&
+                   $request['text'] == '-' . PHP_EOL . '-' . PHP_EOL . '-' . PHP_EOL . 'SUMMARY Content of the document' . PHP_EOL . 'ZUSAMMENFASSUNG (and other content)' . PHP_EOL . '-' &&
                    $request['lang'] == 'en';
         });
     }
@@ -341,8 +341,99 @@ class SuggestDocumentAbstractTest extends TestCase
             return $request->url() == 'http://localhost:5000/summarize' &&
                    $request->method() === 'POST' &&
                    $request['id'] == $document->getCopilotKey() &&
-                   $request['text'] == 'ZUSAMMENFASSUNG Content of the document' &&
+                   $request['text'] == '-' . PHP_EOL . '-' . PHP_EOL . '-' . PHP_EOL . 'ZUSAMMENFASSUNG Content of the document' . PHP_EOL . 'SUMMARY' . PHP_EOL . '-' &&
                    $request['lang'] == 'de';
+        });
+    }
+
+    
+    public function test_page_range_respected(): void
+    {
+        config([
+            'pdf.processors.extractor' => [
+                'host' => 'http://localhost:9000',
+            ],
+            'copilot.driver' => 'oaks',
+            'copilot.queue' => false,
+            'copilot.engines.oaks' => [
+                'host' => 'http://localhost:5000/',
+            ],
+        ]);
+
+        Storage::fake('local');
+
+        Storage::disk('local')->putFileAs('', new File(base_path('tests/fixtures/documents/data-house-test-doc.pdf')), 'test.pdf');
+
+        $document = Document::factory()->create([
+            'title' => 'test_Evaluierungsbericht_.pdf',
+            'properties' => [
+                'pages' => 10,
+            ]
+        ]);
+
+        Http::preventStrayRequests();
+
+        Http::fake([
+            'http://localhost:9000/extract-text' => Http::response([
+                "content" => [
+                    [
+                        "metadata" => [
+                            "page_number" => 1
+                        ],
+                        "text" => "-"
+                    ],
+                    [
+                        "metadata" => [
+                            "page_number" => 2
+                        ],
+                        "text" => "-"
+                    ],
+                    [
+                        "metadata" => [
+                            "page_number" => 3
+                        ],
+                        "text" => "-"
+                    ],
+                    [
+                        "metadata" => [
+                            "page_number" => 4
+                        ],
+                        "text" => "SUMMARY Content of the document"
+                    ],
+                    [
+                        "metadata" => [
+                            "page_number" => 5
+                        ],
+                        "text" => "ZUSAMMENFASSUNG (and other content)"
+                    ],
+                    [
+                        "metadata" => [
+                            "page_number" => 6
+                        ],
+                        "text" => "-"
+                    ],
+                ],
+                "status" => "ok"
+            ], 200),
+            'http://localhost:5000/summarize' => Http::response([
+                "id" => $document->getCopilotKey(),
+                "summary" => "Summary."
+            ], 200),
+        ]);
+
+        $action = new SuggestDocumentAbstract();
+
+        $abstract = $action($document, LanguageAlpha2::English, [4,4]);
+
+        $this->assertNotNull($abstract);
+        $this->assertEquals("Summary.", $abstract);
+
+        Http::assertSent(function (Request $request) use ($document) {
+            return $request->url() == 'http://localhost:5000/summarize' &&
+                   $request->method() === 'POST' &&
+                   $request['id'] == $document->getCopilotKey() &&
+                   $request['text'] == 'SUMMARY Content of the document' &&
+                   $request['lang'] == 'en';
         });
     }
 }
