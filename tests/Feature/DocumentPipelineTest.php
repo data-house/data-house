@@ -35,8 +35,8 @@ class DocumentPipelineTest extends TestCase
         });
 
         Queue::assertPushedWithChain(ExtractDocumentProperties::class, [
-            RecognizeLanguage::class,
             ConvertToPdf::class,
+            RecognizeLanguage::class,
             MakeDocumentSearchable::class,
             MakeDocumentQuestionable::class,
         ]);
