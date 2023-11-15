@@ -10,6 +10,7 @@ use Illuminate\Support\Str;
 use App\Jobs\Pipeline\Document\ExtractDocumentProperties;
 use App\Jobs\Pipeline\Document\MakeDocumentQuestionable;
 use App\Jobs\Pipeline\Document\MakeDocumentSearchable;
+use App\Jobs\Pipeline\Document\RecognizeLanguage;
 use App\Models\Role;
 use App\Models\User;
 use App\Pipelines\PipelineTrigger;
@@ -37,9 +38,9 @@ class AppServiceProvider extends ServiceProvider
         Pipeline::define(Document::class, PipelineTrigger::MODEL_CREATED, [
             ExtractDocumentProperties::class,
             ConvertToPdf::class,
+            RecognizeLanguage::class,
             MakeDocumentSearchable::class,
             MakeDocumentQuestionable::class,
-            // RecognizeLanguage
             // GenerateThumbnail
         ]);
         
