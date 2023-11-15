@@ -6,6 +6,7 @@ use App\Jobs\Pipeline\Document\ConvertToPdf;
 use App\Jobs\Pipeline\Document\ExtractDocumentProperties;
 use App\Jobs\Pipeline\Document\MakeDocumentQuestionable;
 use App\Jobs\Pipeline\Document\MakeDocumentSearchable;
+use App\Jobs\Pipeline\Document\RecognizeLanguage;
 use App\Models\Document;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -34,6 +35,7 @@ class DocumentPipelineTest extends TestCase
         });
 
         Queue::assertPushedWithChain(ExtractDocumentProperties::class, [
+            RecognizeLanguage::class,
             ConvertToPdf::class,
             MakeDocumentSearchable::class,
             MakeDocumentQuestionable::class,
