@@ -10,6 +10,7 @@ use App\Copilot\CopilotSummarizeRequest;
 use App\Copilot\Exceptions\CopilotException;
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
 use InvalidArgumentException;
 use PrinsFrank\Standards\Language\LanguageAlpha2;
@@ -72,16 +73,30 @@ class OaksEngine extends Engine
 
         try{
 
+            // Currently the Copilot service is not able to handle more than one request
+            // at a time, therefore we process all operations sequentially
+
             $objects->each(function($object){
 
-                $response = Http::acceptJson()
-                    ->timeout(5 * Carbon::SECONDS_PER_MINUTE)
-                    ->asJson()
-                    ->post(rtrim($this->config['host'], '/') . '/documents', $object)
-                    ->throw();
+                try {   
 
-                if($status = $response->json('status') !== 'ok'){
-                    throw new Exception("Document not added [{$status}]");
+                    $response = Http::acceptJson()
+                        ->timeout(5 * Carbon::SECONDS_PER_MINUTE)
+                        ->asJson()
+                        ->post(rtrim($this->config['host'], '/') . '/documents', $object)
+                        ->throw();
+
+                    if($status = $response->json('status') !== 'ok'){
+                        throw new Exception("Document not added [{$status}]");
+                    }
+                    
+                } catch (RequestException $th) {
+                    if($th->getCode() !== 409){
+                        logs()->error("Failed to add document to copilot", ['id' => $object['id'], 'error' => $th]);
+                        throw $th;
+                    }
+                                        
+                    logs()->warning("Duplicate document", ['id' => $object['id']]);
                 }
             });
 
@@ -92,7 +107,7 @@ class OaksEngine extends Engine
             // TODO: response body can contain error information
             // {"code":500,"message":"Error while parsing file","type":"Internal Server Error"}
             // {"code":422,"message":"No content found in request","type":"Unprocessable Entity"}
-            logs()->error("Error adding documents to copilot", ['error' => $ex->getMessage()]);
+            logs()->error("Error adding documents to copilot", ['error' => $ex->getMessage(), 'type' => get_class($ex)]);
             throw $ex;
         }
     }
