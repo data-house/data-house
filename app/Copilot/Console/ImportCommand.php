@@ -37,7 +37,7 @@ class ImportCommand extends Command
         $model = new $class;
 
         $events->listen(ModelsQuestionable::class, function ($event) use ($class) {
-            $key = $event->models->last()->getScoutKey();
+            $key = $event->models->last()->getKey();
 
             $this->line('<comment>Imported ['.$class.'] models up to ID:</comment> '.$key);
         });
