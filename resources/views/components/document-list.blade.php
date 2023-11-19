@@ -9,16 +9,16 @@
             {{ __('Document') }}
         </div>
 
-        
-        <div class="flex gap-2 justify-start col-span-2">
+        <div class="flex gap-2 justify-start">
             {{ __('Type') }}
         </div>
 
-        <div class="truncate col-span-3">
-            {{ __('Countries') }}
+        <div class="truncate col-span-4">
+            {{ __('Project and region') }}
         </div>
-        <div class=" col-span-2">
-            {{ __('Project') }}
+
+        <div class="justify-start  col-span-2">
+            {{ __('Access') }}
         </div>
         
     </div>
@@ -34,20 +34,26 @@
             </div>
 
             
-            <div class="flex gap-2 justify-start col-span-2">
+            <div class="flex gap-2 justify-start">
                 @if ($document->type)
                     <span class="inline-block text-xs px-3 py-1 rounded-xl ring-0 ring-stone-300 bg-stone-100 text-stone-900">{{ $document->type->name }}</span>
                 @endif
             </div>
 
-            @if ($document->project)
-                <div class="truncate col-span-3">
-                    {{ $document->project->countries()->pluck('value')->join(', ') }}
-                </div>
-                <div class="col-span-2">
-                    <div class="truncate font-mono whitespace-nowrap text-xs px-2 py-1 rounded bg-yellow-100 text-yellow-700">{{ $document->project->slug }}</div>
-                </div>
-            @endif
+            <div class="flex truncate col-span-4">
+                @if ($document->project)
+                    <span class="truncate font-mono whitespace-nowrap text-sm px-2 py-1 rounded bg-yellow-100 text-yellow-700">
+                    {{ $document->project->slug }}
+                    </span>
+                    <span class="whitespace-nowrap text-sm px-2 py-1">
+                        {{ $document->project->facetRegions()->first() }}
+                    </span>
+                @endif
+            </div>
+
+            <div class="col-span-2">
+                <x-document-visibility-badge :value="$document->visibility" />
+            </div>
         </div>
     @empty
         <div class="">
