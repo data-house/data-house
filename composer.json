@@ -22,7 +22,7 @@
         "livewire/livewire": "^3.0",
         "meilisearch/meilisearch-php": "^1.1",
         "oneofftech/laravel-language-recognizer": "^0.1.0",
-        "prinsfrank/standards": "^2.0",
+        "prinsfrank/standards": "^3.1",
         "rinvex/countries": "^9.0",
         "smalot/pdfparser": "^2.4",
         "timokoerber/laravel-one-time-operations": "^1.3",

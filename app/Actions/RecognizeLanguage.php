@@ -3,22 +3,20 @@
 namespace App\Actions;
 
 use App\Models\Document;
-use App\Models\DocumentType;
 use Illuminate\Support\Collection;
-use Oneofftech\LaravelLanguageRecognizer\Support\Facades\LanguageRecognizer;
-use PrinsFrank\Standards\Language\LanguageAlpha3Common;
 use PrinsFrank\Standards\Language\LanguageAlpha3Terminology;
+use Oneofftech\LaravelLanguageRecognizer\Support\Facades\LanguageRecognizer;
 
 class RecognizeLanguage
 {
     protected const ALLOWED_LANGUAGES = [
         // TODO: Needs to be revised, this is a preliminary implementation as we only target those languages.
-        LanguageAlpha3Common::English,
-        LanguageAlpha3Common::Italian,
-        LanguageAlpha3Common::Spanish_Castilian,
+        LanguageAlpha3Terminology::English,
+        LanguageAlpha3Terminology::Italian,
+        LanguageAlpha3Terminology::Spanish_Castilian,
         LanguageAlpha3Terminology::French,
         LanguageAlpha3Terminology::German,
-        LanguageAlpha3Common::Russian,
+        LanguageAlpha3Terminology::Russian,
     ];
 
     protected const MINIMUM_CONFIDENCE = 0.8;
@@ -45,7 +43,7 @@ class RecognizeLanguage
                     return null;
                 }
                 
-                $lang = LanguageAlpha3Common::tryFrom($code) ?? LanguageAlpha3Terminology::tryFrom($code);
+                $lang = LanguageAlpha3Terminology::tryFrom($code) ?? LanguageAlpha3Terminology::tryFrom($code);
 
                 return [
                     'alpha2' => $lang->toLanguageAlpha2(),
