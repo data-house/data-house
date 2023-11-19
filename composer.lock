@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "843419272eaad637bf7903622d0297a9",
+    "content-hash": "8dfb86e72a7215987375904c8287311a",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -3957,16 +3957,16 @@
         },
         {
             "name": "prinsfrank/standards",
-            "version": "v2.5.0",
+            "version": "v3.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PrinsFrank/standards.git",
-                "reference": "f6a4bbdfbc873f776ff468447f77f8e6368aaa75"
+                "reference": "660b34a2592db6fc4fc0738828ea749487671f32"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PrinsFrank/standards/zipball/f6a4bbdfbc873f776ff468447f77f8e6368aaa75",
-                "reference": "f6a4bbdfbc873f776ff468447f77f8e6368aaa75",
+                "url": "https://api.github.com/repos/PrinsFrank/standards/zipball/660b34a2592db6fc4fc0738828ea749487671f32",
+                "reference": "660b34a2592db6fc4fc0738828ea749487671f32",
                 "shasum": ""
             },
             "require": {
@@ -3979,7 +3979,7 @@
                 "ext-intl": "*",
                 "ext-mbstring": "*",
                 "friendsofphp/php-cs-fixer": "^3.8",
-                "phpstan/phpstan": "^1.8",
+                "phpstan/phpstan": "1.10.41",
                 "phpunit/phpunit": "^9.5",
                 "symfony/panther": "^2.0"
             },
@@ -3996,7 +3996,7 @@
             "description": "A collection of standards as PHP Enums: ISO3166, ISO4217, ISO639...",
             "support": {
                 "issues": "https://github.com/PrinsFrank/standards/issues",
-                "source": "https://github.com/PrinsFrank/standards/tree/v2.5.0"
+                "source": "https://github.com/PrinsFrank/standards/tree/v3.1.0"
             },
             "funding": [
                 {
@@ -4004,7 +4004,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-10-28T12:06:56+00:00"
+            "time": "2023-11-17T09:35:34+00:00"
         },
         {
             "name": "psr/clock",
