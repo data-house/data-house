@@ -36,7 +36,7 @@
             
             <div class="flex gap-2 justify-start">
                 @if ($document->type)
-                    <span class="inline-block text-xs px-3 py-1 rounded-xl ring-0 ring-stone-300 bg-stone-100 text-stone-900">{{ $document->type->name }}</span>
+                    <span class="truncate inline-block text-xs px-3 py-1 rounded-xl ring-0 ring-stone-300 bg-stone-100 text-stone-900">{{ $document->type->name }}</span>
                 @endif
             </div>
 

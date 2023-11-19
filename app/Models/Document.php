@@ -126,7 +126,7 @@ class Document extends Model implements Convertible
     protected function language(): Attribute
     {
         return Attribute::make(
-            get: fn (?string $value) => optional($this->languages[0] ?? null)->value,
+            get: fn (?string $value) => $this->languages[0] ?? null,
         );
     }
 
