@@ -17,6 +17,54 @@ class SearchableTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_exact_matches_supported(): void
+    {
+        config(['scout.driver' => 'fake']);
+
+        $user = User::factory()
+            ->withPersonalTeam()
+            ->manager()
+            ->create();
+
+        $documentsVisibleByTeam = Document::factory()
+            ->recycle($user)
+            ->recycle($user->currentTeam)
+            ->count(2)
+            ->create();
+
+        $documentsVisibleAllUsers = Document::factory()
+            ->visibleByAnyUser()
+            ->count(2)
+            ->create();
+
+        $notAccessibleDocuments = Document::factory()
+            ->count(2)
+            ->create();
+
+        $visibleDocuments = $documentsVisibleByTeam->merge($documentsVisibleAllUsers);
+
+        $query = Document::query()->visibleBy($user);
+
+        $expectedSearchOptions = [
+            'filter' => "(uploaded_by = {$user->getKey()} AND visibility = 10 OR visibility IN [30,40] OR team_id = {$user->currentTeam->getKey()} AND visibility = 20)",
+        ];
+
+        $this->prepareScoutSearchMockUsing('"exact match"', $query, $expectedSearchOptions);
+
+        /**
+         * @var \Illuminate\Pagination\LengthAwarePaginator
+         */
+        $paginator = Document::tenantSearch('"exact match"', [], $user)->paginateRaw();
+
+        $this->assertSame($visibleDocuments->count(), $paginator->total());
+        $this->assertSame(1, $paginator->lastPage());
+        $this->assertSame(15, $paginator->perPage());
+        $this->assertEquals(
+            $visibleDocuments->pluck('id')->toArray(),
+            collect($paginator->items()['hits'])->pluck('id')->toArray()
+        );
+    }
+
     public function test_user_rbac_filters_applied_during_search(): void
     {
         config(['scout.driver' => 'fake']);

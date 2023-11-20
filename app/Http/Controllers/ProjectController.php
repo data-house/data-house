@@ -22,12 +22,12 @@ class ProjectController extends Controller
      */
     public function index(Request $request)
     {
-        $searchQuery = $request->has('s') ? e($request->input('s')) : null;
+        $searchQuery = $request->has('s') ? $request->input('s') : null;
 
         $filters = $request->hasAny(['countries', 'type', 'region', 'topics']) ? $request->only(['countries', 'type', 'region', 'topics']) : [];
 
         $projects = $searchQuery || $filters 
-            ? Project::advancedSearch(e($searchQuery), $filters)->paginate(50)
+            ? Project::advancedSearch($searchQuery, $filters)->paginate(50)
             : Project::query()->paginate(50);
 
 

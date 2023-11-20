@@ -21,7 +21,10 @@ class QuestionController extends Controller
      */
     public function index(Request $request)
     {
-        $searchQuery = $request->has('s') ? e($request->input('s')) : null;
+        $searchQuery = $request->has('s') ? $request->input('s') : null;
+
+        $escapedQuery = htmlspecialchars($searchQuery ?? '', ENT_NOQUOTES | ENT_SUBSTITUTE, 'UTF-8');
+
 
         $user_id = auth()->user()->getKey();
         $team_id = auth()->user()->currentTeam?->getKey();
@@ -29,7 +32,7 @@ class QuestionController extends Controller
 
 
         $questions = $searchQuery ? 
-            Question::search(e($searchQuery), function(Indexes $meilisearch, string $query, array $options) use ($team_id, $user_id, $visibility){
+            Question::search($escapedQuery, function(Indexes $meilisearch, string $query, array $options) use ($team_id, $user_id, $visibility){
 
                     // using same strategy as the scout driver
                     // this will be the entrypoint to use the extra facets information
