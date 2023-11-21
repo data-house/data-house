@@ -30,9 +30,11 @@ trait Searchable
      */
     public static function advancedSearch($query = '', array $filters = [])
     {
+        $escapedQuery = htmlspecialchars($query ?? '', ENT_NOQUOTES | ENT_SUBSTITUTE, 'UTF-8');
+
         $modelClass = static::class;
 
-        return static::search($query, function(Indexes $meilisearch, string $query, array $options) {
+        return static::search($escapedQuery, function(Indexes $meilisearch, string $query, array $options) {
             
             // using same strategy as the scout driver
             // this will be the entrypoint to use the extra facets information
@@ -67,6 +69,8 @@ trait Searchable
      */
     public static function tenantSearch($query = '', array $filters = [], ?User $user = null)
     {
+        $escapedQuery = htmlspecialchars($query ?? '', ENT_NOQUOTES | ENT_SUBSTITUTE, 'UTF-8');
+
         $modelClass = static::class;
 
         /**
@@ -76,7 +80,7 @@ trait Searchable
 
         $team = $user->currentTeam;
 
-        return static::search($query, function(Indexes $meilisearch, string $query, array $options) use ($user, $team){
+        return static::search($escapedQuery, function(Indexes $meilisearch, string $query, array $options) use ($user, $team){
             
             // Laravel Scout doesn't support Tenant Token, 
             // so we include additional filters to 

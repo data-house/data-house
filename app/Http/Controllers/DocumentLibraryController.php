@@ -16,14 +16,14 @@ class DocumentLibraryController extends Controller
      */
     public function __invoke(Request $request)
     {
-        $searchQuery = $request->has('s') ? e($request->input('s')) : null;
+        $searchQuery = $request->has('s') ? $request->input('s') : null;
 
         $filters = $request->hasAny(['project_countries', 'type', 'project_region', 'project_topics']) ? $request->only(['project_countries', 'type', 'project_region', 'project_topics']) : [];
 
-        // TODO: SEARCH should show protected and public doc + user visibility doc + doc with team visibility that are part of current_team
+        // TODO: SEARCH should show protected and public doc + user visibility doc + doc with team visibility that are part of current_team.
 
         $documents = ($searchQuery || $filters)
-            ? Document::tenantSearch(e($searchQuery), $filters)->paginate(150)
+            ? Document::tenantSearch($searchQuery, $filters)->paginate(150)
             : Document::query()->visibleBy(auth()->user())->paginate(150);
 
         $countries = Project::pluck('countries')->flatten()->unique('value');
