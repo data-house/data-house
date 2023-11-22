@@ -1,5 +1,5 @@
 
-FROM klinktechnology/k-box-ci-pipeline-php:8.1 AS builder
+FROM klinktechnology/k-box-ci-pipeline-php:8.2 AS builder
 
 COPY --chown=php:php . /var/www/html
 RUN \
@@ -28,7 +28,7 @@ RUN \
 
 ## second step, assemble the image
 
-FROM php:8.1.23-fpm-bullseye AS php
+FROM php:8.2.12-fpm-bullseye AS php
 
 LABEL maintainer="OneOffTech <info@oneofftech.xyz>" \
   org.label-schema.name="data-house/data-house" \
