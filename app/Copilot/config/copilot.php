@@ -68,6 +68,8 @@ return [
 
         'ttl' => env('COPILOT_CACHE_TTL', Carbon::HOURS_PER_DAY * Carbon::MINUTES_PER_HOUR * Carbon::SECONDS_PER_MINUTE), // 1 day
     ],
+
+    'timeout' => env('COPILOT_REQUEST_TIMEOUT_MINUTES', 3),
     
     'engines' => [
     

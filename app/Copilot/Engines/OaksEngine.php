@@ -81,7 +81,7 @@ class OaksEngine extends Engine
                 try {   
 
                     $response = Http::acceptJson()
-                        ->timeout(5 * Carbon::SECONDS_PER_MINUTE)
+                        ->timeout($this->getRequestTimeout())
                         ->asJson()
                         ->post(rtrim($this->config['host'], '/') . '/documents', $object)
                         ->throw();
@@ -135,7 +135,7 @@ class OaksEngine extends Engine
             $keys->each(function($key){
 
                 $response = Http::acceptJson()
-                    ->timeout(2 * Carbon::SECONDS_PER_MINUTE)
+                    ->timeout($this->getRequestTimeout())
                     ->asJson()
                     ->delete(rtrim($this->config['host'], '/') . '/documents/' . $key)
                     ->throw();
@@ -174,7 +174,7 @@ class OaksEngine extends Engine
             $endpoint = $question->multipleQuestionRequest() ? '/transform-question' : '/question';
 
             $response = Http::acceptJson()
-                ->timeout(2 * Carbon::SECONDS_PER_MINUTE)
+                ->timeout($this->getRequestTimeout())
                 ->asJson()
                 ->post(rtrim($this->config['host'], '/') . $endpoint, $question->jsonSerialize())
                 ->throwIfServerError();
@@ -239,7 +239,7 @@ class OaksEngine extends Engine
         try{
 
             $response = Http::acceptJson()
-                ->timeout(2 * Carbon::SECONDS_PER_MINUTE)
+                ->timeout($this->getRequestTimeout())
                 ->asJson()
                 ->post(rtrim($this->config['host'], '/') . '/summarize', $request->jsonSerialize())
                 ->throwIfServerError();
@@ -273,7 +273,7 @@ class OaksEngine extends Engine
             $endpoint = '/answer-aggregation';
 
             $response = Http::acceptJson()
-                ->timeout(2 * Carbon::SECONDS_PER_MINUTE)
+                ->timeout($this->getRequestTimeout())
                 ->asJson()
                 ->post(rtrim($this->config['host'], '/') . $endpoint, $request->jsonSerialize())
                 ->throwIfServerError();
