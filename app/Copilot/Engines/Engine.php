@@ -6,6 +6,7 @@ use App\Copilot\AnswerAggregationCopilotRequest;
 use App\Copilot\CopilotRequest;
 use App\Copilot\CopilotResponse;
 use App\Copilot\CopilotSummarizeRequest;
+use Carbon\Carbon;
 
 abstract class Engine
 {
@@ -18,6 +19,13 @@ abstract class Engine
         $this->config = $config;
     }
 
+    /**
+     * Get the configured request timeout in seconds
+     */
+    protected function getRequestTimeout(): int
+    {
+        return config('copilot.timeout', 3) * Carbon::SECONDS_PER_MINUTE;
+    }
 
     /**
      * Update the given model in the index.
