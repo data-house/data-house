@@ -25,7 +25,7 @@ class PdfViewerControllerTest extends TestCase
 
         $file = urlencode("/documents/{$document->ulid}/download");
 
-        $this->assertEquals(config('app.url')."/pdf-viewer?document={$document->ulid}&file={$file}&page=3#page=3", $url);
+        $this->assertEquals(config('app.url')."/pdf-viewer?document={$document->ulid}&file={$file}&page=3", $url);
     }
 
     public function test_pdf_viewer_url_generated_when_conversion_available(): void
@@ -42,7 +42,7 @@ class PdfViewerControllerTest extends TestCase
 
         $file = urlencode("/documents/{$document->ulid}/download");
 
-        $this->assertEquals(config('app.url')."/pdf-viewer?document={$document->ulid}&file={$file}&page=3#page=3", $url);
+        $this->assertEquals(config('app.url')."/pdf-viewer?document={$document->ulid}&file={$file}&page=3", $url);
     }
 
     public function test_pdf_viewer_requires_authentication(): void
@@ -89,7 +89,7 @@ class PdfViewerControllerTest extends TestCase
                 'document' => $document->ulid,
                 'file' => Str::replace(config('app.url'),'', $document->url()),
                 'page' => 1
-            ]) . "#page=1");
+            ]));
 
         $response->assertUnsupportedMediaType();
 
@@ -113,7 +113,7 @@ class PdfViewerControllerTest extends TestCase
                 'document' => $document->ulid,
                 'file' => Str::replace(config('app.url'),'', $document->url()),
                 'page' => 1
-            ]) . "#page=1");
+            ]));
 
         $response->assertStatus(200);
 
@@ -121,6 +121,7 @@ class PdfViewerControllerTest extends TestCase
 
         $response->assertViewHas('document', $document);
         $response->assertViewHas('page', 1);
+        $response->assertSee('initialBookmark = "page=1"', false);
     }
 
     
@@ -142,7 +143,7 @@ class PdfViewerControllerTest extends TestCase
                 'document' => $document->ulid,
                 'file' => Str::replace(config('app.url'),'', $document->url()),
                 'page' => 1
-            ]) . "#page=1");
+            ]));
 
         $response->assertUnsupportedMediaType();
 

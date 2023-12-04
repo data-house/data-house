@@ -396,5 +396,21 @@ See https://github.com/adobe-type-tools/cmap-resources
 
     </div> <!-- outerContainer -->
     <div id="printContainer"></div>
+
+    <script>
+      (function(){
+        
+        window.PDFViewerApplication.initializedPromise.then(function() {
+          
+          window.PDFViewerApplication.initialBookmark = "page={{$page}}";
+          window.PDFViewerApplication.eventBus.dispatch('pagenumberchanged',{"value": {{$page}}});
+
+        });
+
+      })();
+    </script>
+    
+
+    
   </body>
 </html>
