@@ -214,7 +214,7 @@ class Document extends Model implements Convertible
             'document' => $this->ulid,
             'file' => Str::replace(config('app.url'),'',$this->url()),
             'page' => $page
-        ]) . "#page={$page}";
+        ]);
     }
 
     public function isPublished()
