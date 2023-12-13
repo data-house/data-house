@@ -14,8 +14,8 @@ class CollectionPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->hasPermission('collection:view') ||
-           $user->hasTeamPermission($user->currentTeam, 'collection:view') ||
+        return ($user->hasPermission('collection:view') ||
+           $user->hasTeamPermission($user->currentTeam, 'collection:view')) &&
            $user->tokenCan('collection:view');
     }
 
@@ -25,8 +25,8 @@ class CollectionPolicy
     public function view(User $user, Collection $collection): bool
     {
         return ($user->hasPermission('collection:view') ||
-           $user->hasTeamPermission($user->currentTeam, 'collection:view') ||
-           $user->tokenCan('collection:view')) && $collection->isVisibleBy($user);
+           $user->hasTeamPermission($user->currentTeam, 'collection:view')) &&
+           $user->tokenCan('collection:view') && $collection->isVisibleBy($user);
     }
 
     /**
@@ -34,8 +34,8 @@ class CollectionPolicy
      */
     public function create(User $user): bool
     {
-        return $user->hasPermission('collection:create') ||
-           $user->hasTeamPermission($user->currentTeam, 'collection:create') ||
+        return ($user->hasPermission('collection:create') ||
+           $user->hasTeamPermission($user->currentTeam, 'collection:create')) &&
            $user->tokenCan('collection:create');
     }
 
@@ -45,8 +45,8 @@ class CollectionPolicy
     public function update(User $user, Collection $collection): bool
     {
         return ($user->hasPermission('collection:update') ||
-           $user->hasTeamPermission($user->currentTeam, 'collection:update') ||
-           $user->tokenCan('collection:update')) && $collection->isVisibleBy($user);
+           $user->hasTeamPermission($user->currentTeam, 'collection:update')) &&
+           $user->tokenCan('collection:update') && $collection->isVisibleBy($user);
     }
 
     /**
@@ -55,8 +55,8 @@ class CollectionPolicy
     public function delete(User $user, Collection $collection): bool
     {
         return ($user->hasPermission('collection:delete') ||
-           $user->hasTeamPermission($user->currentTeam, 'collection:delete') ||
-           $user->tokenCan('collection:delete')) && $collection->isVisibleBy($user);
+           $user->hasTeamPermission($user->currentTeam, 'collection:delete')) &&
+           $user->tokenCan('collection:delete') && $collection->isVisibleBy($user);
     }
 
     /**
@@ -65,8 +65,8 @@ class CollectionPolicy
     public function restore(User $user, Collection $collection): bool
     {
         return ($user->hasPermission('collection:delete') ||
-           $user->hasTeamPermission($user->currentTeam, 'collection:delete') ||
-           $user->tokenCan('collection:delete')) && $collection->isVisibleBy($user);
+           $user->hasTeamPermission($user->currentTeam, 'collection:delete')) &&
+           $user->tokenCan('collection:delete') && $collection->isVisibleBy($user);
     }
 
     /**
@@ -75,7 +75,7 @@ class CollectionPolicy
     public function forceDelete(User $user, Collection $collection): bool
     {
         return ($user->hasPermission('collection:delete') ||
-           $user->hasTeamPermission($user->currentTeam, 'collection:delete') ||
-           $user->tokenCan('collection:delete')) && $collection->isVisibleBy($user);
+           $user->hasTeamPermission($user->currentTeam, 'collection:delete')) &&
+           $user->tokenCan('collection:delete') && $collection->isVisibleBy($user);
     }
 }

@@ -35,7 +35,7 @@ class CollectionFactory extends Factory
     {
         return $this->state(function (array $attributes) {
             return [
-                'visibility' => Visibility::SYSTEM,
+                'visibility' => Visibility::PROTECTED,
                 'strategy' => CollectionStrategy::LIBRARY,
             ];
         });

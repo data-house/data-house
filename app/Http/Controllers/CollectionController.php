@@ -43,7 +43,9 @@ class CollectionController extends Controller
             'draft' => false,
         ]);
 
-        return redirect()->route('collections.show', $collection);
+        return redirect()
+            ->route('collections.show', $collection)
+            ->with('flash.banner', __('Collection created.'));
     }
 
     /**
@@ -88,6 +90,8 @@ class CollectionController extends Controller
 
         $collection->save();
 
-        return redirect()->route('collections.show', $collection);
+        return redirect()
+            ->route('collections.show', $collection)
+            ->with('flash.banner', __('Collection updated.'));
     }
 }
