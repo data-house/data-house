@@ -109,4 +109,27 @@ class Collection extends Model
         return $query->whereNot('visibility', Visibility::SYSTEM);
     }
 
+
+    /**
+     * Check if the document is viewable by a user given visibility and team access
+     */
+    public function isVisibleBy(User $user): bool
+    {        
+        if(in_array($this->visibility, [Visibility::PUBLIC, Visibility::PROTECTED])){
+            return true;
+        }
+
+        return (
+                $this->visibility === Visibility::TEAM &&
+                $user->currentTeam &&
+                $user->currentTeam->getKey() === $this->team_id
+            ) || (
+                $this->visibility === Visibility::PERSONAL &&
+                $user->getKey() === $this->user_id
+            ) || (
+                $this->visibility === Visibility::SYSTEM &&
+                $user->getKey() === $this->user_id
+            );
+    }
+
 }

@@ -23,7 +23,7 @@ class CreateCollection
      */
     public function __invoke(User $user, array $input): Collection
     {
-        $user->can('create', Collection::class);
+        abort_unless($user->can('create', Collection::class), 403);
 
         Validator::make($input, [
             'title' => ['required', 'string', 'min:1', 'max:255'],

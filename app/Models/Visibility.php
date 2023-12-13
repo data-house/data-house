@@ -56,6 +56,14 @@ enum Visibility: int
     }
 
     /**
+     * Check if the visibility level is lower than the given visibility
+     */
+    public function lowerThan(Visibility $visibility)
+    {
+        return $this->value < $visibility->value;
+    }
+
+    /**
      * Get the list of visibilities that can be used with \App\Models\Document
      */
     public static function forDocuments(): array
