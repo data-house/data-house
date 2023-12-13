@@ -14,19 +14,28 @@
     </x-slot>
 
     <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
 
-            <form action="{{ route('collections.update', $collection) }}" method="post" class="space-y-4">
-                @csrf
-                @method('PUT')
+            <x-section submit="{{ route('collections.update', $collection) }}">
 
-                <div>
-                    <x-label for="title" value="{{ __('Collection title') }}" />
-                    <x-input-error for="title" class="mt-2" />
-                    <x-input id="title" type="text" name="title" class="mt-1 block w-full max-w-prose" autocomplete="title" value="{{ old('title', $collection->title) }}" />
-                </div>
+                <x-slot name="title">
+                    {{ __('Collection Name') }}
+                </x-slot>
+
+                <x-slot name="description">
+                    {{ __('The collection\'s name and owner information.') }}
+                </x-slot>
+
+                <x-slot name="form">
+
+                    @csrf
+                    @method('PUT')
+
+                    @include('collection.partials.title')
+
+                </x-slot>
                     
-                <div class="flex items-center gap-4">
+                <x-slot name="actions">
                     <x-button class="">
                         {{ __('Save') }}
                     </x-button>
@@ -34,9 +43,9 @@
                     <a class="underline text-sm text-stone-600 hover:text-stone-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-lime-500" href="{{ route('collections.show', $collection) }}">
                         {{ __('Cancel') }}
                     </a>
-                </div>
+                </x-slot>
 
-            </form>
+            </x-section>
 
         </div>
     </div>

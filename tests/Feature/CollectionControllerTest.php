@@ -43,7 +43,7 @@ class CollectionControllerTest extends TestCase
 
         $response->assertViewIs('collection.create');
         
-        $response->assertSee('Collection title');
+        $response->assertSee('Collection name');
     }
 
     public function test_collection_can_be_created(): void
