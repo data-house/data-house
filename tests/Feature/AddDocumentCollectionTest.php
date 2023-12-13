@@ -12,6 +12,7 @@ use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Validation\ValidationException;
 use InvalidArgumentException;
+use Laravel\Sanctum\TransientToken;
 use Tests\TestCase;
 
 class AddDocumentCollectionTest extends TestCase
@@ -20,7 +21,7 @@ class AddDocumentCollectionTest extends TestCase
 
     public function test_user_required(): void
     {
-        $user = User::factory()->manager()->create();
+        $user = User::factory()->manager()->create()->withAccessToken(new TransientToken);
 
         $collection = Collection::factory()->for($user)->create();
 
@@ -35,7 +36,7 @@ class AddDocumentCollectionTest extends TestCase
 
     public function test_add_denied_if_document_not_accessible_by_user(): void
     {
-        $user = User::factory()->manager()->create();
+        $user = User::factory()->manager()->create()->withAccessToken(new TransientToken);
 
         $collection = Collection::factory()->for($user)->create();
 
@@ -49,7 +50,7 @@ class AddDocumentCollectionTest extends TestCase
 
     public function test_add_denied_if_document_visible_to_team_and_collection_protected(): void
     {
-        $user = User::factory()->manager()->create();
+        $user = User::factory()->manager()->create()->withAccessToken(new TransientToken);
 
         $collection = Collection::factory()
             ->for($user)
@@ -71,9 +72,9 @@ class AddDocumentCollectionTest extends TestCase
 
     public function test_document_added_to_collection(): void
     {
-        $user = User::factory()->manager()->withPersonalTeam()->create();
+        $user = User::factory()->manager()->withPersonalTeam()->create()->withAccessToken(new TransientToken);
 
-        $collection = Collection::factory()->for($user)->team()->create();
+        $collection = Collection::factory()->for($user)->recycle($user->currentTeam)->team()->create();
 
         $document = Document::factory()
             ->recycle($user->currentTeam)
