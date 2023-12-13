@@ -11,6 +11,7 @@ use App\Models\Visibility;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Validation\ValidationException;
+use Laravel\Sanctum\TransientToken;
 use Tests\TestCase;
 
 class CreateCollectionTest extends TestCase
@@ -19,7 +20,7 @@ class CreateCollectionTest extends TestCase
 
     public function test_collection_can_be_created(): void
     {
-        $user = User::factory()->manager()->create();
+        $user = User::factory()->manager()->create()->withAccessToken(new TransientToken);
 
         $collection = (new CreateCollection)($user, [
             'title' => 'Collection title',
@@ -39,7 +40,7 @@ class CreateCollectionTest extends TestCase
 
     public function test_collection_title_must_be_non_empty(): void
     {
-        $user = User::factory()->manager()->create();
+        $user = User::factory()->manager()->create()->withAccessToken(new TransientToken);
 
         $this->expectException(ValidationException::class);
 
@@ -53,7 +54,7 @@ class CreateCollectionTest extends TestCase
 
     public function test_collection_visibility_is_invalid(): void
     {
-        $user = User::factory()->manager()->create();
+        $user = User::factory()->manager()->create()->withAccessToken(new TransientToken);
 
         $this->expectException(ValidationException::class);
 
@@ -69,7 +70,7 @@ class CreateCollectionTest extends TestCase
 
     public function test_team_collection_can_be_created(): void
     {
-        $user = User::factory()->manager()->withPersonalTeam()->create();
+        $user = User::factory()->manager()->withPersonalTeam()->create()->withAccessToken(new TransientToken);
 
         $collection = (new CreateCollection)($user, [
             'title' => 'Collection title',
@@ -90,7 +91,7 @@ class CreateCollectionTest extends TestCase
     
     public function test_team_collection_requires_current_team(): void
     {
-        $user = User::factory()->manager()->create();
+        $user = User::factory()->manager()->create()->withAccessToken(new TransientToken);
 
         $this->expectException(ValidationException::class);
 
