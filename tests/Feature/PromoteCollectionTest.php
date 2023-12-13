@@ -10,6 +10,7 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use InvalidArgumentException;
+use Laravel\Sanctum\TransientToken;
 use Tests\TestCase;
 
 class PromoteCollectionTest extends TestCase
@@ -31,7 +32,7 @@ class PromoteCollectionTest extends TestCase
 
     public function test_collection_visibility_cannot_be_downgraded(): void
     {
-        $user = User::factory()->manager()->create();
+        $user = User::factory()->manager()->create()->withAccessToken(new TransientToken);
 
         $collection = Collection::factory()
             ->for($user)
@@ -45,7 +46,7 @@ class PromoteCollectionTest extends TestCase
     
     public function test_system_collection_cannot_be_promoted(): void
     {
-        $user = User::factory()->manager()->withPersonalTeam()->create();
+        $user = User::factory()->manager()->withPersonalTeam()->create()->withAccessToken(new TransientToken);
 
         $collection = Collection::factory()
             ->for($user)
@@ -59,7 +60,7 @@ class PromoteCollectionTest extends TestCase
     
     public function test_team_collection_cannot_be_promoted_if_not_owned_by_a_team(): void
     {
-        $user = User::factory()->manager()->withPersonalTeam()->create();
+        $user = User::factory()->manager()->withPersonalTeam()->create()->withAccessToken(new TransientToken);
 
         $collection = Collection::factory()
             ->for($user)
@@ -73,7 +74,7 @@ class PromoteCollectionTest extends TestCase
 
     public function test_collection_promoted_to_team(): void
     {
-        $user = User::factory()->manager()->withPersonalTeam()->create();
+        $user = User::factory()->manager()->withPersonalTeam()->create()->withAccessToken(new TransientToken);
 
         $collection = Collection::factory()->for($user)->create([
             'visibility' => Visibility::PERSONAL,
@@ -91,7 +92,7 @@ class PromoteCollectionTest extends TestCase
 
     public function test_team_collection_promoted_to_library(): void
     {
-        $user = User::factory()->manager()->withPersonalTeam()->create();
+        $user = User::factory()->manager()->withPersonalTeam()->create()->withAccessToken(new TransientToken);
 
         $collection = Collection::factory()
             ->for($user)
@@ -111,7 +112,7 @@ class PromoteCollectionTest extends TestCase
     
     public function test_promotion_from_personal_to_public_denied(): void
     {
-        $user = User::factory()->manager()->withPersonalTeam()->create();
+        $user = User::factory()->manager()->withPersonalTeam()->create()->withAccessToken(new TransientToken);
 
         $collection = Collection::factory()
             ->for($user)
@@ -125,7 +126,7 @@ class PromoteCollectionTest extends TestCase
     
     public function test_promotion_from_team_to_public_denied(): void
     {
-        $user = User::factory()->manager()->withPersonalTeam()->create();
+        $user = User::factory()->manager()->withPersonalTeam()->create()->withAccessToken(new TransientToken);
 
         $collection = Collection::factory()
             ->for($user)
