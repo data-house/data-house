@@ -46,7 +46,8 @@ class CollectionPolicy
     {
         return ($user->hasPermission('collection:update') ||
            $user->hasTeamPermission($user->currentTeam, 'collection:update')) &&
-           $user->tokenCan('collection:update') && $collection->isVisibleBy($user);
+           $user->tokenCan('collection:update') && $collection->isVisibleBy($user) && 
+           (($user->currentTeam && $user->currentTeam->is($collection->team)) || $user->is($collection->user));
     }
 
     /**
@@ -56,7 +57,8 @@ class CollectionPolicy
     {
         return ($user->hasPermission('collection:delete') ||
            $user->hasTeamPermission($user->currentTeam, 'collection:delete')) &&
-           $user->tokenCan('collection:delete') && $collection->isVisibleBy($user);
+           $user->tokenCan('collection:delete') && $collection->isVisibleBy($user) && 
+           (($user->currentTeam && $user->currentTeam->is($collection->team)) || $user->is($collection->user));
     }
 
     /**
@@ -66,7 +68,8 @@ class CollectionPolicy
     {
         return ($user->hasPermission('collection:delete') ||
            $user->hasTeamPermission($user->currentTeam, 'collection:delete')) &&
-           $user->tokenCan('collection:delete') && $collection->isVisibleBy($user);
+           $user->tokenCan('collection:delete') && $collection->isVisibleBy($user) && 
+           (($user->currentTeam && $user->currentTeam->is($collection->team)) || $user->is($collection->user));
     }
 
     /**
@@ -76,6 +79,7 @@ class CollectionPolicy
     {
         return ($user->hasPermission('collection:delete') ||
            $user->hasTeamPermission($user->currentTeam, 'collection:delete')) &&
-           $user->tokenCan('collection:delete') && $collection->isVisibleBy($user);
+           $user->tokenCan('collection:delete') && $collection->isVisibleBy($user) && 
+           (($user->currentTeam && $user->currentTeam->is($collection->team)) || $user->is($collection->user));
     }
 }
