@@ -53,7 +53,10 @@ class CollectionController extends Controller
      */
     public function show(Request $request, Collection $collection)
     {
-        $collection->load(['documents', 'questions' => function($query){
+        $collection->load(['documents' => function($query){
+            $query
+                ->visibleBy(auth()->user());
+        }, 'questions' => function($query){
             $query
                 ->viewableBy(auth()->user())
                 ->orderBy('created_at', 'DESC')
