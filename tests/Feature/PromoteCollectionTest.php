@@ -9,6 +9,7 @@ use App\Models\Visibility;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Validation\ValidationException;
 use InvalidArgumentException;
 use Laravel\Sanctum\TransientToken;
 use Tests\TestCase;
@@ -138,5 +139,39 @@ class PromoteCollectionTest extends TestCase
         $this->expectExceptionMessage('Collection cannot be promoted.');
 
         (new PromoteCollection)($user, $collection, Visibility::PUBLIC);
+    }
+
+
+    public function test_personal_collection_not_promoted_if_team_collection_with_same_name_exists(): void
+    {
+        $user = User::factory()->manager()->withPersonalTeam()->create()->withAccessToken(new TransientToken);
+
+        $alreadyExisting = Collection::factory()->for($user)->recycle($user->currentTeam)->team()->create();
+
+        $collection = Collection::factory()->for($user)->create([
+            'visibility' => Visibility::PERSONAL,
+            'title' => $alreadyExisting->title,
+        ]);
+
+        $this->expectException(ValidationException::class);
+        $this->expectExceptionMessage('A collection with the same name already is already present at Team level.');
+
+        $promotedCollection = (new PromoteCollection)($user, $collection, Visibility::TEAM);
+    }
+
+    public function test_team_collection_not_promoted_if_library_collection_with_same_name_exists(): void
+    {
+        $user = User::factory()->manager()->withPersonalTeam()->create()->withAccessToken(new TransientToken);
+
+        $alreadyExisting = Collection::factory()->for($user)->recycle($user->currentTeam)->library()->create();
+
+        $collection = Collection::factory()->for($user)->recycle($user->currentTeam)->team()->create([
+            'title' => $alreadyExisting->title,
+        ]);
+
+        $this->expectException(ValidationException::class);
+        $this->expectExceptionMessage('A collection with the same name already is already present at Protected level.');
+
+        $promotedCollection = (new PromoteCollection)($user, $collection, Visibility::PROTECTED);
     }
 }
