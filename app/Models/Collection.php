@@ -109,4 +109,42 @@ class Collection extends Model
         return $query->whereNot('visibility', Visibility::SYSTEM);
     }
 
+    /**
+     * Scope the query to return only collections that are viewable by a user
+     * given visibility and team access
+     */
+    public function scopeVisibleBy($query, User $user)
+    {
+        return $query
+            ->where(fn($q) => $q->whereIn('visibility', [Visibility::PUBLIC, Visibility::PROTECTED]))
+            ->when($user->currentTeam, function ($query, Team $team) {
+                $query->orWhere(fn($q) => $q->where('visibility', Visibility::TEAM)->where('team_id', $team->getKey()));
+            })
+            ->orWhere(fn($q) => $q->where('visibility', Visibility::PERSONAL)->where('user_id', $user->getKey()))
+            ->orWhere(fn($q) => $q->where('visibility', Visibility::SYSTEM)->where('user_id', $user->getKey()))
+            ;
+    }
+
+    /**
+     * Check if the document is viewable by a user given visibility and team access
+     */
+    public function isVisibleBy(User $user): bool
+    {        
+        if(in_array($this->visibility, [Visibility::PUBLIC, Visibility::PROTECTED])){
+            return true;
+        }
+
+        return (
+                $this->visibility === Visibility::TEAM &&
+                $user->currentTeam &&
+                $user->currentTeam->getKey() === $this->team_id
+            ) || (
+                $this->visibility === Visibility::PERSONAL &&
+                $user->getKey() === $this->user_id
+            ) || (
+                $this->visibility === Visibility::SYSTEM &&
+                $user->getKey() === $this->user_id
+            );
+    }
+
 }

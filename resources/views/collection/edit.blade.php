@@ -14,19 +14,43 @@
     </x-slot>
 
     <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
 
-            <form action="{{ route('collections.update', $collection) }}" method="post" class="space-y-4">
-                @csrf
-                @method('PUT')
+            <x-section submit="{{ route('collections.update', $collection) }}">
 
-                <div>
-                    <x-label for="title" value="{{ __('Collection title') }}" />
-                    <x-input-error for="title" class="mt-2" />
-                    <x-input id="title" type="text" name="title" class="mt-1 block w-full max-w-prose" autocomplete="title" value="{{ old('title', $collection->title) }}" />
-                </div>
+                <x-slot name="title">
+                    {{ __('Collection Name') }}
+                </x-slot>
+
+                <x-slot name="description">
+                    {{ __('The collection\'s name and owner information.') }}
+                </x-slot>
+
+                <x-slot name="form">
+
+                    @csrf
+                    @method('PUT')
+
+                    <div class="col-span-6 sm:col-span-4">
+
+                        <x-label value="{{ __('Collection creator and team') }}" />
+                        
+                        <p>
+                            {{ $owner_user->name }}
+                        </p>
+
+                        @if ($owner_team)
+                            <p>
+                                <span class="font-bold">{{ __('Team') }}</span> {{ $owner_team->name }}
+                            </p>
+                        @endif
+                    </div>
+
+                    @include('collection.partials.title')
+
+                </x-slot>
                     
-                <div class="flex items-center gap-4">
+                <x-slot name="actions">
                     <x-button class="">
                         {{ __('Save') }}
                     </x-button>
@@ -34,9 +58,37 @@
                     <a class="underline text-sm text-stone-600 hover:text-stone-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-lime-500" href="{{ route('collections.show', $collection) }}">
                         {{ __('Cancel') }}
                     </a>
+                </x-slot>
+
+            </x-section>
+
+            <x-section-border />
+
+            <x-section-no-form>
+
+                <x-slot name="title">
+                    {{ __('Collection Access') }}
+                </x-slot>
+
+                <x-slot name="description">
+                    {{ __('Who can access the collection and its promotion to all authenticated users.') }}
+                </x-slot>
+
+                <div class="col-span-6 sm:col-span-4">
+
+                    <x-label value="{{ __('Accessible by') }}" />
+
+                    <x-document-visibility-badge class="mt-1" :value="$collection->visibility" />
                 </div>
 
-            </form>
+
+                <div class="col-span-6 sm:col-span-4">
+
+                    <livewire:promote-collection :collection="$collection" />
+
+                </div>
+
+            </x-section-no-form>
 
         </div>
     </div>

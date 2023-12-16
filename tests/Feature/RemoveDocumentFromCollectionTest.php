@@ -9,6 +9,7 @@ use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Laravel\Sanctum\TransientToken;
 use Tests\TestCase;
 
 class RemoveDocumentFromCollectionTest extends TestCase
@@ -50,10 +51,11 @@ class RemoveDocumentFromCollectionTest extends TestCase
 
     public function test_document_removed_from_collection(): void
     {
-        $user = User::factory()->manager()->create();
+        $user = User::factory()->manager()->withPersonalTeam()->create()->withAccessToken(new TransientToken);
 
         $collection = Collection::factory()
             ->for($user)
+            ->recycle($user->currentTeam)
             ->hasAttached(
                 Document::factory()->visibleByUploader($user)->count(3),
             )

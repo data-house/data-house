@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Models\Visibility;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
 use Illuminate\Validation\ValidationException;
 use Laravel\Jetstream\Contracts\UpdatesTeamNames;
@@ -23,10 +24,18 @@ class CreateCollection
      */
     public function __invoke(User $user, array $input): Collection
     {
-        $user->can('create', Collection::class);
+        abort_unless($user->can('create', Collection::class), 403);
 
         Validator::make($input, [
-            'title' => ['required', 'string', 'min:1', 'max:255'],
+            'title' => ['required',
+                'string',
+                'min:1',
+                'max:255',
+                Rule::unique((new Collection)->getTable(), 'title')
+                    ->where('visibility', Visibility::TEAM)
+                    ->when($user->currentTeam, function ($rule, $targetTeam) {
+                        return $rule->where('team_id', $targetTeam->getKey());
+                    })],
             'visibility' => ['required', new Enum(Visibility::class)],
             'type' => ['required', new Enum(CollectionType::class)],
             'strategy' => ['nullable', new Enum(CollectionStrategy::class)],

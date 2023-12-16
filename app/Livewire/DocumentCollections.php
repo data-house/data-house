@@ -46,12 +46,16 @@ class DocumentCollections extends Component
 
     public function render()
     {
+        $user = auth()->user();
+
         $collections = $this->document->collections()
             ->withoutSystem()
+            ->visibleBy($user)
             ->get();
         
         $selectableCollections = Collection::query()
             ->withoutSystem()
+            ->visibleBy($user)
             ->whereNotIn('id', $collections->modelKeys())
             ->get();
 

@@ -14,28 +14,30 @@
     </x-slot>
 
     <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">                
-            <div>
-                <form action="{{ route('collections.store') }}" method="post" enctype="multipart/form-data">
+        <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
+            
+            <x-section submit="{{ route('collections.store') }}">
+                <x-slot name="title">
+                    {{ __('Collection Name') }}
+                </x-slot>
 
+                <x-slot name="description">
+                    {{ __('The collection\'s name and owner information.') }}
+                </x-slot>
+
+                <x-slot name="form">
                     @csrf
 
-                    <div>
-                        <x-label for="title" value="{{ __('Collection title') }}" />
-                        <x-input-error for="title" class="mt-2" />
-                        <x-input id="title" type="text" name="title" class="mt-1 block w-full max-w-prose" autocomplete="title" value="{{ old('title') }}" />
-                    </div>
+                    @include('collection.partials.title')
 
-                    
-                    <div class="flex items-center gap-4">
-                        <x-button class="">
-                            {{ __('Create') }}
-                        </x-button>
+                </x-slot>
 
-                    </div>
-
-                </form>
-            </div>
+                <x-slot name="actions">
+                    <x-button class="">
+                        {{ __('Create') }}
+                    </x-button>
+                </x-slot>
+            </x-section>
         </div>
     </div>
 </x-app-layout>

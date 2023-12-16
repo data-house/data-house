@@ -43,7 +43,9 @@ class CollectionController extends Controller
             'draft' => false,
         ]);
 
-        return redirect()->route('collections.show', $collection);
+        return redirect()
+            ->route('collections.show', $collection)
+            ->with('flash.banner', __('Collection created.'));
     }
 
     /**
@@ -51,7 +53,10 @@ class CollectionController extends Controller
      */
     public function show(Request $request, Collection $collection)
     {
-        $collection->load(['documents', 'questions' => function($query){
+        $collection->load(['documents' => function($query){
+            $query
+                ->visibleBy(auth()->user());
+        }, 'questions' => function($query){
             $query
                 ->viewableBy(auth()->user())
                 ->orderBy('created_at', 'DESC')
@@ -70,7 +75,11 @@ class CollectionController extends Controller
      */
     public function edit(Collection $collection)
     {
+        $collection->load(['user', 'team']);
+
         return view('collection.edit', [
+            'owner_user' => $collection->user,
+            'owner_team' => $collection->team,
             'collection' => $collection,
         ]);
     }
@@ -88,6 +97,8 @@ class CollectionController extends Controller
 
         $collection->save();
 
-        return redirect()->route('collections.show', $collection);
+        return redirect()
+            ->route('collections.show', $collection)
+            ->with('flash.banner', __('Collection updated.'));
     }
 }
