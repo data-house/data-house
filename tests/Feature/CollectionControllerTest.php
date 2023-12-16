@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Livewire\PromoteCollection;
 use App\Models\Collection;
 use App\Models\User;
 use App\Models\Visibility;
@@ -239,6 +240,8 @@ class CollectionControllerTest extends TestCase
         $response->assertViewIs('collection.edit');
         
         $response->assertSee('Save');
+        
+        $response->assertSeeLivewire(PromoteCollection::class);
     }
 
     public function test_collection_can_be_updated(): void

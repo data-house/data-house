@@ -72,7 +72,11 @@ class CollectionController extends Controller
      */
     public function edit(Collection $collection)
     {
+        $collection->load(['user', 'team']);
+
         return view('collection.edit', [
+            'owner_user' => $collection->user,
+            'owner_team' => $collection->team,
             'collection' => $collection,
         ]);
     }

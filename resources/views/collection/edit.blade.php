@@ -31,6 +31,21 @@
                     @csrf
                     @method('PUT')
 
+                    <div class="col-span-6 sm:col-span-4">
+
+                        <x-label value="{{ __('Collection creator and team') }}" />
+                        
+                        <p>
+                            {{ $owner_user->name }}
+                        </p>
+
+                        @if ($owner_team)
+                            <p>
+                                <span class="font-bold">{{ __('Team') }}</span> {{ $owner_team->name }}
+                            </p>
+                        @endif
+                    </div>
+
                     @include('collection.partials.title')
 
                 </x-slot>
@@ -46,6 +61,34 @@
                 </x-slot>
 
             </x-section>
+
+            <x-section-border />
+
+            <x-section-no-form>
+
+                <x-slot name="title">
+                    {{ __('Collection Access') }}
+                </x-slot>
+
+                <x-slot name="description">
+                    {{ __('Who can access the collection and its promotion to all authenticated users.') }}
+                </x-slot>
+
+                <div class="col-span-6 sm:col-span-4">
+
+                    <x-label value="{{ __('Accessible by') }}" />
+
+                    <x-document-visibility-badge class="mt-1" :value="$collection->visibility" />
+                </div>
+
+
+                <div class="col-span-6 sm:col-span-4">
+
+                    <livewire:promote-collection :collection="$collection" />
+
+                </div>
+
+            </x-section-no-form>
 
         </div>
     </div>
