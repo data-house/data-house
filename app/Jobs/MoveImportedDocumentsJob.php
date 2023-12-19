@@ -8,6 +8,7 @@ use App\Models\ImportDocument;
 use App\Models\ImportDocumentStatus;
 use App\Models\ImportReport;
 use App\Models\ImportStatus;
+use App\Models\Visibility;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
@@ -136,6 +137,7 @@ class MoveImportedDocumentsJob extends ImportJobBase
             'document_hash' => $checksum,
             'document_date' => $import->document_date,
             'document_size' => $import->document_size,
+            'visibility' => Visibility::defaultDocumentVisibility(),
         ]);
 
         $import->processed_at = now();
