@@ -18,17 +18,22 @@ class DocumentLibraryController extends Controller
     {
         $searchQuery = $request->has('s') ? $request->input('s') : null;
 
+        $sourceFilters = $request->hasAny(['source']) ? $request->only(['source']) : ['source' => 'all-teams'];
+
+        $teamFilters = $sourceFilters['source'] === 'current-team' ? ['team_id' => $request->user()->currentTeam->getKey()] : [];
+
         $filters = $request->hasAny(['project_countries', 'type', 'project_region', 'project_topics']) ? $request->only(['project_countries', 'type', 'project_region', 'project_topics']) : [];
 
-        // TODO: SEARCH should show protected and public doc + user visibility doc + doc with team visibility that are part of current_team.
+        $searchFilters = array_merge($filters, $teamFilters);
 
-        $documents = ($searchQuery || $filters)
-            ? Document::tenantSearch($searchQuery, $filters)->paginate(150)
+        $documents = ($searchQuery || $searchFilters)
+            ? Document::tenantSearch($searchQuery, $searchFilters)->paginate(150)
             : Document::query()->visibleBy(auth()->user())->paginate(150);
 
         $countries = Project::pluck('countries')->flatten()->unique('value');
 
         $facets = [
+            'source' => ['all-teams', 'current-team'],
             'type' => DocumentType::cases(),
             'countries' => $countries->map->toCountryName(),
             'regions' => GeographicRegion::facets($countries?->map->value),
@@ -39,10 +44,10 @@ class DocumentLibraryController extends Controller
         return view('library.index', [
             'documents' => $documents,
             'searchQuery' => $searchQuery,
-            'filters' => $filters,
-            'is_search' => $searchQuery || $filters,
+            'filters' => array_merge($filters, $sourceFilters),
+            'is_search' => $searchQuery || $searchFilters,
             'facets' => $facets,
-            'applied_filters_count' => count(array_keys($filters ?? [] )),
+            'applied_filters_count' => count(array_keys($searchFilters ?? [] )),
         ]);
     }
 }

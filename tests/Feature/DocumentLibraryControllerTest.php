@@ -3,7 +3,9 @@
 namespace Tests\Feature;
 
 use App\Models\Document;
+use App\Models\DocumentType;
 use App\Models\Preference;
+use App\Models\Topic;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -159,5 +161,73 @@ class DocumentLibraryControllerTest extends TestCase
         $actualDocuments = $response->viewData('documents');
 
         $this->assertEquals($visibleDocuments->pluck('id')->toArray(), $actualDocuments->pluck('id')->toArray());
+    }
+
+
+    public function test_facets_and_filters_status_returned()
+    {
+        $documents = Document::factory()
+            ->visibleByAnyUser()
+            ->count(2)
+            ->create();
+
+        $user = User::factory()->withPersonalTeam()->guest()->create();
+
+        $response = $this->actingAs($user)
+            ->get('/library');
+
+        $response->assertOk();
+
+        $response->assertViewIs('library.index');
+
+        $response->assertViewHas('documents');
+        $response->assertViewHas('searchQuery', null);
+        $response->assertViewHas('filters', ['source' => 'all-teams']);
+        $response->assertViewHas('is_search', false);
+        $response->assertViewHas('facets', [
+            'source' => ['all-teams', 'current-team'],
+            'type' => DocumentType::cases(),
+            'countries' => collect(),
+            'regions' => collect(),
+            'organizations' => [],
+            'topic' => Topic::facets(),
+        ]);
+        $response->assertViewHas('applied_filters_count', 0);
+
+        $response->assertSee('2 documents in the library');
+    }
+
+    public function test_source_filter_can_be_selected()
+    {
+        $documents = Document::factory()
+            ->visibleByAnyUser()
+            ->count(2)
+            ->create();
+
+        $user = User::factory()->withPersonalTeam()->guest()->create();
+
+        $response = $this->actingAs($user)
+            ->get('/library?source=current-team');
+
+        $response->assertOk();
+
+        $response->assertViewIs('library.index');
+
+        $response->assertViewHas('documents');
+        $response->assertViewHas('searchQuery', null);
+        $response->assertViewHas('filters', ['source' => 'current-team']);
+        $response->assertViewHas('is_search', true);
+        $response->assertViewHas('facets', [
+            'source' => ['all-teams', 'current-team'],
+            'type' => DocumentType::cases(),
+            'countries' => collect(),
+            'regions' => collect(),
+            'organizations' => [],
+            'topic' => Topic::facets(),
+        ]);
+        $response->assertViewHas('applied_filters_count', 1);
+
+        $response->assertSee('1 Filter');
+        $response->assertSee('0 documents found'); // documents are created using different teams
     }
 }

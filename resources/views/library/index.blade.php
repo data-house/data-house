@@ -71,7 +71,24 @@
 
 
                     <div class="border-b border-gray-200 py-10" id="disclosure-1" x-cloak x-show="showFilters">
-                        <div class="mx-auto grid max-w-7xl grid-cols-2 gap-x-4 px-4 text-sm sm:px-6 md:gap-x-6 lg:px-8">
+                        <div class="mx-auto grid max-w-7xl grid-cols-2 gap-x-4 px-4 text-sm sm:px-6 md:gap-6 lg:px-8">
+                            <div class="grid auto-rows-min grid-cols-1 md:col-span-2 gap-y-10 md:grid-cols-2 md:gap-x-6">
+                                <fieldset>
+                                <legend class="block font-medium">{{ __('Source') }}</legend>
+                                <div class="space-y-6 pt-6 sm:space-y-4 sm:pt-4 max-h-72 overflow-y-auto">
+
+                                    <div class="flex items-center text-base sm:text-sm">
+                                        <input id="source-{{ 'all-teams' }}" name="source" value="{{ 'all-teams' }}" @checked(($filters['source'] ?? []) === 'all-teams') type="radio" class="h-4 w-4 flex-shrink-0 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                                        <label for="source-{{ 'all-teams' }}" class="ml-3 min-w-0 flex-1 text-gray-600">{{ __('All Teams') }}</label>
+                                    </div>
+
+                                    <div class="flex items-center text-base sm:text-sm">
+                                        <input id="source-{{ 'current-team' }}" name="source" value="{{ 'current-team' }}" @checked(($filters['source'] ?? []) === 'current-team') type="radio" class="h-4 w-4 flex-shrink-0 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                                        <label for="source-{{ 'current-team' }}" class="ml-3 min-w-0 flex-1 text-gray-600">{{ __('Current Team') }}</label>
+                                    </div>
+                                </div>
+                                </fieldset>
+                            </div>
                           <div class="grid auto-rows-min grid-cols-1 gap-y-10 md:grid-cols-2 md:gap-x-6">
                             <fieldset>
                               <legend class="block font-medium">{{ __('Type') }}</legend>
@@ -181,11 +198,11 @@
             </div>
 
             <div class="flex space-x-4 mt-3 divide-x divide-stone-200 items-center justify-end">
-                @if ($is_search && $documents->isNotEmpty())
+                @if ($is_search)
                     <div class="text-sm py-2 text-right">{{ trans_choice(':total document found|:total documents found', $documents->total(), ['total' => $documents->total()]) }}</div>
                 @endif
     
-                @if (!$is_search && $documents->isNotEmpty())
+                @if (!$is_search)
                     <div class="text-sm py-2 text-right">{{ trans_choice(':total document in the library|:total documents in the library', $documents->total(), ['total' => $documents->total()]) }}</div>
                 @endif
 
