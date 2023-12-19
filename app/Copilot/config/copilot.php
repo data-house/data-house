@@ -13,7 +13,7 @@ return [
     | Copilot. This connection is used when syncing all models to the
     | copilot service. You should adjust this based on your needs.
     |
-    | Supported: "oaks", "null"
+    | Supported: "oaks", "null" (disabled)
     |
     */
 
@@ -52,6 +52,8 @@ return [
         'questions_per_user_per_day' => (int)env('COPILOT_DAILY_QUESTIONS_PER_USER', 100),
     ],
 
+    'timeout' => env('COPILOT_REQUEST_TIMEOUT_MINUTES', 3),
+
     /*
     |--------------------------------------------------------------------------
     | Cache configuration
@@ -69,7 +71,20 @@ return [
         'ttl' => env('COPILOT_CACHE_TTL', Carbon::HOURS_PER_DAY * Carbon::MINUTES_PER_HOUR * Carbon::SECONDS_PER_MINUTE), // 1 day
     ],
 
-    'timeout' => env('COPILOT_REQUEST_TIMEOUT_MINUTES', 3),
+    /*
+    |--------------------------------------------------------------------------
+    | Feature configuration
+    |--------------------------------------------------------------------------
+    |
+    | Configure which Copilot features are available for all users.
+    |
+    */
+
+    'features' => [
+        'summary' => env('COPILOT_SUMMARY', false),
+        'question' => env('COPILOT_QUESTION', false),
+        'tagging' => env('COPILOT_TAGGING', false),
+    ],
     
     'engines' => [
     

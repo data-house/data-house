@@ -24,6 +24,8 @@ class MakeDocumentQuestionable extends PipelineJob
             return;
         }
 
+        // TODO: check if copilot is active
+
         $this->model->questionable();
     }
 }
