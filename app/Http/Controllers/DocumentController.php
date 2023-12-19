@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Disk;
 use App\Models\Document;
+use App\Models\Visibility;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules\File;
@@ -53,6 +54,7 @@ class DocumentController extends Controller
             'mime' => Storage::disk(Disk::DOCUMENTS->value)->mimeType($path),
             'uploaded_by' => $request->user()->getKey(),
             'team_id' => $request->user()->currentTeam->getKey(),
+            'visibility' => Visibility::defaultDocumentVisibility(),
         ]);
 
         return redirect()

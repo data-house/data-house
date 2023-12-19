@@ -68,6 +68,38 @@ class DocumentControllerTest extends TestCase
 
         Storage::disk('documents')->assertExists($document->disk_path);
     }
+    
+    public function test_document_can_be_uploaded_with_default_visibility(): void
+    {
+        config(['library.default_document_visibility' => 'protected']);
+        
+        Storage::fake('documents');
+
+        $user = User::factory()->withPersonalTeam()->guest()->create();
+
+        $response = $this->actingAs($user)
+            ->post('/documents', [
+                'document' => UploadedFile::fake()->image('photo1.jpg', 200, 200),
+            ]);
+
+        $response->assertRedirectToRoute('documents.library');
+
+        $response->assertSessionHas('flash.banner', 'Document uploaded.');
+        
+        $document = Document::first();
+
+        $this->assertEquals('documents', $document->disk_name);
+        $this->assertNotEmpty($document->disk_path);
+        $this->assertEquals('photo1.jpg', $document->title);
+        $this->assertEquals('image/jpeg', $document->mime);
+        $this->assertTrue($document->uploader->is($user));
+        $this->assertTrue($document->team->is($user->currentTeam));
+        $this->assertEquals(Visibility::PROTECTED, $document->visibility);
+
+        $this->assertStringNotContainsString('/', $document->disk_path);
+
+        Storage::disk('documents')->assertExists($document->disk_path);
+    }
 
     public function test_document_details_page_not_loadable_if_user_doesnt_have_view_permission()
     {

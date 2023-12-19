@@ -21,4 +21,21 @@ class VisibilityTest extends TestCase
             Visibility::PROTECTED,
         ], $options);
     }
+    
+    public function test_default_document_visibility(): void
+    {
+        config(['library.default_document_visibility' => 'protected']);
+
+        $option = Visibility::defaultDocumentVisibility();
+
+        $this->assertEquals(Visibility::PROTECTED, $option);
+    }
+
+    public function test_default_document_visibility_uses_fallback(): void
+    {
+        $option = Visibility::defaultDocumentVisibility();
+
+        $this->assertEquals(Visibility::TEAM, $option);
+    }
+    
 }

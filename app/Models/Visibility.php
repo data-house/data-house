@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Support\Arr;
+use InvalidArgumentException;
 
 enum Visibility: int
 {
@@ -69,5 +70,27 @@ enum Visibility: int
     public static function forDocuments(): array
     {
         return tap(collect(self::cases())->skip(1), fn($c) => $c->pop(1))->values()->all();
+    }
+
+    /**
+     * Get the default document visibility as configured at instance level
+     */
+    public static function defaultDocumentVisibility(): static
+    {
+        $configuredValue = config('library.default_document_visibility', Visibility::TEAM->name);
+
+        $nameValueMapping = collect(self::cases())->mapWithKeys(fn ($c) => [$c->name => $c->value]);
+
+        $value = $nameValueMapping[str($configuredValue)->upper()->__toString()] ?? null;
+
+        throw_if(is_null($value), InvalidArgumentException::class, "Invalid visibility [{$configuredValue}].");
+
+        $defaultVisibility = static::from($value);
+
+        throw_if($defaultVisibility === static::SYSTEM, InvalidArgumentException::class, "System visibility cannot be used as default value.");
+        
+        throw_if($defaultVisibility === static::PUBLIC, InvalidArgumentException::class, "Public visibility cannot be used as default value.");
+
+        return $defaultVisibility;    
     }
 }
