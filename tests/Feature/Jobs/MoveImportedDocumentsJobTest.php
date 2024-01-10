@@ -181,6 +181,85 @@ class MoveImportedDocumentsJobTest extends TestCase
 
         Queue::assertPushed(ExtractDocumentProperties::class);
     }
+    
+    public function test_imported_document_respect_visibility_defined_in_import_map(): void
+    {
+        config(['library.default_document_visibility' => 'team']);
+
+        $fakeImportDisk = Storage::fake(Disk::IMPORTS->value);
+        
+        $fakeDocumentDisk = Storage::fake(Disk::DOCUMENTS->value);
+
+        Queue::fake();
+
+        $fakeImportDisk->putFileAs('', new File(base_path('tests/fixtures/documents/data-house-test-doc.pdf')), 'test.pdf');
+
+
+        $import = Import::factory()->create([
+            'source' => ImportSource::LOCAL,
+            'status' => ImportStatus::RUNNING,
+            'configuration' => [
+                'root' => $fakeImportDisk->path(''), // only used to make the import configuration looks correct
+            ],
+        ]);
+
+        $importMap = $import->maps()->create([
+            'status' => ImportStatus::RUNNING,
+            'mapped_team' => null,
+            'mapped_uploader' => $import->creator->getKey(),
+            'recursive' => false,
+            'filters' => [
+                'paths' => "test.pdf"
+            ],
+            'visibility' => Visibility::PROTECTED,
+        ]);
+
+        $importDocument = $importMap->documents()->create([
+            'source_path' => "test.pdf",
+            'disk_name' => "imports",
+            'disk_path' => 'test.pdf',
+            'mime' => "application/pdf",
+            'uploaded_by' => $import->creator->getKey(),
+            'team_id' => null,
+            'document_size' => 70610,
+            'document_date' => today(),
+            'document_hash' => $fakeImportDisk->checksum('test.pdf', ['checksum_algo' => 'sha256']),
+            'import_hash' => hash('sha256', 'test.pdf'),
+        ]);
+
+        (new MoveImportedDocumentsJob($importMap))->handle();
+
+        $document = Document::first();
+
+        $this->assertEquals('documents', $document->disk_name);
+        $this->assertNotEmpty($document->disk_path);
+        $this->assertEquals('test.pdf', $document->title);
+        $this->assertEquals('application/pdf', $document->mime);
+        $this->assertTrue($document->uploader->is($import->creator));
+        $this->assertNull($document->team);
+        $this->assertNotNull($document->disk_path);
+
+        $this->assertEquals($importDocument->document_hash, $document->document_hash);
+        $this->assertEquals(70610, $document->document_size);
+        $this->assertNotNull($document->document_date);
+        $this->assertTrue($document->document_date->isToday());
+        $this->assertEquals(Visibility::PROTECTED, $document->visibility);
+
+        $updatedImportDocument = $importDocument->fresh();
+        $this->assertNotNull($updatedImportDocument->processed_at);
+        $this->assertEquals(ImportDocumentStatus::COMPLETED, $updatedImportDocument->status);
+        
+        $this->assertNotNull($updatedImportDocument->document_id);
+        $this->assertTrue($updatedImportDocument->document->is($document));
+        $this->assertTrue($document->importDocument->is($updatedImportDocument));
+
+        Storage::disk(Disk::DOCUMENTS->value)->assertExists($document->disk_path);
+
+        $this->assertEquals(ImportStatus::COMPLETED, $importMap->fresh()->status);
+        $this->assertEquals(ImportStatus::COMPLETED, $import->fresh()->status);
+
+        Queue::assertPushed(ExtractDocumentProperties::class);
+    }
 
     public function test_different_hash_after_transfer_raises_failure(): void
     {

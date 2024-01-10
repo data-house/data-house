@@ -137,7 +137,7 @@ class MoveImportedDocumentsJob extends ImportJobBase
             'document_hash' => $checksum,
             'document_date' => $import->document_date,
             'document_size' => $import->document_size,
-            'visibility' => Visibility::defaultDocumentVisibility(),
+            'visibility' => $this->importMap->visibility ?? Visibility::defaultDocumentVisibility(),
         ]);
 
         $import->processed_at = now();

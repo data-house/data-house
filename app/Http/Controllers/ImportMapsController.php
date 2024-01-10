@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Import;
 use App\Models\ImportMap;
+use App\Models\Visibility;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Enum;
 
 class ImportMapsController extends Controller
 {
@@ -37,6 +39,11 @@ class ImportMapsController extends Controller
             'import' => $import,
             'teams' => auth()->user()->allTeams(),
             'uploader' => auth()->user(),
+            'defaultVisibility' => Visibility::defaultDocumentVisibility(),
+            'availableVisibility' => [
+                Visibility::TEAM,
+                Visibility::PROTECTED,
+            ],
         ]);
     }
 
@@ -54,6 +61,7 @@ class ImportMapsController extends Controller
             'team' => ['required', Rule::in($userTeams->map->getKey()) ],
             'paths' => ['required', 'array', 'min:1'],
             'paths.*' => ['required', 'string', 'max:1000'],
+            'visibility' => ['nullable', 'integer', new Enum(Visibility::class), Rule::in(Visibility::forDocuments())],
         ]);
 
         // TODO: figure out a way to validate if the specified paths exists in the import file system
@@ -65,8 +73,8 @@ class ImportMapsController extends Controller
             'filters' => [
                 'paths' => $validated['paths']
             ],
+            'visibility' => $validated['visibility'] ?? Visibility::defaultDocumentVisibility(),
         ]);
-
 
         return redirect()->route('imports.show', $import);
     }

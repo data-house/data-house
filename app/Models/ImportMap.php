@@ -34,15 +34,19 @@ class ImportMap extends Model
         'mapped_uploader',
         'recursive',
         'filters',
+        'visibility',
     ];
 
     protected $casts = [
         'recursive' => 'boolean',
         'filters' => 'json',
         'status' => ImportStatus::class,
+        'visibility' => Visibility::class,
     ];
 
-
+    protected $attributes = [
+        'visibility' => Visibility::TEAM,
+    ];
     
     /**
      * Get the columns that should receive a unique identifier.

@@ -36,6 +36,25 @@
                             <span class="ml-2 text-stone-800">{{ __('Recursively import all files in sub-folders') }}</span>
                         </label>
                     </div>
+                    
+                    <div>
+                        <x-label for="visibility" value="{{ __('Document visibility') }}" />
+
+                        <p>{{ __('Select who should see the imported documents. Leave blank to use the default visibility (:visibility).', ['visibility' => $defaultVisibility->label()]) }}</p>
+
+                        <x-input-error for="visibility" class="mt-2" />
+                        
+                        @foreach ($availableVisibility as $item)
+                            <label for="cv-{{$item->name}}" class="w-full px-4 py-2 text-left text-sm leading-5 transition duration-150 ease-in-out block text-stone-700 hover:bg-stone-100 focus:bg-stone-100 focus-within:bg-stone-100">
+                                <x-radio
+                                    id="cv-{{$item->name}}"
+                                    name="visibility"
+                                    :value="$item->value"
+                                    />
+                                {{ $item->label() }}
+                            </label>
+                        @endforeach
+                    </div>
 
                     <div>
                         <x-label for="team" value="{{ __('Target Team') }}" />
