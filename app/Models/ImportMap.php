@@ -43,10 +43,6 @@ class ImportMap extends Model
         'status' => ImportStatus::class,
         'visibility' => Visibility::class,
     ];
-
-    protected $attributes = [
-        'visibility' => Visibility::TEAM,
-    ];
     
     /**
      * Get the columns that should receive a unique identifier.
