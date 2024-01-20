@@ -23,7 +23,7 @@ class InsertProject
     {
         $validated = Validator::make($input, [
             'title' => ['required', 'string', 'min:1', 'max:255', 'unique:projects,title'],
-            'type' => ['required', new Enum(ProjectType::class)],
+            'type' => ['nullable', new Enum(ProjectType::class)],
             'topics' => ['nullable', 'array'],
             'topics.*' => ['string', 'min:1', 'max:255'],
             'countries' => ['nullable', 'array'],

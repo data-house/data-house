@@ -63,7 +63,7 @@ class ProjectImportCommand extends Command
                         'title' => $p['title']['de'] ?? $p['title']['en'] ?? $p['title'],
                         'slug' => $p['slug'],
                         'topics' => $p['topics'],
-                        'type' => ProjectType::from($p['type']),
+                        'type' => $p['type'] ? ProjectType::from($p['type']) : null,
                         'countries' => $p['countries'],
                         'organizations' => $p['organizations'],
                         'properties' => [
