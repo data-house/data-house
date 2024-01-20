@@ -44,7 +44,7 @@
                 <div class="space-y-4 col-span-2">
                     <p class="text-xs uppercase block text-stone-700">{{ __('Description') }}</p>
                     <div class="prose">
-                        {{ $project->description }}
+                        {{ str($project->description)->markdown()->toHtmlString() }}
                     </div>
                 </div>
                 <div class="space-y-4">
