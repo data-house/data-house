@@ -26,9 +26,11 @@
                             {{ $project->status->name }}
                         </p>
                     @endif
-                    <p class="inline px-2 py-1 rounded bg-lime-100 text-lime-900">
-                        {{ $project->type->name }}
-                    </p>
+                    @if ($project->type)
+                        <p class="inline px-2 py-1 rounded bg-lime-100 text-lime-900">
+                            {{ $project->type->name }}
+                        </p>
+                    @endif
                 </div>
 
                 <p class="text-4xl font-bold max-w-3xl">{{ $project->title }}</p>
@@ -42,7 +44,7 @@
                 <div class="space-y-4 col-span-2">
                     <p class="text-xs uppercase block text-stone-700">{{ __('Description') }}</p>
                     <div class="prose">
-                        {{ $project->description }}
+                        {{ str($project->description)->markdown()->toHtmlString() }}
                     </div>
                 </div>
                 <div class="space-y-4">

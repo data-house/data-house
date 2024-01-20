@@ -63,7 +63,7 @@ class ProjectImportCommand extends Command
                         'title' => $p['title']['de'] ?? $p['title']['en'] ?? $p['title'],
                         'slug' => $p['slug'],
                         'topics' => $p['topics'],
-                        'type' => ProjectType::from($p['type']),
+                        'type' => $p['type'] ? ProjectType::from($p['type']) : null,
                         'countries' => $p['countries'],
                         'organizations' => $p['organizations'],
                         'properties' => [
@@ -73,8 +73,10 @@ class ProjectImportCommand extends Command
                         'description' => $p['description'],
                         'starts_at' => $p['starts_at'],
                         'ends_at' => $p['ends_at'],
-                        'status' => ProjectStatus::from($p['status']),
+                        'status' => $p['status'] ? ProjectStatus::from($p['status']) : null,
                         'iki-funding' => $p['iki-funding'] ?? null,
+                        'website' => $p['website'] ?? null,
+                        'links' => $p['links'] ?? [],
                     ]);
 
                     $documents = Collection::wrap($p['documents'] ?? []);
