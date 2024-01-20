@@ -73,7 +73,7 @@ class ProjectImportCommand extends Command
                         'description' => $p['description'],
                         'starts_at' => $p['starts_at'],
                         'ends_at' => $p['ends_at'],
-                        'status' => ProjectStatus::from($p['status']),
+                        'status' => $p['status'] ? ProjectStatus::from($p['status']) : null,
                         'iki-funding' => $p['iki-funding'] ?? null,
                     ]);
 
