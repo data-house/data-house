@@ -42,6 +42,7 @@ class InsertProject
             'ends_at' => ['nullable', 'date', 'after:starts_at'],
             'status' => ['required', new Enum(ProjectStatus::class)],
             'iki-funding' => ['nullable', 'numeric'],
+            'website' => ['nullable', 'url'],
         ])->validate();
 
         return Project::create([
@@ -56,6 +57,7 @@ class InsertProject
             'starts_at' => ($validated['starts_at'] ?? false) ? Carbon::parse($validated['starts_at']) : null,
             'ends_at' => ($validated['ends_at'] ?? false) ? Carbon::parse($validated['ends_at']) : null,
             'status' => $validated['status'],
+            'website' => $validated['website'] ?? null,
             'funding' => [
                 'iki' => $validated['iki-funding'] ?? null,
             ],

@@ -75,6 +75,7 @@ class ProjectImportCommand extends Command
                         'ends_at' => $p['ends_at'],
                         'status' => $p['status'] ? ProjectStatus::from($p['status']) : null,
                         'iki-funding' => $p['iki-funding'] ?? null,
+                        'website' => $p['website'] ?? null,
                     ]);
 
                     $documents = Collection::wrap($p['documents'] ?? []);
