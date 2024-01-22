@@ -114,7 +114,7 @@
                     </div>
                 </div>
                 <div>
-                    <p class="text-xs uppercase block text-stone-700">{{ __('IKI Funding') }}</p>
+                    <p class="text-xs uppercase block text-stone-700">{{ __('Funding') }}</p>
                     <div class="prose">
                         
                         @if ($project->funding['iki'] ?? false)
