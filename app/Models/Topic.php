@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Storage;
 
 /** 
  * Project topics as defined in internal representation or in a connected graph.
@@ -13,6 +14,21 @@ class Topic
     private static $topics;
 
     public static $dataset;
+
+
+    protected static function getTopicFileContent(): mixed
+    {
+        list('disk' => $disk, 'file' => $path) = config('library.topics');
+
+        if(is_null($disk) || is_null($path)){
+            $file = file_get_contents(resource_path(static::$dataset ?? "data/iki-topics.json"));
+
+            return json_decode($file, true);
+        }
+
+        return Storage::disk($disk)->exists($path) ? Storage::disk($disk)->json($path) : [];
+
+    }
     
     public static function all()
     {
@@ -20,9 +36,7 @@ class Topic
             return static::$topics;
         }
 
-        $file = file_get_contents(resource_path(static::$dataset ?? "data/iki-topics.json"));
-
-        static::$topics = collect(json_decode($file, true));
+        static::$topics = collect(static::getTopicFileContent());
 
         return static::$topics;
     }
@@ -67,5 +81,11 @@ class Topic
             })
             ->filter()
             ->mapWithKeys(fn($t) => [$t['name'] => str($t['name'])->title()->toString()]);
+    }
+
+
+    public static function clear()
+    {
+        static::$topics = null;
     }
 }
