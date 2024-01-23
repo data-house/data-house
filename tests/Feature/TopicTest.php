@@ -5,14 +5,17 @@ namespace Tests\Feature;
 use App\Models\Topic;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class TopicTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_topic_returned_for_sub_topic()
+    public function test_topic_returned_for_sub_topic_using_predefined_resource()
     {
+        Topic::clear();
+
         $topics = Topic::from(['energy efficiency']);
 
         $this->assertEquals(1, $topics->count());
@@ -42,8 +45,10 @@ class TopicTest extends TestCase
         
     }
 
-    public function test_topics_returned_for_sub_topic()
+    public function test_topics_returned_for_sub_topic_using_predefined_resource()
     {
+        Topic::clear();
+
         $topics = Topic::from(["renewable energies", 'energy efficiency']);
         
         $this->assertEquals(1, $topics->count());
@@ -118,6 +123,56 @@ class TopicTest extends TestCase
                     ]
             ],
         ], $topics[1]);
+        
+    }
+
+    public function test_topic_returned_when_reading_from_storage()
+    {
+        Topic::clear();
+        
+        Storage::fake('local');
+
+        Storage::put('topics.json', json_encode([
+            "Area" => [
+                "id" => "area",
+                "name" => "Area",
+                "children" => [
+                    [
+                        "id" => "energy",
+                        "name" => "Energy"
+                    ]
+                ]
+            ],
+        ]));
+
+
+        config([
+            'library.topics.file' => 'topics.json',
+        ]);
+
+
+        $topics = Topic::from(['Energy']);
+
+        $this->assertEquals(1, $topics->count());
+
+        $this->assertEquals([
+            "id" => "area",
+            "name" => "Area",
+    
+            "children"  => [
+                [
+                    "id" => "energy",
+                    "name" => "Energy"
+                ],
+            ],
+            "selected"  => [
+                [
+                    "id" => "energy",
+                    "name" => "Energy"
+                ]
+            ],
+        ], $topics->first());
+        
         
     }
 }
