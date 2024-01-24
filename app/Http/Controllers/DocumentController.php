@@ -26,6 +26,8 @@ class DocumentController extends Controller
      */
     public function create()
     {
+        abort_unless(config('library.upload.allow_direct_upload'), 404);
+
         return view('document.create');
     }
 
@@ -34,6 +36,8 @@ class DocumentController extends Controller
      */
     public function store(Request $request)
     {
+        abort_unless(config('library.upload.allow_direct_upload'), 404);
+        
         $validated = $this->validate($request, [
             'document' => [
                 'required',

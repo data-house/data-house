@@ -25,6 +25,18 @@ class DocumentControllerTest extends TestCase
         $response->assertRedirectToRoute('login');
     }
     
+    public function test_creation_disabled(): void
+    {
+        config(['library.upload.allow_direct_upload' => false]);
+
+        $user = User::factory()->withPersonalTeam()->guest()->create();
+
+        $response = $this->actingAs($user)
+            ->get('/documents/create');
+
+        $response->assertNotFound();
+    }
+
     public function test_creation_form_loads(): void
     {
         $user = User::factory()->withPersonalTeam()->guest()->create();
@@ -67,6 +79,22 @@ class DocumentControllerTest extends TestCase
         $this->assertStringNotContainsString('/', $document->disk_path);
 
         Storage::disk('documents')->assertExists($document->disk_path);
+    }
+    
+    public function test_document_upload_disabled(): void
+    {
+        config(['library.upload.allow_direct_upload' => false]);
+
+        Storage::fake('documents');
+
+        $user = User::factory()->withPersonalTeam()->guest()->create();
+
+        $response = $this->actingAs($user)
+            ->post('/documents', [
+                'document' => UploadedFile::fake()->image('photo1.jpg', 200, 200),
+            ]);
+
+        $response->assertNotFound();
     }
     
     public function test_document_can_be_uploaded_with_default_visibility(): void

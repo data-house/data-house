@@ -12,4 +12,9 @@ return [
         'file' => env('TOPIC_FILE_NAME', null),
     ],
 
+
+    'upload' => [
+        'allow_direct_upload' => (bool)env('LIBRARY_UPLOAD_ALLOW_DIRECT_UPLOAD', true),
+    ],
+
 ];

@@ -12,7 +12,9 @@
 
                 @endcan
 
-                @if (Auth::user()->can('create', \App\Model\Document::class) || Auth::user()->can('viewAny', \App\Model\Import::class))
+                @if (Auth::user()->can('create', \App\Model\Document::class) ||
+                     Auth::user()->can('viewAny', \App\Model\Import::class) ||
+                     config('library.upload.allow_direct_upload'))
 
                     <x-dropdown align="right">
                         <x-slot name="trigger">
@@ -24,12 +26,14 @@
                         <x-slot name="content">
 
                             @can('create', \App\Model\Document::class)
-                                <x-dropdown-link 
-                                    href="{{ route('documents.create') }}"
-                                    :active="request()->routeIs('documents.create')"
-                                    >
-                                    {{ __('Upload Document') }}
-                                </x-dropdown-link>
+                                @if (config('library.upload.allow_direct_upload'))
+                                    <x-dropdown-link 
+                                        href="{{ route('documents.create') }}"
+                                        :active="request()->routeIs('documents.create')"
+                                        >
+                                        {{ __('Upload Document') }}
+                                    </x-dropdown-link>
+                                @endif
                             @endcan
                             @can('viewAny', \App\Model\Import::class)
                                 <x-dropdown-link 
