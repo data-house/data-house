@@ -135,7 +135,7 @@
 
                 <div class="flex items-center gap-2">
                         
-                    <x-add-documents-button />
+                    <x-add-documents-button :project="$project" />
 
                     <div class="divide-x"></div>
 
