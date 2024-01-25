@@ -14,8 +14,8 @@ class ImportPolicy
     public function viewAny(User $user): bool
     {
         return ($user->hasPermission('import:view') ||
-           $user->hasTeamPermission($user->currentTeam, 'import:view') ||
-           $user->tokenCan('import:view'));
+            $user->hasTeamPermission($user->currentTeam, 'import:view')) &&
+            $user->tokenCan('import:view');
     }
 
     /**

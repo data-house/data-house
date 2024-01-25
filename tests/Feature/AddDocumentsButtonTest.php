@@ -7,6 +7,7 @@ use App\Models\User;
 use App\View\Components\AddDocumentsButton;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Laravel\Sanctum\TransientToken;
 use Tests\TestCase;
 
 class AddDocumentsButtonTest extends TestCase
@@ -15,7 +16,7 @@ class AddDocumentsButtonTest extends TestCase
 
     public function test_add_document_button_renderable(): void
     {
-        $user = User::factory()->manager()->withPersonalTeam()->create();
+        $user = User::factory()->manager()->withPersonalTeam()->create()->withAccessToken(new TransientToken);
 
         $view = $this->actingAs($user)->component(AddDocumentsButton::class);
  
@@ -28,7 +29,7 @@ class AddDocumentsButtonTest extends TestCase
     {
         config(['library.upload.allow_direct_upload' => false]);
 
-        $user = User::factory()->manager()->withPersonalTeam()->create();
+        $user = User::factory()->manager()->withPersonalTeam()->create()->withAccessToken(new TransientToken);
 
         $view = $this->actingAs($user)->component(AddDocumentsButton::class);
  
