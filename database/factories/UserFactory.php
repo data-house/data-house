@@ -101,7 +101,7 @@ class UserFactory extends Factory
      *
      * @return $this
      */
-    public function withPersonalTeam(): static
+    public function withPersonalTeam(array $teamState = []): static
     {
         if (! Features::hasTeamFeatures()) {
             return $this->state([]);
@@ -113,6 +113,7 @@ class UserFactory extends Factory
                     'name' => $user->name.'\'s Team',
                     'user_id' => $user->id,
                     'personal_team' => true,
+                    ...$teamState,
                 ]),
             'ownedTeams'
         );

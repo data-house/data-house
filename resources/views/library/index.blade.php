@@ -12,36 +12,7 @@
 
                 @endcan
 
-                @if (Auth::user()->can('create', \App\Model\Document::class) || Auth::user()->can('viewAny', \App\Model\Import::class))
-
-                    <x-dropdown align="right">
-                        <x-slot name="trigger">
-                            <x-button type="button" class="justify-self-end inline-flex gap-1 items-center">
-                                {{ __('Add documents') }}
-                            </x-button>
-                        </x-slot>
-                    
-                        <x-slot name="content">
-
-                            @can('create', \App\Model\Document::class)
-                                <x-dropdown-link 
-                                    href="{{ route('documents.create') }}"
-                                    :active="request()->routeIs('documents.create')"
-                                    >
-                                    {{ __('Upload Document') }}
-                                </x-dropdown-link>
-                            @endcan
-                            @can('viewAny', \App\Model\Import::class)
-                                <x-dropdown-link 
-                                    href="{{ route('imports.index') }}"
-                                    :active="request()->routeIs('imports.*')"
-                                    >
-                                    {{ __('Import Documents') }}
-                                </x-dropdown-link>
-                            @endcan
-                        </x-slot>
-                    </x-dropdown>
-                @endif
+                <x-add-documents-button />
             </x-slot>
 
             @include('library-navigation-menu')

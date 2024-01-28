@@ -34,8 +34,8 @@ class DocumentPolicy
     public function create(User $user): bool
     {
         return ($user->hasPermission('document:create') ||
-           $user->hasTeamPermission($user->currentTeam, 'document:create')) &&
-           $user->tokenCan('document:create');
+           $user->hasTeamPermission($user->currentTeam, 'document:create') ||
+           $user->tokenCan('document:create'));
     }
 
     /**

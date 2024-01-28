@@ -133,7 +133,14 @@
             <div class="max-w-7xl mx-auto mb-2 flex justify-between items-center">
                 <h3 class="text-lg font-semibold">{{ __('Project reports and documents') }}</h3>
 
-                <x-visualization-style-switcher :user="auth()->user()" />
+                <div class="flex items-center gap-2">
+                        
+                    <x-add-documents-button :project="$project" />
+
+                    <div class="divide-x"></div>
+
+                    <x-visualization-style-switcher :user="auth()->user()" />
+                </div>
             </div>
 
             @php
