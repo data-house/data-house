@@ -42,7 +42,7 @@ class AddDocumentsButton extends Component
 
         $uploadLink = $uploadSettings?->uploadLinkUrl;
 
-        if($uploadLink && $this->project && $uploadSettings?->supportProjects){
+        if($uploadLink && $this->project && $this->project->exists && $uploadSettings?->supportProjects){
             $uploadLink .= '?path=' .urlencode(str("/{$this->project->title} [{$this->project->slug}]")->ascii()->toString());
         }
 

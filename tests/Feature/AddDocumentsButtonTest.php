@@ -96,6 +96,28 @@ class AddDocumentsButtonTest extends TestCase
         $view->assertSee('http://link.localhost?path=' . urlencode('/Project title [project-slug]'));
     }
     
+    public function test_upload_link_rendered_with_project_handle_null_project(): void
+    {
+        config(['library.upload.allow_direct_upload' => false]);
+
+        $user = User::factory()->manager()->withPersonalTeam([
+            'settings' => [
+                'upload' => [
+                    'uploadLinkUrl' => 'http://link.localhost',
+                    'supportProjects' => true,
+                ]
+            ]
+            
+        ])->create();
+        
+        $view = $this->actingAs($user)->component(AddDocumentsButton::class);
+ 
+        $view->assertSee('Upload Documents');
+        
+        $view->assertSee('http://link.localhost');
+        $view->assertDontSee('path=');
+    }
+    
     public function test_upload_link_not_rendered_when_direct_upload_possible(): void
     {
         config(['library.upload.allow_direct_upload' => true]);
