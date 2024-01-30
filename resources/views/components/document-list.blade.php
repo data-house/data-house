@@ -17,9 +17,11 @@
             {{ __('Project and region') }}
         </div>
 
+        @feature(Flag::editDocumentVisibility())
         <div class="justify-start  col-span-2">
             {{ __('Access') }}
         </div>
+        @endfeature
         
     </div>
     @forelse ($documents as $document)
@@ -51,9 +53,11 @@
                 @endif
             </div>
 
+            @feature(Flag::editDocumentVisibility())
             <div class="col-span-2">
                 <x-document-visibility-badge :value="$document->visibility" />
             </div>
+            @endfeature
         </div>
     @empty
         <div class="">

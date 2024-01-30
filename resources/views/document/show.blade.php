@@ -7,7 +7,9 @@
             <h2 class="font-semibold text-xl text-stone-800 leading-tight space-y-2 sm:space-y-0 sm:flex sm:gap-4 md:items-center">
                 {{ $document->title }}
 
+                @feature(Flag::editDocumentVisibility())
                 <x-document-visibility-badge class="ml-4" :value="$document->visibility" />
+                @endfeature
             </h2>
             <div class="flex gap-2">
                 @can('view', $document)
@@ -20,7 +22,9 @@
                         {{ __('Edit') }}
                     </x-button-link>
 
+                    @feature(Flag::editDocumentVisibility())
                     <livewire:document-visibility-selector :document="$document" />
+                    @endfeature
                 @endcan
             </div>
         </div>

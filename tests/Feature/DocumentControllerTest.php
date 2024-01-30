@@ -6,6 +6,7 @@ use App\Livewire\DocumentVisibilitySelector;
 use Tests\TestCase;
 use App\Models\User;
 use App\Models\Document;
+use App\Models\Flag;
 use App\Models\ImportDocument;
 use App\Models\Visibility;
 use Illuminate\Support\Str;
@@ -13,6 +14,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Laravel\Pennant\Feature;
 
 class DocumentControllerTest extends TestCase
 {
@@ -145,7 +147,9 @@ class DocumentControllerTest extends TestCase
     }
 
     public function test_document_details_page_loads()
-    {        
+    {
+        Feature::define(Flag::editDocumentVisibility(), true);
+        
         $user = User::factory()->withPersonalTeam()->manager()->create();
 
         $document = Document::factory()
@@ -170,7 +174,9 @@ class DocumentControllerTest extends TestCase
     }
     
     public function test_document_details_page_shows_import_source()
-    {        
+    {
+        Feature::define(Flag::editDocumentVisibility(), true);
+
         $user = User::factory()->withPersonalTeam()->manager()->create();
 
         $document = Document::factory()
@@ -205,7 +211,9 @@ class DocumentControllerTest extends TestCase
     }
     
     public function test_document_details_page_shows_import_source_only_if_browsed_by_owning_team()
-    {        
+    {
+        Feature::define(Flag::editDocumentVisibility(), true);
+        
         $user = User::factory()->withPersonalTeam()->manager()->create();
 
         $document = Document::factory()
