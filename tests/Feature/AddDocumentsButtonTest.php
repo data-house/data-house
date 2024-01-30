@@ -22,7 +22,7 @@ class AddDocumentsButtonTest extends TestCase
  
         $view->assertSee('Upload Document');
 
-        $view->assertSee('Import Documents');
+        $view->assertSee('Imports');
     }
     
     public function test_add_single_document_button_not_available_when_disabled(): void
@@ -35,7 +35,9 @@ class AddDocumentsButtonTest extends TestCase
  
         $view->assertDontSee('Upload Document');
 
-        $view->assertSee('Import Documents');
+        $view->assertDontSee('View folder');
+
+        $view->assertSee('Imports');
     }
 
     public function test_add_document_button_not_rendered_when_user_cannot_upload_or_import(): void
@@ -45,8 +47,10 @@ class AddDocumentsButtonTest extends TestCase
         $view = $this->actingAs($user)->component(AddDocumentsButton::class);
  
         $view->assertDontSee('Upload Document');
+        
+        $view->assertDontSee('View folder');
 
-        $view->assertDontSee('Import Documents');
+        $view->assertDontSee('Imports');
     }
     
     public function test_upload_link_rendered_when_direct_upload_disabled(): void
@@ -65,7 +69,7 @@ class AddDocumentsButtonTest extends TestCase
         
         $view = $this->actingAs($user)->component(AddDocumentsButton::class);
  
-        $view->assertSee('Upload Documents');
+        $view->assertSee('View folder');
         
         $view->assertSee('http://link.localhost');
     }
@@ -91,7 +95,7 @@ class AddDocumentsButtonTest extends TestCase
             ]),
         ]);
  
-        $view->assertSee('Upload Documents');
+        $view->assertSee('View folder');
         
         $view->assertSee('http://link.localhost?path=' . urlencode('/Project title [project-slug]'));
     }
@@ -112,7 +116,7 @@ class AddDocumentsButtonTest extends TestCase
         
         $view = $this->actingAs($user)->component(AddDocumentsButton::class);
  
-        $view->assertSee('Upload Documents');
+        $view->assertSee('View folder');
         
         $view->assertSee('http://link.localhost');
         $view->assertDontSee('path=');
@@ -136,7 +140,5 @@ class AddDocumentsButtonTest extends TestCase
         $view->assertSee('Upload Document');
         
         $view->assertDontSee('http://link.localhost');
-
-        // ['upload' => ['uploadLinkUrl' => 'https://nextcloud.oneofftech.xyz/s/icbyicEgqEnHtir','supportProjects' => false,]]
     }
 }
