@@ -11,6 +11,7 @@ use App\Jobs\Pipeline\Document\ExtractDocumentProperties;
 use App\Jobs\Pipeline\Document\MakeDocumentQuestionable;
 use App\Jobs\Pipeline\Document\MakeDocumentSearchable;
 use App\Jobs\Pipeline\Document\RecognizeLanguage;
+use App\Models\Flag;
 use App\Models\Role;
 use App\Models\User;
 use App\Pipelines\PipelineTrigger;
@@ -61,9 +62,24 @@ class AppServiceProvider extends ServiceProvider
      */
     protected function configureFeatureFlags()
     {
-        Feature::define('ai.question-whole-library', fn (User $user) => match (true) {
+        Feature::define(Flag::AI_QUESTION_WHOLE_LIBRARY->value, fn (User $user) => match (true) {
             $user->hasRole(Role::ADMIN->value) => true,
             $user->hasRole(Role::MANAGER->value) => true,
+            default => false,
+        });
+        
+        Feature::define(Flag::DOCUMENT_VISIBILITY_EDIT->value, fn (User $user) => match (true) {
+            $user->hasRole(Role::ADMIN->value) => true,
+            default => false,
+        });
+        
+        Feature::define(Flag::DOCUMENT_FILTERS_SOURCE->value, fn (User $user) => match (true) {
+            $user->hasRole(Role::ADMIN->value) => true,
+            default => false,
+        });
+        
+        Feature::define(Flag::DASHBOARD->value, fn (User $user) => match (true) {
+            $user->hasRole(Role::ADMIN->value) => true,
             default => false,
         });
     }

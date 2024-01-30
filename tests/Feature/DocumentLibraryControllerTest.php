@@ -4,11 +4,13 @@ namespace Tests\Feature;
 
 use App\Models\Document;
 use App\Models\DocumentType;
+use App\Models\Flag;
 use App\Models\Preference;
 use App\Models\Topic;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Laravel\Pennant\Feature;
 use Tests\TestCase;
 
 class DocumentLibraryControllerTest extends TestCase
@@ -91,6 +93,7 @@ class DocumentLibraryControllerTest extends TestCase
     
     public function test_library_shows_documents_when_user_prefer_list_view(): void
     {
+        Feature::define(Flag::editDocumentVisibility(), true);
 
         $documents = Document::factory()
             ->visibleByAnyUser()

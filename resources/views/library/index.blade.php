@@ -43,6 +43,7 @@
 
                     <div class="border-b border-gray-200 py-10" id="disclosure-1" x-cloak x-show="showFilters">
                         <div class="mx-auto grid max-w-7xl grid-cols-2 gap-x-4 px-4 text-sm sm:px-6 md:gap-6 lg:px-8">
+                            @feature(Flag::sourceDocumentFilter())
                             <div class="grid auto-rows-min grid-cols-1 md:col-span-2 gap-y-10 md:grid-cols-2 md:gap-x-6">
                                 <fieldset>
                                 <legend class="block font-medium">{{ __('Source') }}</legend>
@@ -60,6 +61,7 @@
                                 </div>
                                 </fieldset>
                             </div>
+                            @endfeature
                           <div class="grid auto-rows-min grid-cols-1 gap-y-10 md:grid-cols-2 md:gap-x-6">
                             <fieldset>
                               <legend class="block font-medium">{{ __('Type') }}</legend>
@@ -73,7 +75,7 @@
                               </div>
                             </fieldset>
                             <fieldset>
-                              <legend class="block font-medium">{{ __('Topic') }}</legend>
+                              <legend class="block font-medium">{{ __('Thematic Area') }}</legend>
                               <div class="space-y-6 pt-6 sm:space-y-4 sm:pt-4 max-h-72 overflow-y-auto">
                                 @foreach ($facets['topic'] as $topicKey => $topic)
                                 <div class="flex items-center text-base sm:text-sm">
@@ -119,7 +121,7 @@
                 </form>
                 <div class="flex justify-between mt-2 relative">
                     <div>
-                        @feature('ai.question-whole-library')
+                        @feature(Flag::questionWholeLibraryWithAI())
                             <div class="" x-data="{ open: false }" x-trap="open" @click.away="open = false" @close.stop="open = false">
                                 <button type="button" @click="open = ! open" class="rounded px-2 py-1 text-sm text-lime-700 flex items-center gap-1 border border-transparent hover:bg-lime-100 hover:border-lime-400 focus:outline-none focus:ring-2 focus:ring-lime-500 focus:ring-offset-2 focus:bg-lime-100 focus:border-lime-500">
                                     <x-heroicon-s-sparkles class="text-lime-500 h-6 w-6" />

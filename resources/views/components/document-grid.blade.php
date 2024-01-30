@@ -8,7 +8,9 @@
                     <span class="inline-block text-xs px-3 py-1 rounded-xl ring-0 ring-stone-300 bg-stone-100 text-stone-900">{{ $document->type->name }}</span>
                 @endif
                 
-                <x-document-visibility-badge :value="$document->visibility" />
+                @feature(Flag::editDocumentVisibility())
+                    <x-document-visibility-badge :value="$document->visibility" />
+                @endfeature
             </div>
             <div class="aspect-video bg-white -mx-4 -mt-4 flex items-center justify-center">
                 {{-- Space for the thumbnail --}}
