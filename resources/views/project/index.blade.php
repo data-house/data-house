@@ -87,9 +87,10 @@
                       </div>
                     </div>
 
-                    <p class="text-right mt-2">
+                    <div class="flex items-center justify-between mt-2">
+                        <x-button-link :href="route('projects.index')">{{ __('Clear search and filters') }}</x-button-link>
                         <x-button type="submit">{{ __('Apply and search') }}</x-button>
-                    </p>
+                    </div>
                   </div>
 
             </form>

@@ -111,9 +111,10 @@
                           </div>
                         </div>
     
-                        <p class="text-right mt-2">
+                        <div class="flex items-center justify-between mt-2">
+                            <x-button-link :href="route('documents.library')">{{ __('Clear search and filters') }}</x-button-link>
                             <x-button type="submit">{{ __('Apply and search') }}</x-button>
-                        </p>
+                        </div>
                       </div>
                 </form>
                 <div class="flex justify-between mt-2 relative">
