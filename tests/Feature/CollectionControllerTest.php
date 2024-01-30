@@ -181,7 +181,7 @@ class CollectionControllerTest extends TestCase
 
         $response->assertSee($collection->title);
 
-        $response->assertSee('Authenticated users');
+        $response->assertSee('All authenticated users');
     }
     
     public function test_collection_view_requires_login(): void

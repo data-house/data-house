@@ -40,7 +40,7 @@ enum Visibility: int
         return match ($this) {
             self::PERSONAL => __('Only to me (personal)'),
             self::TEAM => __('Team members'),
-            self::PROTECTED => __('Authenticated users'),
+            self::PROTECTED => __('All authenticated users'),
             self::PUBLIC => __('Public'),
         };
     }
