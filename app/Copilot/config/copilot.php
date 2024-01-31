@@ -13,7 +13,7 @@ return [
     | Copilot. This connection is used when syncing all models to the
     | copilot service. You should adjust this based on your needs.
     |
-    | Supported: "oaks", "null" (disabled)
+    | Supported: "oaks", "null"
     |
     */
 

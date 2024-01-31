@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Console\Command;
 use App\Actions\Fortify\CreateNewUser;
 use App\Actions\SuggestDocumentAbstract;
+use App\Copilot\Copilot;
 use App\Models\Document;
 use App\Models\Role;
 use App\Pipelines\PipelineTrigger;
@@ -36,6 +37,11 @@ class DocumentSummaryCommand extends Command
      */
     public function handle()
     {
+        if(Copilot::disabled() || ! Copilot::hasSummaryFeatures()){
+            $this->error(__('Summary module disabled.'));
+            return self::INVALID;
+        }
+
         $ulids = $this->argument('documents') ?? [];
         
         $documents = Document::query()

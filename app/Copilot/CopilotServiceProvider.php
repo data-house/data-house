@@ -4,6 +4,7 @@ namespace App\Copilot;
 
 use App\Copilot\Console\FlushCommand;
 use App\Copilot\Console\ImportCommand;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 
 class CopilotServiceProvider extends ServiceProvider
@@ -27,6 +28,8 @@ class CopilotServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        $this->registerBladeDirectives();
+
         if ($this->app->runningInConsole()) {
             
             $this->commands([
@@ -38,5 +41,24 @@ class CopilotServiceProvider extends ServiceProvider
                 __DIR__.'/config/copilot.php' => config_path('copilot.php'),
             ]);
         }
+    }
+
+    protected function registerBladeDirectives(): void
+    {
+        Blade::if('copilot', function () {
+            return Copilot::enabled();
+        });
+        
+        Blade::if('question', function () {
+            return Copilot::hasQuestionFeatures();
+        });
+        
+        Blade::if('summary', function () {
+            return Copilot::hasSummaryFeatures();
+        });
+        
+        Blade::if('tagging', function () {
+            return Copilot::hasTaggingFeatures();
+        });
     }
 }

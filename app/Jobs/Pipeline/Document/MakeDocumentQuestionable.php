@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Pipeline\Document;
 
+use App\Copilot\Copilot;
 use App\Models\Document;
 use App\PdfProcessing\Facades\Pdf;
 use App\Pipelines\Queue\PipelineJob;
@@ -20,11 +21,13 @@ class MakeDocumentQuestionable extends PipelineJob
      */
     public function handle(): void
     {
-        if(! $this->model instanceof Document){
+        if(Copilot::disabled()){
             return;
         }
 
-        // TODO: check if copilot is active
+        if(! $this->model instanceof Document){
+            return;
+        }
 
         $this->model->questionable();
     }

@@ -36,6 +36,10 @@ trait AskMultipleQuestion
      */
     public function question(string $query, QuestionType $type = QuestionType::FREE, ?string $language = null): Question
     {
+        if(Copilot::disabled() || ! Copilot::hasQuestionFeatures()){
+            throw new InvalidStateException(__('Question and answer module is disabled'));
+        }
+
         $uuid = Str::uuid();
 
         $request = new CopilotRequest($uuid, trim($query), [''.$this->getCopilotKey()], $language, $type->copilotTemplate());
