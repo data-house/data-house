@@ -8,6 +8,7 @@ enum Flag: string
     case AI_QUESTION_WHOLE_LIBRARY = 'ai.question-whole-library';
     case DOCUMENT_VISIBILITY_EDIT = 'document.visibility.edit';
     case DOCUMENT_FILTERS_SOURCE = 'document.filters.source';
+    case PROJECT_FUNDING = 'project.funding';
     case DASHBOARD = 'dashboard';
 
 
@@ -31,5 +32,10 @@ enum Flag: string
     public static function questionWholeLibraryWithAI(): string
     {
         return static::AI_QUESTION_WHOLE_LIBRARY->value;
+    }
+    
+    public static function showProjectFunding(): string
+    {
+        return static::PROJECT_FUNDING->value;
     }
 }

@@ -74,46 +74,24 @@
                         @endforeach
                     </div>
 
-                </div>
-                <div>
+                    <div class="h-2"></div>
+
                     <p class="text-xs uppercase block text-stone-700">{{ __('Countries') }}</p>
                     <div class="prose">
-                        <ul>
                             @foreach ($project->countries()->pluck('value') as $country)
-                                <li>{{ $country }}</li>
+                                <p><a title="{{ __('Explore projects in :value', ['value' => $country]) }}" href="{{ route('projects.index', ['countries' => [$country]])}}">{{ $country }}</a></p>
                             @endforeach 
-                        </ul>
                     </div>
-                </div>
-                <div>
-                    <p class="text-xs uppercase block text-stone-700">{{ __('Regions') }}</p>
+
+                    <p class="text-xs uppercase block text-stone-700">{{ __('Region') }}</p>
                     <div class="prose">
-                        <ul>
-                            @foreach ($project->regions() as $region)
-                                @php
-                                    $chunks = $region->split(3);                                
-                                @endphp
-                                <li>
-                                    {{ $chunks[0]->first() }}
-                                    @if ($chunks[1] ?? null)
-                                        <ul>
-                                            <li>
-                                                {{ $chunks[1]->first() }}
-                                                @if ($chunks[2] ?? null)
-                                                <ul>
-                                                    <li>{{ $chunks[2]->first() }}</li>
-                                                </ul>
-                                                @endif
-                                            </li>
-                                        </ul>
-                                        
-                                    @endif
-                                </li>
+                            @foreach ($project->facetRegions() as $region)
+                                <p><a title="{{ __('Explore projects in :value', ['value' => $region]) }}" href="{{ route('projects.index', ['region' => [$region]])}}">{{ $region }}</a></p>
                             @endforeach 
-                        </ul>
                     </div>
-                </div>
-                <div>
+                
+                    @feature(Flag::showProjectFunding())
+                    <div class="h-4"></div>
                     <p class="text-xs uppercase block text-stone-700">{{ __('Funding') }}</p>
                     <div class="prose">
                         
@@ -124,6 +102,7 @@
                         @endif
                         
                     </div>
+                    @endfeature
                 </div>
 
             </div>
