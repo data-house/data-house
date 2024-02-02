@@ -14,7 +14,7 @@ class ClassifyDocumentType
      */
     public function __invoke(Document $document): ?DocumentType
     {
-        $isReport = str($document->title)->contains(['Evaluierungsbericht', 'evaluierungsbericht', 'evaluation']);
+        $isReport = str($document->title)->lower()->contains(['evaluierungsbericht', 'evaluation', 'evaluation-and-learning', 'ele']);
 
         if($isReport){
             return DocumentType::EVALUATION_REPORT;

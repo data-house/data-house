@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Pipeline\Document;
 
+use App\Copilot\Copilot;
 use App\Models\Document;
 use App\PdfProcessing\Facades\Pdf;
 use App\Pipelines\Queue\PipelineJob;
@@ -20,6 +21,10 @@ class MakeDocumentQuestionable extends PipelineJob
      */
     public function handle(): void
     {
+        if(Copilot::disabled()){
+            return;
+        }
+
         if(! $this->model instanceof Document){
             return;
         }

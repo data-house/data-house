@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Copilot\Copilot;
 use App\Models\Question;
 use App\Models\QuestionStatus;
 use Carbon\Carbon;
@@ -50,6 +51,10 @@ class AskMultipleQuestionJob implements ShouldQueue
      */
     public function handle(): void
     {
+        if(Copilot::disabled()){
+            return;
+        }
+        
         if ($this->hasBeenCancelled()) {
             return;
         }

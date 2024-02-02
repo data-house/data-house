@@ -20,6 +20,9 @@
     <env name="TELESCOPE_ENABLED" value="false"/>
     <env name="SCOUT_DRIVER" value="null"/>
     <env name="REGISTRATION_ENABLED" value="true"/>
+    <env name="COPILOT_SUMMARY" value="true"/>
+    <env name="COPILOT_QUESTION" value="true"/>
+    <env name="COPILOT_TAGGING" value="true"/>
   </php>
   <source>
     <include>
