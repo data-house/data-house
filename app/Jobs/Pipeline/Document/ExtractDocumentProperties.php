@@ -30,9 +30,11 @@ class ExtractDocumentProperties extends PipelineJob
             return;
         }
 
+        $properties = Pdf::properties($this->model->asReference())->jsonSerialize();
+
         $this->model->type = $classifyType($this->model);
 
-        $this->model->properties = Pdf::properties($this->model->asReference());
+        $this->model->properties =  $this->model->properties->collect()->merge($properties);
 
         $this->model->saveQuietly();
     }

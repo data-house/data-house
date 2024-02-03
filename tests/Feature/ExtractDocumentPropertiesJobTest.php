@@ -38,4 +38,31 @@ class ExtractDocumentPropertiesJobTest extends TestCase
         $this->assertArrayHasKey('title', $document->properties);
         $this->assertEquals('Test document', $document->properties['title']);
     }
+
+    public function test_newly_extracted_properties_are_added_to_existing_ones(): void
+    {
+        Storage::fake();
+
+        Storage::putFileAs('', new File(base_path('tests/fixtures/documents/data-house-test-doc.pdf')), 'test.pdf');
+
+        $model = Document::factory()
+            ->hasPipelineRuns(1)
+            ->create([
+                'disk_name' => 'local',
+                'disk_path' => 'test.pdf',
+                'properties' => ['filename' => 'test.pdf'],
+            ]);
+
+        $job = new ExtractDocumentProperties($model, $model->latestPipelineRun);
+
+        $job->handle(app()->make(ClassifyDocumentType::class));
+
+        $document = $model->fresh();
+
+        $this->assertNotNull($document->properties);
+        $this->assertArrayHasKey('title', $document->properties);
+        $this->assertArrayHasKey('filename', $document->properties);
+        $this->assertEquals('Test document', $document->properties['title']);
+        $this->assertEquals('test.pdf', $document->properties['filename']);
+    }
 }
