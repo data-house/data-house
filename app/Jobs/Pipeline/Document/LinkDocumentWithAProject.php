@@ -3,6 +3,7 @@
 namespace App\Jobs\Pipeline\Document;
 
 use App\Actions\ClassifyDocumentType;
+use App\Actions\RecognizeDocumentProject;
 use App\Models\Document;
 use App\Models\MimeType;
 use App\PdfProcessing\Facades\Pdf;
@@ -18,24 +19,25 @@ class LinkDocumentWithAProject extends PipelineJob
     public $model;
 
     /**
-     * Execute the job.
+     * Attempts to connect a document with an existing project.
      */
-    public function handle(ClassifyDocumentType $classifyType): void
+    public function handle(RecognizeDocumentProject $recognize): void
     {
-        /*
-         * Attempts to connect a document with an existing project
-         */
-
         if(! $this->model instanceof Document){
             return;
         }
+
+        $importDocument = $this->model->importDocument;
+
+        if(! $importDocument){
+            return;
+        }
+
+        $project = $recognize($this->model);
+
+        $this->model->project()->associate($project);
+
+        $this->model->saveQuietly();
     }
 
-
-    protected function isSupported($mime)
-    {
-        return in_array($mime, [
-            MimeType::APPLICATION_PDF->value,
-        ]);
-    }
 }

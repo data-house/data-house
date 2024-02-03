@@ -8,6 +8,7 @@ use App\Pipelines\Pipeline;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use App\Jobs\Pipeline\Document\ExtractDocumentProperties;
+use App\Jobs\Pipeline\Document\LinkDocumentWithAProject;
 use App\Jobs\Pipeline\Document\MakeDocumentQuestionable;
 use App\Jobs\Pipeline\Document\MakeDocumentSearchable;
 use App\Jobs\Pipeline\Document\RecognizeLanguage;
@@ -38,6 +39,7 @@ class AppServiceProvider extends ServiceProvider
         // Define pipelines for Documents
         Pipeline::define(Document::class, PipelineTrigger::MODEL_CREATED, [
             ExtractDocumentProperties::class,
+            LinkDocumentWithAProject::class,
             ConvertToPdf::class,
             RecognizeLanguage::class,
             MakeDocumentSearchable::class,
