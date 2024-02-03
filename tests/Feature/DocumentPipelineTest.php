@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Jobs\Pipeline\Document\ConvertToPdf;
 use App\Jobs\Pipeline\Document\ExtractDocumentProperties;
+use App\Jobs\Pipeline\Document\LinkDocumentWithAProject;
 use App\Jobs\Pipeline\Document\MakeDocumentQuestionable;
 use App\Jobs\Pipeline\Document\MakeDocumentSearchable;
 use App\Jobs\Pipeline\Document\RecognizeLanguage;
@@ -35,6 +36,7 @@ class DocumentPipelineTest extends TestCase
         });
 
         Queue::assertPushedWithChain(ExtractDocumentProperties::class, [
+            LinkDocumentWithAProject::class,
             ConvertToPdf::class,
             RecognizeLanguage::class,
             MakeDocumentSearchable::class,
