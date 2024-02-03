@@ -87,6 +87,8 @@ class MoveImportedDocumentsJobTest extends TestCase
         $this->assertNotNull($document->document_date);
         $this->assertTrue($document->document_date->isToday());
         $this->assertEquals(Visibility::TEAM, $document->visibility);
+        $this->assertArrayHasKey('filename', $document->properties);
+        $this->assertEquals('test.pdf', $document->properties['filename']);
 
         $updatedImportDocument = $importDocument->fresh();
         $this->assertNotNull($updatedImportDocument->processed_at);
