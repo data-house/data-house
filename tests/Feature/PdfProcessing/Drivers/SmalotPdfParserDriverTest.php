@@ -45,7 +45,7 @@ class SmalotPdfParserDriverTest extends TestCase
         $this->assertStringContainsString("This is the header", $text);
         $this->assertStringContainsString("This is a test PDF to be used as input in unit \ntests", $text);
         $this->assertStringContainsString("This is a heading 1", $text);
-        $this->assertStringContainsString("This is a pa\tragraph belo\tw heading 1", $text);
+        $this->assertStringContainsString("This is a paragraph below heading 1", $text);
 
     }
 }
