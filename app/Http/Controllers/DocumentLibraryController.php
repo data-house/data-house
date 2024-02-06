@@ -27,8 +27,8 @@ class DocumentLibraryController extends Controller
         $searchFilters = array_merge($filters, $teamFilters);
 
         $documents = ($searchQuery || $searchFilters)
-            ? Document::tenantSearch($searchQuery, $searchFilters)->paginate(150)
-            : Document::query()->visibleBy(auth()->user())->paginate(150);
+            ? Document::tenantSearch($searchQuery, $searchFilters)->paginate(50)
+            : Document::query()->visibleBy(auth()->user())->paginate(50);
 
         $countries = Project::pluck('countries')->flatten()->unique('value');
 
