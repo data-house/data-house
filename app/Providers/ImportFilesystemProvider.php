@@ -9,6 +9,7 @@ use Illuminate\Support\ServiceProvider;
 use League\Flysystem\Filesystem;
 use League\Flysystem\WebDAV\WebDAVAdapter;
 use Sabre\DAV\Client;
+use Illuminate\Support\Str;
 
 class ImportFilesystemProvider extends ServiceProvider
 {
@@ -26,13 +27,18 @@ class ImportFilesystemProvider extends ServiceProvider
     public function boot(): void
     {
         Storage::extend('webdav', function (Application $app, array $config) {
+            
+            $storagePathPrefix = ltrim(parse_url($config['url'], PHP_URL_PATH), '/');
+            
+            $host = Str::before($config['url'], $storagePathPrefix);
+
             $client = new Client([
-                'baseUri' => $config['url'],
+                'baseUri' => $host,
                 'userName' => $config['user'],
                 'password' => $config['password'],
             ]);
 
-            $adapter = new WebDAVAdapter($client);
+            $adapter = new WebDAVAdapter($client, $storagePathPrefix);
  
             return new FilesystemAdapter(
                 new Filesystem($adapter, $config),

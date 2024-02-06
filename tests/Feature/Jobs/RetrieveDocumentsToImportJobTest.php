@@ -30,7 +30,7 @@ class RetrieveDocumentsToImportJobTest extends TestCase
 
         Storage::shouldReceive('build')->with([
             'driver' => 'webdav',
-            'url' => 'http://service/',
+            'url' => 'http://service/prefix/',
             'user' => 'fake-disk-user',
             'password' => 'fake-disk-password',
         ])->andReturn($fakeWebdavDisk);
@@ -42,7 +42,7 @@ class RetrieveDocumentsToImportJobTest extends TestCase
         $import = Import::factory()->create([
             'status' => ImportStatus::RUNNING,
             'configuration' => [
-                "url" => "http://service/",
+                "url" => "http://service/prefix/",
                 "user" => "fake-disk-user",
                 "password" => "fake-disk-password",
             ],
@@ -52,7 +52,7 @@ class RetrieveDocumentsToImportJobTest extends TestCase
             'status' => ImportStatus::RUNNING,
             'mapped_team' => null,
             'mapped_uploader' => $import->creator->getKey(),
-            'recursive' => false,
+            'recursive' => true,
             'filters' => [
                 'paths' => "folder-with-documents"
             ],
