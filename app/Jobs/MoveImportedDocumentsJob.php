@@ -9,6 +9,7 @@ use App\Models\ImportDocumentStatus;
 use App\Models\ImportReport;
 use App\Models\ImportStatus;
 use App\Models\Visibility;
+use App\Pipelines\PipelineTrigger;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
@@ -127,7 +128,7 @@ class MoveImportedDocumentsJob extends ImportJobBase
             return;
         }
 
-        $document = Document::create([
+        $document = Document::withoutEvents(fn() => Document::create([
             'disk_name' => Disk::DOCUMENTS->value,
             'disk_path' => $path,
             'title' => basename($import->source_path),
@@ -141,7 +142,9 @@ class MoveImportedDocumentsJob extends ImportJobBase
             'properties' => [
                 'filename' => basename($import->source_path),
             ],
-        ]);
+        ]));
+
+        $document->dispatchPipeline(PipelineTrigger::MODEL_CREATED);
 
         $import->processed_at = now();
         $import->status = ImportDocumentStatus::COMPLETED;

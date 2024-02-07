@@ -74,6 +74,7 @@ class MoveImportedDocumentsJobTest extends TestCase
 
         $document = Document::first();
 
+        $this->assertNotNull($document->ulid);
         $this->assertEquals('documents', $document->disk_name);
         $this->assertNotEmpty($document->disk_path);
         $this->assertEquals('test.pdf', $document->title);

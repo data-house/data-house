@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Disk;
 use App\Models\Document;
 use App\Models\Visibility;
+use App\Pipelines\PipelineTrigger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules\File;
@@ -51,7 +52,7 @@ class DocumentController extends Controller
 
         $path = $file->store('', Disk::DOCUMENTS->value);
         
-        $document = Document::create([
+        $document = Document::withoutEvents(fn() => Document::create([
             'disk_name' => Disk::DOCUMENTS->value,
             'disk_path' => $path,
             'title' => $file->getClientOriginalName(),
@@ -59,7 +60,9 @@ class DocumentController extends Controller
             'uploaded_by' => $request->user()->getKey(),
             'team_id' => $request->user()->currentTeam->getKey(),
             'visibility' => Visibility::defaultDocumentVisibility(),
-        ]);
+        ]));
+
+        $document->dispatchPipeline(PipelineTrigger::MODEL_CREATED);
 
         return redirect()
             ->route('documents.library')
