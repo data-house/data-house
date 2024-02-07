@@ -33,6 +33,7 @@ class ConvertToPdf extends PipelineJob
         }
 
         if(!$this->isSupported($this->model->mime)){
+            logs()->info('Document conversion skipped, unsupported mime type', ['mime' => $this->model->mime]);
             return;
         }
 
@@ -41,15 +42,13 @@ class ConvertToPdf extends PipelineJob
          */
         $convertedFile = Convert::convert($this->model, Format::PDF);
 
-logs()->info("Model", $this->model->toArray());
-
         $path = $convertedFile->store('', Disk::DOCUMENTS->value);
 
         $this->model->conversion_disk_name = Disk::DOCUMENTS->value;
         $this->model->conversion_disk_path = $path;
         $this->model->conversion_file_mime = $convertedFile->mimeType();
 
-        logs()->info("converted path", [$path]);
+        logs()->info("Document conversion completed path", ['model' => $this->model->getKey(), 'path' => $path]);
 
         $this->model->saveQuietly();
     }
