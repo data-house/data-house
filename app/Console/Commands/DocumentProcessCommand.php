@@ -2,14 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\Models\User;
-use Illuminate\Console\Command;
-use App\Actions\Fortify\CreateNewUser;
 use App\Models\Document;
-use App\Models\Role;
+use Illuminate\Support\Str;
+use Illuminate\Console\Command;
 use App\Pipelines\PipelineTrigger;
-use Illuminate\Validation\ValidationException;
-use Laravel\Jetstream\Jetstream;
 
 class DocumentProcessCommand extends Command
 {
@@ -36,7 +32,7 @@ class DocumentProcessCommand extends Command
     public function handle()
     {
         $documentKey = $this->argument('document');
-        $document = Document::findOrFail($documentKey);
+        $document = Str::isUlid($documentKey) ? Document::whereUlid($documentKey)->firstOrFail() : Document::findOrFail($documentKey);
         $trigger =  PipelineTrigger::from($this->option('event') ?? PipelineTrigger::ALWAYS->value);
         
         $document->dispatchPipeline($trigger);

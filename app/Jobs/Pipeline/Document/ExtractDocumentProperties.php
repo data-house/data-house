@@ -26,17 +26,20 @@ class ExtractDocumentProperties extends PipelineJob
             return;
         }
 
-        if(!$this->isSupported($this->model->mime)){
-            return;
-        }
-
-        $properties = Pdf::properties($this->model->asReference())->jsonSerialize();
-
         $this->model->type = $classifyType($this->model);
 
-        $this->model->properties =  $this->model->properties->collect()->merge($properties);
+        $this->model->properties =  $this->model->properties->collect()->merge($this->extractProperties());
 
         $this->model->saveQuietly();
+    }
+
+    protected function extractProperties(): array
+    {
+        if(!$this->isSupported($this->model->mime)){
+            return [];
+        }
+
+        return  Pdf::properties($this->model->asReference())->jsonSerialize();
     }
 
 
