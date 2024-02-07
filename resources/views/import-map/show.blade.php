@@ -48,26 +48,31 @@
             </div>
 
 
-            <p class="max-w-prose">{{ __('Below are the documents that will be processed by this mapping. For each document you can see its status and source path.') }}</p>
+            <p class="max-w-prose">{{ __('Below are the documents processed by this mapping. For each document you can see its status and source path.') }}</p>
             
-            <div class="max-w-5xl">
+            <div class="max-w-7xl">
 
                 <div>
-                    <table class="w-full">
+                    <table class="w-full text-sm">
                         <thead>
                             <tr>
-                                <td>Source</td>
-                                <td>Date</td>
-                                <td>Size</td>
-                                <td>Status</td>
+                                <td class="w-7/12">Source</td>
+                                <td class="w-1/12">Import date</td>
+                                <td class="w-1/12">Document date</td>
+                                <td class="w-1/12">Size</td>
+                                <td class="w-2/12">Status</td>
                             </tr>
                         </thead>
                         <tbody>
                         @forelse ($documents as $document)
-                            <tr>
-                                <td>{{ $document->source_path }} {{ $document->mime }}</td>
-                                <td>{{ $document->document_date }}</td>
-                                <td>{{ $document->document_size }}</td>
+                            <tr class="odd:bg-white mb-1">
+                                <td class="py-1 pr-2">
+                                    <span class="inline-block text-xs px-2 py-0.5 rounded bg-gray-200">{{ $document->mime }}</span>
+                                    <p>{{ $document->source_path }}</p>
+                                </td>
+                                <td><x-date :value="$document->created_at" /></td>
+                                <td><x-date :value="$document->document_date" /></td>
+                                <td>{{ $document->document_size ? \Illuminate\Support\Number::fileSize($document->document_size) : '-' }}</td>
                                 <td>{{ $document->status->name }}</td>
 
                             </tr>
@@ -89,6 +94,8 @@
                         @endforelse
                         </tbody>
                     </table>
+
+                    {{ $documents->links() }}
                 </div>
             </div>
         </div>

@@ -8,6 +8,7 @@ use App\Models\ImportMap;
 use App\Models\ImportStatus;
 use App\Models\User;
 use App\Models\Visibility;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
@@ -63,7 +64,11 @@ class ImportMapsControllerTest extends TestCase
 
         $response->assertViewHas('import', Import::first());
         $response->assertViewHas('mapping', $mapping);
-        $response->assertViewHas('documents', ImportDocument::all());
+        $response->assertViewHas('documents');
+        $documents = $response->viewData('documents');
+
+        $this->assertInstanceOf(LengthAwarePaginator::class, $documents);
+        $this->assertTrue($documents->first()->is(ImportDocument::first()));
 
         $response->assertSeeInOrder(['Status', ImportStatus::CREATED->name]);
     }
@@ -89,7 +94,11 @@ class ImportMapsControllerTest extends TestCase
 
         $response->assertViewHas('import', Import::first());
         $response->assertViewHas('mapping', $mapping);
-        $response->assertViewHas('documents', ImportDocument::all());
+        $response->assertViewHas('documents');
+        $documents = $response->viewData('documents');
+
+        $this->assertInstanceOf(LengthAwarePaginator::class, $documents);
+        $this->assertEquals(0, $documents->total());
 
         $response->assertSeeInOrder(['Status', ImportStatus::CREATED->name]);
     }

@@ -19,12 +19,12 @@ class ImportMapsController extends Controller
     {
         $this->authorize($mapping);
 
-        $mapping->load(['import', 'documents']);
+        $mapping->load(['import']);
 
         return view('import-map.show', [
             'mapping' => $mapping,
             'import' => $mapping->import,
-            'documents' => $mapping->documents,
+            'documents' => $mapping->documents()->paginate(50),
         ]);
     }
 
