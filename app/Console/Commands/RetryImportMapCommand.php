@@ -63,7 +63,7 @@ class RetryImportMapCommand extends Command
         
         $import->start();
 
-        $this->line("Import map retried.");
+        $this->line("Import map queued for retry.");
         
         return self::SUCCESS;
     }
