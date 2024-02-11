@@ -78,14 +78,12 @@ class DocumentController extends Controller
             'uploader',
             'team',
             'project',
-            'importDocument',
-            'importDocument.import',
         ]);
 
         return view('document.show', [
             'document' => $document,
             'hasActivePipelines' => $document->hasActivePipelines(),
-            'importDocument' => $document->importDocument && $document->importDocument->isVisibleBy(auth()->user()) ? $document->importDocument : null,
+            'importDocument' => null,
         ]);
     }
 

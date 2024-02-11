@@ -128,7 +128,7 @@
                                 <span class="bg-stone-800 text-white px-2 py-1">
                                     {{ $importDocument->import?->source->name }}
                                 </span>
-                                <span class=" px-2 py-1 whitespace-nowrap">
+                                <span class=" px-2 py-1">
                                     {{ $importDocument->source_path }}
                                 </span>
 
