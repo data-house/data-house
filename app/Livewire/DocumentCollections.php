@@ -5,6 +5,8 @@ namespace App\Livewire;
 use App\Actions\Collection\AddDocument;
 use App\Actions\Collection\RemoveDocument;
 use App\Models\Collection;
+use Livewire\Attributes\Computed;
+use Livewire\Attributes\On;
 use Livewire\Component;
 
 class DocumentCollections extends Component
@@ -43,25 +45,40 @@ class DocumentCollections extends Component
         $remove($this->document, $c);
     }
 
+    /**
+     * Get the current user of the application.
+     *
+     * @return mixed
+     */
+    public function getUserProperty()
+    {
+        return auth()->user();
+    }
+
+
+    #[Computed()]
+    public function collections()
+    {
+        return $this->document->collections()
+            ->withoutSystem()
+            ->visibleBy($this->user)
+            ->get();
+    }
+    
+    #[Computed()]
+    #[On('collection-created')]
+    public function selectableCollections()
+    {
+        return Collection::query()
+            ->withoutSystem()
+            ->visibleBy($this->user)
+            ->whereNotIn('id', $this->collections->modelKeys())
+            ->get();
+    }
+
 
     public function render()
     {
-        $user = auth()->user();
-
-        $collections = $this->document->collections()
-            ->withoutSystem()
-            ->visibleBy($user)
-            ->get();
-        
-        $selectableCollections = Collection::query()
-            ->withoutSystem()
-            ->visibleBy($user)
-            ->whereNotIn('id', $collections->modelKeys())
-            ->get();
-
-        return view('livewire.document-collections', [
-            'collections' => $collections,
-            'selectableCollections' => $selectableCollections,
-        ]);
+        return view('livewire.document-collections');
     }
 }

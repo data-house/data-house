@@ -37,10 +37,6 @@ class CollectionController extends Controller
 
         $collection = $createCollection(auth()->user(), [
             ...$validated,
-            'visibility' => Visibility::TEAM,
-            'type' => CollectionType::STATIC,
-            'strategy' => CollectionStrategy::STATIC,
-            'draft' => false,
         ]);
 
         return redirect()

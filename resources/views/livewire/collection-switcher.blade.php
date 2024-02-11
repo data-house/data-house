@@ -1,6 +1,6 @@
 <x-dropdown align="right" width="w-96">
     <x-slot name="trigger">
-        <x-button class="justify-self-end inline-flex gap-1 items-center" href="{{ route('questions.index') }}" :active="request()->routeIs('questions.*')">
+        <x-button class="justify-self-end inline-flex gap-1 items-center">
             <x-heroicon-m-rectangle-stack class="w-4 h-4" />
             {{ __('Collections') }}
         </x-button>
@@ -9,20 +9,18 @@
     <x-slot name="content">
         <div class="relative w-full text-base font-normal min-h-[24rem] max-h-[24rem] overflow-y-auto">
 
-            <div class="flex flex-wrap justify-between items-center px-4 sticky inset-0 bg-white/80 backdrop-blur">
-                <h4 class="text-stone-700 font-semibold">
-                    {{ __('Collections') }}
-                </h4>
-                
-                @can('create', \App\Models\Collection::class)
-                    <x-button-link href="{{ route('collections.create') }}">
-                        {{ __('New') }}
-                    </x-button-link>
-                @endcan
-
-                <div class="mt-1 basis-full prose prose-sm prose-stone prose-p:text-sm prose-p:mb-0">
-                    <p class="">{{ __('A document can simultaneously belong to multiple collections. The same document is synced across all collections to which it belongs in order to avoid duplicates.') }}</p>
+            <div class="sticky inset-0 bg-white/80">
+                <div class="flex justify-between items-center px-4">
+                    <h4 class="text-stone-700 font-semibold">
+                        {{ __('Collections') }}
+                    </h4>
+                    
+                    <livewire:create-collection />
                 </div>
+            </div>
+            
+            <div class="px-4 mt-1 basis-full prose prose-sm prose-stone prose-p:text-sm prose-p:mb-0">
+                <p class="">{{ __('A document can simultaneously belong to multiple collections. The same document is synced across all collections to which it belongs in order to avoid duplicates.') }}</p>
             </div>
 
             <div class="mt-2">
@@ -43,7 +41,7 @@
                     </span>
                 </x-dropdown-link>
 
-                @foreach ($collections as $collection)
+                @foreach ($this->collections as $collection)
                     <x-dropdown-link class="inline-flex gap-2 items-center"
                         href="{{ route('collections.show', $collection) }}"
                         :active="request()->is('*/'.$collection->ulid)">
