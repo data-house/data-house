@@ -108,9 +108,6 @@
                     <div class="space-y-2 rounded overflow-hidden bg-white p-4 group relative">
             
                         <div class="flex justify-between">
-                            <p class="inline text-xs px-2 py-1 rounded bg-stone-100 text-stone-900 max-w-[10rem] truncate group-hover:max-w-none">
-                                {{ $project->slug }}
-                            </p>
                             @if ($project->type)
                                 <p class="inline text-xs px-2 py-1 rounded bg-lime-100 text-lime-900">
                                     {{ $project->type->name }}
