@@ -189,6 +189,14 @@ class Document extends Model implements Convertible
     }
     
     /**
+     * Get the icon component to be used to represent this file
+     */
+    public function icon(): string
+    {
+        return $this->mime === MimeType::APPLICATION_PDF->value ? 'codicon-file-pdf' : 'codicon-file';
+    }
+    
+    /**
      * Get the URL for downloading the file that can be used by internal services
      * and that uses a signed route
      */
