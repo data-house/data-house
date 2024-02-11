@@ -118,7 +118,7 @@ class DocumentLibraryControllerTest extends TestCase
         $response->assertSeeTextInOrder([
             'Document',
             'Type',
-            'Project and region',
+            'Project',
             'Access',
         ]);
 
