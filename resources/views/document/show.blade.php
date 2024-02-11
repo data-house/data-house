@@ -77,9 +77,6 @@
                         @if ($document->project)
                             @can('view', $document->project)    
                                 <div class="space-y-1">
-                                    <p class="inline px-2 py-1 rounded bg-white text-stone-900 text-sm">
-                                        {{ $document->project?->slug }}
-                                    </p>
                                     <p>
                                         <a class="border-b pb-0.5 hover:border-blue-600 hover:text-blue-800 focus:text-blue-800" href="{{ route('projects.show', $document->project) }}">{{ $document->project?->title }}</a>
                                     </p>
@@ -87,23 +84,21 @@
                                 <div>
                                     <p class="text-xs uppercase block text-stone-700">{{ __('Topics') }}</p>
 
-                                    <p class="flex flex-wrap gap-2">
-                                        @foreach ($document->project?->topics as $topic)
-                                            <span class="inline-flex gap-2 items-center text-sm px-2 py-1 rounded-xl bg-gray-200 text-gray-900">
+                                    <p class="mt-2 flex flex-wrap gap-2">
+                                        @foreach ($document->project->topics as $topic)
+                                            <a title="{{ __('Explore documents for projects in :value', ['value' => $topic]) }}" href="{{ route('documents.library', ['project_topics' => [$topic]])}}" class="relative z-20 inline-flex gap-2 items-center text-sm px-2 py-1 rounded-xl bg-gray-200 text-gray-900 hover:bg-indigo-200 focus:bg-indigo-200 ">
                                                 <x-heroicon-o-hashtag class="w-4 h-4" />
                                                 {{ $topic }}
-                                            </span>
+                                            </a>
                                         @endforeach
                                     </p>
                                 </div>
                                 <div>
                                     <p class="text-xs uppercase block text-stone-700">{{ __('Countries') }}</p>
                                     <div class="prose">
-                                        <ul>
-                                            @foreach ($document->project?->countries()->pluck('value') as $country)
-                                                <li>{{ $country }}</li>
-                                            @endforeach 
-                                        </ul>
+                                        @foreach ($document->project?->countries()->pluck('value') as $country)
+                                            <p><a title="{{ __('Explore documents for projects in :value', ['value' => $country]) }}" href="{{ route('documents.library', ['project_countries' => [$country]])}}">{{ $country }}</a></p>
+                                        @endforeach 
                                     </div>
                                 </div>
                             @else
