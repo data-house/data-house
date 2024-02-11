@@ -26,6 +26,14 @@ class CreateCollection
     {
         abort_unless($user->can('create', Collection::class), 403);
 
+        $input = [
+            'visibility' => Visibility::TEAM,
+            'type' => CollectionType::STATIC,
+            'strategy' => CollectionStrategy::STATIC,
+            'draft' => false,
+            ...$input,
+        ];
+
         Validator::make($input, [
             'title' => ['required',
                 'string',
@@ -35,7 +43,10 @@ class CreateCollection
                     ->where('visibility', Visibility::TEAM)
                     ->when($user->currentTeam, function ($rule, $targetTeam) {
                         return $rule->where('team_id', $targetTeam->getKey());
-                    })],
+                    }),
+                Rule::unique((new Collection)->getTable(), 'title')
+                    ->where('visibility', Visibility::PROTECTED),
+            ],
             'visibility' => ['required', new Enum(Visibility::class)],
             'type' => ['required', new Enum(CollectionType::class)],
             'strategy' => ['nullable', new Enum(CollectionStrategy::class)],

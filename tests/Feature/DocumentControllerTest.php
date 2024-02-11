@@ -173,43 +173,6 @@ class DocumentControllerTest extends TestCase
         $response->assertSeeLivewire(DocumentVisibilitySelector::class);
     }
     
-    public function test_document_details_page_shows_import_source()
-    {
-        Feature::define(Flag::editDocumentVisibility(), true);
-
-        $user = User::factory()->withPersonalTeam()->manager()->create();
-
-        $document = Document::factory()
-            ->visibleByUploader($user)
-            ->create([
-                'title' => 'The title of the document'
-            ]);
-
-        $importDoc = ImportDocument::factory()
-            ->create([
-                'uploaded_by' => $user->getKey(),
-                'team_id' => $user->currentTeam->getKey(),
-                'document_id' => $document->getKey(),
-            ]);
-
-        $response = $this->actingAs($user)
-            ->get('/documents/' . $document->ulid);
-
-        $response->assertOk();
-
-        $response->assertViewIs('document.show');
-        
-        $response->assertSee('Open');
-        $response->assertSee('Edit');
-        $response->assertSee('The title of the document');
-        $response->assertSee(Visibility::TEAM->label());
-        $response->assertSee($user->name);
-        $response->assertSee('Imported from');
-        $response->assertSee($importDoc->source_path);
-        $response->assertSee($importDoc->import->source->name);
-        $response->assertSeeLivewire(DocumentVisibilitySelector::class);
-    }
-    
     public function test_document_details_page_shows_import_source_only_if_browsed_by_owning_team()
     {
         Feature::define(Flag::editDocumentVisibility(), true);
