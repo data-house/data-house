@@ -51,7 +51,7 @@
                 'col-span-5' => \Laravel\Pennant\Feature::active(Flag::editDocumentVisibility()),
                 ]) 
             >
-                <x-codicon-file-pdf class="text-gray-400 h-7 w-7 shrink-0" />
+                <x-dynamic-component :component="$document->icon()" class="text-gray-400 h-7 w-7 shrink-0" />
                 
                 <a href="{{ route('documents.show', $document) }}" class=" block font-bold truncate group-hover:text-blue-800">
                     <span class="z-10 absolute inset-0"></span>{{ $document->title }}
