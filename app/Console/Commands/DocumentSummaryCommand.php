@@ -53,20 +53,20 @@ class DocumentSummaryCommand extends Command
         $action = new SuggestDocumentAbstract();
 
         $documents
-        ->filter(function($document){
-            return empty($document->description);
-        })
-        ->each(function($document) use ($action){
-            $abstract = $action($document, $document->language ?? LanguageAlpha2::English);
-            
-            $document->description = $abstract;
+            ->each(function($document) use ($action){
 
-            // TODO: Save as DocumentSummary attached to the Document
-            
-            $document->save();
+                $language = $document->language ?? LanguageAlpha2::English;
 
-            $this->line("Abstract generated for document [{$document->id} - {$document->ulid}]");
-        });
+                $abstract = $action($document, $language);
+                
+                $document->summaries()->create([
+                    'text' => $abstract,
+                    'ai_generated' => true,
+                    'language' => $language,
+                ]);
+
+                $this->line("Abstract generated for document [{$document->id} - {$document->ulid}]");
+            });
         
         return self::SUCCESS;
     }

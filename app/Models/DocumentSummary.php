@@ -13,11 +13,16 @@ class DocumentSummary extends Model
     protected $fillable = [
         'language',
         'text',
+        'ai_generated'
     ];
 
     protected $casts = [
         'language' => LanguageAlpha2::class,
         'ai_generated' => 'boolean',
+    ];
+    
+    protected $attributes = [
+        'ai_generated' => false,
     ];
 
     public function document()
