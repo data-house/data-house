@@ -168,6 +168,11 @@ class Document extends Model implements Convertible
     {
         return $this->hasOne(ImportDocument::class);
     }
+
+    public function summaries()
+    {
+        return $this->hasMany(DocumentSummary::class);
+    }
     
     /**
      * Modify the query used to retrieve models when making all of the models searchable.

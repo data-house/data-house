@@ -107,6 +107,8 @@ class DocumentController extends Controller
             'description' => ['nullable', 'string', 'max:2000'],
         ]);
 
+        // TODO: Description is now a DocumentSummary
+
         $document->update([
             'title' => $validated['title'],
             'description' => $validated['description'],

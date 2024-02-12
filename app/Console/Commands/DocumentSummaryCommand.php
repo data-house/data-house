@@ -60,6 +60,8 @@ class DocumentSummaryCommand extends Command
             $abstract = $action($document, $document->language ?? LanguageAlpha2::English);
             
             $document->description = $abstract;
+
+            // TODO: Save as DocumentSummary attached to the Document
             
             $document->save();
 
