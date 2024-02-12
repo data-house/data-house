@@ -21,7 +21,7 @@ class DocumentSummaryCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'document:summary {documents?* : The Ulid of the documents}';
+    protected $signature = 'document:summary {documents?* : The Ulid of the documents} {--language= : The desidered summary language}';
 
     /**
      * The console command description.
@@ -43,6 +43,8 @@ class DocumentSummaryCommand extends Command
         }
 
         $ulids = $this->argument('documents') ?? [];
+
+        $language = $this->option('language') ? LanguageAlpha2::from($this->option('language')) : null;
         
         $documents = Document::query()
             ->when(!empty($ulids), function($query) use ($ulids) {
@@ -53,9 +55,9 @@ class DocumentSummaryCommand extends Command
         $action = new SuggestDocumentAbstract();
 
         $documents
-            ->each(function($document) use ($action){
+            ->each(function($document) use ($action, $language){
 
-                $language = $document->language ?? LanguageAlpha2::English;
+                $language = $language ?? $document->language ?? LanguageAlpha2::English;
 
                 $abstract = $action($document, $language);
                 
