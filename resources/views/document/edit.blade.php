@@ -29,7 +29,7 @@
                 <div>
                     <x-label for="description" value="{{ __('Abstract') }}" />
                     <x-input-error for="description" class="mt-2" />
-                    <x-textarea id="description" type="text" name="description" class="mt-1 block w-full max-w-prose" autocomplete="abstract">{{ old('description', $document->description) }}</x-textarea>
+                    <x-textarea id="description" type="text" name="description" class="mt-1 block w-full max-w-prose" autocomplete="abstract">{{ old('description', $document->latestSummary?->text) }}</x-textarea>
                 </div>
 
                 <div class="flex items-center gap-4">

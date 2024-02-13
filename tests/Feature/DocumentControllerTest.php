@@ -6,6 +6,7 @@ use App\Livewire\DocumentVisibilitySelector;
 use Tests\TestCase;
 use App\Models\User;
 use App\Models\Document;
+use App\Models\DocumentSummary;
 use App\Models\Flag;
 use App\Models\ImportDocument;
 use App\Models\Visibility;
@@ -214,6 +215,10 @@ class DocumentControllerTest extends TestCase
 
         $document = Document::factory()
             ->visibleByUploader($user)
+            ->has(DocumentSummary::factory()->state([
+                'text' => 'Existing summary',
+                'ai_generated' => true,
+            ]), 'summaries')
             ->create([
                 'title' => 'The title of the document'
             ]);
@@ -227,7 +232,7 @@ class DocumentControllerTest extends TestCase
         
         $response->assertSee('Save');
         $response->assertSee('The title of the document');
-        $response->assertSee('description');
+        $response->assertSee('Existing summary');
     }
 
     public function test_document_can_be_updated()
@@ -254,7 +259,13 @@ class DocumentControllerTest extends TestCase
         $updatedDocument = Document::first();
         
         $this->assertEquals('New title', $updatedDocument->title);
-        $this->assertEquals('New abstract', $updatedDocument->description);
+        $this->assertNull($updatedDocument->description);
+
+        $summary = $updatedDocument->latestSummary;
+
+        $this->assertInstanceOf(DocumentSummary::class, $summary);
+        $this->assertEquals('New abstract', $summary->text);
+        $this->assertFalse($summary->ai_generated);
     }
 
     public static function generateInvalidTitles()
@@ -298,7 +309,7 @@ class DocumentControllerTest extends TestCase
     public static function generateInvalidDescriptions()
     {
         return [
-            [Str::random(2001)],
+            [Str::random(10001)],
         ];
     }
     

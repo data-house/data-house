@@ -5,6 +5,8 @@
     <x-slot name="header">
         <div class="space-y-2 md:space-y-0 md:flex md:items-center md:justify-between relative">
             <h2 class="font-semibold text-xl text-stone-800 leading-tight space-y-2 sm:space-y-0 sm:flex sm:gap-4 md:items-center">
+                <x-dynamic-component :component="$document->icon()" class="text-gray-400 h-7 w-7 shrink-0" />
+                
                 {{ $document->title }}
 
                 @feature(Flag::editDocumentVisibility())
@@ -42,15 +44,21 @@
                 </div>
             @endif
 
-            <div class="grid md:grid-cols-3 gap-3">
+            <div class="flex gap-3">
 
-                <div class="col-span-2">
+                <div class="col-span-2 basis-3/5">
 
-                    <div class="max-h-60 overflow-y-auto">
-                        @if ($document->description)
+                    <div class="">
+                        @if ($document->latestSummary)
                             <div class="prose prose-green">
-                                {!! \Illuminate\Support\Str::markdown($document->description) !!}
+                                {{ $document->latestSummary }}
                             </div>
+                            @if ($document->latestSummary->isAiGenerated())
+                                <p class="mt-2 py-1 text-sm text-lime-700 flex items-center gap-1">
+                                    <x-heroicon-s-sparkles class="text-lime-500 h-6 w-6" />
+                                    {{ __('This summary was automatically generated using Artificial Intelligence.') }}
+                                </p>
+                            @endif
                         @else
                             <div class="prose prose-green">
                                 {!! \Illuminate\Support\Str::markdown(__('This document doesn\'t have an abstract. [Be the first one to contribute](:url).', ['url' => route('documents.edit', $document)])) !!}
@@ -59,12 +67,7 @@
                     </div>
                 </div>
 
-                {{-- <div class="space-y-4"> --}}
-                    <div class="aspect-video bg-white flex items-center justify-center">
-                        {{-- Space for the thumbnail --}}
-                        <x-codicon-file-pdf class="text-gray-400 h-10 w-h-10" />
-                    </div>
-
+                <div class="flex flex-col gap-3">
                     <div class="space-y-2">
                         <h4 class="font-bold">{{ __('Collections') }}</h4>
                         
@@ -136,19 +139,7 @@
                         @endif
                         
                     </div>
-
-                    {{-- <div class="space-y-2">
-                        <h4 class="font-bold">{{ __('Publication') }}</h4>
-
-                        @if ($document->isPublished())
-                            <p><span class="text-xs uppercase block text-stone-700">{{ __('Published at') }}</span>{{ $document->published_at }}</p>
-                            <p><span class="text-xs uppercase block text-stone-700">{{ __('Published by') }}</span>{{ $document->published_by?->name }}</p>
-                            <p><span class="text-xs uppercase block text-stone-700">{{ __('Reachable on') }}</span>{{ $document->published_to_url }}</p>
-                        @else
-                            <p class="prose">{{ __('Not yet published.') }}</p>
-                        @endif
-                    </div> --}}
-                {{-- </div> --}}
+                </div>
             </div>
         </div>
     </div>

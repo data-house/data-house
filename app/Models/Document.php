@@ -25,6 +25,8 @@ use Illuminate\Support\Str;
 use PrinsFrank\Standards\Language\LanguageAlpha2;
 use App\Searchable;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use MeiliSearch\Exceptions\JsonEncodingException;
 use Oneofftech\LaravelLanguageRecognizer\Support\Facades\LanguageRecognizer;
 use Symfony\Component\HttpFoundation\HeaderUtils;
@@ -167,6 +169,16 @@ class Document extends Model implements Convertible
     public function importDocument()
     {
         return $this->hasOne(ImportDocument::class);
+    }
+
+    public function summaries(): HasMany
+    {
+        return $this->hasMany(DocumentSummary::class);
+    }
+
+    public function latestSummary(): HasOne
+    {
+        return $this->hasOne(DocumentSummary::class)->latestOfMany();
     }
     
     /**

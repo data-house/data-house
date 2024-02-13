@@ -78,6 +78,7 @@ class DocumentController extends Controller
             'uploader',
             'team',
             'project',
+            'latestSummary',
         ]);
 
         return view('document.show', [
@@ -91,9 +92,13 @@ class DocumentController extends Controller
      * Show the form for editing the specified resource.
      */
     public function edit(Document $document)
-    {       
+    {
+        $document->load([
+            'latestSummary',
+        ]);
+
         return view('document.edit', [
-            'document' => $document
+            'document' => $document,
         ]);
     }
 
@@ -104,13 +109,29 @@ class DocumentController extends Controller
     {
         $validated = $this->validate($request, [
             'title' => ['required', 'string', 'max:250'],
-            'description' => ['nullable', 'string', 'max:2000'],
+            'description' => ['nullable', 'string', 'max:10000'],
         ]);
+
+        $summary = $document->latestSummary;
+
+        if($summary && !$summary->isAiGenerated()){
+            $summary->update([
+                'text' => $validated['description'],
+            ]);
+        }
+        else {
+            $document->summaries()->create([
+                'language' => 'en',
+                'text' => $validated['description'],
+                'user_id' => auth()->user()->getKey(),
+            ]);
+        }
 
         $document->update([
             'title' => $validated['title'],
-            'description' => $validated['description'],
         ]);
+
+        
         
         return to_route('documents.show', $document)
             ->with('flash.banner', __(':document updated.', [
