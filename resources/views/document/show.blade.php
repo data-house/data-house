@@ -56,7 +56,7 @@
                             @if ($document->latestSummary->isAiGenerated())
                                 <p class="mt-2 py-1 text-sm text-lime-700 flex items-center gap-1">
                                     <x-heroicon-s-sparkles class="text-lime-500 h-6 w-6" />
-                                    {{ __('This summary was automatically generated using Artificial Intelligence.') }}
+                                    {{ __('This summary is automatically generated.') }}
                                 </p>
                             @endif
                         @else
