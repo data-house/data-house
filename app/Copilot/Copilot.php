@@ -16,8 +16,8 @@ class Copilot
     public static function enabled(): bool
     {
         return 
-            static::hasSummaryFeatures() &&
-            static::hasQuestionFeatures() &&
+            static::hasSummaryFeatures() ||
+            static::hasQuestionFeatures() ||
             static::hasTaggingFeatures();
     }
     
