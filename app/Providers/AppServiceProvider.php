@@ -80,6 +80,15 @@ class AppServiceProvider extends ServiceProvider
             default => false,
         });
         
+        Feature::define(Flag::DOCUMENT_FILTERS_TYPE->value, fn (User $user) => match (true) {
+            default => false,
+        });
+
+        Feature::define(Flag::PROJECT_FILTERS_TYPE->value, fn (User $user) => match (true) {
+            $user->hasRole(Role::ADMIN->value) => true,
+            default => false,
+        });
+        
         Feature::define(Flag::DASHBOARD->value, fn (User $user) => match (true) {
             $user->hasRole(Role::ADMIN->value) => true,
             default => false,
