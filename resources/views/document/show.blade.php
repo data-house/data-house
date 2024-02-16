@@ -115,7 +115,7 @@
                     <div class="space-y-2">
                         <h4 class="font-bold">{{ __('Details') }}</h4>
                         
-                        <p><span class="text-xs uppercase block text-stone-700">{{ __('File type') }}</span>{{ $document->mime }}</p>
+                        <p><span class="text-xs uppercase block text-stone-700">{{ __('File format') }}</span>{{ $document->mime }}</p>
                         <p><span class="text-xs uppercase block text-stone-700">{{ __('Uploaded by') }}</span>{{ $document->uploader->name }}</p>
                         <p><span class="text-xs uppercase block text-stone-700">{{ __('Team') }}</span>{{ $document->team?->name }}</p>
                         
