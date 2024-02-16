@@ -35,19 +35,20 @@
 
 
                 <div class="border-b border-gray-200 py-10" id="disclosure-1" x-cloak x-show="showFilters">
-                    <div class="mx-auto grid max-w-7xl grid-cols-2 gap-x-4 px-4 text-sm sm:px-6 md:gap-x-6 lg:px-8">
-                      <div class="grid auto-rows-min grid-cols-1 gap-y-10 md:grid-cols-2 md:gap-x-6">
-                        <fieldset>
-                          <legend class="block font-medium">{{ __('Type') }}</legend>
-                          <div class="space-y-6 pt-6 sm:space-y-4 sm:pt-4 max-h-72 overflow-y-auto">
-                            @foreach ($facets['type'] as $item)
-                                <div class="flex items-center text-base sm:text-sm">
-                                <input id="type-{{ $item->name }}" name="type[]" value="{{ $item->name }}" @checked(in_array($item->name, $filters['type'] ?? [])) type="checkbox" class="h-4 w-4 flex-shrink-0 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
-                                <label for="type-{{ $item->name }}" class="ml-3 min-w-0 flex-1 text-gray-600">{{ $item->name }}</label>
-                                </div>
-                            @endforeach
-                          </div>
-                        </fieldset>
+                    <div class="mx-auto grid max-w-7xl grid-cols-4 gap-x-4 px-4 text-sm sm:px-6 md:gap-x-6 lg:px-8">
+                        @feature(Flag::typeProjectFilter())
+                            <fieldset>
+                            <legend class="block font-medium">{{ __('Type') }}</legend>
+                            <div class="space-y-6 pt-6 sm:space-y-4 sm:pt-4 max-h-72 overflow-y-auto">
+                                @foreach ($facets['type'] as $item)
+                                    <div class="flex items-center text-base sm:text-sm">
+                                    <input id="type-{{ $item->name }}" name="type[]" value="{{ $item->name }}" @checked(in_array($item->name, $filters['type'] ?? [])) type="checkbox" class="h-4 w-4 flex-shrink-0 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                                    <label for="type-{{ $item->name }}" class="ml-3 min-w-0 flex-1 text-gray-600">{{ $item->name }}</label>
+                                    </div>
+                                @endforeach
+                            </div>
+                            </fieldset>
+                        @endfeature
                         <fieldset>
                           <legend class="block font-medium">{{ __('Topic') }}</legend>
                           <div class="space-y-6 pt-6 sm:space-y-4 sm:pt-4 max-h-72 overflow-y-auto">
@@ -59,8 +60,6 @@
                             @endforeach
                           </div>
                         </fieldset>
-                      </div>
-                      <div class="grid auto-rows-min grid-cols-1 gap-y-10 md:grid-cols-2 md:gap-x-6">
                         <fieldset>
                           <legend class="block font-medium">{{ __('Country') }}</legend>
                           <div class="space-y-6 pt-6 sm:space-y-4 sm:pt-4 max-h-72 overflow-y-auto">
@@ -84,7 +83,6 @@
                             @endforeach
                           </div>
                         </fieldset>
-                      </div>
                     </div>
 
                     <div class="flex items-center justify-between mt-2">
