@@ -1,23 +1,11 @@
-<div class="space-y-1">
-    <div class="flex flex-wrap gap-2">
-        @forelse ($this->collections as $collection)
-            <div class="inline-flex gap-2 py-0.5 px-2 items-center rounded-md bg-lime-100 hover:bg-lime-200 ring-1 ring-lime-500">
-                <a href="{{ $collection->url() }}" class="hover:underline">{{ $collection->title }}</a>
-                <button wire:click="remove({{$collection->getKey()}})" class="rounded-full p-0.5 hover:bg-white hover:text-lime-900 shrink-0" title="{{ __('Remove document from :collection', ['collection' => $collection->title]) }}">
-                    <x-heroicon-m-x-mark class="w-4 h-4" />
-                </button>
-            </div>
-        @empty
-            <p class="text-stone-700">{{ __('Not in collection') }}</p>
-        @endforelse
-    </div>
+<div class="space-y-2">
     <div>
         <x-dropdown align="right" width="w-96">
             <x-slot name="trigger">
-                <button class="inline-flex items-center gap-2">
+                <x-small-button>
                     <x-heroicon-m-plus class="w-4 h-4" />
                     {{ __('Attach a collection ')}}
-                </button>
+                </x-small-button>
             </x-slot>
             <x-slot name="content">
                 <div class="px-4 py-2 flex justify-between items-center">
@@ -42,5 +30,17 @@
                 </div>
             </x-slot>
         </x-dropdown>
+    </div>
+    <div class="flex flex-wrap gap-2">
+        @forelse ($this->collections as $collection)
+            <div class="inline-flex gap-2 py-0.5 px-2 items-center rounded-md bg-lime-100 hover:bg-lime-200 ring-1 ring-lime-500">
+                <a href="{{ $collection->url() }}" class="hover:underline">{{ $collection->title }}</a>
+                <button wire:click="remove({{$collection->getKey()}})" class="rounded-full p-0.5 hover:bg-white hover:text-lime-900 shrink-0" title="{{ __('Remove document from :collection', ['collection' => $collection->title]) }}">
+                    <x-heroicon-m-x-mark class="w-4 h-4" />
+                </button>
+            </div>
+        @empty
+            <p class="text-stone-700">{{ __('Not in collection') }}</p>
+        @endforelse
     </div>
 </div>
