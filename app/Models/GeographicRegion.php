@@ -3,6 +3,9 @@
 namespace App\Models;
 
 use Illuminate\Support\Collection;
+use InvalidArgumentException;
+use PrinsFrank\Standards\Country\CountryAlpha3;
+use PrinsFrank\Standards\Region\GeographicRegion as RegionGeographicRegion;
 
 /** 
  * Geographic regions as defined in UN M49 https://unstats.un.org/unsd/methodology/m49/overview
@@ -44,6 +47,19 @@ class GeographicRegion
             ])->filter()->values())
             ->unique()
             ->values();
+    }
+    
+    public static function getRegionFrom(CountryAlpha3 $code): RegionGeographicRegion
+    {
+        static::all();
+
+        $country = static::$countries[$code->value] ?? null;
+
+        if(!$country){
+            throw new InvalidArgumentException(__('No country found for :value', ['value' => $code->value]));
+        }
+
+        return RegionGeographicRegion::from($country['region-code']);
     }
     
     /**
