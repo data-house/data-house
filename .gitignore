@@ -16,6 +16,7 @@
 .env
 .env.backup
 .env.production
+copilot.env
 Homestead.json
 Homestead.yaml
 auth.json
@@ -25,3 +26,4 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
+docker-compose.override.yml
