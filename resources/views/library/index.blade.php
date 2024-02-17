@@ -77,7 +77,7 @@
                             </fieldset>
                             @endfeature
                             <fieldset>
-                              <legend class="block font-medium">{{ __('Thematic Area') }}</legend>
+                              <legend class="block font-medium">{{ __('Area') }}</legend>
                               <div class="space-y-6 pt-6 sm:space-y-4 sm:pt-4 max-h-72 overflow-y-auto">
                                 @foreach ($facets['topic'] as $topicKey => $topic)
                                 <div class="flex items-center text-base sm:text-sm">
