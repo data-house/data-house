@@ -11,7 +11,7 @@ use Spatie\LaravelData\Attributes\Computed;
 class FileFormatData extends Data
 {
 
-    protected static $extensionFromatNameMap = [
+    protected static $extensionToFormatName = [
         'pdf' => 'PDF',
         
         'doc' => 'Word',
@@ -39,6 +39,35 @@ class FileFormatData extends Data
 
         'zip' => 'Compressed folder',
     ];
+    
+    protected static $extensionToIcon = [
+        'pdf' => 'codicon-file-pdf',
+        
+        'doc' => 'codicon-file',
+        'odt' => 'codicon-file',
+        'docm' => 'codicon-file',
+        'docx' => 'codicon-file',
+
+        'ods' => 'codicon-table',
+        'xls' => 'codicon-table',
+        'xlsb' => 'codicon-table',
+        'xlsm' => 'codicon-table',
+        'xlsx' => 'codicon-table',
+
+        'ppt' => 'codicon-symbol-constant',
+        'odp' => 'codicon-symbol-constant',
+        'pptm' => 'codicon-symbol-constant',
+        'pptx' => 'codicon-symbol-constant',
+
+        'png' => 'codicon-file-media',
+        'jpe' => 'codicon-file-media',
+        'jpeg' => 'codicon-file-media',
+        'jpf' => 'codicon-file-media',
+        'jpg' => 'codicon-file-media',
+        'jpg2' => 'codicon-file-media',
+
+        'zip' => 'codicon-file-zip',
+    ];
 
 
     #[Computed]
@@ -59,12 +88,9 @@ class FileFormatData extends Data
 
       $this->extension = Arr::first($mimeTypes->getExtensions($this->mime));
 
-      $this->name = self::$extensionFromatNameMap[$this->extension] ?? '-';
+      $this->name = self::$extensionToFormatName[$this->extension] ?? '-';
 
-      $this->icon = match ($this->mime) {
-            MimeType::APPLICATION_PDF->value => 'codicon-file-pdf',
-            default => 'codicon-file',
-        };
+      $this->icon = self::$extensionToIcon[$this->extension] ?? 'codicon-file';
     }
 
 }
