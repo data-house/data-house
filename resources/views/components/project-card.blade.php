@@ -1,3 +1,5 @@
+@props(['project'])
+
 <div {{ $attributes }}>
     @can('view', $project)
         <div class="space-y-1">

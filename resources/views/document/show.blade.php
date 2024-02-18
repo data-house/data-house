@@ -5,7 +5,7 @@
     <x-slot name="header">
         <div class="space-y-2 md:space-y-0 md:flex md:items-center md:justify-between relative">
             <h2 class="font-semibold text-xl text-stone-800 leading-tight space-y-2 sm:space-y-0 sm:flex sm:gap-4 md:items-center">
-                <x-dynamic-component :component="$document->icon()" class="text-gray-400 h-7 w-7 shrink-0" />
+                <x-dynamic-component :component="$document->format->icon" class="text-gray-400 h-7 w-7 shrink-0" />
                 
                 {{ $document->title }}
 
@@ -21,7 +21,7 @@
                 @endcan
                 @can('view', $document)
                     <x-button-link href="{{ $document->url() }}" target="_blank">
-                        <x-heroicon-s-arrow-down-tray class="w-4 h-4 shrink-0 " /> {{ __('Download') }} (FORMAT)
+                        <x-heroicon-s-arrow-down-tray class="w-4 h-4 shrink-0 " /> {{ __('Download') }} ({{ $document->format->extension }})
                     </x-button-link>
                 @endcan
                 @can('update', $document)
@@ -93,32 +93,53 @@
 
                     <x-section-border />
 
-                    <div class="space-y-2">
-                        <h4 class="font-bold text-stone-700">{{ __('Details') }}</h4>
-                        
-                        <p><span class="text-xs uppercase block text-stone-700">{{ __('File format') }}</span>{{ $document->mime }}</p>
-                        <p><span class="text-xs uppercase block text-stone-700">{{ __('Uploaded by') }}</span>{{ $document->uploader->name }}</p>
-                        <p><span class="text-xs uppercase block text-stone-700">{{ __('Team') }}</span>{{ $document->team?->name }}</p>
-                        
-                        <p><span class="text-xs uppercase block text-stone-700">{{ __('Language') }}</span>
-                        {{ $document->language?->toLanguageName() }}</p>
-                        
-                        @if ($importDocument)
-                            <p>
-                                <span class="text-xs uppercase block text-stone-700">{{ __('Imported from') }}</span>
-                            </p>
+                    <div>
+                        <h4 class="font-bold mb-2 text-stone-700">{{ __('Contact') }}</h4>
 
-                            <div class="flex border border-stone-800 bg-stone-100 rounded-sm overflow-hidden">
-                                <span class="bg-stone-800 text-white px-2 py-1">
-                                    {{ $importDocument->import?->source->name }}
-                                </span>
-                                <span class=" px-2 py-1">
-                                    {{ $importDocument->source_path }}
-                                </span>
+                        <div class="">
 
+                            @if ($document->team)
+                                <div class="flex items-center gap-1 ">
+                                    <div class="rounded-xl h-10 w-10 object-cover shadow flex items-center justify-center bg-stone-200">
+                                        <x-heroicon-o-users class="w-6 h-6 text-stone-600" />
+                                    </div>
+                                    
+                                    {{ $document->team->name }}
+                                </div>
+                            @else
+
+                                <div class="flex items-center gap-1 ">
+                                    <div class="rounded-full h-10 w-10 object-cover shadow flex items-center justify-center bg-stone-200">
+                                        <x-heroicon-o-user class="w-6 h-6 text-stone-600" />
+                                    </div>
+                                    
+                                    {{ $document->uploader->name }}
+                                </div>
+
+                            @endif
+                        </div>
+                    </div>
+
+                    <x-section-border />
+
+                    <div>
+                        <h4 class="font-bold mb-2 text-stone-700">{{ __('File details') }}</h4>
+                        
+                        <div class="space-y-5">
+                            <div>
+                                <span class="text-xs block mb-1 text-stone-700">{{ __('Language') }}</span>
+                                <x-language-card :language="$document->language" />
                             </div>
-                        @endif
-                        
+
+                            <div>
+                                <span class="text-xs block text-stone-700">{{ __('Format') }}</span>
+                                <x-file-format-card class="mt-1" :format="$document->format" />
+                            </div>
+                            <p>
+                                <span class="text-xs block text-stone-700">{{ __('Size') }}</span>
+                                {{ $document->size }}
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
