@@ -144,6 +144,7 @@ return [
                     'languages',
                     'mime',
                     'type',
+                    'format',
                     'team_id',
                     'team_name',
                     'uploaded_by',

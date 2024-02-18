@@ -62,6 +62,18 @@
                                 </fieldset>
                             </div>
                             @endfeature
+
+                            <fieldset>
+                              <legend class="block font-medium">{{ __('Format') }}</legend>
+                              <div class="space-y-6 pt-6 sm:space-y-4 sm:pt-4 max-h-72 overflow-y-auto">
+                                @foreach ($facets['format'] as $item)
+                                    <div class="flex items-center text-base sm:text-sm">
+                                    <input id="format-{{ $item }}" name="format[]" value="{{ $item }}" @checked(in_array($item, $filters['format'] ?? [])) type="checkbox" class="h-4 w-4 flex-shrink-0 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                                    <label for="format-{{ $item }}" class="ml-3 min-w-0 flex-1 text-gray-600">{{ $item }}</label>
+                                    </div>
+                                @endforeach
+                              </div>
+                            </fieldset>
                           
                             @feature(Flag::typeDocumentFilter())
                             <fieldset>

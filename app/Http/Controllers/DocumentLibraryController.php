@@ -22,7 +22,7 @@ class DocumentLibraryController extends Controller
 
         $teamFilters = $sourceFilters['source'] === 'current-team' ? ['team_id' => $request->user()->currentTeam->getKey()] : [];
 
-        $filters = $request->hasAny(['project_countries', 'type', 'project_region', 'project_topics']) ? $request->only(['project_countries', 'type', 'project_region', 'project_topics']) : [];
+        $filters = $request->hasAny(['project_countries', 'format', 'type', 'project_region', 'project_topics']) ? $request->only(['project_countries', 'format', 'type', 'project_region', 'project_topics']) : [];
 
         $searchFilters = array_merge($filters, $teamFilters);
 
@@ -34,6 +34,14 @@ class DocumentLibraryController extends Controller
 
         $facets = [
             'source' => ['all-teams', 'current-team'],
+            'format' => [
+                'PDF',
+                'Word',
+                'Spreadsheet',
+                'Slides',
+                'Image',
+                'Compressed folder',
+            ],
             'type' => DocumentType::cases(),
             'countries' => $countries->map->toCountryName(),
             'regions' => GeographicRegion::facets($countries?->map->value),
