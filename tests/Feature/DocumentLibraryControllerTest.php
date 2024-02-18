@@ -189,6 +189,14 @@ class DocumentLibraryControllerTest extends TestCase
         $response->assertViewHas('is_search', false);
         $response->assertViewHas('facets', [
             'source' => ['all-teams', 'current-team'],
+            'format' => [
+                'PDF',
+                'Word',
+                'Spreadsheet',
+                'Slides',
+                'Image',
+                'Compressed folder',
+            ],
             'type' => DocumentType::cases(),
             'countries' => collect(),
             'regions' => collect(),
@@ -222,6 +230,14 @@ class DocumentLibraryControllerTest extends TestCase
         $response->assertViewHas('is_search', true);
         $response->assertViewHas('facets', [
             'source' => ['all-teams', 'current-team'],
+            'format' => [
+                'PDF',
+                'Word',
+                'Spreadsheet',
+                'Slides',
+                'Image',
+                'Compressed folder',
+            ],
             'type' => DocumentType::cases(),
             'countries' => collect(),
             'regions' => collect(),
