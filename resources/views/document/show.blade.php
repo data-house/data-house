@@ -15,9 +15,11 @@
             </h2>
             <div class="flex gap-2">
                 @can('view', $document)
-                    <x-button-link href="{{ $document->viewerUrl() }}" target="_blank">
-                        <x-heroicon-s-arrow-top-right-on-square class="w-4 h-4 shrink-0 " /> {{ __('Preview') }}
-                    </x-button-link>
+                    @if ($document->hasPreview())
+                        <x-button-link href="{{ $document->viewerUrl() }}" target="_blank">
+                            <x-heroicon-s-arrow-top-right-on-square class="w-4 h-4 shrink-0 " /> {{ __('Preview') }}
+                        </x-button-link>
+                    @endif
                 @endcan
                 @can('view', $document)
                     <x-button-link href="{{ $document->url() }}" target="_blank">

@@ -235,12 +235,18 @@ class Document extends Model implements Convertible
         return rtrim(config('app.internal_url'), '/') . $url;
     }
 
+    public function hasPreview(): bool
+    {
+        return $this->mime === MimeType::APPLICATION_PDF->value ||
+               ($this->conversion_file_mime && $this->conversion_file_mime === MimeType::APPLICATION_PDF->value);
+    }
+
     /**
      * Get the URL to obtain the viewer of the document
      */
     public function viewerUrl(int $page = 1): string
     {
-        if($this->mime !== MimeType::APPLICATION_PDF->value && (!$this->conversion_file_mime || $this->conversion_file_mime && $this->conversion_file_mime !== MimeType::APPLICATION_PDF->value)){
+        if(! $this->hasPreview()){
             return route('documents.download', ['document' => $this, 'disposition' => HeaderUtils::DISPOSITION_INLINE]);
         }
 
