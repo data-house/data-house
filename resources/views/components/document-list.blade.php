@@ -21,7 +21,7 @@
             @class([ 
             'col-span-2' => \Laravel\Pennant\Feature::inactive(Flag::editDocumentVisibility())
             ])>
-            {{ __('Type') }}
+            {{ __('Format') }}
         </div>
 
         <div
@@ -51,7 +51,7 @@
                 'col-span-5' => \Laravel\Pennant\Feature::active(Flag::editDocumentVisibility()),
                 ]) 
             >
-                <x-dynamic-component :component="$document->icon()" class="text-gray-400 h-7 w-7 shrink-0" />
+                <x-dynamic-component :component="$document->format->icon" class="text-gray-400 h-7 w-7 shrink-0" />
                 
                 <a href="{{ route('documents.show', $document) }}" class=" block font-bold truncate group-hover:text-blue-800">
                     <span class="z-10 absolute inset-0"></span>{{ $document->title }}
@@ -62,9 +62,9 @@
                 @class([ 
                 'col-span-2' => \Laravel\Pennant\Feature::inactive(Flag::editDocumentVisibility())
                 ])>
-                @if ($document->type)
-                    <span class="truncate inline-block text-xs px-3 py-1 rounded-xl ring-0 ring-stone-300 bg-stone-100 text-stone-900">{{ $document->type->name }}</span>
-                @endif
+                
+                <span class="truncate inline-block text-xs px-3 py-1 rounded-xl ring-0 ring-stone-300 bg-stone-100 text-stone-900">{{ $document->format->name }}</span>
+                
             </div>
 
             <div

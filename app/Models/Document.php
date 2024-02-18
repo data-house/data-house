@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Copilot\Questionable;
+use App\Data\FileFormatData;
 use App\DocumentConversion\Contracts\Convertible;
 use App\DocumentConversion\ConversionRequest;
 use App\PdfProcessing\DocumentContent;
@@ -27,6 +28,7 @@ use App\Searchable;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Number;
 use MeiliSearch\Exceptions\JsonEncodingException;
 use Oneofftech\LaravelLanguageRecognizer\Support\Facades\LanguageRecognizer;
 use Symfony\Component\HttpFoundation\HeaderUtils;
@@ -131,6 +133,26 @@ class Document extends Model implements Convertible
             get: fn (?string $value) => $this->languages[0] ?? null,
         );
     }
+    
+    /**
+     * Get the documents's size.
+     */
+    protected function size(): Attribute
+    {
+        return Attribute::make(
+            get: fn (?string $value) => $this->document_size ? Number::fileSize($this->document_size) : '-',
+        );
+    }
+    
+    /**
+     * Get the documents's format.
+     */
+    protected function format(): Attribute
+    {
+        return Attribute::make(
+            get: fn (?string $value) => new FileFormatData($this->mime),
+        );
+    }
 
     /**
      * Scope the query to return only documents that are viewable by a user
@@ -201,14 +223,6 @@ class Document extends Model implements Convertible
     }
     
     /**
-     * Get the icon component to be used to represent this file
-     */
-    public function icon(): string
-    {
-        return $this->mime === MimeType::APPLICATION_PDF->value ? 'codicon-file-pdf' : 'codicon-file';
-    }
-    
-    /**
      * Get the URL for downloading the file that can be used by internal services
      * and that uses a signed route
      */
@@ -221,12 +235,18 @@ class Document extends Model implements Convertible
         return rtrim(config('app.internal_url'), '/') . $url;
     }
 
+    public function hasPreview(): bool
+    {
+        return $this->mime === MimeType::APPLICATION_PDF->value ||
+               ($this->conversion_file_mime && $this->conversion_file_mime === MimeType::APPLICATION_PDF->value);
+    }
+
     /**
      * Get the URL to obtain the viewer of the document
      */
     public function viewerUrl(int $page = 1): string
     {
-        if($this->mime !== MimeType::APPLICATION_PDF->value && (!$this->conversion_file_mime || $this->conversion_file_mime && $this->conversion_file_mime !== MimeType::APPLICATION_PDF->value)){
+        if(! $this->hasPreview()){
             return route('documents.download', ['document' => $this, 'disposition' => HeaderUtils::DISPOSITION_INLINE]);
         }
 
@@ -290,6 +310,7 @@ class Document extends Model implements Convertible
             'description' => $this->description,
             'languages' => $this->languages,
             'mime' => $this->mime,
+            'format' => $this->format->name,
             'type' => $this->type?->name,
             'content' => $content,
             'draft' => $this->draft,

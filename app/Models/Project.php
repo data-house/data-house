@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Data\CountryData;
 use Illuminate\Database\Eloquent\Casts\AsArrayObject;
 use Illuminate\Database\Eloquent\Casts\AsCollection;
 use Illuminate\Database\Eloquent\Casts\AsEnumCollection;
@@ -111,10 +112,16 @@ class Project extends Model
     
     /**
      * Get the countries targetted by the project
+     *
+     * @return \Illuminate\Support\Collection<\App\Data\CountryData>
      */
     public function countries(): Collection
     {
-        return $this->countries?->map->toCountryName() ?? collect();
+        if(!$this->countries){
+            return collect();
+        }
+
+        return $this->countries?->map(fn($code) => CountryData::fromCountryCode($code));
     }
 
 
@@ -134,7 +141,7 @@ class Project extends Model
             'title' => $this->title,
             'title_alternate' => $this->properties['title_en'] ?? null,
             'description' => $this->description,
-            'countries' => $this->countries(),
+            'countries' => $this->countries()->map->name,
             'region' => $this->regions()->flatten(), 
             'topics' => $this->topics,
             'starts_at' => $this->starts_at?->toDateString(),
