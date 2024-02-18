@@ -21,7 +21,7 @@
             @class([ 
             'col-span-2' => \Laravel\Pennant\Feature::inactive(Flag::editDocumentVisibility())
             ])>
-            {{ __('Type') }}
+            {{ __('Format') }}
         </div>
 
         <div
@@ -62,9 +62,9 @@
                 @class([ 
                 'col-span-2' => \Laravel\Pennant\Feature::inactive(Flag::editDocumentVisibility())
                 ])>
-                @if ($document->type)
-                    <span class="truncate inline-block text-xs px-3 py-1 rounded-xl ring-0 ring-stone-300 bg-stone-100 text-stone-900">{{ $document->type->name }}</span>
-                @endif
+                
+                <span class="truncate inline-block text-xs px-3 py-1 rounded-xl ring-0 ring-stone-300 bg-stone-100 text-stone-900">{{ $document->format->name }}</span>
+                
             </div>
 
             <div
