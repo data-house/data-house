@@ -110,6 +110,7 @@ function install_or_update() {
     php artisan route:cache
     php artisan optimize
     php artisan operations:process
+    php artisan scout:sync-index-settings
 }
 
 function wait_services () {
