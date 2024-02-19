@@ -324,7 +324,7 @@ class Document extends Model implements Convertible
             'project_id' => $this->project?->getKey(),
             'project_title' => $this->project?->title,
             'project_region' => $this->project?->regions(),
-            'project_countries' => $this->project?->countries(),
+            'project_countries' => $this->project?->countries()->map->name,
             'project_topics' => $this->project?->topics,
             'visibility' => $this->visibility?->value,
         ];
