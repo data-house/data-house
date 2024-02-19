@@ -38,7 +38,7 @@ class DocumentLibraryController extends Controller
                 'PDF',
                 'Word',
                 'Spreadsheet',
-                'Slides',
+                'Slideshow',
                 'Image',
                 'Compressed folder',
             ],

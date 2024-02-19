@@ -25,10 +25,10 @@ class FileFormatData extends Data
         'xlsm' => 'Spreadsheet',
         'xlsx' => 'Spreadsheet',
 
-        'ppt' => 'Slides',
-        'odp' => 'Slides',
-        'pptm' => 'Slides',
-        'pptx' => 'Slides',
+        'ppt' => 'Slideshow',
+        'odp' => 'Slideshow',
+        'pptm' => 'Slideshow',
+        'pptx' => 'Slideshow',
 
         'png' => 'Image',
         'jpe' => 'Image',
