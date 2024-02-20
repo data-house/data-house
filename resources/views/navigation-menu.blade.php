@@ -134,6 +134,38 @@
                         </x-slot>
                     </x-dropdown>
                 </div>
+                
+                <!-- Help and support Dropdown -->
+                @support()
+                <div class="ml-3 relative">
+                    <x-dropdown align="right" width="48">
+                        <x-slot name="trigger">
+                            
+                            <button class="flex border-2 border-transparent rounded-full focus:outline-none focus:border-stone-300 transition"
+                                title="{{ __('Help and feedback') }}">
+                                <x-heroicon-o-question-mark-circle class="w-6 h-6 shrink-0" />
+                            </button>
+                            
+                        </x-slot>
+
+                        <x-slot name="content">
+
+                            @if (\App\HelpAndSupport\Support::hasHelpPages())
+                                <x-dropdown-link href="{{ \App\HelpAndSupport\Support::buildHelpPageLink() }}" target="_blank">
+                                    {{ __('Help') }}
+                                </x-dropdown-link>
+                            @endif
+
+                            @if (\App\HelpAndSupport\Support::hasTicketing())
+                                <x-dropdown-link href="{{ \App\HelpAndSupport\Support::buildSupportTicketLink() }}" target="_blank">
+                                    {{ __('Contact Support') }}
+                                </x-dropdown-link>
+                            @endif
+
+                        </x-slot>
+                    </x-dropdown>
+                </div>
+                @endsupport
             </div>
 
             <!-- Hamburger -->
@@ -162,6 +194,20 @@
             <x-responsive-nav-link href="{{ route('projects.index') }}" :active="request()->routeIs('projects.*')">
                 {{ __('Projects') }}
             </x-responsive-nav-link>
+
+            @support()
+                @if (\App\HelpAndSupport\Support::hasHelpPages())
+                    <x-responsive-nav-link href="{{ \App\HelpAndSupport\Support::buildHelpPageLink() }}" target="_blank">
+                        {{ __('Help') }}
+                    </x-responsive-nav-link>
+                @endif
+
+                @if (\App\HelpAndSupport\Support::hasTicketing())
+                    <x-responsive-nav-link href="{{ \App\HelpAndSupport\Support::buildSupportTicketLink() }}" target="_blank">
+                        {{ __('Contact Support') }}
+                    </x-responsive-nav-link>
+                @endif
+            @endsupport
         </div>
 
         <!-- Responsive Settings Options -->
