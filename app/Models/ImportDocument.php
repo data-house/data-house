@@ -82,8 +82,13 @@ class ImportDocument extends Model
 
     public function wipe()
     {
-        // TODO: remove file from disk
-        // TODO: remove entry from database
+        $storage = Storage::disk($this->disk_name);
+
+        if($storage->exists($this->disk_path)){
+            $storage->delete($this->disk_path);
+        }
+
+        $this->deleteQuietly();
     }
 
 

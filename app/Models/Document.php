@@ -257,6 +257,25 @@ class Document extends Model implements Convertible
         ]);
     }
 
+    public function wipe()
+    {
+        $storage = Storage::disk($this->disk_name);
+
+        if($storage->exists($this->disk_path)){
+            $storage->delete($this->disk_path);
+        }
+
+        if(isset($this->attributes['conversion_disk_path']) && isset($this->attributes['conversion_disk_name']) && $this->attributes['conversion_disk_path']){
+            $storage = Storage::disk($this->conversion_disk_name);
+
+            if($storage->exists($this->conversion_disk_path)){
+                $storage->delete($this->conversion_disk_path);
+            }
+        }
+
+        $this->deleteQuietly();
+    }
+
     public function isPublished()
     {
         return !is_null($this->published_at);
