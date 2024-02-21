@@ -8,14 +8,16 @@ enum ProjectStatus: int
 
     case COMPLETED = 20;
 
-    case CLOSED = 30;
+    case INACTIVE = 30;
+    
+    case CLOSED = 40;
 
     public static function parse(string $value): self|null
     {
         $cases = collect(static::cases())->keyBy('name')->merge([
             'ABSCHLUSS' => static::COMPLETED,
             'PROJEKTENDE' => static::COMPLETED,
-            'INACTIVE' => static::CLOSED,
+            'INACTIVE' => static::INACTIVE,
         ]);
 
         return $cases[str($value)->upper()->toString()] ?? null;
