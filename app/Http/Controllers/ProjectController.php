@@ -24,7 +24,7 @@ class ProjectController extends Controller
     {
         $searchQuery = $request->has('s') ? $request->input('s') : null;
 
-        $filters = $request->hasAny(['countries', 'type', 'region', 'topics']) ? $request->only(['countries', 'type', 'region', 'topics']) : [];
+        $filters = $request->hasAny(['countries', 'type', 'region', 'topics', 'status']) ? $request->only(['countries', 'type', 'region', 'topics', 'status']) : [];
 
         $projects = $searchQuery || $filters 
             ? Project::advancedSearch($searchQuery, $filters)->paginate(50)
