@@ -167,6 +167,12 @@ class Document extends Model implements Convertible
             })
             ->orWhere(fn($q) => $q->where('visibility', Visibility::PERSONAL)->where('uploaded_by', $user->getKey()));
     }
+    
+    public function scopeInProject($query, Project $project)
+    {
+        return $query
+            ->where('project_id', $project->getKey());
+    }
 
     public function uploader()
     {

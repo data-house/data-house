@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Models\Project;
 use App\Models\Team;
 use App\Models\User;
 use App\Models\Visibility;
@@ -67,7 +68,7 @@ trait Searchable
      * @param array $filters The filters to apply
      * @param User|null $user The user that is performing the search. If null the currently authenticated user is considered
      */
-    public static function tenantSearch($query = '', array $filters = [], ?User $user = null)
+    public static function tenantSearch($query = '', array $filters = [], ?User $user = null, ?Project $project = null)
     {
         $escapedQuery = htmlspecialchars($query ?? '', ENT_NOQUOTES | ENT_SUBSTITUTE, 'UTF-8');
 
@@ -80,7 +81,7 @@ trait Searchable
 
         $team = $user->currentTeam;
 
-        return static::search($escapedQuery, function(Indexes $meilisearch, string $query, array $options) use ($user, $team){
+        return static::search($escapedQuery, function(Indexes $meilisearch, string $query, array $options) use ($user, $team, $project){
             
             // Laravel Scout doesn't support Tenant Token, 
             // so we include additional filters to 
@@ -88,7 +89,7 @@ trait Searchable
             // https://www.meilisearch.com/docs/learn/security/tenant_tokens
             // https://blog.meilisearch.com/role-based-access-guide/
 
-            $tenantFilters = collect([
+            $userTenantFilters = collect([
                 "uploaded_by = {$user->getKey()} AND visibility = ". Visibility::PERSONAL->value,
                 "visibility IN [".Visibility::PROTECTED->value.",".Visibility::PUBLIC->value."]",
             ])
@@ -96,7 +97,13 @@ trait Searchable
                 return $collection->push("team_id = {$value->getKey()} AND visibility = ". Visibility::TEAM->value);
             })->join(' OR ');
 
-            $options['filter'] = ($options['filter'] ?? false) ? "({$tenantFilters}) AND {$options['filter']}" : "({$tenantFilters})";
+            $projectTenantFilters = collect([
+                $project ? "project_id = {$project->getKey()}" : null,
+            ])->filter()->join(' OR ');
+
+            $tenantFilters = $projectTenantFilters ? "{$projectTenantFilters} AND ({$userTenantFilters})" : "({$userTenantFilters})";
+
+            $options['filter'] = ($options['filter'] ?? false) ? "({$tenantFilters}) AND ({$options['filter']})" : "({$tenantFilters})";
 
             // using same strategy as the scout driver
             // this will be the entrypoint to use the extra facets information
