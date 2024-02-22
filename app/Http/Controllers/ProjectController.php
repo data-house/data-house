@@ -28,8 +28,9 @@ class ProjectController extends Controller
 
         $projects = $searchQuery || $filters 
             ? Project::advancedSearch($searchQuery, $filters)->paginate(50)
-            : Project::query()->paginate(50);
+            : Project::query()->orderBy('title', 'ASC')->paginate(50);
 
+        $projects->withQueryString();
 
         $countries = Project::pluck('countries')->flatten()->unique('value');
 

@@ -30,6 +30,8 @@ class DocumentLibraryController extends Controller
             ? Document::tenantSearch($searchQuery, $searchFilters)->paginate(50)
             : Document::query()->visibleBy(auth()->user())->paginate(50);
 
+        $documents->withQueryString();
+
         $countries = Project::pluck('countries')->flatten()->unique('value');
 
         $facets = [
