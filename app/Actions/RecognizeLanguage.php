@@ -28,7 +28,13 @@ class RecognizeLanguage
      */
     public function __invoke(Document $document): ?Collection
     {
-        $possibleLanguages = collect(LanguageRecognizer::recognize($document->getContent()->all()));
+        $content = $document->getContent();
+
+        if($content->isEmpty()){
+            return collect();
+        }
+
+        $possibleLanguages = collect(LanguageRecognizer::recognize($content->all()));
 
         // We check if the current recognized languages are within the list of acceptable ones
         // and we keep only the ones above a certain threshold

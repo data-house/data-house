@@ -31,6 +31,19 @@ class DocumentContent implements JsonSerializable
     }
 
     /**
+     * The document does not contain text. 
+     * However It can be composed by images
+     */
+    public function isEmpty(): bool
+    {
+        if(is_array($this->raw)){
+            return collect($this->raw)->filter()->isEmpty();
+        }
+        
+        return str($this->raw)->trim()->isEmpty();
+    }
+
+    /**
      * Get the JSON serializable representation of the object.
      *
      * @return array
