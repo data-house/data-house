@@ -19,44 +19,40 @@
 
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
-            <div class="flex justify-between items-start gap-4" x-show="!expanded" x-collapse>
-                <div class="grow">
+            <div class="" x-show="!expanded" x-collapse>
+                <div class="grow flex items-center  flex-row sm:gap-6 lg:gap-8">
+                    
+                    @if ($project->status)
+                        <a title="{{ __('Explore :value projects', ['value' => $project->status->name]) }}" href="{{ route('projects.index', ['status' => [$project->status->name]])}}" class="inline px-2 py-1 rounded bg-indigo-100 text-indigo-900 hover:bg-indigo-200 focus:bg-indigo-200 hover:text-indigo-800 focus:text-indigo-800">
+                            {{ $project->status->name }}
+                        </a>
+                    @endif
 
-                    <div class="flex items-center  flex-row sm:gap-6 lg:gap-8">
-                        @if ($project->status)
-                            <div class="inline px-2 py-1 rounded bg-indigo-100 text-indigo-900">
-                                {{ $project->status->name }}
-                            </div>
-                        @endif
-
-                        <div class="flex flex-wrap gap-2">
-                            @foreach ($project?->countries() as $country)
-                                <a title="{{ __('Explore documents connected to projects in :value', ['value' => $country->name]) }}" href="{{ route('projects.index', ['countries' => [$country->name]])}}" class="inline-flex gap-1 items-center text-xs px-2 py-1 rounded-xl bg-gray-200 text-gray-900 hover:bg-indigo-200 focus:bg-indigo-200 hover:text-indigo-800 focus:text-indigo-800 group">
-                                    <x-dynamic-component :component="$country->icon" class="w-4 h-4 text-gray-700 group-hover:text-indigo-600" />
-                                    {{ $country->name }}
-                                </a>
-                            @endforeach
-                        </div>
-
-                        <div class="flex-wrap gap-2 hidden sm:flex">
-                            @foreach ($project->topics as $topic)
-                                <a title="{{ __('Explore documents connected to projects in :value', ['value' => $topic]) }}"
-                                href="{{ route('projects.index', ['topics' => [$topic]])}}"
-                                class="inline-flex gap-1 items-center text-xs px-2 py-1 rounded-xl bg-gray-200 text-gray-900 hover:bg-indigo-200 focus:bg-indigo-200 hover:text-indigo-800 focus:text-indigo-800 group">
-                                    <x-heroicon-o-hashtag class="w-3 h-3 text-gray-700 group-hover:text-indigo-600" />
-                                    {{ $topic }}
-                                </a>
-                            @endforeach
-                        </div>
+                    <div class="flex flex-wrap gap-2">
+                        @foreach ($project?->countries() as $country)
+                            <a title="{{ __('Explore projects in :value', ['value' => $country->name]) }}" href="{{ route('projects.index', ['countries' => [$country->name]])}}" class="inline-flex gap-1 items-center text-xs px-2 py-1 rounded-xl bg-gray-200 text-gray-900 hover:bg-indigo-200 focus:bg-indigo-200 hover:text-indigo-800 focus:text-indigo-800 group">
+                                <x-dynamic-component :component="$country->icon" class="w-4 h-4 text-gray-700 group-hover:text-indigo-600" />
+                                {{ $country->name }}
+                            </a>
+                        @endforeach
                     </div>
 
-                    <div class="grow prose line-clamp-1 mt-1">
+                    <div class="flex-wrap gap-2 hidden sm:flex">
+                        @foreach ($project->topics as $topic)
+                            <a title="{{ __('Explore projects in :value', ['value' => $topic]) }}"
+                            href="{{ route('projects.index', ['topics' => [$topic]])}}"
+                            class="inline-flex gap-1 items-center text-xs px-2 py-1 rounded-xl bg-gray-200 text-gray-900 hover:bg-indigo-200 focus:bg-indigo-200 hover:text-indigo-800 focus:text-indigo-800 group">
+                                <x-heroicon-o-hashtag class="w-3 h-3 text-gray-700 group-hover:text-indigo-600" />
+                                {{ $topic }}
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
+                <div class="flex items-center gap-8">
+                    <div class="grow prose max-w-none line-clamp-1 mt-1">
                         {{ str($project->description)->limit(160)->inlineMarkdown()->toHtmlString() }}
                     </div>
-
-                </div>
-                <div>
-                    <x-small-button @click="expanded = ! expanded">{{ __('Expand project details') }}</x-small-button>
+                    <x-small-button class="shrink-0" @click="expanded = ! expanded">{{ __('Expand project details') }}</x-small-button>
                 </div>
             </div>
 
@@ -65,9 +61,9 @@
                     <div class="flex justify-between items-center">
                         <div class="flex gap-2 items-center">
                             @if ($project->status)
-                                <p class="inline px-2 py-1 rounded bg-indigo-100 text-indigo-900">
+                                <a title="{{ __('Explore :value projects', ['value' => $project->status->name]) }}" href="{{ route('projects.index', ['status' => [$project->status->name]])}}" class="inline px-2 py-1 rounded bg-indigo-100 text-indigo-900 hover:bg-indigo-200 focus:bg-indigo-200 hover:text-indigo-800 focus:text-indigo-800">
                                     {{ $project->status->name }}
-                                </p>
+                                </a>
                             @endif
                             @if ($project->type)
                                 <p class="inline px-2 py-1 rounded bg-lime-100 text-lime-900">
@@ -91,7 +87,7 @@
                             {{ str($project->description)->markdown()->toHtmlString() }}
                         </div>
                     </div>
-                    <div class="space-y-4">
+                    <div class="">
                         <div class="space-y-2">
                             @foreach ($topics as $topic)
                                 <div class="relative group">
@@ -114,9 +110,11 @@
                                 </div>
                             @endforeach
                         </div>
-                        <div class="h-2"></div>
-                        <p class="text-xs uppercase block text-stone-700">{{ __('Countries') }}</p>
-                        <div class="">
+
+                        <x-section-border />
+
+                        <p class="text-xs uppercase block text-stone-700 mb-2">{{ __('Countries') }}</p>
+                        <div class="mb-6">
                                 @foreach ($project->countries() as $country)
                                     <a title="{{ __('Explore projects in :value', ['value' => $country->name]) }}" href="{{ route('projects.index', ['countries' => [$country->name]])}}" class="inline-flex gap-1 items-center text-sm px-2 py-1 rounded-xl bg-gray-200 text-gray-900 hover:bg-indigo-200 focus:bg-indigo-200 hover:text-indigo-800 focus:text-indigo-800 group">
                                         <x-dynamic-component :component="$country->icon" class="w-4 h-4 text-gray-700 group-hover:text-indigo-600" />
@@ -124,7 +122,7 @@
                                     </a>
                                 @endforeach
                         </div>
-                        <p class="text-xs uppercase block text-stone-700">{{ __('Geographic Regions') }}</p>
+                        <p class="text-xs uppercase block text-stone-700 mb-2">{{ __('Geographic Regions') }}</p>
                         <div class="prose">
                                 @foreach ($project->facetRegions() as $region)
                                     <p><a title="{{ __('Explore projects in :value', ['value' => $region]) }}" href="{{ route('projects.index', ['region' => [$region]])}}">{{ $region }}</a></p>
