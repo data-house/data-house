@@ -21,6 +21,7 @@
                     @csrf
 
                     <div class="mb-4">
+                        <x-input-error for="file" />
                         <input type="file" name="document" id="document">
                     </div>
 
