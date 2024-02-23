@@ -89,6 +89,8 @@ class ProjectController extends Controller
             ? Document::tenantSearch($searchQuery, $searchFilters, $request->user(), $project)->paginate(50)
             : Document::query()->inProject($project)->visibleBy($request->user())->paginate(50);
 
+        $documents->withQueryString();
+
         $countries = Project::pluck('countries')->flatten()->unique('value');
 
         $facets = [
