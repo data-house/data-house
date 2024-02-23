@@ -101,9 +101,9 @@ trait Searchable
                 $project ? "project_id = {$project->getKey()}" : null,
             ])->filter()->join(' OR ');
 
-            $tenantFilters = $projectTenantFilters ? "{$projectTenantFilters} AND ({$userTenantFilters})" : "({$userTenantFilters})";
+            $tenantFilters = $projectTenantFilters ? "({$projectTenantFilters} AND ({$userTenantFilters}))" : "({$userTenantFilters})";
 
-            $options['filter'] = ($options['filter'] ?? false) ? "({$tenantFilters}) AND ({$options['filter']})" : "{$tenantFilters}";
+            $options['filter'] = ($options['filter'] ?? false) ? "{$tenantFilters} AND ({$options['filter']})" : "{$tenantFilters}";
 
             // using same strategy as the scout driver
             // this will be the entrypoint to use the extra facets information
