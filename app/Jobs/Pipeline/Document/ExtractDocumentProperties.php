@@ -28,7 +28,7 @@ class ExtractDocumentProperties extends PipelineJob
 
         $this->model->type = $classifyType($this->model);
 
-        $this->model->properties =  $this->model->properties->collect()->merge($this->extractProperties());
+        $this->model->properties =  ($this->model->properties?->collect() ?? collect())->merge($this->extractProperties());
 
         $this->model->saveQuietly();
     }
