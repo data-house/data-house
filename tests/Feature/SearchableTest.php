@@ -189,6 +189,7 @@ class SearchableTest extends TestCase
                     "format",
                     'team_id',
                     'team_name',
+                    'project_id',
                     'uploaded_by',
                     'visibility',
                     "published",
