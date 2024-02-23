@@ -22,4 +22,14 @@ enum ProjectStatus: int
 
         return $cases[str($value)->upper()->toString()] ?? null;
     }
+
+
+    public static function facets()
+    {
+        return [
+            self::ACTIVE,
+            self::INACTIVE,
+            self::COMPLETED,
+        ];
+    }
 }

@@ -41,7 +41,8 @@ class ProjectController extends Controller
             'countries' => $countries->map->toCountryName(),
             'regions' => GeographicRegion::facets($countries?->map->value),
             'organizations' => [],
-            'topic' => Topic::facets(), // Project::pluck('topics')->flatten()->unique(),
+            'topic' => Topic::facets(),
+            'status' => ProjectStatus::facets(),
         ];
 
         return view('project.index', [
