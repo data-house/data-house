@@ -9,89 +9,86 @@
 
             </x-slot>
 
-            {{-- @include('library-navigation-menu') --}}
         </x-page-heading>
     </x-slot>
 
     <div class="pt-8 pb-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">                
-            <form  action="" method="get" x-data="{showFilters: false}" @click.away="showFilters = false" @close.stop="showFilters = false">
-                <div class="flex space-x-6 divide-x divide-stone-200 items-center">
-                    <div>
-                        <button type="button"  @click="showFilters = ! showFilters" class="group flex items-center font-medium text-stone-700" aria-controls="disclosure-1" aria-expanded="false">
-                            @if ($applied_filters_count > 0)
-                                <x-heroicon-s-funnel aria-hidden="true" class="mr-2 h-5 w-5 flex-none text-stone-400 group-hover:text-stone-500" />
-                            @else
-                                <x-heroicon-o-funnel aria-hidden="true" class="mr-2 h-5 w-5 flex-none text-stone-400 group-hover:text-stone-500" />
-                            @endif
-                            
-                            {{ trans_choice('{0} Filters|{1} :num Filter|[2,*] :num Filters', $applied_filters_count, ['num' => $applied_filters_count])}}
-                        </button>
-                    </div>
-                    <div class="pl-6 flex-grow">
-                        <x-input type="text" :value="$searchQuery ?? null" name="s" id="s" class="min-w-full" placeholder="{{ __('Search project database...') }}" />
-                    </div>
-                </div>
 
+            <x-search-form
+                action=""
+                :clear="route('projects.index')"
+                :search-query="$searchQuery ?? null"
+                :search-placeholder="__('Search project database...')"
+                :applied-filters-count="$applied_filters_count"
+                >
 
-                <div class="border-b border-gray-200 py-10" id="disclosure-1" x-cloak x-show="showFilters">
-                    <div class="mx-auto grid max-w-7xl grid-cols-4 gap-x-4 px-4 text-sm sm:px-6 md:gap-x-6 lg:px-8">
-                        @feature(Flag::typeProjectFilter())
-                            <fieldset>
-                            <legend class="block font-medium">{{ __('Type') }}</legend>
-                            <div class="space-y-6 pt-6 sm:space-y-4 sm:pt-4 max-h-72 overflow-y-auto">
-                                @foreach ($facets['type'] as $item)
-                                    <div class="flex items-center text-base sm:text-sm">
-                                    <input id="type-{{ $item->name }}" name="type[]" value="{{ $item->name }}" @checked(in_array($item->name, $filters['type'] ?? [])) type="checkbox" class="h-4 w-4 flex-shrink-0 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
-                                    <label for="type-{{ $item->name }}" class="ml-3 min-w-0 flex-1 text-gray-600">{{ $item->name }}</label>
-                                    </div>
-                                @endforeach
+                <x-slot:filters>
+                    @feature(Flag::typeProjectFilter())
+                        <fieldset>
+                        <legend class="block font-medium">{{ __('Type') }}</legend>
+                        <div class="space-y-6 pt-6 sm:space-y-4 sm:pt-4 max-h-72 overflow-y-auto">
+                            @foreach ($facets['type'] as $item)
+                                <div class="flex items-center text-base sm:text-sm">
+                                <input id="type-{{ $item->name }}" name="type[]" value="{{ $item->name }}" @checked(in_array($item->name, $filters['type'] ?? [])) type="checkbox" class="h-4 w-4 flex-shrink-0 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                                <label for="type-{{ $item->name }}" class="ml-3 min-w-0 flex-1 text-gray-600">{{ $item->name }}</label>
+                                </div>
+                            @endforeach
+                        </div>
+                        </fieldset>
+                    @endfeature
+
+                    <fieldset>
+                        <legend class="block font-medium">{{ __('Status') }}</legend>
+                        <div class="space-y-6 pt-6 sm:space-y-4 sm:pt-4 max-h-72 overflow-y-auto">
+                        @foreach ($facets['status'] as $status)
+                            <div class="flex items-center text-base sm:text-sm">
+                            <input id="status-{{ $status->name }}" name="status[]" value="{{ $status->name }}" type="checkbox" @checked(in_array($status->name, $filters['status'] ?? [])) class="h-4 w-4 flex-shrink-0 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                            <label for="status-{{ $status->name }}" class="ml-3 min-w-0 flex-1 text-gray-600">{{ $status->name }}</label>
                             </div>
-                            </fieldset>
-                        @endfeature
-                        <fieldset>
-                          <legend class="block font-medium">{{ __('Topic') }}</legend>
-                          <div class="space-y-6 pt-6 sm:space-y-4 sm:pt-4 max-h-72 overflow-y-auto">
-                            @foreach ($facets['topic'] as $topicKey => $topic)
-                                <div class="flex items-center text-base sm:text-sm">
-                                <input id="topic-{{ $topicKey }}" name="topics[]" value="{{ $topicKey }}" type="checkbox" @checked(in_array($topicKey, $filters['topics'] ?? [])) class="h-4 w-4 flex-shrink-0 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
-                                <label for="topic-{{ $topicKey }}" class="ml-3 min-w-0 flex-1 text-gray-600">{{ $topic }}</label>
-                                </div>
-                            @endforeach
-                          </div>
-                        </fieldset>
-                        <fieldset>
-                          <legend class="block font-medium">{{ __('Country') }}</legend>
-                          <div class="space-y-6 pt-6 sm:space-y-4 sm:pt-4 max-h-72 overflow-y-auto">
-                            @foreach ($facets['countries'] as $item)
-                                <div class="flex items-center text-base sm:text-sm">
-                                <input id="countries-{{ $item->name }}" name="countries[]" value="{{ $item->value }}" type="checkbox" @checked(in_array($item->value, $filters['countries'] ?? [])) class="h-4 w-4 flex-shrink-0 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
-                                <label for="countries-{{ $item->name }}" class="ml-3 min-w-0 flex-1 text-gray-600">{{ $item->value }}</label>
-                                </div>
-                            @endforeach
-                            
-                          </div>
-                        </fieldset>
-                        <fieldset>
-                          <legend class="block font-medium">{{ __('Region') }}</legend>
-                          <div class="space-y-6 pt-6 sm:space-y-4 sm:pt-4 max-h-72 overflow-y-auto">
-                            @foreach ($facets['regions'] as $item)
-                                <div class="flex items-center text-base sm:text-sm">
-                                <input id="region-{{ $item }}" name="region[]" value="{{ $item }}" type="checkbox" @checked(in_array($item, $filters['region'] ?? [])) class="h-4 w-4 flex-shrink-0 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
-                                <label for="region-{{ $item }}" class="ml-3 min-w-0 flex-1 text-gray-600">{{ $item }}</label>
-                                </div>
-                            @endforeach
-                          </div>
-                        </fieldset>
-                    </div>
+                        @endforeach
+                        </div>
+                    </fieldset>
 
-                    <div class="flex items-center justify-between mt-2">
-                        <x-button-link :href="route('projects.index')">{{ __('Clear search and filters') }}</x-button-link>
-                        <x-button type="submit">{{ __('Apply and search') }}</x-button>
-                    </div>
-                  </div>
+                    <fieldset>
+                        <legend class="block font-medium">{{ __('Area') }}</legend>
+                        <div class="space-y-6 pt-6 sm:space-y-4 sm:pt-4 max-h-72 overflow-y-auto">
+                        @foreach ($facets['topic'] as $topicKey => $topic)
+                            <div class="flex items-center text-base sm:text-sm">
+                            <input id="topic-{{ $topicKey }}" name="topics[]" value="{{ $topicKey }}" type="checkbox" @checked(in_array($topicKey, $filters['topics'] ?? [])) class="h-4 w-4 flex-shrink-0 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                            <label for="topic-{{ $topicKey }}" class="ml-3 min-w-0 flex-1 text-gray-600">{{ $topic }}</label>
+                            </div>
+                        @endforeach
+                        </div>
+                    </fieldset>
+                    
+                    <fieldset>
+                        <legend class="block font-medium">{{ __('Country') }}</legend>
+                        <div class="space-y-6 pt-6 sm:space-y-4 sm:pt-4 max-h-72 overflow-y-auto">
+                        @foreach ($facets['countries'] as $item)
+                            <div class="flex items-center text-base sm:text-sm">
+                            <input id="countries-{{ str($item)->slug()->toString() }}" name="countries[]" value="{{ $item }}" type="checkbox" @checked(in_array($item, $filters['countries'] ?? [])) class="h-4 w-4 flex-shrink-0 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                            <label for="countries-{{ str($item)->slug()->toString() }}" class="ml-3 min-w-0 flex-1 text-gray-600">{{ $item }}</label>
+                            </div>
+                        @endforeach
+                        
+                        </div>
+                    </fieldset>
 
-            </form>
+                    <fieldset>
+                        <legend class="block font-medium">{{ __('Region') }}</legend>
+                        <div class="space-y-6 pt-6 sm:space-y-4 sm:pt-4 max-h-72 overflow-y-auto">
+                        @foreach ($facets['regions'] as $item)
+                            <div class="flex items-center text-base sm:text-sm">
+                            <input id="region-{{ $item }}" name="region[]" value="{{ $item }}" type="checkbox" @checked(in_array($item, $filters['region'] ?? [])) class="h-4 w-4 flex-shrink-0 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                            <label for="region-{{ $item }}" class="ml-3 min-w-0 flex-1 text-gray-600">{{ $item }}</label>
+                            </div>
+                        @endforeach
+                        </div>
+                    </fieldset>
+                </x-slot>
+
+            </x-search-form>
 
             @if ($is_search && $projects->isNotEmpty())
                 <div class="text-sm mt-3 py-2 text-right">{{ trans_choice(':total project found|:total projects found', $projects->total(), ['total' => $projects->total()]) }}</div>

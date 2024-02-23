@@ -142,7 +142,7 @@ class SearchableTest extends TestCase
         $query = Document::query()->visibleBy($user);
 
         $expectedSearchOptions = [
-            'filter' => "(uploaded_by = {$user->getKey()} AND visibility = 10 OR visibility IN [30,40] OR team_id = {$user->currentTeam->getKey()} AND visibility = 20) AND type IN [\"REPORT\"]",
+            'filter' => "(uploaded_by = {$user->getKey()} AND visibility = 10 OR visibility IN [30,40] OR team_id = {$user->currentTeam->getKey()} AND visibility = 20) AND (type IN [\"REPORT\"])",
         ];
 
         $this->prepareScoutSearchMockUsing('*', $query, $expectedSearchOptions);
@@ -189,6 +189,7 @@ class SearchableTest extends TestCase
                     "format",
                     'team_id',
                     'team_name',
+                    'project_id',
                     'uploaded_by',
                     'visibility',
                     "published",

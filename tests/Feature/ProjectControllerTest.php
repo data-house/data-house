@@ -7,6 +7,7 @@ use App\Models\GeographicRegion;
 use App\Models\Project;
 use App\Models\ProjectType;
 use App\Models\User;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use PrinsFrank\Standards\Country\CountryAlpha3;
@@ -70,6 +71,34 @@ class ProjectControllerTest extends TestCase
         $user = User::factory()->manager()->create();
 
         $project = Project::factory()
+            ->has(Document::factory()->visibleByAnyUser()->count(3))
+            ->create([
+                'type' => ProjectType::BILATERAL,
+                'countries' => [CountryAlpha3::Costa_Rica],
+            ]);
+
+        $response = $this->actingAs($user)
+            ->get('/projects/' . $project->ulid);
+
+        $response->assertSuccessful();
+        $response->assertViewHas('project', $project);
+        $response->assertViewHas('documents');
+
+        $documents = $response->viewData('documents');
+
+        $this->assertInstanceOf(LengthAwarePaginator::class, $documents);
+
+        $this->assertEquals(3, $documents->total());
+
+        $response->assertSee('Costa Rica');
+        $response->assertSee('Latin America and the Caribbean');
+    }
+    
+    public function test_projects_not_showing_document_if_user_is_not_in_the_team_and_docs_are_team(): void
+    {
+        $user = User::factory()->manager()->create();
+
+        $project = Project::factory()
             ->has(Document::factory()->count(3))
             ->create([
                 'type' => ProjectType::BILATERAL,
@@ -81,7 +110,14 @@ class ProjectControllerTest extends TestCase
 
         $response->assertSuccessful();
         $response->assertViewHas('project', $project);
-        $response->assertViewHas('documents', $project->documents);
+        $response->assertViewHas('documents');
+
+        $documents = $response->viewData('documents');
+
+        $this->assertInstanceOf(LengthAwarePaginator::class, $documents);
+
+        $this->assertEquals(0, $documents->total());
+
         $response->assertSee('Costa Rica');
         $response->assertSee('Latin America and the Caribbean');
     }
