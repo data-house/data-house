@@ -67,8 +67,8 @@
                         <div class="space-y-6 pt-6 sm:space-y-4 sm:pt-4 max-h-72 overflow-y-auto">
                         @foreach ($facets['countries'] as $item)
                             <div class="flex items-center text-base sm:text-sm">
-                            <input id="countries-{{ $item->name }}" name="countries[]" value="{{ $item->value }}" type="checkbox" @checked(in_array($item->value, $filters['countries'] ?? [])) class="h-4 w-4 flex-shrink-0 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
-                            <label for="countries-{{ $item->name }}" class="ml-3 min-w-0 flex-1 text-gray-600">{{ $item->value }}</label>
+                            <input id="countries-{{ str($item)->slug()->toString() }}" name="countries[]" value="{{ $item }}" type="checkbox" @checked(in_array($item, $filters['countries'] ?? [])) class="h-4 w-4 flex-shrink-0 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                            <label for="countries-{{ str($item)->slug()->toString() }}" class="ml-3 min-w-0 flex-1 text-gray-600">{{ $item }}</label>
                             </div>
                         @endforeach
                         

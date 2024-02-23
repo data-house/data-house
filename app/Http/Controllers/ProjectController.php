@@ -6,9 +6,11 @@ use App\Models\Document;
 use App\Models\DocumentType;
 use App\Models\GeographicRegion;
 use App\Models\Project;
+use App\Models\ProjectStatus;
 use App\Models\ProjectType;
 use App\Models\Topic;
 use Illuminate\Http\Request;
+use PrinsFrank\Standards\Language\LanguageAlpha2;
 
 class ProjectController extends Controller
 {
@@ -38,7 +40,7 @@ class ProjectController extends Controller
 
         $facets = [
             'type' => ProjectType::cases(),
-            'countries' => $countries->map->toCountryName(),
+            'countries' => $countries->map->getNameInLanguage(LanguageAlpha2::English),
             'regions' => GeographicRegion::facets($countries?->map->value),
             'organizations' => [],
             'topic' => Topic::facets(),
@@ -105,7 +107,7 @@ class ProjectController extends Controller
                 'Compressed folder',
             ],
             'type' => DocumentType::cases(),
-            'countries' => $countries->map->toCountryName(),
+            'countries' => $countries->map->getNameInLanguage(LanguageAlpha2::English),
             'regions' => GeographicRegion::facets($countries?->map->value),
             'organizations' => [],
             'topic' => Topic::facets(),

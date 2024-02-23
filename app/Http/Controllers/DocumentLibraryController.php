@@ -8,6 +8,7 @@ use App\Models\GeographicRegion;
 use App\Models\Project;
 use App\Models\Topic;
 use Illuminate\Http\Request;
+use PrinsFrank\Standards\Language\LanguageAlpha2;
 
 class DocumentLibraryController extends Controller
 {
@@ -45,7 +46,7 @@ class DocumentLibraryController extends Controller
                 'Compressed folder',
             ],
             'type' => DocumentType::cases(),
-            'countries' => $countries->map->toCountryName(),
+            'countries' => $countries->map->getNameInLanguage(LanguageAlpha2::English),
             'regions' => GeographicRegion::facets($countries?->map->value),
             'organizations' => [],
             'topic' => Topic::facets(),
