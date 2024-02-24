@@ -229,6 +229,22 @@ class Document extends Model implements Convertible
     }
     
     /**
+     * Get the URL for the file thumbnail
+     */
+    public function thumbnailUrl(): string
+    {
+        return route('documents.thumbnail', $this);
+    }
+    
+    /**
+     * Get the URL for the file thumbnail
+     */
+    public function hasThumbnail(): bool
+    {
+        return !is_null($this->thumbnail_disk_path);
+    }
+    
+    /**
      * Get the URL for downloading the file that can be used by internal services
      * and that uses a signed route
      */

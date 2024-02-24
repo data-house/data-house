@@ -14,9 +14,13 @@
                 @endfeature
                 &nbsp;
             </div>
-            <div class="aspect-video bg-white -mx-4 -mt-4 flex items-center justify-center">
+            <div class="aspect-video bg-white -mx-4 -mt-4 flex items-center justify-center overflow-hidden">
                 {{-- Space for the thumbnail --}}
-                <x-dynamic-component :component="$document->format->icon" class="text-gray-400 h-10 w-10" />
+                @if ($document->hasThumbnail())
+                    <img loading="lazy" class="aspect-video object-contain" src="{{ $document->thumbnailUrl() }}" aria-hidden="true">
+                @else
+                    <x-dynamic-component :component="$document->format->icon" class="text-gray-400 h-10 w-10" />
+                @endif
             </div>
 
             <a href="{{ route('documents.show', $document) }}" class="block font-bold truncate group-hover:text-blue-800">
