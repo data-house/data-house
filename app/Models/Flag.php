@@ -12,9 +12,15 @@ enum Flag: string
     case PROJECT_FILTERS_TYPE = 'project.filters.type';
     case PROJECT_FUNDING = 'project.funding';
     case DASHBOARD = 'dashboard';
+    case COLLECTIONS = 'collections';
 
 
 
+
+    public static function collections(): string
+    {
+        return static::COLLECTIONS->value;
+    }
 
     public static function dashboard(): string
     {

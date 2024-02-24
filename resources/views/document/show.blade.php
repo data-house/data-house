@@ -75,13 +75,15 @@
                 </div>
 
                 <div class="flex flex-col gap-6 md:gap-0">
-                    <div class="space-y-2">
-                        <h4 class="font-bold text-stone-700">{{ __('Collections') }}</h4>
-                        
-                        <livewire:document-collections :document="$document" />
-                    </div>
+                    @feature(Flag::collections())
+                        <div class="space-y-2">
+                            <h4 class="font-bold text-stone-700">{{ __('Collections') }}</h4>
+                            
+                            <livewire:document-collections :document="$document" />
+                        </div>
 
-                    <x-section-border />
+                        <x-section-border />
+                    @endfeature
 
                     <div class="space-y-3">
                         <h4 class="font-bold text-stone-700">{{ __('Project') }}</h4>

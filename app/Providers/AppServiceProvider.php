@@ -104,6 +104,10 @@ class AppServiceProvider extends ServiceProvider
         Feature::define(Flag::PROJECT_FUNDING->value, fn (User $user) => match (true) {
             default => false,
         });
+        
+        Feature::define(Flag::COLLECTIONS->value, fn (User $user) => match (true) {
+            default => false,
+        });
     }
 
     protected function configureHelpers()
