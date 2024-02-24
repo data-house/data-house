@@ -54,18 +54,21 @@ class DocumentThumbnailCommand extends Command
 
         $documents
             ->each(function($document) {
+                try {
+                    /**
+                    * @var \App\DocumentThumbnail\FileThumbnail
+                    */
+                    $convertedFile = Thumbnail::thumbnail($document->asReference());
 
-                /**
-                 * @var \App\DocumentThumbnail\FileThumbnail
-                 */
-                $convertedFile = Thumbnail::thumbnail($document->asReference());
+                    $document->thumbnail_disk_name = $convertedFile->diskName();
+                    $document->thumbnail_disk_path = $convertedFile->path();
 
-                $document->thumbnail_disk_name = $convertedFile->diskName();
-                $document->thumbnail_disk_path = $convertedFile->path();
+                    $document->saveQuietly();
 
-                $document->saveQuietly();
-
-                $this->line("Thumbnail generated for document [{$document->id} - {$document->ulid}]");
+                    $this->line("Thumbnail generated for document [{$document->id} - {$document->ulid}]");
+                } catch (\Throwable $th) {
+                    $this->error("Thumbnail error for document [{$document->id} - {$document->ulid}] - {$th->getMessage()}");
+                }
             });
         
         return self::SUCCESS;
