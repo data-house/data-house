@@ -6,11 +6,13 @@
         <x-page-heading :title="__('Digital Library')">
 
             <x-slot:actions>
-                @can('viewAny', \App\Models\Collection::class)
+                @feature(Flag::collections())
+                    @can('viewAny', \App\Models\Collection::class)
 
-                    <livewire:collection-switcher />
+                        <livewire:collection-switcher />
 
-                @endcan
+                    @endcan
+                @endfeature
 
                 <x-add-documents-button />
             </x-slot>
