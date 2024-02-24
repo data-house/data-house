@@ -70,6 +70,18 @@ services:
             - sail
         ports:
             - '${FORWARD_PARSING_PORT:-5002}:5000'
+
+    imaginary:
+        ## Thumbnail generation service
+        image: nextcloud/aio-imaginary:20240215_092413-latest
+        networks:
+            - sail
+        environment:
+            - PORT=9000
+        ports:
+            - '${FORWARD_IMAGINARY_PORT:-9000}:9000'
+        command: -concurrency 50 -enable-url-source -log-level debug
+
 networks:
     sail:
         driver: bridge

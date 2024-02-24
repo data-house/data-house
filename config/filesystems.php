@@ -62,6 +62,12 @@ return [
             'prefix' => 'documents',
         ],
         
+        'thumbnails' => [
+            'driver' => 'scoped',
+            'disk' => env('FILESYSTEM_DISK', 'local'),
+            'prefix' => 'thumbnails',
+        ],
+        
         'imports' => [
             'driver' => 'scoped',
             'disk' => env('IMPORT_FILESYSTEM_DISK', 'local'),

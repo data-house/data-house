@@ -1,6 +1,7 @@
 <?php
 
 use App\Copilot\CopilotServiceProvider;
+use App\DocumentThumbnail\DocumentThumbnailServiceProvider;
 use App\HelpAndSupport\SupportServiceProvider;
 use App\PdfProcessing\PdfProcessingServiceProvider;
 use App\Providers\ImportFilesystemProvider;
@@ -194,6 +195,7 @@ return [
 
         PdfProcessingServiceProvider::class,
         ImportFilesystemProvider::class,
+        DocumentThumbnailServiceProvider::class,
         CopilotServiceProvider::class,
         SupportServiceProvider::class,
 
