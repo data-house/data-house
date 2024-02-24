@@ -22,6 +22,7 @@ class ManageTeamUploadSettings extends Component
     public $uploadSettingsForm = [
         'uploadLinkUrl' => '',
         'supportProjects' => false,
+        'limitProjectsTo' => '',
     ];
 
 
@@ -51,6 +52,7 @@ class ManageTeamUploadSettings extends Component
         $this->validate([
             'uploadSettingsForm.uploadLinkUrl' => 'required|url|max:250',
             'uploadSettingsForm.supportProjects' => 'bool',
+            'uploadSettingsForm.limitProjectsTo' => 'string|max:200',
         ]);
 
         $this->team->settings->upload = UploadSettings::from($this->uploadSettingsForm);

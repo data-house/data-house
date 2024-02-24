@@ -21,21 +21,27 @@
     
                 <div class="col-span-6 sm:col-span-4">
                     <x-label for="uploadLink" value="{{ __('Url') }}" />
-                    <x-input id="uploadLink" type="text" class="mt-1 block w-full" wire:model="uploadSettingsForm.uploadLinkUrl" />
                     <x-input-error for="uploadSettingsForm.uploadLinkUrl" class="mt-2" />
+                    <x-input id="uploadLink" type="text" class="mt-1 block w-full" wire:model="uploadSettingsForm.uploadLinkUrl" />
                 </div>
     
                 <div class="col-span-6 sm:col-span-4">
                     <x-label for="supportProjects" value="{{ __('Support upload in projects') }}" />
+                    
+                    <x-input-error for="uploadSettingsForm.supportProjects" class="mt-2" />
 
                     <label for="supportProjects" class="mt-1 flex items-center">
                         <x-checkbox id="supportProjects" value="1" wire:model="uploadSettingsForm.supportProjects" />
                         <span class="ml-2 text-sm text-stone-600">{{ __('Allow upload within projects') }}</span>
                     </label>
 
-                    <x-input-error for="uploadSettingsForm.supportProjects" class="mt-2" />
                 </div>
     
+                <div class="col-span-6 sm:col-span-4">
+                    <x-label for="limitProjectsTo" value="{{ __('Limit upload to the following projects (insert project ulid)') }}" />
+                    <x-input-error for="uploadSettingsForm.limitProjectsTo" class="mt-2" />
+                    <x-input id="limitProjectsTo" type="text" class="mt-1 block w-full" wire:model="uploadSettingsForm.limitProjectsTo" />
+                </div>
     
             </x-slot>
     

@@ -42,6 +42,15 @@ class AddDocumentsButton extends Component
 
         $uploadLink = $uploadSettings?->uploadLinkUrl;
 
+        if($this->project && $this->project->exists && !is_null($uploadSettings?->limitProjectsTo)){
+            $showMenu = $showMenu && (
+                empty($uploadSettings->limitProjectsTo)
+                || $uploadSettings->limitProjectsTo === '*'
+                || str($uploadSettings->limitProjectsTo)->contains($this->project->ulid)
+            );
+        }
+        
+
         if($uploadLink && $this->project && $this->project->exists && $uploadSettings?->supportProjects){
             $uploadLink .= '?path=' .urlencode(str("/{$this->project->title} [{$this->project->slug}]")->ascii()->toString());
         }
