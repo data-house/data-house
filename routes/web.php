@@ -6,6 +6,7 @@ use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\DocumentDownloadController;
 use App\Http\Controllers\DocumentLibraryController;
 use App\Http\Controllers\DocumentPreviewController;
+use App\Http\Controllers\DocumentThumbnailController;
 use App\Http\Controllers\ImportController;
 use App\Http\Controllers\ImportMapsController;
 use App\Http\Controllers\InternalDocumentDownloadController;
@@ -42,6 +43,8 @@ Route::middleware([
     })->name('dashboard');
     
     Route::get('/documents/{document}/download', DocumentDownloadController::class)->name('documents.download');
+    
+    Route::get('/documents/{document}/thumbnail', DocumentThumbnailController::class)->name('documents.thumbnail');
     
     Route::get('/pdf-viewer', PdfViewerController::class)->name('pdf.viewer');
 

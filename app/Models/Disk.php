@@ -9,5 +9,7 @@ enum Disk: string
 {
     case DOCUMENTS = 'documents';
     
+    case THUMBNAILS = 'thumbnails';
+    
     case IMPORTS = 'imports';
 }

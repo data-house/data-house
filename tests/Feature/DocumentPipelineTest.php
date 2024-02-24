@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Jobs\Pipeline\Document\ConvertToPdf;
 use App\Jobs\Pipeline\Document\ExtractDocumentProperties;
+use App\Jobs\Pipeline\Document\GenerateThumbnail;
 use App\Jobs\Pipeline\Document\LinkDocumentWithAProject;
 use App\Jobs\Pipeline\Document\MakeDocumentQuestionable;
 use App\Jobs\Pipeline\Document\MakeDocumentSearchable;
@@ -39,6 +40,7 @@ class DocumentPipelineTest extends TestCase
             LinkDocumentWithAProject::class,
             ConvertToPdf::class,
             RecognizeLanguage::class,
+            GenerateThumbnail::class,
             MakeDocumentSearchable::class,
             MakeDocumentQuestionable::class,
         ]);

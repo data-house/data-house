@@ -8,6 +8,7 @@ use App\Pipelines\Pipeline;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use App\Jobs\Pipeline\Document\ExtractDocumentProperties;
+use App\Jobs\Pipeline\Document\GenerateThumbnail;
 use App\Jobs\Pipeline\Document\LinkDocumentWithAProject;
 use App\Jobs\Pipeline\Document\MakeDocumentQuestionable;
 use App\Jobs\Pipeline\Document\MakeDocumentSearchable;
@@ -42,9 +43,9 @@ class AppServiceProvider extends ServiceProvider
             LinkDocumentWithAProject::class,
             ConvertToPdf::class,
             RecognizeLanguage::class,
+            GenerateThumbnail::class,
             MakeDocumentSearchable::class,
             MakeDocumentQuestionable::class,
-            // GenerateThumbnail
         ]);
         
         Pipeline::define(Document::class, PipelineTrigger::MODEL_SAVED, [
