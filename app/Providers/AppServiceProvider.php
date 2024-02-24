@@ -51,6 +51,12 @@ class AppServiceProvider extends ServiceProvider
         Pipeline::define(Document::class, PipelineTrigger::MODEL_SAVED, [
             MakeDocumentSearchable::class,
         ]);
+        
+        Pipeline::define(Document::class, PipelineTrigger::MANUAL, [
+            LinkDocumentWithAProject::class,
+            RecognizeLanguage::class,
+            GenerateThumbnail::class,
+        ]);
 
         $this->configureFeatureFlags();
 

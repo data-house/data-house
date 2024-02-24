@@ -12,6 +12,11 @@ enum PipelineTrigger: string
      * The pipeline is triggered at each change of the model
      */
     case ALWAYS = 'always';
+    
+    /**
+     * The pipeline is triggered manually
+     */
+    case MANUAL = 'manual';
 
     /**
      * The pipeline is triggered at model's first creation
