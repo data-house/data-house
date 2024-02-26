@@ -37,10 +37,10 @@ class DocumentSummaryCommand extends Command
      */
     public function handle()
     {
-        // if(Copilot::disabled() || ! Copilot::hasSummaryFeatures()){
-        //     $this->error(__('Summary module disabled.'));
-        //     return self::INVALID;
-        // }
+        if(Copilot::disabled() || ! Copilot::hasSummaryFeatures()){
+            $this->error(__('Summary module disabled.'));
+            return self::INVALID;
+        }
 
         $ulids = $this->argument('documents') ?? [];
 
@@ -59,7 +59,7 @@ class DocumentSummaryCommand extends Command
 
                 $language = $language ?? $document->language ?? LanguageAlpha2::English;
 
-                $abstract = 'Summary'; // $action($document, $language);
+                $abstract = $action($document, $language);
                 
                 $document->summaries()->create([
                     'text' => $abstract,
