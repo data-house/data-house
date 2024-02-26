@@ -2,10 +2,14 @@
 
 namespace App\Livewire;
 
-use App\Models\Document;
-use Livewire\Attributes\Computed;
-use Livewire\Attributes\Locked;
 use Livewire\Component;
+use App\Models\Document;
+use App\Pipelines\Pipeline;
+use Livewire\Attributes\Locked;
+use App\Pipelines\PipelineState;
+use Livewire\Attributes\Computed;
+use App\Jobs\Pipeline\Document\GenerateDocumentSummary;
+use PrinsFrank\Standards\Language\LanguageAlpha2;
 
 class DocumentSummaryButton extends Component
 {
@@ -14,8 +18,6 @@ class DocumentSummaryButton extends Component
      */
     #[Locked]
     public $documentId;
-
-    public $generatingSummary = false;
 
     public function mount(Document $document)
     {
@@ -26,6 +28,44 @@ class DocumentSummaryButton extends Component
     public function document()
     {
         return Document::find($this->documentId);
+    }
+    
+    #[Computed()]
+    public function summaryLanguages()
+    {
+        $language = $this->document()->language;
+
+        if(is_null($language)){
+            return collect();
+        }
+
+        if($language == LanguageAlpha2::English){
+            return collect([LanguageAlpha2::English->getNameInLanguage(LanguageAlpha2::English)]);
+        }
+
+        return collect([$language->getNameInLanguage(LanguageAlpha2::English), LanguageAlpha2::English->getNameInLanguage(LanguageAlpha2::English)]);
+    }
+    
+    #[Computed()]
+    public function pipeline()
+    {
+        return Document::find($this->documentId)->latestPipelineRun()->whereJob(GenerateDocumentSummary::class)->first();
+    }
+    
+    #[Computed()]
+    public function generatingSummary()
+    {
+        $pipeline = $this->pipeline();
+
+        return $pipeline && in_array($pipeline->status, [PipelineState::RUNNING, PipelineState::QUEUED, PipelineState::CREATED]);
+    }
+    
+    #[Computed()]
+    public function summaryGenerationFailed()
+    {
+        $pipeline = $this->pipeline();
+
+        return $pipeline && in_array($pipeline->status, [PipelineState::FAILED, PipelineState::STUCK]);
     }
 
     /**
@@ -43,18 +83,13 @@ class DocumentSummaryButton extends Component
     {
         $this->resetErrorBag();
 
-        // $createdCollection = $create(
-        //     $this->user,
-        //     [
-        //         'title' => $this->title,
-        //     ],
-        // );
+        $this->authorize('update', $this->document);
 
-        // $this->dispatch('collection-created', collectionId: $createdCollection->getKey()); 
+        if($this->generatingSummary()){
+            return;
+        }
 
-        // $this->stopCreatingCollection();
-
-        $this->generatingSummary = true;
+        Pipeline::dispatchOneShotJob($this->document(), GenerateDocumentSummary::class);
     }
 
 
