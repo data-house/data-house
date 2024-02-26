@@ -1,4 +1,4 @@
-<div {{ $this->generatingSummary ? 'wire:poll.visible' : ''}}>
+<div {{ $this->generatingSummary && !$this->hasSummary ? 'wire:poll.visible' : ''}}>
 @if ($this->document->language && !$this->hasSummary)
     <x-small-button type="button" wire:click="generateSummary" class="text-lime-700 flex items-center gap-1 border border-lime-400 bg-lime-50 hover:bg-lime-100 hover:border-lime-400 focus:outline-none focus:ring-2 focus:ring-lime-500 focus:ring-offset-2 focus:bg-lime-100 focus:border-lime-500">
         @unless ($this->generatingSummary)

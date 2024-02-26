@@ -9,6 +9,7 @@ use Livewire\Attributes\Locked;
 use App\Pipelines\PipelineState;
 use Livewire\Attributes\Computed;
 use App\Jobs\Pipeline\Document\GenerateDocumentSummary;
+use Livewire\Attributes\Modelable;
 use PrinsFrank\Standards\Language\LanguageAlpha2;
 
 class DocumentSummaryButton extends Component
@@ -96,6 +97,8 @@ class DocumentSummaryButton extends Component
         }
 
         Pipeline::dispatchOneShotJob($this->document(), GenerateDocumentSummary::class);
+
+        $this->dispatch('generating-summary');
     }
 
 
