@@ -67,8 +67,22 @@
                                 </p>
                             @endif
                         @else
-                            <div class="prose">
-                                {!! \Illuminate\Support\Str::markdown(__('This document doesn\'t have an abstract. [Be the first one to contribute](:url).', ['url' => route('documents.edit', $document)])) !!}
+                            <div>
+                                <div class="prose">
+                                    {{ __('This document doesn\'t have an abstract.', ) }}
+
+                                    @summary()
+                                        <div class="mt-2 not-prose">
+                                            <livewire:document-summary-button :document="$document" />
+                                            
+                                        </div>
+                                    @else
+
+                                        {!! \Illuminate\Support\Str::markdown(__('[Write a summary for the document](:url)', ['url' => route('documents.edit', $document)])) !!}                                            
+                                        
+                                    @endsummary
+                                </div>
+
                             </div>
                         @endif
                     </div>
