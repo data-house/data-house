@@ -61,6 +61,12 @@ class DocumentSummaryButton extends Component
     }
     
     #[Computed()]
+    public function hasSummary()
+    {
+        return $this->document()->latestSummary()->exists();
+    }
+    
+    #[Computed()]
     public function summaryGenerationFailed()
     {
         $pipeline = $this->pipeline();

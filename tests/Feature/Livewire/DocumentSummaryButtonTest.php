@@ -5,6 +5,7 @@ namespace Tests\Feature\Livewire;
 use App\Jobs\Pipeline\Document\GenerateDocumentSummary;
 use App\Livewire\DocumentSummaryButton;
 use App\Models\Document;
+use App\Models\DocumentSummary;
 use App\Models\User;
 use App\Pipelines\Models\PipelineRun;
 use App\Pipelines\PipelineState;
@@ -57,6 +58,30 @@ class DocumentSummaryButtonTest extends TestCase
             ->assertSee('Generate a summary for the document')
             ->assertSee('A summary is automatically generated in English.')
             ->assertSet('documentId', $document->getKey());
+    }
+
+    public function test_summary_button_not_rendered_when_document_has_summary()
+    {
+        $user = User::factory()
+            ->withPersonalTeam()
+            ->manager()
+            ->create();
+
+        $document = Document::factory()
+            ->recycle($user)
+            ->recycle($user->currentTeam)
+            ->has(DocumentSummary::factory()->state([
+                'text' => 'Existing summary',
+            ]), 'summaries')
+            ->create([
+                'languages' => collect(LanguageAlpha2::English)
+            ]);
+
+        Livewire::actingAs($user)->test(DocumentSummaryButton::class, ['document' => $document])
+            ->assertStatus(200)
+            ->assertDontSee('Generate a summary for the document')
+            ->assertSet('generatingSummary', false)
+            ->assertSet('hasSummary', true);
     }
     
     public function test_summary_button_rendered_for_non_english_document_without_summary()
