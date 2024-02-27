@@ -11,6 +11,12 @@ use PrinsFrank\Standards\Language\LanguageAlpha2;
 
 class GenerateDocumentSummary extends PipelineJob
 {
+    protected const SUPPORTED_LANGUAGES = [
+        LanguageAlpha2::English,
+        LanguageAlpha2::German,
+        LanguageAlpha2::Spanish_Castilian,
+    ];
+
     /**
      * @var \App\Models\Document
      */
@@ -29,19 +35,24 @@ class GenerateDocumentSummary extends PipelineJob
             throw new InvalidArgumentException(__('Summary generation is currently available only for PDF files.'));
         }
 
-        $language = $this->model->language ?? LanguageAlpha2::English;
+        $documentLanguage = $this->model->language ?? LanguageAlpha2::English;
 
-        // TODO: handle document not in English
+        $summaryLanguages = $documentLanguage != LanguageAlpha2::English && in_array($documentLanguage, self::SUPPORTED_LANGUAGES)
+            ? [$documentLanguage, LanguageAlpha2::English]
+            : [LanguageAlpha2::English];
 
-        $abstract = $suggestAbstract($this->model, $language);
-        
-        $this->model->summaries()->create([
-            'text' => $abstract,
-            'ai_generated' => true,
-            'language' => $language,
-        ]);
+        collect($summaryLanguages)->each(function($language) use ($suggestAbstract){
 
-        // TODO: check if this triggers the model_saved pipeline
+            $abstract = $suggestAbstract($this->model, $language);
+            
+            $this->model->summaries()->create([
+                'text' => $abstract,
+                'ai_generated' => true,
+                'language' => $language,
+            ]);
+
+        });
+
         
     }
 
