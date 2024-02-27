@@ -48,6 +48,7 @@
             @endfeature
         </div>
 
+        @feature(Flag::collections())
         @can('create', \App\Models\Collection::class)
             @if ($searchQuery)
             <p>
@@ -59,6 +60,7 @@
             </p>
             @endif
         @endcan
+        @endfeature
     </div>
 
 </x-search-form>
