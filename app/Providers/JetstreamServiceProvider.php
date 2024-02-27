@@ -48,7 +48,7 @@ class JetstreamServiceProvider extends ServiceProvider
 
         Jetstream::role(Role::ADMIN->value, 'Administrator', [
             '*',
-        ])->description('Administrator users can perform any action.');
+        ])->description('Can do everything the Focal Point does plus create new teams and users');
 
         Jetstream::role(Role::MANAGER->value, 'Focal Point', [
             'project:view',
@@ -71,7 +71,7 @@ class JetstreamServiceProvider extends ServiceProvider
             'collection:view',
             'collection:create',
             'collection:update',
-        ])->description('Focal points manages the project lifecycle and how the documents are organized.');
+        ])->description('Can do everything the Contributor does plus upload documents, create collections and invite team members');
 
         Jetstream::role(Role::CONTRIBUTOR->value, 'Contributor', [
             'project:view',
@@ -84,14 +84,14 @@ class JetstreamServiceProvider extends ServiceProvider
             'question:create',
             'collection:view',
             'question-feedback:view',
-        ])->description('Contribute to the knowledge creation by helping the focal point managing the documents.');
+        ])->description('Can do everything the Guest does plus edit document titles and summaries.');
         
         Jetstream::role(Role::GUEST->value, 'Guest', [
             'document:view',
             'collection:view',
             'project:view',
             'question:view',
-        ])->description('Allow to view knowledge created within the team.');
+        ])->description('Can only view files.');
 
     }
 }
