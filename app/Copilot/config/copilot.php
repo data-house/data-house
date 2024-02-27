@@ -50,6 +50,8 @@ return [
     'limits' => [
         'question_length' => 200,
         'questions_per_user_per_day' => (int)env('COPILOT_DAILY_QUESTIONS_PER_USER', 100),
+        
+        'summaries_per_team' => (int)env('COPILOT_TOTAL_SUMMARIES_PER_TEAM', 50),
     ],
 
     'timeout' => env('COPILOT_REQUEST_TIMEOUT_MINUTES', 3),

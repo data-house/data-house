@@ -3,6 +3,7 @@
 namespace App\Pipelines;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\DB;
 
@@ -112,6 +113,28 @@ class Pipeline
         });
 
         Bus::chain($jobs)->dispatch();
+    }
+    
+    /**
+     * Dispatch the configured pipeline for a given model
+     * 
+     * @param \Illuminate\Database\Eloquent\Model  $model The model
+     */
+    public static function dispatchOneShotJob(Model $model, string $job)
+    {        
+        $jobToDispatch = DB::transaction(function() use ($model, $job){
+            $run = static::newPipelineRunModel()->forceFill([
+                'trigger' => PipelineTrigger::MANUAL,
+                'status' => PipelineState::CREATED,
+                'job' => $job,
+            ]);
+
+            $model->pipelineRuns()->save($run);
+            
+            return (new PipelineStepConfiguration($job))->asJob($model, $run);
+        });
+
+        Bus::chain([$jobToDispatch])->dispatch();
     }
     
     /**

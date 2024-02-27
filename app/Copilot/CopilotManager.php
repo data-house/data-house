@@ -5,6 +5,7 @@ namespace App\Copilot;
 use App\Copilot\Engines\NullEngine;
 use App\Copilot\Engines\OaksEngine;
 use App\Models\User;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Manager;
 
@@ -130,5 +131,69 @@ class CopilotManager extends Manager
         }
 
         return ! RateLimiter::tooManyAttempts('questions:'.$user->getKey(), config('copilot.limits.questions_per_user_per_day'));
+    }
+    
+    /**
+     * Retrieve the current summaries limit
+     */
+    public static function summaryLimitFor(User|null $user): int
+    {
+        if(is_null($user)){
+            return 0;
+        }
+
+        if(is_null($user->current_team_id)){
+            return 0;
+        }
+
+        $key = "summary:team:{$user->current_team_id}";
+
+        $currentHits = Cache::get($key, 0);
+
+        $maxHits = (int)config('copilot.limits.summaries_per_team');
+
+        return max(0, $maxHits - $currentHits);
+    }
+
+
+    /**
+     * Track user question against daily limit
+     */
+    public static function trackSummaryHitFor(User|null $user): void
+    {
+        if(is_null($user)){
+            return ;
+        }
+
+        if(is_null($user->current_team_id)){
+            return ;
+        }
+
+        $key = "summary:team:{$user->current_team_id}";
+
+        Cache::add($key, 0);
+
+        Cache::increment($key);
+    }
+
+    /**
+     * Check if a given using still has questions left
+     */
+    public static function hasRemainingSummaries(User|null $user): bool
+    {
+        
+        if(is_null($user)){
+            return false;
+        }
+        
+        if(is_null($user->current_team_id)){
+            return false;
+        }
+
+        if(config('copilot.limits.summaries_per_team') <= 0){
+            return false;
+        }
+
+        return self::summaryLimitFor($user) > 0;
     }
 }

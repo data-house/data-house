@@ -55,23 +55,8 @@
 
                 <div class="col-span-2 md:basis-3/5 mb-12">
 
-                    <div class="">
-                        @if ($document->latestSummary)
-                            <div class="prose">
-                                {{ $document->latestSummary }}
-                            </div>
-                            @if ($document->latestSummary->isAiGenerated())
-                                <p class="mt-2 py-1 text-sm text-lime-700 flex items-center gap-1">
-                                    <x-heroicon-s-sparkles class="text-lime-500 h-6 w-6" />
-                                    {{ __('This summary is automatically generated.') }}
-                                </p>
-                            @endif
-                        @else
-                            <div class="prose">
-                                {!! \Illuminate\Support\Str::markdown(__('This document doesn\'t have an abstract. [Be the first one to contribute](:url).', ['url' => route('documents.edit', $document)])) !!}
-                            </div>
-                        @endif
-                    </div>
+                    <livewire:document-summaries-viewer :document="$document" />
+                    
                 </div>
 
                 <div class="flex flex-col gap-6 md:gap-0">
