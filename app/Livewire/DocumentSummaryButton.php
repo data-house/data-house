@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Copilot\CopilotManager;
 use Livewire\Component;
 use App\Models\Document;
 use App\Pipelines\Pipeline;
@@ -74,6 +75,18 @@ class DocumentSummaryButton extends Component
 
         return $pipeline && in_array($pipeline->status, [PipelineState::FAILED, PipelineState::STUCK]);
     }
+    
+    #[Computed()]
+    public function summaryLimit()
+    {
+        return config('copilot.limits.summaries_per_team');
+    }
+    
+    #[Computed()]
+    public function remainingSummaryLimit()
+    {
+        return CopilotManager::summaryLimitFor($this->user);
+    }
 
     /**
      * Get the current user of the application.
@@ -99,6 +112,8 @@ class DocumentSummaryButton extends Component
         Pipeline::dispatchOneShotJob($this->document(), GenerateDocumentSummary::class);
 
         $this->dispatch('generating-summary');
+
+        CopilotManager::trackSummaryHitFor($this->user);
     }
 
 

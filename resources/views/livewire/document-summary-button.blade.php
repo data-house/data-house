@@ -26,7 +26,10 @@
     @unless ($this->generatingSummary)
         <p class="text-xs text-stone-700">
             {{ __('A summary is automatically generated in :languages.', ['languages' => $this->summaryLanguages->join(', ', ' and ') ]) }}
-            {{ __('Summary generation is currently limited to 50 documents per team. Your team has 50 documents remaining.') }}
+            {{ __('Summary generation is currently limited to :limit documents per team. Your team has :remaining documents remaining.', [
+                'limit' => $this->summaryLimit,
+                'remaining' => $this->remainingSummaryLimit,
+            ]) }}
         </p>
     @else
         <p class="text-xs text-stone-700">
