@@ -21,7 +21,7 @@
                     </div>
                 @else
 
-                    {{ str(__('[Write a summary for the document](:url)', ['url' => route('documents.edit', $document)]))->markdown()->toHtmlString() }}
+                    {{ str(__('[Write a summary for the document](:url)', ['url' => route('documents.edit', $this->document)]))->markdown()->toHtmlString() }}
                     
                 @endsummary
             </div>
