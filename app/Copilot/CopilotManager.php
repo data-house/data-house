@@ -5,6 +5,7 @@ namespace App\Copilot;
 use App\Copilot\Engines\NullEngine;
 use App\Copilot\Engines\OaksEngine;
 use App\Models\User;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Manager;
 
@@ -145,7 +146,13 @@ class CopilotManager extends Manager
             return 0;
         }
 
-        return max(0, RateLimiter::remaining('summary:team:'.$user->current_team_id, config('copilot.limits.summaries_per_team')));
+        $key = "summary:team:{$user->current_team_id}";
+
+        $currentHits = Cache::get($key, 0);
+
+        $maxHits = (int)config('copilot.limits.summaries_per_team');
+
+        return max(0, $maxHits - $currentHits);
     }
 
 
@@ -162,14 +169,11 @@ class CopilotManager extends Manager
             return ;
         }
 
-        // The rate limiter will auto-expire and the end of the calendar day UTC timezone
-        // This is opposed to the Laravel daily rate limit that consider to reset
-        // the limiter after 24 hours from the first hit
+        $key = "summary:team:{$user->current_team_id}";
 
-        RateLimiter::hit(
-            key: 'summary:team:'.$user->current_team_id,
-            decaySeconds: $secondsUntilEndOfCalendarDay = today()->endOfDay()->diffInSeconds()
-        );
+        Cache::add($key, 0);
+
+        Cache::increment($key);
     }
 
     /**
@@ -190,6 +194,6 @@ class CopilotManager extends Manager
             return false;
         }
 
-        return ! RateLimiter::tooManyAttempts('summary:team:'.$user->current_team_id, config('copilot.limits.summaries_per_team'));
+        return self::summaryLimitFor($user) > 0;
     }
 }
