@@ -96,6 +96,7 @@ function write_config() {
 
     php artisan config:clear -q
     php artisan route:clear -q
+    php artisan view:clear -q
 
 	echo "- ENV file written! $WORKDIR/.env"
 }
