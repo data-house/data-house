@@ -2,16 +2,12 @@
 
 namespace Tests\Feature\Jobs;
 
-use App\Jobs\ImportFileDataJob;
 use App\Jobs\MoveImportedDocumentsJob;
 use App\Jobs\Pipeline\Document\ExtractDocumentProperties;
-use App\Jobs\RetrieveDocumentsToImportJob;
 use App\Models\Disk;
 use App\Models\Document;
 use App\Models\Import;
-use App\Models\ImportDocument;
 use App\Models\ImportDocumentStatus;
-use App\Models\ImportMap;
 use App\Models\ImportSource;
 use App\Models\ImportStatus;
 use App\Models\Team;
@@ -102,6 +98,7 @@ class MoveImportedDocumentsJobTest extends TestCase
         Storage::disk(Disk::DOCUMENTS->value)->assertExists($document->disk_path);
 
         $this->assertEquals(ImportStatus::COMPLETED, $importMap->fresh()->status);
+        $this->assertNotNull($importMap->fresh()->last_executed_at);
         $this->assertEquals(ImportStatus::COMPLETED, $import->fresh()->status);
 
         Queue::assertPushed(ExtractDocumentProperties::class);

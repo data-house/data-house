@@ -52,13 +52,9 @@ class RetryImportMapCommand extends Command
         }
         
         Cache::lock($map->import->lockKey())->block(30, function() use ($map) {
-            return DB::transaction(function () use ($map) {
+            $map->resetStatusForRetry();
 
-                $map->status = ImportStatus::CREATED;
-                $map->save();
-
-                return true;
-            });
+            return true;
         });
         
         $import->start();
