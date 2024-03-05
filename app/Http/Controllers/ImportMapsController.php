@@ -82,25 +82,54 @@ class ImportMapsController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(ImportMap $importMap)
+    public function edit(ImportMap $mapping)
     {
-        $this->authorize($importMap);
+        $this->authorize($mapping);
 
+        return view('import-map.edit', [
+            'mapping' => $mapping,
+            'paths' => $mapping->filters['paths'] ?? [],
+            'import' => $mapping->import,
+            'teams' => auth()->user()->allTeams(),
+            'uploader' => auth()->user(),
+            'defaultVisibility' => Visibility::defaultDocumentVisibility(),
+            'availableVisibility' => [
+                Visibility::TEAM,
+                Visibility::PROTECTED,
+            ],
+        ]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, ImportMap $importMap)
+    public function update(Request $request, ImportMap $mapping)
     {
-        $this->authorize($importMap);
+        $this->authorize($mapping);
+
+        $userTeams = auth()->user()->allTeams();
+
+        $validated = $this->validate($request, [
+            'recursive' => [ 'nullable', 'boolean' ],
+            'team' => ['required', Rule::in($userTeams->map->getKey()) ],
+            'visibility' => ['nullable', 'integer', new Enum(Visibility::class), Rule::in(Visibility::forDocuments())],
+        ]);
+
+        $mapping->update([
+            'mapped_team' => $validated['team'],
+            'mapped_uploader' => auth()->user()->getKey(),
+            'recursive' => $validated['recursive'] ?? false,
+            'visibility' => $validated['visibility'] ?? Visibility::defaultDocumentVisibility(),
+        ]);
+
+        return redirect()->route('mappings.show', $mapping);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(ImportMap $importMap)
+    public function destroy(ImportMap $mapping)
     {
-        $this->authorize($importMap);
+        $this->authorize($mapping);
     }
 }
