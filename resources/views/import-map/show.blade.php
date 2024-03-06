@@ -39,6 +39,9 @@
                     @if ($mapping->isScheduled())
                         <span class="ml-4 text-sm">{{ __('next run') }}&nbsp;{{ $mapping->schedule->nextRunDate() }}</span>
                     @endif
+                    
+                    
+                    <span class="ml-4 text-sm">{{ __('last run') }}&nbsp;{{ $mapping->last_executed_at ?? '-' }}</span>
                 </div>
 
                 

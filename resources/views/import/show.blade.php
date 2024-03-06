@@ -54,9 +54,11 @@
                                         
                                     </td>
                                     <td class="p-2">{{ $mapping->mappedTeam->name }}</td>
-                                    <td class="p-2">{{ $mapping->status->name }}</td>
+                                    <td class="p-2"><x-status-badge :status="$mapping->status" /></td>
                                     <td class="p-2">
-                                        {{ $mapping->schedule->label() }} {{ $mapping->schedule->nextRunDate() }}
+                                        <span class="inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ring-1 ring-inset bg-gray-50 text-gray-600 ring-gray-500/10">
+                                            {{ $mapping->schedule->label() }}
+                                        </span>
                                     </td>
                                 </tr>
                             @endforeach

@@ -31,7 +31,7 @@ class ImportScheduleSettings extends Data
 
     public function label(): string
     {
-        return str($this->schedule->name)->title()->toString();
+        return str($this->schedule->name)->replace('_', ' ')->title()->toString();
     }
 
     public function isScheduled(): bool
