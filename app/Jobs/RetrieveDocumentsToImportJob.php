@@ -77,8 +77,10 @@ class RetrieveDocumentsToImportJob extends ImportJobBase
         $rows = $this->getDocumentsToImport($disk, $normalizedPaths, $this->importMap->recursive, $storagePathPrefix);
 
         if($rows->isEmpty()){
-            $this->fail("The selected criteria for this import resulted in no files");
-
+            logs()->warning("The selected criteria for this import resulted in no files", ['mapping' => $this->importMap->ulid]);
+            
+            $this->markAsComplete();
+            
             return null;
         }
 

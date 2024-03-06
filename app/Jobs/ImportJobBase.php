@@ -113,4 +113,23 @@ abstract class ImportJobBase implements ShouldQueue
             });
         });
     }
+
+    protected function markAsComplete()
+    {
+        Cache::lock($this->importMap->import->lockKey())->block(30, function() {
+            DB::transaction(function () {
+                $this->importMap->status = ImportStatus::COMPLETED;
+                $this->importMap->last_executed_at = now();
+
+                $this->importMap->save();
+
+                if(! $this->importMap->import->maps()->where('status', ImportStatus::RUNNING->value)->exists()){
+                    $import = $this->importMap->import;
+
+                    $import->status = ImportStatus::COMPLETED;
+                    $import->save();
+                }
+            });
+        });
+    }
 }
