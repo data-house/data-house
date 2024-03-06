@@ -2,7 +2,9 @@
 
 namespace Database\Factories;
 
+use App\Data\ImportScheduleSettings;
 use App\Models\Import;
+use App\Models\ImportSchedule;
 use App\Models\ImportStatus;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -23,5 +25,14 @@ class ImportMapFactory extends Factory
             'status' => ImportStatus::CREATED->value,
             'filters' => ['paths' => [fake()->filePath()]],
         ];
+    }
+
+    public function scheduled(ImportSchedule $schedule)
+    {
+        return $this->state(function (array $attributes) use ($schedule) {
+            return [
+                'schedule' => new ImportScheduleSettings($schedule),
+            ];
+        });
     }
 }

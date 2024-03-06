@@ -29,6 +29,14 @@ class StartImportJob implements ShouldQueue, ShouldBeUnique
     }
 
     /**
+     * Get the unique ID for the job.
+     */
+    public function uniqueId(): string
+    {
+        return $this->import->id;
+    }
+
+    /**
      * Get the middleware the job should pass through.
      *
      * @return array<int, object>

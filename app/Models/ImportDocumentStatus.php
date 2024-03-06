@@ -60,5 +60,28 @@ enum ImportDocumentStatus: int
      * Import failed as consequence of a network transfer error
      */
     case FAILED_DOWNLOAD_ERROR = 61;
+
+
+    public function label(): string
+    {
+        return match ($this) {
+            self::CANCELLED_MISSING_PERMISSION => __('Missing permission'),
+            self::SKIPPED_MISSING_SOURCE => __('Missing source'),
+            self::SKIPPED_DUPLICATE => __('Duplicate'),
+            self::SKIPPED_DIFFERENT_VERSION => __('Different version'),
+            self::FAILED_DOWNLOAD_ERROR => __('Download error'),
+            default => str($this->name)->title()->toString(),
+        };
+    }
+
+    public function style(): ?string
+    {
+        return match ($this) {
+            self::COMPLETED => 'success',
+            self::CANCELLED => 'cancel',
+            self::FAILED => 'failure',
+            default => null,
+        };
+    }
     
 }

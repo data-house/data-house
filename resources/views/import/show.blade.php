@@ -28,16 +28,16 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-4">
             <p class="max-w-prose">{{ __('Below are the mappings you have created for this import. Remember, you can add different folders with various configurations without re-auth to the service (click "Import another folder" below). When you prepared all your imports, click the "Start import" button below.') }}</p>
             
-            <div class="max-w-5xl">
+            <div class="max-w-7xl">
 
                 <div class="mb-6">
                     <table class="w-full">
                         <thead>
                             <tr>
-                                <td class="p-2">Source</td>
-                                <td class="p-2">Target</td>
-                                <td class="p-2">Status</td>
-                                <td class="p-2">Action</td>
+                                <td class="p-2 w-6/12">Source</td>
+                                <td class="p-2 w-2/12">Target</td>
+                                <td class="p-2 w-1/12">Status</td>
+                                <td class="p-2 w-3/12">Schedule</td>
                             </tr>
                         </thead>
                         <tbody>
@@ -45,16 +45,20 @@
                             @foreach ($import->maps as $mapping)
                                 
                                 <tr>
-                                    <td class="p-2">{{ $mapping->label() }}</td>
-                                    <td class="p-2">{{ $mapping->mappedTeam->name }}</td>
-                                    <td class="p-2">{{ $mapping->status->name }}</td>
                                     <td class="p-2">
                                         @can('view', $mapping)
-                                            <a class="underline" href="{{ route('mappings.show', $mapping) }}">{{ __('View') }}</a>
+                                            <a class="underline" href="{{ route('mappings.show', $mapping) }}">{{ $mapping->label() }}</a>
+                                        @else
+                                            {{ $mapping->label() }}
                                         @endcan
-                                        @can('update', $mapping)
-                                            <a class="underline" href="{{ route('mappings.edit', $mapping) }}">{{ __('Edit') }}</a>
-                                        @endcan
+                                        
+                                    </td>
+                                    <td class="p-2">{{ $mapping->mappedTeam->name }}</td>
+                                    <td class="p-2"><x-status-badge :status="$mapping->status" /></td>
+                                    <td class="p-2">
+                                        <span class="inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ring-1 ring-inset bg-gray-50 text-gray-600 ring-gray-500/10">
+                                            {{ $mapping->schedule->label() }}
+                                        </span>
                                     </td>
                                 </tr>
                             @endforeach
