@@ -46,3 +46,17 @@
     
     <p>{{ __('Imported documents will appear as uploaded by :name', ['name' => $uploader->name]) }}</p>
 </div>
+
+
+<div>
+    <x-label for="schedule" value="{{ __('Schedule') }}" />
+    <p>{{ __('Select the frequency to execute the import mapping.') }}</p>
+
+    <x-input-error for="schedule" class="mt-2" />
+    
+    <select name="schedule" id="schedule" class="mt-1 block w-full border-stone-300 focus:border-lime-500 focus:ring-lime-500 rounded-md shadow-sm">
+        @foreach ($availableFrequencies as $frequency)
+            <option value="{{ $frequency->value }}" @selected(optional($mapping ?? null)->schedule?->is($frequency))>{{ $frequency->name }}</option>
+        @endforeach
+    </select>
+</div>

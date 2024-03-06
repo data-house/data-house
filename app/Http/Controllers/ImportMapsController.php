@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Import;
 use App\Models\ImportMap;
+use App\Models\ImportSchedule;
 use App\Models\Visibility;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -44,6 +45,7 @@ class ImportMapsController extends Controller
                 Visibility::TEAM,
                 Visibility::PROTECTED,
             ],
+            'availableFrequencies' => ImportSchedule::available(),
         ]);
     }
 
@@ -62,6 +64,7 @@ class ImportMapsController extends Controller
             'paths' => ['required', 'array', 'min:1'],
             'paths.*' => ['required', 'string', 'max:1000'],
             'visibility' => ['nullable', 'integer', new Enum(Visibility::class), Rule::in(Visibility::forDocuments())],
+            'schedule' => ['nullable', new Enum(ImportSchedule::class), Rule::in(ImportSchedule::available()->map->value)],
         ]);
 
         // TODO: figure out a way to validate if the specified paths exists in the import file system
@@ -74,6 +77,9 @@ class ImportMapsController extends Controller
                 'paths' => $validated['paths']
             ],
             'visibility' => $validated['visibility'] ?? Visibility::defaultDocumentVisibility(),
+            'schedule' => [
+                'schedule' => $validated['schedule'] ?? ImportSchedule::NOT_SCHEDULED
+            ],
         ]);
 
         return redirect()->route('imports.show', $import);
@@ -97,6 +103,7 @@ class ImportMapsController extends Controller
                 Visibility::TEAM,
                 Visibility::PROTECTED,
             ],
+            'availableFrequencies' => ImportSchedule::available(),
         ]);
     }
 
@@ -113,6 +120,7 @@ class ImportMapsController extends Controller
             'recursive' => [ 'nullable', 'boolean' ],
             'team' => ['required', Rule::in($userTeams->map->getKey()) ],
             'visibility' => ['nullable', 'integer', new Enum(Visibility::class), Rule::in(Visibility::forDocuments())],
+            'schedule' => ['nullable', new Enum(ImportSchedule::class), Rule::in(ImportSchedule::available()->map->value)],
         ]);
 
         $mapping->update([
@@ -120,6 +128,9 @@ class ImportMapsController extends Controller
             'mapped_uploader' => auth()->user()->getKey(),
             'recursive' => $validated['recursive'] ?? false,
             'visibility' => $validated['visibility'] ?? Visibility::defaultDocumentVisibility(),
+            'schedule' => [
+                'schedule' => $validated['schedule'] ?? ImportSchedule::NOT_SCHEDULED
+            ],
         ]);
 
         return redirect()->route('mappings.show', $mapping);

@@ -21,28 +21,55 @@
         </div>
     </x-slot>
 
-    <div class="py-12">
+    <div class="pt-8 pb-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-4">
 
-            <div class="grid md:grid-cols-3 gap-2">
+            <div class="flex items-center flex-row gap-4 divide-x-2 mb-8">
+                
+                <x-status-badge :status="$mapping->status" size="text-sm" />
 
-                <div class="bg-white p-2">
-                    <p>{{ __('Status') }}</p>
-                    {{ $mapping->status->name }}
+                <div class="pl-4 flex items-center">
+                    @if ($mapping->isScheduled())
+                        <x-codicon-sync class="text-stone-400 h-5 w-5 mr-2" />
+                    @else
+                        <x-codicon-sync-ignored class="text-stone-400 h-5 w-5 mr-2" />
+                    @endif
+                    {{ $mapping->schedule->label() }}
+                    
+                    @if ($mapping->isScheduled())
+                        <span class="ml-4 text-sm">{{ __('next run') }}&nbsp;{{ $mapping->schedule->nextRunDate() }}</span>
+                    @endif
                 </div>
 
-                <div class="bg-white p-2">
-                    <p>{{ __('Paths') }}</p>
-                    {{ join($mapping->filters['paths']) }}
-                </div>
-                <div class="bg-white p-2">
-                    <p>{{ __('Configuration') }}</p>
+                
+
+                <div class="pl-4 flex items-center">
                     @if ($mapping->recursive)
-                        <span>{{ __('include files in sub-folders') }}</span>
+                        <x-codicon-file-submodule class="text-stone-400 h-5 w-5 mr-2" />
+                        <span class="mr-4">{{ __('include files in sub-folders') }}</span>
                     @endif
                     @unless ($mapping->recursive)
-                        <span>{{ __('only files in selected folder') }}</span>
+                        <x-codicon-folder class="text-stone-400 h-5 w-5 mr-2" />
+                        <span class="mr-4">{{ __('only files in selected folder') }}</span>
                     @endunless
+
+                    <x-dropdown align="right" width="w-96">
+                        <x-slot name="trigger">
+                            <x-small-button class="justify-self-end inline-flex gap-1 items-center">
+                                {{ __('View paths') }}
+                            </x-small-button>
+                        </x-slot>
+
+                        <x-slot name="content">
+                            <div class="prose">
+                                <ul>
+                                    @foreach ($mapping->filters['paths'] as $item)
+                                        <li>{{ $item }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        </x-slot>
+                    </x-dropdown>
                 </div>
 
             </div>
@@ -73,7 +100,7 @@
                                 <td><x-date :value="$document->created_at" /></td>
                                 <td><x-date :value="$document->document_date" /></td>
                                 <td>{{ $document->document_size ? \Illuminate\Support\Number::fileSize($document->document_size) : '-' }}</td>
-                                <td>{{ $document->status->name }}</td>
+                                <td><x-status-badge :status="$document->status" /></td>
 
                             </tr>
                             

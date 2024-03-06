@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Schedule\CronBuilder;
+use Illuminate\Support\Collection;
 
 enum ImportSchedule: string
 {
@@ -37,5 +38,21 @@ enum ImportSchedule: string
             self::DAILY => CronBuilder::make()->daily()->at('22:15')->getExpression(),
             default => null
         };
+    }
+
+
+    /**
+     * Get the list of scheduling frequencies that can be used
+     */
+    public static function available(): Collection
+    {
+        return collect([
+            self::NOT_SCHEDULED,
+            self::EVERY_TWO_HOURS,
+            self::EVERY_THREE_HOURS,
+            self::EVERY_FOUR_HOURS,
+            self::EVERY_SIX_HOURS,
+            self::DAILY,
+        ]);
     }
 }

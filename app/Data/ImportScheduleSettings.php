@@ -31,12 +31,17 @@ class ImportScheduleSettings extends Data
 
     public function label(): string
     {
-        return $this->schedule->name;
+        return str($this->schedule->name)->title()->toString();
     }
 
     public function isScheduled(): bool
     {
         return $this->schedule !== ImportSchedule::NOT_SCHEDULED;
+    }
+    
+    public function is(ImportSchedule $schedule): bool
+    {
+        return $this->schedule === $schedule;
     }
 
 
