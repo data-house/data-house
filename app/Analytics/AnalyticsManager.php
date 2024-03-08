@@ -2,15 +2,9 @@
 
 namespace App\Analytics;
 
-use App\Analytics\Drivers\CopilotPdfParserDriver;
-use App\Analytics\Drivers\ExtractorServicePdfParserDriver;
 use App\Analytics\Drivers\MatomoDriver;
 use App\Analytics\Drivers\NullDriver;
-use App\Analytics\Drivers\SmalotPdfParserDriver;
-use App\Analytics\Drivers\XpdfDriver;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Manager;
-use Illuminate\Support\Str;
 use InvalidArgumentException;
 
 class AnalyticsManager extends Manager
