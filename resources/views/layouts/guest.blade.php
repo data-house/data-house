@@ -11,6 +11,8 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
 
         @livewireStyles
+
+        <x-analytics::tracking-code />
     </head>
     <body>
         <div class="font-sans text-stone-900 antialiased">

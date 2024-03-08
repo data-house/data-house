@@ -1,5 +1,6 @@
 <?php
 
+use App\Analytics\AnalyticsServiceProvider;
 use App\Copilot\CopilotServiceProvider;
 use App\DocumentThumbnail\DocumentThumbnailServiceProvider;
 use App\HelpAndSupport\SupportServiceProvider;
@@ -198,6 +199,7 @@ return [
         DocumentThumbnailServiceProvider::class,
         CopilotServiceProvider::class,
         SupportServiceProvider::class,
+        AnalyticsServiceProvider::class,
 
         /*
          * Application Service Providers...
