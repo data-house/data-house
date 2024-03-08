@@ -87,6 +87,7 @@ class DocumentDownloadControllerTest extends TestCase
             ->create([
                 'disk_name' => 'local',
                 'disk_path' => 'test.pdf',
+                'title' => 'test.pdf',
             ]);
 
         $response = $this->actingAs($user)
@@ -135,6 +136,7 @@ class DocumentDownloadControllerTest extends TestCase
             ->create([
                 'disk_name' => 'local',
                 'disk_path' => 'test.pdf',
+                'title' => 'test.pdf',
                 'conversion_disk_name' => 'local',
                 'conversion_disk_path' => 'converted.pdf',
                 'conversion_file_mime' => MimeType::APPLICATION_PDF->value,
@@ -163,6 +165,7 @@ class DocumentDownloadControllerTest extends TestCase
                 'mime' => 'image/png',
                 'disk_name' => 'local',
                 'disk_path' => 'test.png',
+                'title' => 'test.png',
                 'conversion_disk_name' => 'local',
                 'conversion_disk_path' => 'converted.pdf',
                 'conversion_file_mime' => MimeType::APPLICATION_PDF->value,
@@ -173,6 +176,6 @@ class DocumentDownloadControllerTest extends TestCase
 
         $response->assertStatus(200);
 
-        $response->assertDownload('converted.pdf');
+        $response->assertDownload('test.pdf');
     }
 }

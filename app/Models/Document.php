@@ -233,7 +233,7 @@ class Document extends Model implements Convertible
 
     public function filenameForDownload($original = true): string
     {
-        $extension = $original ? $this->format->extension : '';
+        $extension = $this->format->extension ?? '';
 
         $downloadExtension = $original ? ".{$extension}" : '.pdf';
 
