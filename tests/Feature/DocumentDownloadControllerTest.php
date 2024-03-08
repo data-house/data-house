@@ -50,6 +50,30 @@ class DocumentDownloadControllerTest extends TestCase
         $response->assertDownload();
     }
     
+    public function test_document_can_be_downloaded_with_filename_in_url(): void
+    {
+        Storage::fake();
+
+        Storage::putFileAs('', new File(base_path('tests/fixtures/documents/data-house-test-doc.pdf')), 'test.pdf');
+
+        $user = User::factory()->withPersonalTeam()->manager()->create();
+
+        $document = Document::factory()
+            ->visibleByUploader($user)
+            ->create([
+                'disk_name' => 'local',
+                'disk_path' => 'test.pdf',
+                'title' => 'Test filename during download'
+            ]);
+
+        $response = $this->actingAs($user)
+            ->get($document->url());
+
+        $response->assertStatus(200);
+
+        $response->assertDownload('test-filename-during-download.pdf');
+    }
+    
     public function test_document_can_be_downloaded_with_inline_disposition(): void
     {
         Storage::fake();

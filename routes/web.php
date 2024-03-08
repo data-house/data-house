@@ -42,7 +42,7 @@ Route::middleware([
         return view('dashboard');
     })->name('dashboard');
     
-    Route::get('/documents/{document}/download', DocumentDownloadController::class)->name('documents.download');
+    Route::get('/documents/{document}/download/{filename?}', DocumentDownloadController::class)->name('documents.download');
     
     Route::get('/documents/{document}/thumbnail', DocumentThumbnailController::class)->name('documents.thumbnail');
     

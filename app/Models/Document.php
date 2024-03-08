@@ -225,7 +225,24 @@ class Document extends Model implements Convertible
      */
     public function url(): string
     {
-        return route('documents.download', $this);
+        return route('documents.download', [
+            'document' => $this,
+            'filename' => $this->filenameForDownload()
+        ]);
+    }
+
+    public function filenameForDownload($original = true): string
+    {
+        $extension = $original ? $this->format->extension : '';
+
+        $downloadExtension = $original ? ".{$extension}" : '.pdf';
+
+        return str($this->title)
+            ->ascii()
+            ->replaceEnd(".{$extension}", '')
+            ->slug()
+            ->append($downloadExtension)
+            ->toString();
     }
     
     /**
