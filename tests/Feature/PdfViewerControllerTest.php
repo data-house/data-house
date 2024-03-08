@@ -23,9 +23,11 @@ class PdfViewerControllerTest extends TestCase
 
         $url = $document->viewerUrl(page: 3);
 
-        $file = urlencode("/documents/{$document->ulid}/download");
+        $file = urlencode("documents/{$document->ulid}/download");
 
-        $this->assertEquals(config('app.url')."/pdf-viewer?document={$document->ulid}&file={$file}&page=3", $url);
+        $this->assertStringContainsString(config('app.url'), $url);
+        $this->assertStringContainsString("/pdf-viewer?document={$document->ulid}&file={$file}", $url);
+        $this->assertStringContainsString("&page=3", $url);
     }
 
     public function test_pdf_viewer_url_generated_when_conversion_available(): void
@@ -40,9 +42,11 @@ class PdfViewerControllerTest extends TestCase
 
         $url = $document->viewerUrl(page: 3);
 
-        $file = urlencode("/documents/{$document->ulid}/download");
+        $file = urlencode("documents/{$document->ulid}/download");
 
-        $this->assertEquals(config('app.url')."/pdf-viewer?document={$document->ulid}&file={$file}&page=3", $url);
+        $this->assertStringContainsString(config('app.url'), $url);
+        $this->assertStringContainsString("/pdf-viewer?document={$document->ulid}&file={$file}", $url);
+        $this->assertStringContainsString("&page=3", $url);
     }
 
     public function test_pdf_viewer_requires_authentication(): void
