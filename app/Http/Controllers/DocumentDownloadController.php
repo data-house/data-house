@@ -30,10 +30,10 @@ class DocumentDownloadController extends Controller
         if(!$original && ($document->conversion_file_mime && $document->conversion_disk_path)){
 
             return response()
-                ->download(Storage::disk($document->conversion_disk_name)->path($document->conversion_disk_path), null, [], $disposition);
+                ->download(Storage::disk($document->conversion_disk_name)->path($document->conversion_disk_path), $document->filenameForDownload(false), [], $disposition);
         }
 
         return response()
-            ->download(Storage::disk($document->disk_name)->path($document->disk_path), null, [], $disposition);
+            ->download(Storage::disk($document->disk_name)->path($document->disk_path), $document->filenameForDownload(), [], $disposition);
     }
 }

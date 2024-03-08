@@ -12,6 +12,8 @@
 
         <!-- Styles -->
         @livewireStyles
+
+        <x-analytics::tracking-code />
     </head>
     <body class="font-sans antialiased">
         <x-banner />
