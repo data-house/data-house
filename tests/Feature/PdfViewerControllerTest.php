@@ -23,7 +23,7 @@ class PdfViewerControllerTest extends TestCase
 
         $url = $document->viewerUrl(page: 3);
 
-        $file = urlencode("documents/{$document->ulid}/download");
+        $file = urlencode("/documents/{$document->ulid}/download");
 
         $this->assertStringContainsString(config('app.url'), $url);
         $this->assertStringContainsString("/pdf-viewer?document={$document->ulid}&file={$file}", $url);
@@ -42,7 +42,7 @@ class PdfViewerControllerTest extends TestCase
 
         $url = $document->viewerUrl(page: 3);
 
-        $file = urlencode("documents/{$document->ulid}/download");
+        $file = urlencode("/documents/{$document->ulid}/download");
 
         $this->assertStringContainsString(config('app.url'), $url);
         $this->assertStringContainsString("/pdf-viewer?document={$document->ulid}&file={$file}", $url);
