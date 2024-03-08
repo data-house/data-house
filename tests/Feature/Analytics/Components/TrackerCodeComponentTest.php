@@ -1,9 +1,7 @@
 <?php
 
-namespace Tests\Feature\Analytics\Drivers;
+namespace Tests\Feature\Analytics\Components;
 
-use App\Analytics\Drivers\MatomoDriver;
-use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
