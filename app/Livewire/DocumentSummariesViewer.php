@@ -41,6 +41,12 @@ class DocumentSummariesViewer extends Component
         return $this->document()->latestSummary;
     }
 
+    #[Computed()]
+    public function summaries()
+    {
+        return $this->document()->summaries;
+    }
+
     /**
      * Get the current user of the application.
      *
