@@ -26,6 +26,14 @@ abstract class Engine
     {
         return config('copilot.timeout', 3) * Carbon::SECONDS_PER_MINUTE;
     }
+    
+    /**
+     * Get the library tenant
+     */
+    protected function getLibrary(): string
+    {
+        return str(config('app.url', 3))->slug()->toString();
+    }
 
     /**
      * Update the given model in the index.

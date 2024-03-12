@@ -62,6 +62,7 @@ class OaksEngine extends Engine
                 $questionableData,
                 [
                     'id' => $model->getCopilotKey(),
+                    'library_id' => $this->getLibrary(),
                     'key_name' => $model->getCopilotKeyName(),
                 ],
             );
@@ -137,7 +138,9 @@ class OaksEngine extends Engine
                 $response = Http::acceptJson()
                     ->timeout($this->getRequestTimeout())
                     ->asJson()
-                    ->delete(rtrim($this->config['host'], '/') . '/documents/' . $key)
+                    ->delete(rtrim($this->config['host'], '/') . '/documents/' . $key, [
+                        'library_id' => $this->getLibrary()
+                    ])
                     ->throw();
 
                 if($status = $response->json('status') !== 'ok'){
@@ -173,16 +176,21 @@ class OaksEngine extends Engine
 
             $endpoint = $question->multipleQuestionRequest() ? '/transform-question' : '/question';
 
+            $data = array_merge(
+                $question->jsonSerialize(),
+                ['library_id' => $this->getLibrary()],
+            );
+
             $response = Http::acceptJson()
                 ->timeout($this->getRequestTimeout())
                 ->asJson()
-                ->post(rtrim($this->config['host'], '/') . $endpoint, $question->jsonSerialize())
+                ->post(rtrim($this->config['host'], '/') . $endpoint, $data)
                 ->throwIfServerError();
 
             $json = $response->json();
 
             logs()->info("Asking question", [
-                'question' => $question->jsonSerialize(),
+                'question' => $data,
                 'answer' => $json,
             ]);
 
