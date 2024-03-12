@@ -7,6 +7,7 @@ use App\Copilot\CopilotRequest;
 use App\Copilot\CopilotResponse;
 use App\Copilot\CopilotSummarizeRequest;
 use Carbon\Carbon;
+use Illuminate\Support\Collection;
 
 abstract class Engine
 {
@@ -68,5 +69,29 @@ abstract class Engine
      * @return \App\Copilot\CopilotResponse
      */
     abstract public function summarize(CopilotSummarizeRequest $request): CopilotResponse;
+
+    /**
+     * Tag models based on entries in the specified list
+     * 
+     * @param string $list
+     * @param mixed $model
+     * @return \Illuminate\Support\Collection
+     */
+    abstract public function tag(string $list, $model): Collection;
+
+    /**
+     * Define a custom list of tags
+     * 
+     * @param string $name
+     * @param array $tags
+     */
+    abstract public function defineTagList(string $name, array $tags);
+
+    /**
+     * Remove a previously defined list of tags
+     * 
+     * @param string $name
+     */
+    abstract public function removeTagList(string $name);
     
 }

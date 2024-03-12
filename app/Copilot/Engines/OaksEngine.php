@@ -11,6 +11,7 @@ use App\Copilot\Exceptions\CopilotException;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Client\RequestException;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Http;
 use InvalidArgumentException;
 use PrinsFrank\Standards\Language\LanguageAlpha2;
@@ -316,6 +317,121 @@ class OaksEngine extends Engine
             // TODO: response body can contain error information // {"code":500,"message":"Error while parsing file","type":"Internal Server Error"}
             // {"code":422,"message":"No content found in request","type":"Unprocessable Entity"}
             logs()->error("Error asking question copilot", ['error' => $ex->getMessage(), 'request' => $request]);
+            throw $ex;
+        }
+    }
+
+    public function defineTagList(string $name, array $tags)
+    {
+        $requestData = [
+            'topic_list_id' => $name,
+            'library_id' => $this->getLibrary(),
+            'topics' => $tags,
+        ];
+
+        try{
+
+            $endpoint = '/topic';
+
+            $response = Http::acceptJson()
+                ->timeout($this->getRequestTimeout())
+                ->asJson()
+                ->post(rtrim($this->config['host'], '/') . $endpoint, $requestData)
+                ->throwIfServerError();
+
+            $json = $response->json();
+
+            if(!$json ){
+                logs()->error("Topic list not added [{$response->status()}]", ['response' => $response->body(), 'request' => $requestData]);
+                throw new CopilotException("Error adding topic list. See error log for more details.");
+            }
+
+            if(isset($json['code']) && $json['code'] != 200){
+                logs()->error("Topic list not added [{$response->status()}]", ['response' => $json, 'request' => $requestData]);
+                throw new CopilotException(isset($json['message']) ? $json['message'] : "Error adding topic list. [{$json['code']}]");
+            }
+            
+            if(!isset($json['id'])){
+                logs()->error("Topic list not added [{$response->status()}]", ['response' => $response->body(), 'request' => $requestData]);
+                throw new CopilotException("Error adding topic list.");
+            }
+            
+        }
+        catch(Throwable $ex)
+        {
+            logs()->error("Error creating topic list", ['error' => $ex->getMessage(), 'request' => $requestData]);
+            throw $ex;
+        }
+    }
+
+    public function tag($list, $model): Collection
+    {
+        $traits = class_uses_recursive($model);
+
+        if(!isset($traits[Questionable::class])){
+            throw new InvalidArgumentException("Model not questionable");
+        }
+
+        $requestData = [
+            'topic_list_id' => $list,
+            'library_id' => $this->getLibrary(),
+            'doc_id' => $model->getCopilotKey(),
+        ];
+        
+        try{
+
+            $endpoint = '/topic/classify';
+
+            $response = Http::acceptJson()
+                ->timeout($this->getRequestTimeout())
+                ->asJson()
+                ->post(rtrim($this->config['host'], '/') . $endpoint, $requestData)
+                ->throwIfServerError();
+
+            $json = $response->json();
+
+            if(isset($json['code']) && $json['code'] != 200){
+                logs()->error("Document not tagged [{$response->status()}]", ['response' => $json, 'request' => $requestData]);
+                throw new CopilotException(isset($json['message']) ? $json['message'] : "Error document tagging. [{$json['code']}]");
+            }
+            
+            return collect($json['topics'] ?? []);
+        }
+        catch(Throwable $ex)
+        {
+            logs()->error("Error tagging document", ['error' => $ex->getMessage(), 'request' => $requestData]);
+            throw $ex;
+        }
+
+    }
+
+    public function removeTagList(string $name)
+    {
+        try{
+
+            $response = Http::acceptJson()
+                ->timeout($this->getRequestTimeout())
+                ->asJson()
+                ->delete(rtrim($this->config['host'], '/') . '/topic/' . $name, [
+                    'library_id' => $this->getLibrary()
+                ])
+                ->throw();
+
+            $json = $response->json();
+
+            if(isset($json['code']) && $json['code'] != 200){
+                logs()->error("Document not tagged [{$response->status()}]", ['response' => $json, 'request' => $name]);
+                throw new CopilotException(isset($json['message']) ? $json['message'] : "Error document tagging. [{$json['code']}]");
+            }
+        }
+        catch(Throwable $ex)
+        {
+            logs()->error("Error removing tag list from copilot", ['error' => $ex->getMessage()]);
+
+            if($ex->getCode() === 404){
+                return;
+            }
+
             throw $ex;
         }
     }
