@@ -16,7 +16,20 @@ class SuggestDocumentTags
     {
         $response = $document->questionableUsing()->tag($list, $document);
 
-        return collect($response);
+        return $response->map(function($tag){
+            return [
+                'tag_id' => $tag['topic_id'],
+                'tag_name' => $tag['topic_name'],
+                'score' => $tag['distance'],
+                'highlight' => collect($tag['based_on'] ?? [])->map(function($match){
+                    return [
+                        'match' => $match['text'],
+                        'score' => $match['score'],
+                        'page' => $match['metadata']['page_number'],
+                    ];
+                }),
+            ];
+        });
     }
 
 }
