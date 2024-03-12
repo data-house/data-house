@@ -201,7 +201,7 @@ class Document extends Model implements Convertible
 
     public function summaries(): HasMany
     {
-        return $this->hasMany(DocumentSummary::class);
+        return $this->hasMany(DocumentSummary::class)->orderBy('created_at', 'DESC');
     }
 
     public function latestSummary(): HasOne
