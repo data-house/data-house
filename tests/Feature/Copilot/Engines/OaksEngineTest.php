@@ -463,4 +463,149 @@ class OaksEngineTest extends TestCase
 
         $response = $engine->summarize($request);
     }
+
+
+    public function test_tag_list_can_be_added(): void
+    {
+        config([
+            'copilot.engines.oaks' => [
+                'host' => 'http://localhost:5000/',
+            ],
+        ]);
+
+        Queue::fake();
+
+        Http::preventStrayRequests();
+
+        Http::fake([
+            'http://localhost:5000/topic' => Http::response([
+                "id" => 'test'
+            ], 200),
+        ]);
+
+        /**
+         * @var \App\Copilot\Engines\Engine
+         */
+        $engine = app(CopilotManager::class)->driver('oaks');
+
+        $tags = [[
+            "topic_id" => 0,
+            "topic_name" => "Tag Name",
+            "definitions" => [
+                [
+                "lang" => "en",
+                "description" => "Definition in English"
+                ]
+            ]
+        ]];
+
+        $engine->defineTagList('test', $tags);
+
+        Http::assertSent(function (Request $request) use ($tags) {
+
+            return $request->url() == 'http://localhost:5000/topic' &&
+                   $request['topic_list_id'] == 'test' &&
+                   $request['library_id'] == 'httplocalhost' &&
+                   $request['topics'][0]['topic_id'] == $tags[0]['topic_id'] &&
+                   $request['topics'][0]['topic_name'] == $tags[0]['topic_name'];
+        });
+
+    }
+    
+    public function test_tag_list_can_be_removed(): void
+    {
+        config([
+            'copilot.engines.oaks' => [
+                'host' => 'http://localhost:5000/',
+            ],
+        ]);
+
+        Queue::fake();
+
+        Http::preventStrayRequests();
+
+        Http::fake([
+            'http://localhost:5000/topic/test' => Http::response([
+                "message" => 'Topic list test deleted'
+            ], 200),
+        ]);
+
+        /**
+         * @var \App\Copilot\Engines\Engine
+         */
+        $engine = app(CopilotManager::class)->driver('oaks');
+
+        $engine->removeTagList('test');
+
+        Http::assertSent(function (Request $request) {
+
+            return $request->url() == 'http://localhost:5000/topic/test' &&
+                   $request['library_id'] == 'httplocalhost';
+        });
+
+    }
+
+
+    public function test_document_can_be_tagged(): void
+    {
+        config([
+            'copilot.engines.oaks' => [
+                'host' => 'http://localhost:5000/',
+            ],
+        ]);
+
+        Queue::fake();
+
+        $document = Document::factory()->create();
+
+        Http::preventStrayRequests();
+
+        $tagResponse = [
+            "doc_id" => $document->getCopilotKey(),
+            "topics" => [
+                [
+                    "based_on" => [
+                        [
+                        "metadata" => [
+                            "doc_id" => $document->getCopilotKey(),
+                            "doc_lang" => "en",
+                            "library_id" => "httplocalhost",
+                            "page_number" => 4,
+                        ],
+                        "score" => 0.5804307,
+                        "text" => "Portion of the document text that highlights this tag"
+                        ],
+                    ],
+                    "distance" => 0.5663936,
+                    "suggested" => false,
+                    "topic_id" => 0,
+                    "topic_name" => "Tag name"
+                ]
+            ]
+        ];
+
+        Http::fake([
+            'http://localhost:5000/topic/classify' => Http::response($tagResponse, 200),
+        ]);
+
+        /**
+         * @var \App\Copilot\Engines\Engine
+         */
+        $engine = app(CopilotManager::class)->driver('oaks');
+
+        $suggestedTags = $engine->tag('test', $document);
+
+        $this->assertEquals(1, $suggestedTags->count());
+
+        $this->assertEquals("Tag name", $suggestedTags->first()['topic_name']);
+
+        Http::assertSent(function (Request $request) use ($document) {
+
+            return $request->url() == 'http://localhost:5000/topic/classify' &&
+                   $request['topic_list_id'] == 'test' &&
+                   $request['library_id'] == 'httplocalhost' &&
+                   $request['doc_id'] == $document->getCopilotKey();
+        });
+
+    }
 }

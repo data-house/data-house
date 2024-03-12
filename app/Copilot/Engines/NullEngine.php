@@ -6,6 +6,7 @@ use App\Copilot\AnswerAggregationCopilotRequest;
 use App\Copilot\CopilotRequest;
 use App\Copilot\CopilotResponse;
 use App\Copilot\CopilotSummarizeRequest;
+use Illuminate\Support\Collection;
 
 class NullEngine extends Engine
 {
@@ -50,6 +51,21 @@ class NullEngine extends Engine
     public function summarize(CopilotSummarizeRequest $request): CopilotResponse
     {
         return new CopilotResponse('');
+    }
+
+    public function defineTagList(string $name, array $tags)
+    {
+        
+    }
+
+    public function removeTagList(string $name)
+    {
+        
+    }
+
+    public function tag(string $list, $model): Collection
+    {
+        return collect();
     }
     
 }
