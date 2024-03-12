@@ -37,7 +37,7 @@ class GenerateThumbnail extends PipelineJob
         /**
          * @var \App\DocumentThumbnail\FileThumbnail
          */
-        $convertedFile = Thumbnail::thumbnail($this->model, Format::PDF);
+        $convertedFile = Thumbnail::thumbnail($this->model->asReference(), Format::PDF);
 
         $this->model->thumbnail_disk_name = $convertedFile->diskName();
         $this->model->thumbnail_disk_path = $convertedFile->path();
