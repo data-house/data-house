@@ -162,6 +162,24 @@ function init_empty_dir() {
         chmod -R g+rw "${dir_to_init}/app"
         echo "-- [app] created."
     fi
+    if [ ! -d "${dir_to_init}/app/documents" ]; then
+        mkdir -p "${dir_to_init}/app/documents"
+        chgrp -R $SETUP_USER "${dir_to_init}/app/documents"
+        chmod -R g+rw "${dir_to_init}/app/documents"
+        echo "-- [app/documents] created."
+    fi
+    if [ ! -d "${dir_to_init}/app/thumbnails" ]; then
+        mkdir -p "${dir_to_init}/app/thumbnails"
+        chgrp -R $SETUP_USER "${dir_to_init}/app/thumbnails"
+        chmod -R g+rw "${dir_to_init}/app/thumbnails"
+        echo "-- [app/thumbnails] created."
+    fi
+    if [ ! -d "${dir_to_init}/app/imports" ]; then
+        mkdir -p "${dir_to_init}/app/imports"
+        chgrp -R $SETUP_USER "${dir_to_init}/app/imports"
+        chmod -R g+rw "${dir_to_init}/app/imports"
+        echo "-- [app/imports] created."
+    fi
     if [ ! -d "${dir_to_init}/app/public" ]; then
         mkdir -p "${dir_to_init}/app/public"
         chgrp -R $SETUP_USER "${dir_to_init}/app/public"
