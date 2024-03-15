@@ -46,8 +46,7 @@ class DocumentPolicy
 
         if($document->team){
             
-            return ($user->hasTeamPermission($document->team, 'document:update') || 
-                $user->tokenCan('document:update'))
+            return $user->hasTeamPermission($document->team, 'document:update')
                 && $document->isVisibleBy($user);
         }
 
