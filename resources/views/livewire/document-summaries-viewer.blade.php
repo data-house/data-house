@@ -30,16 +30,20 @@
             <div class="prose"> 
                 {{ __('This document doesn\'t have an abstract.', ) }}
 
-                @summary()
-                    <div class="mt-2 not-prose">
-                        <livewire:document-summary-button :document="$this->document" />
-                        
-                    </div>
-                @else
-
-                    {{ str(__('[Write a summary for the document](:url)', ['url' => route('documents.edit', $this->document)]))->markdown()->toHtmlString() }}
+                @can('update', $this->document)
                     
-                @endsummary
+                    @summary()
+                        <div class="mt-2 not-prose">
+                            <livewire:document-summary-button :document="$this->document" />
+                            
+                        </div>
+                    @else
+
+                        {{ str(__('[Write a summary for the document](:url)', ['url' => route('documents.edit', $this->document)]))->markdown()->toHtmlString() }}
+                        
+                    @endsummary
+                @endcan
+
             </div>
 
         </div>
