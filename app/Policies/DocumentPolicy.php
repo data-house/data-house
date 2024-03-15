@@ -43,6 +43,14 @@ class DocumentPolicy
      */
     public function update(User $user, Document $document): bool
     {
+
+        if($document->team){
+            
+            return ($user->hasTeamPermission($document->team, 'document:update') || 
+                $user->tokenCan('document:update'))
+                && $document->isVisibleBy($user);
+        }
+
         return ($user->hasPermission('document:update') ||
            $user->hasTeamPermission($user->currentTeam, 'document:update') || 
            $user->tokenCan('document:update'))
