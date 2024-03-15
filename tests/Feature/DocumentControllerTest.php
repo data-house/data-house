@@ -182,6 +182,7 @@ class DocumentControllerTest extends TestCase
 
         $document = Document::factory()
             ->visibleByAnyUser()
+            ->recycle($user->currentTeam)
             ->create([
                 'title' => 'The title of the document'
             ]);
@@ -199,9 +200,8 @@ class DocumentControllerTest extends TestCase
         $response->assertViewIs('document.show');
         
         $response->assertSee('Open');
-        $response->assertSee('Edit');
         $response->assertSee('The title of the document');
-        $response->assertSee(Visibility::TEAM->label());
+        $response->assertSee(Visibility::PROTECTED->label());
         $response->assertSee($user->name);
         $response->assertDontSee('Imported from');
         $response->assertDontSee($importDoc->source_path);
@@ -240,6 +240,7 @@ class DocumentControllerTest extends TestCase
         $user = User::factory()->withPersonalTeam()->manager()->create();
 
         $document = Document::factory()
+            ->recycle($user->currentTeam)
             ->visibleByUploader($user)
             ->create([
                 'title' => 'The title of the document'

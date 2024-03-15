@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Models\Document;
 use App\Models\User;
+use App\Models\Visibility;
 use Illuminate\Auth\Access\Response;
 
 class DocumentPolicy
@@ -43,11 +44,13 @@ class DocumentPolicy
      */
     public function update(User $user, Document $document): bool
     {
+        if($document->uploader && $document->visibility === Visibility::PERSONAL){
+            return $user->hasPermission('document:update') && $document->uploader->is($user)
+                && $document->isVisibleBy($user);
+        }
 
         if($document->team){
-            
-            return ($user->hasTeamPermission($document->team, 'document:update') || 
-                $user->tokenCan('document:update'))
+            return $user->hasTeamPermission($document->team, 'document:update')
                 && $document->isVisibleBy($user);
         }
 
