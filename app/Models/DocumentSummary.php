@@ -15,7 +15,8 @@ class DocumentSummary extends Model implements Htmlable
     protected $fillable = [
         'language',
         'text',
-        'ai_generated'
+        'ai_generated',
+        'user_id',
     ];
 
     protected $casts = [
@@ -30,6 +31,11 @@ class DocumentSummary extends Model implements Htmlable
     public function document()
     {
         return $this->belongsTo(Document::class);
+    }
+    
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 
     public function isAiGenerated(): bool
