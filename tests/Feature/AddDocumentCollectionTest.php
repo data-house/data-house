@@ -60,9 +60,9 @@ class AddDocumentCollectionTest extends TestCase
             ->visibleByUploader($user)
             ->create();
 
-        $this->expectException(ValidationException::class);
+        $this->expectException(AuthorizationException::class);
         
-        $this->expectExceptionMessage('Team document cannot be added to a collection visible by all authenticated users.');
+        $this->expectExceptionMessage('User not allowed to add document to collection');
 
         (new AddDocument)($document, $collection, $user);
 
