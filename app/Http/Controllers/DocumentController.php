@@ -117,6 +117,7 @@ class DocumentController extends Controller
         if($summary && !$summary->isAiGenerated()){
             $summary->update([
                 'text' => $validated['description'],
+                'user_id' => auth()->user()->getKey(),
             ]);
         }
         else {
