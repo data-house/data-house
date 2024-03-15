@@ -136,6 +136,31 @@ class DocumentSummaryButtonTest extends TestCase
 
         Queue::assertPushed(GenerateDocumentSummary::class);
     }
+    
+    public function test_user_cannot_request_summary_generation()
+    {
+        Queue::fake();
+
+        $user = User::factory()
+            ->withPersonalTeam()
+            ->manager()
+            ->create();
+
+        $document = Document::factory()
+            ->visibleByAnyUser()
+            ->create([
+                'languages' => collect(LanguageAlpha2::English)
+            ]);
+
+        Livewire::actingAs($user)->test(DocumentSummaryButton::class, ['document' => $document])
+            ->assertStatus(200)
+            ->call('generateSummary')
+            ->assertDontSee('Writing a summary for you...')
+            ->assertDontSee('Summary generation in progress.')
+            ->assertSet('generatingSummary', false);
+
+        Queue::assertNotPushed(GenerateDocumentSummary::class);
+    }
 
     public function test_summary_generation_not_queued_twice()
     {
