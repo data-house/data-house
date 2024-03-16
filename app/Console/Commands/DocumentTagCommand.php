@@ -7,6 +7,7 @@ use App\Copilot\Copilot;
 use App\Models\Document;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
+use Throwable;
 
 class DocumentTagCommand extends Command
 {
@@ -41,48 +42,62 @@ class DocumentTagCommand extends Command
         $jsonOutputFile = $this->option('json');
 
         if (empty($topicList) && $this->input->isInteractive()) {
-            $topicList = $this->secret("Specify the tag list to use for automatic tagging");
+            $topicList = $this->ask("Specify the tag list to use for automatic tagging");
         }
 
         if (empty($topicList)) {
             $this->error(__('Tag list required. Specify a list using --list.'));
             return self::INVALID;
         }
+
+        $action = new SuggestDocumentTags();
+
+        $count = Document::query()
+            ->when(!empty($ulids), function($query) use ($ulids) {
+                return $query->whereIn('ulid', $ulids);
+            })
+            ->count();
+
+        $this->line("Documents to process: {$count}.");
         
         $documents = Document::query()
             ->when(!empty($ulids), function($query) use ($ulids) {
                 return $query->whereIn('ulid', $ulids);
             })
-            ->get();
-        
-        $action = new SuggestDocumentTags();
+            ->chunkMap(function($document) use ($action, $topicList, $jsonOutputFile){
 
-        $taggedDocuments = $documents
-            ->map(function($document) use ($action, $topicList, $jsonOutputFile){
+                try {
+                    $this->line("Document [{$document->id} - {$document->ulid}]");
+         
+                    $tags = $action($topicList, $document);
 
-                $tags = $action($topicList, $document);
+                    if(is_null($jsonOutputFile)){
+                        $this->table(
+                            ['tag_name', 'score'],
+                            $tags->map(fn($entry) => Arr::only($entry,['tag_name', 'score']))
+                        );
+                    }
 
-                $this->line("Document [{$document->id} - {$document->ulid}]");
+                    return [
+                        'id' => $document->id,
+                        'ulid' => $document->ulid,
+                        'title' => $document->title,
+                        'tags' => $tags,
+                    ];
+                   
+                } catch (Throwable $th) {
 
-                if(is_null($jsonOutputFile)){
-                    $this->table(
-                        ['tag_name', 'score'],
-                        $tags->map(fn($entry) => Arr::only($entry,['tag_name', 'score']))
-                    );
+                    $this->error("ERROR Document [{$document->id} - {$document->ulid}] " . $th->getMessage());
+                    
+                    return null;
                 }
-
-                return [
-                    'id' => $document->id,
-                    'ulid' => $document->ulid,
-                    'title' => $document->title,
-                    'tags' => $tags,
-                ];
-            });
+            })
+            ->filter();
         
         if($jsonOutputFile){
             $this->comment("Saving output to {$jsonOutputFile}");
 
-            file_put_contents($jsonOutputFile, $taggedDocuments->toJson());
+            file_put_contents($jsonOutputFile, $documents->toJson());
         }
         
         return self::SUCCESS;
