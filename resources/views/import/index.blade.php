@@ -25,26 +25,25 @@
                 <table class="w-full">
                     <thead>
                         <tr>
-                            <td>{{ __('Import') }}</td>
-                            <td>{{ __('Status') }}</td>
-                            <td>{{ __('Action') }}</td>
+                            <td class="py-2 w-8/12">{{ __('Import') }}</td>
+                            <td class="py-2 w-2/12">{{ __('Mappings') }}</td>
+                            <td class="py-2 w-2/12">{{ __('Status') }}</td>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse ($imports as $import)
 
                             <tr>
-                                <td>
-                                    <p><a href="{{ route('imports.show', $import) }}">
-                                        {{ $import->label() }}
-                                        <span class="inline-flex gap-1 text-xs items-center px-3 py-1 rounded-xl ring-0 ring-stone-300 bg-stone-100 text-stone-900">
+                                <td class="py-2">
+                                    <p>
+                                        <a class="underline" href="{{ route('imports.show', $import) }}">{{ $import->label() }}</a>
+                                        <span class="inline-flex gap-1 text-sm font-mono items-center px-2 py-0.5 rounded-xl bg-stone-200 text-stone-900">
                                             {{ $import->source->name }}
                                         </span>
-
-                                    </a></p>
+                                    </p>
                                 </td>
-                                <td>{{ $import->status->name }}</td>
-                                <td><a href="{{ route('imports.show', $import) }}">{{ __('View') }}</a></td>
+                                <td class="py-2">{{ $import->maps_count }}</td>
+                                <td class="py-2"><x-status-badge :status="$import->status" /></td>
                             </tr>
                     
                         @empty
