@@ -77,6 +77,8 @@ enum ImportDocumentStatus: int
     public function style(): ?string
     {
         return match ($this) {
+            self::PENDING => 'pending',
+            self::IMPORTING => 'pending',
             self::COMPLETED => 'success',
             self::CANCELLED => 'cancel',
             self::FAILED => 'failure',

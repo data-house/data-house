@@ -31,6 +31,7 @@ class ImportDocument extends Model
         'document_hash',
         'import_hash',
         'document_id',
+        'processed_at',
     ];
 
     protected $casts = [

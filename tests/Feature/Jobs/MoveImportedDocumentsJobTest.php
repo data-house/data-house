@@ -7,6 +7,7 @@ use App\Jobs\Pipeline\Document\ExtractDocumentProperties;
 use App\Models\Disk;
 use App\Models\Document;
 use App\Models\Import;
+use App\Models\ImportDocument;
 use App\Models\ImportDocumentStatus;
 use App\Models\ImportSource;
 use App\Models\ImportStatus;
@@ -310,7 +311,7 @@ class MoveImportedDocumentsJobTest extends TestCase
         $this->assertNull($document);
 
         $updatedImportDocument = $importDocument->fresh();
-        $this->assertNull($updatedImportDocument->processed_at);
+        $this->assertNotNull($updatedImportDocument->processed_at);
         $this->assertEquals(ImportDocumentStatus::FAILED, $updatedImportDocument->status);
 
         $this->assertEquals(ImportStatus::COMPLETED, $importMap->fresh()->status);
@@ -377,13 +378,90 @@ class MoveImportedDocumentsJobTest extends TestCase
         $this->assertEquals(1, Document::count());
 
         $updatedImportDocument = $importDocument->fresh();
-        $this->assertNull($updatedImportDocument->processed_at);
+        $this->assertNotNull($updatedImportDocument->processed_at);
         $this->assertEquals(ImportDocumentStatus::SKIPPED_DUPLICATE, $updatedImportDocument->status);
 
         $this->assertEquals(ImportStatus::COMPLETED, $importMap->fresh()->status);
         $this->assertEquals(ImportStatus::COMPLETED, $import->fresh()->status);
 
         Queue::assertNothingPushed();
+    }
+
+    public function test_previous_duplicates_are_skipped(): void
+    {
+        $fakeImportDisk = Storage::fake(Disk::IMPORTS->value);
+        
+        $fakeDocumentDisk = Storage::fake(Disk::DOCUMENTS->value);
+
+        $fakeImportDisk->putFileAs('', new File(base_path('tests/fixtures/documents/data-house-test-doc.pdf')), 'test.pdf');
+        
+        $fakeDocumentDisk->putFileAs('', new File(base_path('tests/fixtures/documents/data-house-test-doc.pdf')), 'test.pdf');
+
+        $user = User::factory()->manager()->withPersonalTeam()->create();
+
+        Queue::fake();
+
+        $import = Import::factory()->create([
+            'source' => ImportSource::LOCAL,
+            'status' => ImportStatus::RUNNING,
+            'created_by' => $user->getKey(),
+            'configuration' => [
+                'root' => $fakeImportDisk->path(''), // only used to make the import configuration looks correct
+            ],
+        ]);
+
+        $importMap = $import->maps()->create([
+            'status' => ImportStatus::RUNNING,
+            'mapped_team' => null,
+            'mapped_uploader' => $user->getKey(),
+            'recursive' => false,
+            'filters' => [
+                'paths' => "test.pdf"
+            ],
+        ]);
+
+        $importDocumentLeftoverByTerminatedJob = ImportDocument::factory()->recycle($importMap)->create([
+            'source_path' => "test.pdf",
+            'disk_name' => "imports",
+            'disk_path' => 'test.pdf',
+            'mime' => "application/pdf",
+            'uploaded_by' => $user->getKey(),
+            'team_id' => null, // the test ensure that duplicate check uses all user accessible teams
+            'document_size' => 70610,
+            'document_date' => today(),
+            'document_hash' => $fakeImportDisk->checksum('test.pdf', ['checksum_algo' => 'sha256']),
+            'import_hash' => hash('sha256', 'test.pdf'),
+            'status' => ImportDocumentStatus::IMPORTING,
+            'processed_at' => null,
+        ]);
+
+        $importDocumentPreviouslySkipped = ImportDocument::factory()->recycle($importMap)->create([
+            'source_path' => "test.pdf",
+            'disk_name' => "imports",
+            'disk_path' => 'test.pdf',
+            'mime' => "application/pdf",
+            'uploaded_by' => $user->getKey(),
+            'team_id' => null, // the test ensure that duplicate check uses all user accessible teams
+            'document_size' => 70610,
+            'document_date' => today(),
+            'document_hash' => $fakeImportDisk->checksum('test.pdf', ['checksum_algo' => 'sha256']),
+            'import_hash' => hash('sha256', 'test.pdf'),
+            'status' => ImportDocumentStatus::SKIPPED_DUPLICATE,
+            'processed_at' => null,
+        ]);
+
+        (new MoveImportedDocumentsJob($importMap))->handle();
+
+        $updatedImportDocument = $importDocumentLeftoverByTerminatedJob->fresh();
+        $this->assertNotNull($updatedImportDocument->processed_at);
+        $this->assertEquals(ImportDocumentStatus::COMPLETED, $updatedImportDocument->status);
+        
+        $previouslySkipped = $importDocumentPreviouslySkipped->fresh();
+        $this->assertNull($previouslySkipped->processed_at);
+        $this->assertEquals(ImportDocumentStatus::SKIPPED_DUPLICATE, $previouslySkipped->status);
+
+        $this->assertEquals(ImportStatus::COMPLETED, $importMap->fresh()->status);
+        $this->assertEquals(ImportStatus::COMPLETED, $import->fresh()->status);
     }
 
     public function test_move_imported_documents_cancelled_if_user_does_not_have_permissions_anymore(): void
@@ -446,7 +524,7 @@ class MoveImportedDocumentsJobTest extends TestCase
         $this->assertEquals(1, Document::count());
 
         $updatedImportDocument = $importDocument->fresh();
-        $this->assertNull($updatedImportDocument->processed_at);
+        $this->assertNotNull($updatedImportDocument->processed_at);
         $this->assertEquals(ImportDocumentStatus::CANCELLED_MISSING_PERMISSION, $updatedImportDocument->status);
 
         $this->assertEquals(ImportStatus::COMPLETED, $importMap->fresh()->status);

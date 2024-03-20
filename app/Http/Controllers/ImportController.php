@@ -25,7 +25,10 @@ class ImportController extends Controller
      */
     public function index()
     {
-        $imports = Import::query()->createdBy(auth()->user())->get();
+        $imports = Import::query()
+            ->createdBy(auth()->user())
+            ->withCount('maps')
+            ->get();
 
         return view('import.index', [
             'imports' => $imports,
