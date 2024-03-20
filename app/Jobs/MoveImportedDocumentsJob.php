@@ -29,8 +29,19 @@ class MoveImportedDocumentsJob extends ImportJobBase
     {
         // TODO: verify again that user can access the specified team
 
-        $rows = $this->importMap->documents()->whereNull('processed_at')->with(['user', 'team']);
-        //TODO: skip entries that have errors
+        $rows = $this->importMap
+            ->documents()
+            ->whereNotIn('status', [
+                ImportDocumentStatus::FAILED->value,
+                ImportDocumentStatus::CANCELLED_MISSING_PERMISSION->value,
+                ImportDocumentStatus::CANCELLED->value,
+                ImportDocumentStatus::SKIPPED->value,
+                ImportDocumentStatus::SKIPPED_DIFFERENT_VERSION->value,
+                ImportDocumentStatus::SKIPPED_DUPLICATE->value,
+                ImportDocumentStatus::SKIPPED_MISSING_SOURCE->value,
+            ])
+            ->whereNull('processed_at')
+            ->with(['user', 'team']);
 
         $processed = 0;
 
@@ -83,6 +94,7 @@ class MoveImportedDocumentsJob extends ImportJobBase
 
         if($import->team_id && !$import->user->hasTeamPermission($import->team, 'import:create')){
             $import->status = ImportDocumentStatus::CANCELLED_MISSING_PERMISSION;
+            $import->processed_at = now();
     
             $import->save();
 
@@ -94,6 +106,7 @@ class MoveImportedDocumentsJob extends ImportJobBase
 
         if($import->document_hash && Document::where('document_hash', $import->document_hash)->whereIn('team_id', $teams)->exists()){
             $import->status = ImportDocumentStatus::SKIPPED_DUPLICATE;
+            $import->processed_at = now();
     
             $import->save();
 
@@ -109,6 +122,7 @@ class MoveImportedDocumentsJob extends ImportJobBase
             // Data transfer error
 
             $import->status = ImportDocumentStatus::FAILED;
+            $import->processed_at = now();
     
             $import->save();
 
@@ -131,11 +145,11 @@ class MoveImportedDocumentsJob extends ImportJobBase
             ],
         ]));
 
-        $document->dispatchPipeline(PipelineTrigger::MODEL_CREATED);
-
         $import->processed_at = now();
         $import->status = ImportDocumentStatus::COMPLETED;
         $import->document_id = $document->getKey();
         $import->save();
+        
+        $document->dispatchPipeline(PipelineTrigger::MODEL_CREATED);
     }
 }
