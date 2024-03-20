@@ -3,9 +3,11 @@
 namespace App\Console\Commands;
 
 use App\Models\Document;
+use App\Models\ImportDocument;
 use Illuminate\Support\Str;
 use Illuminate\Console\Command;
 use App\Pipelines\PipelineTrigger;
+use Illuminate\Support\Facades\DB;
 
 class DocumentDeleteCommand extends Command
 {
@@ -34,19 +36,24 @@ class DocumentDeleteCommand extends Command
         
         $document = Str::isUlid($documentKey) ? Document::whereUlid($documentKey)->firstOrFail() : Document::findOrFail($documentKey);
 
-        $document->importDocument?->wipe();
+        DB::transaction(function() use ($document){
+            $document->importDocument?->wipe();
 
-        $document->pipelineRuns->each->delete();
-        
-        $document->summaries->each->delete();
-        
-        $document->questions->each->delete();
+            ImportDocument::whereDocumentHash($document->document_hash)->whereNull('document_id')->get()->each->wipe();
 
-        rescue(fn() => $document->unsearchable());
+            $document->pipelineRuns->each->delete();
+            
+            $document->summaries->each->delete();
+            
+            $document->questions->each->delete();
 
-        rescue(fn() => $document->unquestionable());
+            rescue(fn() => $document->unsearchable());
 
-        $document->wipe();
+            rescue(fn() => $document->unquestionable());
+
+            $document->wipe();
+        });
+
         
         $this->line('');
         $this->line("Document deleted.");       

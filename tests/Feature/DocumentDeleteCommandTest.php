@@ -92,10 +92,40 @@ class DocumentDeleteCommandTest extends TestCase
             ],
         ]));
 
-        $importDocument->processed_at = now();
+        $importDocument->processed_at = now()->subHours(2);
         $importDocument->status = ImportDocumentStatus::COMPLETED;
         $importDocument->document_id = $document->getKey();
         $importDocument->save();
+
+        $skippedImportDocument = $importMap->documents()->create([
+            'source_path' => "test.pdf",
+            'disk_name' => "imports",
+            'disk_path' => 'test.pdf',
+            'mime' => "application/pdf",
+            'uploaded_by' => $import->creator->getKey(),
+            'team_id' => null,
+            'document_size' => 70610,
+            'document_date' => today(),
+            'document_hash' => $checksum,
+            'import_hash' => hash('sha256', 'test.pdf'),
+            'processed_at' => now(),
+            'status' => ImportDocumentStatus::SKIPPED_DUPLICATE,
+        ]);
+        
+        $skippedDifferentImportDocument = $importMap->documents()->create([
+            'source_path' => "test.pdf",
+            'disk_name' => "imports",
+            'disk_path' => 'test.pdf',
+            'mime' => "application/pdf",
+            'uploaded_by' => $import->creator->getKey(),
+            'team_id' => null,
+            'document_size' => 70610,
+            'document_date' => today(),
+            'document_hash' => $checksum.'-',
+            'import_hash' => hash('sha256', 'test.pdf'),
+            'processed_at' => now(),
+            'status' => ImportDocumentStatus::SKIPPED_DUPLICATE,
+        ]);
 
         PipelineRun::factory()
             ->count(2)
@@ -127,8 +157,16 @@ class DocumentDeleteCommandTest extends TestCase
         $this->assertNull($updatedDocument);
 
         $updatedImportDocument = $importDocument->fresh();
+        
+        $updatedSkippedImportDocument = $skippedImportDocument->fresh();
+        
+        $updatedSkippedDifferentImportDocument = $skippedDifferentImportDocument->fresh();
 
         $this->assertNull($updatedImportDocument);
+        
+        $this->assertNull($updatedSkippedImportDocument);
+        
+        $this->assertNotNull($updatedSkippedDifferentImportDocument);
         
         Storage::disk(Disk::DOCUMENTS->value)->assertMissing($document->disk_path);
         
