@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Searchable;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -13,6 +14,8 @@ class Star extends Model
     use HasFactory;
 
     use HasUuids;
+
+    use Searchable;
 
     /**
      * The attributes that should be hidden for serialization.
@@ -31,6 +34,8 @@ class Star extends Model
     protected $fillable = [
         'user_id',
     ];
+
+    protected $touches = ['starrable'];
 
     /**
      * Get the columns that should receive a unique identifier.
@@ -70,5 +75,34 @@ class Star extends Model
     public function scopeByUser(Builder $query, User $user): void
     {
         $query->where('user_id', $user->getKey());
+    }
+
+    /**
+     * Modify the query used to retrieve models when making all of the models searchable.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    protected function makeAllSearchableUsing($query)
+    {
+        return $query->with(['starrable']);
+    }
+
+    /**
+     * Get the indexable data array for the model.
+     *
+     * @return array
+     */
+    public function toSearchableArray()
+    {
+        logs()->info("Making star [{$this->id}] searchable");
+
+        return [
+            'id' => $this->id,
+            'uuid' => $this->uuid,
+            'created_at' => $this->created_at,
+            'title' => $this->starrable->title,
+            'description' => $this->starrable->description,
+        ];
     }
 }

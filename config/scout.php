@@ -3,6 +3,7 @@
 use App\Models\Document;
 use App\Models\Project;
 use App\Models\Question;
+use App\Models\Star;
 
 return [
 
@@ -182,6 +183,15 @@ return [
                     'team_id',
                     'team_name',
                     'visibility',
+                ],
+            ],
+            Star::class => [
+                'filterableAttributes'=> [
+                    'id',
+                    'user_id',
+                ],
+                'sortableAttributes' => [
+                    'created_at',
                 ],
             ],
         ],

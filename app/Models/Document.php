@@ -388,6 +388,7 @@ class Document extends Model implements Convertible
             'project_countries' => $this->project?->countries()->map->name,
             'project_topics' => $this->project?->topics,
             'visibility' => $this->visibility?->value,
+            'stars' => $this->stars()->get(['id'])->modelKeys(),
         ];
     }
     
