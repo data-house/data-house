@@ -14,6 +14,9 @@
                 @endfeature
             </h2>
             <div class="flex gap-2">
+                @can('create', \App\Models\Star::class)
+                    <livewire:star-button :model="$document" />
+                @endcan
                 @can('view', $document)
                     @if ($document->hasPreview())
                         <x-button-link href="{{ $document->viewerUrl() }}" target="_blank">
