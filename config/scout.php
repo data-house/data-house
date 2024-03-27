@@ -156,11 +156,14 @@ return [
                     'project_countries',
                     'project_region',
                     'project_topics',
+                    'stars',
                 ],
                 'sortableAttributes' => [
                     'updated_at',
                     'created_at',
                     'published_at',
+                    'team_id',
+                    'project_id',
                 ],
             ],
             Project::class => [
