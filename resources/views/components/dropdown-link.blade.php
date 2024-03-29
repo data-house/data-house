@@ -6,4 +6,4 @@ $classes = ($active ?? false)
             : 'text-stone-700 hover:bg-stone-100 focus:bg-stone-100';
 @endphp
 
-<a {{ $attributes->merge(['class' => 'block w-full px-4 py-2 text-left text-sm leading-5 focus:outline-none transition duration-150 ease-in-out ' . $classes]) }}>{{ $slot }}</a>
+<a {{ $attributes->merge(['class' => 'inline-flex items-center gap-2 w-full px-4 py-2 text-left text-sm leading-5 focus:outline-none transition duration-150 ease-in-out ' . $classes]) }}>{{ $slot }}</a>

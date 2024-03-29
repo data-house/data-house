@@ -32,14 +32,6 @@
                     <x-heroicon-o-book-open class="w-6 h-6 {{ request()->routeIs('documents.*') ? 'text-lime-600' : 'text-stone-600' }}" />
                     {{ __('All Library') }}
                 </x-dropdown-link>
-                <x-dropdown-link class="inline-flex gap-2 items-center" href="#">
-                    <x-heroicon-o-star class="w-6 h-6 text-stone-600" />
-                    {{ __('Starred') }}
-
-                    <span class="inline-block text-xs rounded-full px-2 py-0.5 bg-stone-200">
-                        {{ __('coming soon') }}
-                    </span>
-                </x-dropdown-link>
 
                 @foreach ($this->collections as $collection)
                     <x-dropdown-link class="inline-flex gap-2 items-center"

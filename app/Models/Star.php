@@ -100,6 +100,7 @@ class Star extends Model
         return [
             'id' => $this->id,
             'uuid' => $this->uuid,
+            'user_id' => $this->user_id,
             'created_at' => $this->created_at,
             'title' => $this->starrable->title,
             'description' => $this->starrable->description,

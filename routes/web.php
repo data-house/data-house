@@ -13,6 +13,7 @@ use App\Http\Controllers\InternalDocumentDownloadController;
 use App\Http\Controllers\PdfViewerController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\QuestionController;
+use App\Http\Controllers\StarController;
 use App\Http\Controllers\StartImportController;
 use App\Http\Controllers\UserPreferenceController;
 use App\Http\Middleware\ValidateSignature;
@@ -68,6 +69,8 @@ Route::middleware([
 
     Route::put('user-preferences', UserPreferenceController::class)->name('user-preferences.update');
     Route::get('user-preferences', UserPreferenceController::class)->name('user-preferences');
+
+    Route::resource('stars', StarController::class)->only(['index']);
 });
 
 
