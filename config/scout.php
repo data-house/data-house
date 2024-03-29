@@ -3,6 +3,7 @@
 use App\Models\Document;
 use App\Models\Project;
 use App\Models\Question;
+use App\Models\Star;
 
 return [
 
@@ -155,11 +156,14 @@ return [
                     'project_countries',
                     'project_region',
                     'project_topics',
+                    'stars',
                 ],
                 'sortableAttributes' => [
                     'updated_at',
                     'created_at',
                     'published_at',
+                    'team_id',
+                    'project_id',
                 ],
             ],
             Project::class => [
@@ -182,6 +186,15 @@ return [
                     'team_id',
                     'team_name',
                     'visibility',
+                ],
+            ],
+            Star::class => [
+                'filterableAttributes'=> [
+                    'id',
+                    'user_id',
+                ],
+                'sortableAttributes' => [
+                    'created_at',
                 ],
             ],
         ],

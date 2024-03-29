@@ -1,23 +1,34 @@
 
-@feature(Flag::sourceDocumentFilter())
-    <div class="grid auto-rows-min grid-cols-1 md:col-span-4 gap-y-10 md:grid-cols-2 md:gap-x-6">
-        <fieldset>
-        <legend class="block font-medium">{{ __('Source') }}</legend>
+<div class="grid auto-rows-min grid-cols-1 md:col-span-4 gap-y-10 md:grid-cols-2 md:gap-x-6">
+    <fieldset>
+        <legend class="block font-medium">{{ __('Stars') }}</legend>
         <div class="space-y-6 pt-6 sm:space-y-4 sm:pt-4 max-h-72 overflow-y-auto">
 
             <div class="flex items-center text-base sm:text-sm">
-                <input id="source-{{ 'all-teams' }}" name="source" value="{{ 'all-teams' }}" @checked(($filters['source'] ?? []) === 'all-teams') type="radio" class="h-4 w-4 flex-shrink-0 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
-                <label for="source-{{ 'all-teams' }}" class="ml-3 min-w-0 flex-1 text-gray-600">{{ __('All Teams') }}</label>
-            </div>
-
-            <div class="flex items-center text-base sm:text-sm">
-                <input id="source-{{ 'current-team' }}" name="source" value="{{ 'current-team' }}" @checked(($filters['source'] ?? []) === 'current-team') type="radio" class="h-4 w-4 flex-shrink-0 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
-                <label for="source-{{ 'current-team' }}" class="ml-3 min-w-0 flex-1 text-gray-600">{{ __('Current Team') }}</label>
+                <input id="starred-{{ 'me' }}" name="starred" value="{{ 'me' }}" @checked($filters['stars'] ?? false) type="checkbox" class="h-4 w-4 flex-shrink-0 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                <label for="starred-{{ 'me' }}" class="ml-3 min-w-0 flex-1 text-gray-600">{{ __('Only my starred') }}</label>
             </div>
         </div>
+    </fieldset>
+
+    @feature(Flag::sourceDocumentFilter())
+        <fieldset>
+            <legend class="block font-medium">{{ __('Source') }}</legend>
+            <div class="space-y-6 pt-6 sm:space-y-4 sm:pt-4 max-h-72 overflow-y-auto">
+
+                <div class="flex items-center text-base sm:text-sm">
+                    <input id="source-{{ 'all-teams' }}" name="source" value="{{ 'all-teams' }}" @checked(($filters['source'] ?? []) === 'all-teams') type="radio" class="h-4 w-4 flex-shrink-0 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                    <label for="source-{{ 'all-teams' }}" class="ml-3 min-w-0 flex-1 text-gray-600">{{ __('All Teams') }}</label>
+                </div>
+
+                <div class="flex items-center text-base sm:text-sm">
+                    <input id="source-{{ 'current-team' }}" name="source" value="{{ 'current-team' }}" @checked(($filters['source'] ?? []) === 'current-team') type="radio" class="h-4 w-4 flex-shrink-0 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                    <label for="source-{{ 'current-team' }}" class="ml-3 min-w-0 flex-1 text-gray-600">{{ __('Current Team') }}</label>
+                </div>
+            </div>
         </fieldset>
-    </div>
-@endfeature
+    @endfeature
+</div>
 
 <fieldset>
     <legend class="block font-medium">{{ __('Format') }}</legend>

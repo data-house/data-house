@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Livewire\DocumentVisibilitySelector;
+use App\Livewire\StarButton;
 use Tests\TestCase;
 use App\Models\User;
 use App\Models\Document;
@@ -172,6 +173,7 @@ class DocumentControllerTest extends TestCase
         $response->assertSee(Visibility::TEAM->label());
         $response->assertSee($user->name);
         $response->assertSeeLivewire(DocumentVisibilitySelector::class);
+        $response->assertSeeLivewire(StarButton::class);
     }
     
     public function test_document_details_page_shows_import_source_only_if_browsed_by_owning_team()

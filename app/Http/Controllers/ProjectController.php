@@ -84,9 +84,11 @@ class ProjectController extends Controller
 
         $teamFilters = $sourceFilters['source'] === 'current-team' ? ['team_id' => $request->user()->currentTeam->getKey()] : [];
 
+        $starredFilters = $request->hasAny(['starred']) ? ['stars' => $request->user()->getKey()] : [];
+
         $filters = $request->hasAny(['project_countries', 'format', 'type', 'project_region', 'project_topics']) ? $request->only(['project_countries', 'format', 'type', 'project_region', 'project_topics']) : [];
 
-        $searchFilters = array_merge($filters, $teamFilters);
+        $searchFilters = array_merge($filters, $teamFilters, $starredFilters);
 
         $documents = ($searchQuery || $searchFilters)
             ? Document::tenantSearch($searchQuery, $searchFilters, $request->user(), $project)->paginate(50)
@@ -119,7 +121,7 @@ class ProjectController extends Controller
             'topics' => Topic::from($project->topics),
 
             'searchQuery' => $searchQuery,
-            'filters' => array_merge($filters, $sourceFilters),
+            'filters' => $searchFilters,
             'is_search' => $searchQuery || $searchFilters,
             'facets' => $facets,
             'applied_filters_count' => count(array_keys($searchFilters ?? [] )),

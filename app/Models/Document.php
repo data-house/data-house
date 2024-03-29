@@ -25,6 +25,7 @@ use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
 use PrinsFrank\Standards\Language\LanguageAlpha2;
 use App\Searchable;
+use App\Starrable;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -48,6 +49,8 @@ class Document extends Model implements Convertible
     use Questionable;
 
     use HasPipelines;
+
+    use Starrable;
     
     /**
      * The attributes that should be hidden for serialization.
@@ -385,6 +388,7 @@ class Document extends Model implements Convertible
             'project_countries' => $this->project?->countries()->map->name,
             'project_topics' => $this->project?->topics,
             'visibility' => $this->visibility?->value,
+            'stars' => $this->stars()->get(['user_id'])->pluck('user_id')->values(),
         ];
     }
     

@@ -105,13 +105,19 @@
                         </x-slot>
 
                         <x-slot name="content">
-                            <!-- Account Management -->
-                            <div class="block px-4 py-2 text-xs text-stone-400">
-                                {{ __('Manage Account') }}
-                            </div>
 
-                            <x-dropdown-link href="{{ route('profile.show') }}">
-                                {{ __('Profile') }}
+                            <x-dropdown-link href="{{ route('stars.index') }}" :active="request()->routeIs('stars.*')">
+                                <x-heroicon-o-star class="w-5 h-5 text-stone-600"  />
+
+                                {{ __('Your stars') }}
+                            </x-dropdown-link>
+
+                            <div class="border-t border-stone-200/60 my-3"></div>
+
+                            <x-dropdown-link href="{{ route('profile.show') }}" :active="request()->routeIs('profile.*')">
+                                <x-heroicon-o-identification class="w-5 h-5 text-stone-600"  />
+
+                                {{ __('Your profile') }}
                             </x-dropdown-link>
 
                             @if (Laravel\Jetstream\Jetstream::hasApiFeatures())
@@ -120,7 +126,7 @@
                                 </x-dropdown-link>
                             @endif
 
-                            <div class="border-t border-stone-200"></div>
+                            <div class="border-t border-stone-200/60 my-3"></div>
 
                             <!-- Authentication -->
                             <form method="POST" action="{{ route('logout') }}" x-data>
@@ -226,9 +232,17 @@
             </div>
 
             <div class="mt-3 space-y-1">
+                <x-responsive-nav-link href="{{ route('stars.index') }}" :active="request()->routeIs('stars.*')">
+                    <x-heroicon-o-star class="w-5 h-5 text-stone-600"  />
+
+                    {{ __('Your stars') }}
+                </x-responsive-nav-link>
+
                 <!-- Account Management -->
                 <x-responsive-nav-link href="{{ route('profile.show') }}" :active="request()->routeIs('profile.show')">
-                    {{ __('Profile') }}
+                    <x-heroicon-o-identification class="w-5 h-5 text-stone-600"  />
+
+                    {{ __('Your profile') }}
                 </x-responsive-nav-link>
 
                 @if (Laravel\Jetstream\Jetstream::hasApiFeatures())

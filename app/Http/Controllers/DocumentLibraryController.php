@@ -23,9 +23,11 @@ class DocumentLibraryController extends Controller
 
         $teamFilters = $sourceFilters['source'] === 'current-team' ? ['team_id' => $request->user()->currentTeam->getKey()] : [];
 
+        $starredFilters = $request->hasAny(['starred']) ? ['stars' => $request->user()->getKey()] : [];
+
         $filters = $request->hasAny(['project_countries', 'format', 'type', 'project_region', 'project_topics']) ? $request->only(['project_countries', 'format', 'type', 'project_region', 'project_topics']) : [];
 
-        $searchFilters = array_merge($filters, $teamFilters);
+        $searchFilters = array_merge($filters, $teamFilters, $starredFilters);
 
         $documents = ($searchQuery || $searchFilters)
             ? Document::tenantSearch($searchQuery, $searchFilters)->paginate(50)
@@ -55,7 +57,7 @@ class DocumentLibraryController extends Controller
         return view('library.index', [
             'documents' => $documents,
             'searchQuery' => $searchQuery,
-            'filters' => array_merge($filters, $sourceFilters),
+            'filters' => array_merge($filters, $starredFilters, $sourceFilters),
             'is_search' => $searchQuery || $searchFilters,
             'facets' => $facets,
             'applied_filters_count' => count(array_keys($searchFilters ?? [] )),
