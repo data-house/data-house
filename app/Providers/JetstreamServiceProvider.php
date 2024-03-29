@@ -75,6 +75,10 @@ class JetstreamServiceProvider extends ServiceProvider
             'star:create',
             'star:update',
             'star:delete',
+            'note:view',
+            'note:create',
+            'note:update',
+            'note:delete',
         ])->description('Can do everything the Contributor does plus upload documents, create collections and invite team members');
 
         Jetstream::role(Role::CONTRIBUTOR->value, 'Contributor', [
@@ -92,6 +96,10 @@ class JetstreamServiceProvider extends ServiceProvider
             'star:create',
             'star:update',
             'star:delete',
+            'note:view',
+            'note:create',
+            'note:update',
+            'note:delete',
         ])->description('Can do everything the Guest does plus edit document titles and summaries.');
         
         Jetstream::role(Role::GUEST->value, 'Guest', [
@@ -103,6 +111,10 @@ class JetstreamServiceProvider extends ServiceProvider
             'star:create',
             'star:update',
             'star:delete',
+            'note:view',
+            'note:create',
+            'note:update',
+            'note:delete',
         ])->description('Can only view files.');
 
     }
