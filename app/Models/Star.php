@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\HasNotes;
 use App\Searchable;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -16,6 +17,8 @@ class Star extends Model
     use HasUuids;
 
     use Searchable;
+
+    use HasNotes;
 
     /**
      * The attributes that should be hidden for serialization.
@@ -104,6 +107,7 @@ class Star extends Model
             'created_at' => $this->created_at,
             'title' => $this->starrable->title,
             'description' => $this->starrable->description,
+            'notes' => $this->annotatedByAuthor()->pluck('content'),
         ];
     }
 }

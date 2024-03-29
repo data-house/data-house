@@ -16,6 +16,7 @@ class StarButton extends Component
     public $model;
     
 
+    public $showPanel = false;
 
     public function mount($model)
     {
@@ -39,6 +40,12 @@ class StarButton extends Component
     {
         return $this->model->stars()->count();
     }
+    
+    #[Computed()]
+    public function notes()
+    {
+        return $this->userStar->annotatedByAuthor()->get();
+    }
 
 
     public function toggle(AddStar $add, RemoveStar $remove)
@@ -52,6 +59,8 @@ class StarButton extends Component
             unset($this->userStar);
             
             unset($this->starCount);
+
+            $this->showPanel = true;
 
             return;
         }
