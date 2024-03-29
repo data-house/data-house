@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Document;
+use App\Models\Note;
 use App\Models\Project;
 use App\Models\Question;
 use App\Models\Star;
@@ -192,6 +193,16 @@ return [
                 'filterableAttributes'=> [
                     'id',
                     'user_id',
+                ],
+                'sortableAttributes' => [
+                    'created_at',
+                ],
+            ],
+            Note::class => [
+                'filterableAttributes'=> [
+                    'id',
+                    'user_id',
+                    'linked_resource_type',
                 ],
                 'sortableAttributes' => [
                     'created_at',

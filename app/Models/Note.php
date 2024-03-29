@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\HasNotes;
 use App\Searchable;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -10,15 +9,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
-class Star extends Model
+class Note extends Model
 {
     use HasFactory;
 
     use HasUuids;
 
     use Searchable;
-
-    use HasNotes;
 
     /**
      * The attributes that should be hidden for serialization.
@@ -36,9 +33,10 @@ class Star extends Model
      */
     protected $fillable = [
         'user_id',
+        'content',
     ];
 
-    protected $touches = ['starrable'];
+    protected $touches = ['noteable'];
 
     /**
      * Get the columns that should receive a unique identifier.
@@ -65,11 +63,7 @@ class Star extends Model
         return $this->belongsTo(User::class);
     }
 
-
-    /**
-     * Get the starred model.
-     */
-    public function starrable(): MorphTo
+    public function noteable(): MorphTo
     {
         return $this->morphTo();
     }
@@ -88,7 +82,7 @@ class Star extends Model
      */
     protected function makeAllSearchableUsing($query)
     {
-        return $query->with(['starrable']);
+        return $query->with(['noteable']);
     }
 
     /**
@@ -98,16 +92,15 @@ class Star extends Model
      */
     public function toSearchableArray()
     {
-        logs()->info("Making star [{$this->id}] searchable");
+        logs()->info("Making note [{$this->id}] searchable");
 
         return [
             'id' => $this->id,
             'uuid' => $this->uuid,
             'user_id' => $this->user_id,
             'created_at' => $this->created_at,
-            'title' => $this->starrable->title,
-            'description' => $this->starrable->description,
-            'notes' => $this->annotatedByAuthor()->pluck('content'),
+            'content' => $this->content,
+            'linked_resource_type' => $this->noteable_type,
         ];
     }
 }

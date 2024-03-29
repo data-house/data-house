@@ -53,7 +53,7 @@
                     </label>
                 @endforeach
 
-                <x-button type="submit" class="mx-4 my-2 grow">{{ __('Salva') }}</x-button>
+                <x-button type="submit" class="mx-4 my-2 grow">{{ __('Save') }}</x-button>
             </form>
 
         </div>
