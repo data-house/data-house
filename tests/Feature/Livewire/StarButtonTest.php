@@ -2,8 +2,11 @@
 
 namespace Tests\Feature\Livewire;
 
+use App\Livewire\Note as LivewireNote;
 use App\Livewire\StarButton;
+use App\Livewire\TakeNote;
 use App\Models\Document;
+use App\Models\Note;
 use App\Models\Star;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -38,15 +41,20 @@ class StarButtonTest extends TestCase
             ->for(
                 Document::factory()->recycle($user), 'starrable'
             )
+            ->has(
+                Note::factory()->recycle($user), 'notes'
+            )
             ->create();
 
         $document = $star->starrable;
 
         Livewire::actingAs($user)
             ->test(StarButton::class, ['model' => $document])
+            ->set('showPanel', true)
             ->assertStatus(200)
             ->assertSee('Starred')
-            ->assertSee('1 user starred this resource');
+            ->assertSee('1 user starred this resource')
+            ->assertSee("Notes");
     }
 
     
@@ -80,7 +88,9 @@ class StarButtonTest extends TestCase
             ->test(StarButton::class, ['model' => $document])
             ->assertStatus(200)
             ->call('toggle')
-            ->assertHasNoErrors();
+            ->assertSet('showPanel', true)
+            ->assertHasNoErrors()
+            ->assertSeeLivewire(TakeNote::class);
 
         $stars = $document->stars()->get();
 
