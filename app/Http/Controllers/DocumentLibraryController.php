@@ -57,7 +57,7 @@ class DocumentLibraryController extends Controller
         return view('library.index', [
             'documents' => $documents,
             'searchQuery' => $searchQuery,
-            'filters' => $searchFilters,
+            'filters' => array_merge($filters, $starredFilters, $sourceFilters),
             'is_search' => $searchQuery || $searchFilters,
             'facets' => $facets,
             'applied_filters_count' => count(array_keys($searchFilters ?? [] )),
