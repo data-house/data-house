@@ -61,10 +61,44 @@
                     </div>
                     <div class="bg-stone-50 p-4 border-t border-stone-200">
                         <div class="text-sm">
-                            <a href="{{ route('documents.library') }}" class="font-medium text-blue-800 hover:text-blue-600">{{ __('Manage documents') }}</a>
+                            <a href="{{ route('documents.library') }}" class="font-medium text-blue-800 hover:text-blue-600">{{ __('Explore library') }}</a>
                         </div>
                     </div>
                 </div>
+            </div>
+            
+            <div class="pt-8 grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-8">
+                <div class="flex flex-col overflow-hidden justify-between rounded-lg border border-stone-600/40 bg-white shadow" >
+                    <div class="p-4 flex flex-col gap-2">
+                        <div>
+                            <h4 class="font-medium text-xl">{{ __('Statistics')}}</h4>
+                        </div>
+                        @forelse ($statistics as $label => $value)
+                            <div class="flex justify-between">
+                                <p>{{ $label }}</p>
+                                <p class="text-right">{{ $value }}</p>
+                            </div>
+                        @empty
+                            <p class="text-stone-600">{{ __('No usage statistics available') }}</p>
+                        @endforelse
+                    </div>
+                    <div class="bg-stone-50 p-4 border-t border-stone-200">
+                        <div class="text-sm flex divide-x-2 gap-2">
+                            @if (config('pulse.enabled'))
+                               <a target="_blank" href="{{ route('pulse') }}" class="font-medium text-blue-800 hover:text-blue-600">{{ __('View Instance Pulse') }}</a>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+                <div class="flex flex-col overflow-hidden justify-between rounded-lg border border-stone-600/40 bg-white shadow" >
+                    <div class="p-4 flex flex-col">
+                        <div>
+                            <p class="font-medium text-xl mb-2">{{ __('Features')}}</p>
+                        </div>
+                        <p class="text-stone-600">{{ __('Feature panel is coming. See enabled features at a glance.') }}</p>
+                    </div>
+                </div>
+                
             </div>
             
         </div>
