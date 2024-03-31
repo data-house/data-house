@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminProjectController;
 use App\Http\Controllers\Admin\InstanceOverviewController;
 use App\Http\Controllers\CollectionController;
 use App\Http\Controllers\CreateMultipleQuestionController;
@@ -87,7 +88,7 @@ Route::middleware([
     
     Route::get('/users', InstanceOverviewController::class)->name('users.index');
     
-    Route::get('/projects', InstanceOverviewController::class)->name('projects.index');
+    Route::resource('/projects', AdminProjectController::class)->only(['index']);
     
 });
 
