@@ -1,9 +1,9 @@
 <x-app-layout>
     <x-slot name="title">
-        {{ __('Library overview') }} - {{ __('Admin Area') }}
+        {{ __('Instance overview') }} - {{ __('Admin Area') }}
     </x-slot>
     <x-slot name="header">
-        <x-page-heading :title="__('Library overview')">
+        <x-page-heading :title="__('Instance overview')">
 
             <x-slot:actions>
                 <x-heading-nav-link href="{{ route('admin.dashboard') }}" :active="request()->routeIs('admin.dashboard')">{{ __('Overview') }}</x-heading-nav-link>
