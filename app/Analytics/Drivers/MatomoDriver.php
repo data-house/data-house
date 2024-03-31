@@ -3,6 +3,7 @@
 namespace App\Analytics\Drivers;
 
 use App\Analytics\Contracts\Driver;
+use App\Models\Preference;
 use Illuminate\Contracts\Support\Htmlable;
 
 class MatomoDriver implements Driver
@@ -37,6 +38,11 @@ class MatomoDriver implements Driver
         return $this->config['tracker_script'] ?? 'matomo.js';
     }
 
+    protected function getTrackerConfig($key)
+    {
+        return $this->config['tracking'][$key] ?? null;
+    }
+
 
     public function trackerCode(): Htmlable
     {
@@ -44,9 +50,19 @@ class MatomoDriver implements Driver
             return str('')->toHtmlString();
         }
 
+        if(auth()->guest() && !$this->getTrackerConfig('guest')){
+            // tracking for guest users not enabled
+            return str('')->toHtmlString();
+        }
+        
+        if(!auth()->guest() && auth()->user()->hasPreference(Preference::DO_NOT_TRACK, 'yes')){
+            // user asked to not be tracked
+            return str('')->toHtmlString();
+        }
+
         $userTracking = '';
 
-        if(($this->config['user_tracking'] ?? false) && !auth()->guest()){
+        if(($this->getTrackerConfig('user') ?? false) && !auth()->guest()){
 
             $userKey = auth()->user()->getKey();
 

@@ -19,7 +19,10 @@ class TrackerCodeComponentTest extends TestCase
                 'tracker_endpoint' => 'endpoint.php',
                 'tracker_script' => 'script.js',
                 'site_id' => 'asite',
-                'user_tracking' => true,
+                'tracking' => [
+                    'user' => true,
+                    'guest' => true,
+                ],
             ]
         ]);
         
@@ -39,7 +42,10 @@ class TrackerCodeComponentTest extends TestCase
                 'tracker_endpoint' => 'endpoint.php',
                 'tracker_script' => 'script.js',
                 'site_id' => 'asite',
-                'user_tracking' => true,
+                'tracking' => [
+                    'user' => true,
+                    'guest' => true,
+                ],
             ]
         ]);
         

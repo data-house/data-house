@@ -19,9 +19,22 @@ trait HasPreferences
         return $this->hasMany(UserPreference::class);
     }
 
-    public function hasPreference(Preference $preference): bool
+    /**
+     * Check if a user has a preference
+     *
+     * @param \App\Models\Preference $preference
+     * @param mixed $value If provided the value to check preference against
+     * @return bool true if the user has a preference set. If $value is specified return true if user has a preference and its value is the same as requested
+     */
+    public function hasPreference(Preference $preference, mixed $value = null): bool
     {
-        return !is_null($this->getPreference($preference));
+        $userPreference = $this->getPreference($preference);
+
+        if(is_null($value)){
+            return !is_null($userPreference);
+        }
+
+        return !is_null($userPreference) && $userPreference->hasValue($value);
     }
     
     public function getPreference(Preference $preference): mixed
