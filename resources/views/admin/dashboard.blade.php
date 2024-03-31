@@ -23,9 +23,6 @@
                             <p class="text-stone-700">{{ __('Users')}}</p>
                             <p class="font-bold text-xl md:text-2xl lg:text-3xl">{{ $total_users }}</p>
                         </div>
-                        <div>
-                            <x-button-link href="#">{{ __('New user') }}</x-button-link>
-                        </div>
                     </div>
                     <div class="bg-stone-50 p-4 border-t border-stone-200">
                         <div class="text-sm">
