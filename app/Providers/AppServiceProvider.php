@@ -69,7 +69,11 @@ class AppServiceProvider extends ServiceProvider
     protected function configureGates()
     {
         Gate::define('admin-area', function (User $user) {
-            return $user->role === Role::ADMIN;
+            return $user->hasRole(Role::ADMIN->value);
+        });
+
+        Gate::define('viewPulse', function (User $user) {
+            return $user->hasRole(Role::ADMIN->value);
         });
     }
 
