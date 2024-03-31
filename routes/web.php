@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminProjectController;
+use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\InstanceOverviewController;
 use App\Http\Controllers\CollectionController;
 use App\Http\Controllers\CreateMultipleQuestionController;
@@ -86,7 +87,7 @@ Route::middleware([
 ->group(function () {
     Route::get('/', InstanceOverviewController::class)->name('dashboard');
     
-    Route::get('/users', InstanceOverviewController::class)->name('users.index');
+    Route::resource('/users', AdminUserController::class)->only(['index']);
     
     Route::resource('/projects', AdminProjectController::class)->only(['index']);
     
