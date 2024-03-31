@@ -9,6 +9,8 @@ enum Preference: int
     case LOCALE = 1;
 
     case VISUALIZATION_LAYOUT = 10;
+    
+    case DO_NOT_TRACK = 20;
 
 
 
@@ -20,6 +22,9 @@ enum Preference: int
                 break;
             case self::VISUALIZATION_LAYOUT:
                 return collect(['grid','list']);
+                break;
+            case self::DO_NOT_TRACK:
+                return collect(['yes','no']);
                 break;
             default:
                 return collect([]);

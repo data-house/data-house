@@ -3,6 +3,7 @@
 namespace App\Analytics\Drivers;
 
 use App\Analytics\Contracts\Driver;
+use App\Models\Preference;
 use Illuminate\Contracts\Support\Htmlable;
 
 class MatomoDriver implements Driver
@@ -51,6 +52,11 @@ class MatomoDriver implements Driver
 
         if(auth()->guest() && !$this->getTrackerConfig('guest')){
             // tracking for guest users not enabled
+            return str('')->toHtmlString();
+        }
+        
+        if(!auth()->guest() && auth()->user()->hasPreference(Preference::DO_NOT_TRACK, 'yes')){
+            // user asked to not be tracked
             return str('')->toHtmlString();
         }
 

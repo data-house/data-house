@@ -3,6 +3,7 @@
 namespace Tests\Feature\Analytics\Drivers;
 
 use App\Analytics\Drivers\MatomoDriver;
+use App\Models\Preference;
 use App\Models\User;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -110,5 +111,29 @@ class MatomoDriverTest extends TestCase
         $this->assertStringContainsString('script.js', $tracking);
         $this->assertStringContainsString("'setSiteId', 'site'", $tracking);
         $this->assertStringContainsString('setUserId', $tracking);
+    }
+    
+    public function test_user_do_not_track_honored(): void
+    {
+        $user = User::factory()->guest()->create();
+
+        $user->setPreference(Preference::DO_NOT_TRACK, 'yes');
+
+        $driver = new MatomoDriver([
+            'host' => 'analytics.localhost',
+            'tracker_endpoint' => 'endpoint.php',
+            'tracker_script' => 'script.js',
+            'site_id' => 'site',
+            'tracking' => [
+                'user' => true,
+                'guest' => false,
+            ],
+        ]);
+
+        $this->actingAs($user);
+
+        $tracking = $driver->trackerCode()->toHtml();
+
+        $this->assertEmpty($tracking);
     }
 }
