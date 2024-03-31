@@ -37,6 +37,11 @@ class MatomoDriver implements Driver
         return $this->config['tracker_script'] ?? 'matomo.js';
     }
 
+    protected function getTrackerConfig($key)
+    {
+        return $this->config['tracking'][$key] ?? null;
+    }
+
 
     public function trackerCode(): Htmlable
     {
@@ -44,9 +49,14 @@ class MatomoDriver implements Driver
             return str('')->toHtmlString();
         }
 
+        if(auth()->guest() && !$this->getTrackerConfig('guest')){
+            // tracking for guest users not enabled
+            return str('')->toHtmlString();
+        }
+
         $userTracking = '';
 
-        if(($this->config['user_tracking'] ?? false) && !auth()->guest()){
+        if(($this->getTrackerConfig('user') ?? false) && !auth()->guest()){
 
             $userKey = auth()->user()->getKey();
 

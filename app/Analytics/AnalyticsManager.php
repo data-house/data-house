@@ -41,7 +41,11 @@ class AnalyticsManager extends Manager
      */
     protected function getConfig($name)
     {
-        return $this->config["analytics.processors.{$name}"] ?: [];
+        $driverSpecific = $this->config["analytics.processors.{$name}"] ?: [];
+
+        $globalTrackingSettings = ['tracking' => $this->config["analytics.tracking"] ?? []];
+
+        return array_merge($globalTrackingSettings, $driverSpecific);
     }
 
     /**
