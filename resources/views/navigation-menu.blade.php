@@ -126,6 +126,17 @@
                                 </x-dropdown-link>
                             @endif
 
+                            @can('admin-area')
+                                <div class="border-t border-stone-200/60 my-3"></div>
+
+                                <x-dropdown-link href="{{ route('admin.dashboard') }}" :active="request()->routeIs('admin.*')">
+                                    <x-heroicon-o-cog-6-tooth class="w-5 h-5 text-stone-600"  />
+
+                                    {{ __('Admin area') }}
+                                </x-dropdown-link>
+                            @endcan
+
+
                             <div class="border-t border-stone-200/60 my-3"></div>
 
                             <!-- Authentication -->
@@ -250,6 +261,15 @@
                         {{ __('API Tokens') }}
                     </x-responsive-nav-link>
                 @endif
+
+                
+                @can('admin-area')
+                    <x-responsive-nav-link href="{{ route('admin.dashboard') }}" :active="request()->routeIs('admin.*')">
+                        <x-heroicon-o-cog-6-tooth class="w-5 h-5 text-stone-600"  />
+
+                        {{ __('Admin area') }}
+                    </x-responsive-nav-link>
+                @endcan
 
                 <!-- Authentication -->
                 <form method="POST" action="{{ route('logout') }}" x-data>
