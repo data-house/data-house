@@ -23,6 +23,7 @@
     <env name="COPILOT_SUMMARY" value="true"/>
     <env name="COPILOT_QUESTION" value="true"/>
     <env name="COPILOT_TAGGING" value="true"/>
+    <env name="PULSE_ENABLED" value="false"/>
   </php>
   <source>
     <include>

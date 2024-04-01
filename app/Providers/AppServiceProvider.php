@@ -17,6 +17,7 @@ use App\Models\Flag;
 use App\Models\Role;
 use App\Models\User;
 use App\Pipelines\PipelineTrigger;
+use Illuminate\Support\Facades\Gate;
 use Laravel\Pennant\Feature;
 
 class AppServiceProvider extends ServiceProvider
@@ -58,9 +59,22 @@ class AppServiceProvider extends ServiceProvider
             GenerateThumbnail::class,
         ]);
 
+        $this->configureGates();
+
         $this->configureFeatureFlags();
 
         $this->configureHelpers();
+    }
+
+    protected function configureGates()
+    {
+        Gate::define('admin-area', function (User $user) {
+            return $user->hasRole(Role::ADMIN->value);
+        });
+
+        Gate::define('viewPulse', function (User $user) {
+            return $user->hasRole(Role::ADMIN->value);
+        });
     }
 
     /**

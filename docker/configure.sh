@@ -22,6 +22,10 @@ REDIS_HOST=${REDIS_HOST:-redis}
 ## Mailer
 MAIL_MAILER=${MAIL_MAILER:-log}
 
+## Pulse
+PULSE_PATH=${PULSE_PATH:-admin/pulse}
+PULSE_ENABLED=${PULSE_ENABLED:-false}
+
 ## User under which the commands will run
 SETUP_USER=www-data
 ## Directory where the code is located
@@ -215,6 +219,11 @@ function activate_supervisor_configuration_files() {
     if [[ "$STARTUP_SERVICES" == *"runners"* ]]; then
         cp /etc/supervisor/conf.d/stubs/runners.conf /etc/supervisor/conf.d/runners.active.conf
         echo "- Runner services enabled"
+    fi
+    
+    if [[ $PULSE_ENABLED || "$STARTUP_SERVICES" == *"pulse"* ]]; then
+        cp /etc/supervisor/conf.d/stubs/pulse.conf /etc/supervisor/conf.d/pulse.active.conf
+        echo "- Pulse services enabled"
     fi
 
 }

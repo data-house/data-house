@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminProjectController;
+use App\Http\Controllers\Admin\AdminUserController;
+use App\Http\Controllers\Admin\InstanceOverviewController;
 use App\Http\Controllers\CollectionController;
 use App\Http\Controllers\CreateMultipleQuestionController;
 use App\Http\Controllers\DocumentController;
@@ -71,6 +74,23 @@ Route::middleware([
     Route::get('user-preferences', UserPreferenceController::class)->name('user-preferences');
 
     Route::resource('stars', StarController::class)->only(['index']);
+});
+
+Route::middleware([
+    'auth:sanctum',
+    config('jetstream.auth_session'),
+    'verified',
+    'can:admin-area'
+])
+->name('admin.')
+->prefix('admin')
+->group(function () {
+    Route::get('/', InstanceOverviewController::class)->name('dashboard');
+    
+    Route::resource('/users', AdminUserController::class)->only(['index']);
+    
+    Route::resource('/projects', AdminProjectController::class)->only(['index']);
+    
 });
 
 
