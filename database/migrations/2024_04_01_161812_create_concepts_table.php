@@ -25,6 +25,8 @@ return new class extends Migration
 
             $table->string('title'); // skos:prefLabel || dc:title
             
+            $table->string('alternateLabel')->nullable(); // skos:prefLabel || dc:title
+            
             $table->text('description')->nullable(); // skos:note || skos:definition || dc:description
         });
 

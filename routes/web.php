@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminProjectController;
+use App\Http\Controllers\Admin\AdminTaxonomiesController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\InstanceOverviewController;
 use App\Http\Controllers\CollectionController;
@@ -91,6 +92,7 @@ Route::middleware([
     
     Route::resource('/projects', AdminProjectController::class)->only(['index']);
     
+    Route::get('/taxonomies', AdminTaxonomiesController::class)->name('taxonomies.index');
 });
 
 

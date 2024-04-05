@@ -18,12 +18,19 @@ class Concept extends Model
     protected $fillable = [
         'user_id',
         'title',
+        'alternateLabel',
         'description',
     ];
 
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+
+    public function scopeLabelled($query, $label)
+    {
+        return $query->whereAny(['title', 'alternateLabel'], $label);
     }
 
 

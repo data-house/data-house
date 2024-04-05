@@ -1,0 +1,4 @@
+<x-heading-nav-link href="{{ route('admin.dashboard') }}" :active="request()->routeIs('admin.dashboard')">{{ __('Overview') }}</x-heading-nav-link>
+<x-heading-nav-link href="{{ route('admin.users.index') }}" :active="request()->routeIs('admin.users.*')">{{ __('Users') }}</x-heading-nav-link>
+<x-heading-nav-link href="{{ route('admin.projects.index') }}" :active="request()->routeIs('admin.projects.*')">{{ __('Projects') }}</x-heading-nav-link>
+<x-heading-nav-link href="{{ route('admin.taxonomies.index') }}" :active="request()->routeIs('admin.taxonomies.*')">{{ __('Categories') }}</x-heading-nav-link>

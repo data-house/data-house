@@ -18,7 +18,7 @@
     <body class="font-sans antialiased">
         <x-banner />
 
-        <div class="min-h-screen bg-stone-100">
+        <div class="min-h-screen ">
             @livewire('navigation-menu')
 
             <!-- Page Heading -->
