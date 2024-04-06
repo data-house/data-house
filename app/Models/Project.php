@@ -50,6 +50,7 @@ class Project extends Model
         'funding',
         'status',
         'website',
+        'links',
     ];
 
     protected $casts = [
@@ -138,6 +139,7 @@ class Project extends Model
         return [
             'id' => $this->id,
             'ulid' => $this->ulid,
+            'slug' => $this->slug,
             'title' => $this->title,
             'title_alternate' => $this->properties['title_en'] ?? null,
             'description' => $this->description,

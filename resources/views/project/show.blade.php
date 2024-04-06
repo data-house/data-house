@@ -128,6 +128,24 @@
                                     <p><a title="{{ __('Explore projects in :value', ['value' => $region]) }}" href="{{ route('projects.index', ['region' => [$region]])}}">{{ $region }}</a></p>
                                 @endforeach
                         </div>
+                        
+                        @if ($project->links )
+                            <x-section-border />
+
+                            <p class="text-xs uppercase block text-stone-700 mb-2">{{ __('Links') }}</p>
+                            <div class="prose">
+                                @foreach ($project->links ?? [] as $link)
+                                    <p><a href="{{ $link['url'] }}" target="_blank">{{ $link['text'] }}</a></p>
+                                @endforeach
+                            </div>
+                        @endif
+                        
+                        <x-section-border />
+
+                        <p class="text-xs uppercase block text-stone-700 mb-2">{{ __('Signature') }}</p>
+                        <div class="prose">
+                            <code>{{ $project->slug }}</code>
+                        </div>
                 
                         @feature(Flag::showProjectFunding())
                         <div class="h-4"></div>
