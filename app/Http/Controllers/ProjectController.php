@@ -44,6 +44,7 @@ class ProjectController extends Controller
             'regions' => GeographicRegion::facets($countries?->map->value),
             'organizations' => [],
             'topic' => Topic::facets(),
+            'topics' => Topic::conceptCollections('project'),
             'status' => ProjectStatus::facets(),
         ];
 
@@ -53,6 +54,7 @@ class ProjectController extends Controller
             'filters' => $filters,
             'is_search' => $searchQuery || $filters,
             'facets' => $facets,
+            'topics' => Topic::conceptCollections('project'),
             'applied_filters_count' => count(array_keys($filters ?? [] )),
         ]);
     }
@@ -118,8 +120,7 @@ class ProjectController extends Controller
         return view('project.show', [
             'project' => $project,
             'documents' => $documents,
-            'topics' => Topic::from($project->topics),
-
+            'topics' => Topic::from($project->topics, 'project'),
             'searchQuery' => $searchQuery,
             'filters' => $searchFilters,
             'is_search' => $searchQuery || $searchFilters,

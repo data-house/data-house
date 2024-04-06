@@ -124,8 +124,7 @@ class Project extends Model
 
         return $this->countries?->map(fn($code) => CountryData::fromCountryCode($code));
     }
-
-
+    
 
     /**
      * Get the indexable data array for the model.
@@ -145,7 +144,7 @@ class Project extends Model
             'description' => $this->description,
             'countries' => $this->countries()->map->name,
             'region' => $this->regions()->flatten(), 
-            'topics' => $this->topics,
+            'topics' => Topic::selectConceptsForIndexing('project', $this->topics->toArray()),
             'starts_at' => $this->starts_at?->toDateString(),
             'ends_at' => $this->ends_at?->toDateString(),
             'organizations' => $this->organizations,

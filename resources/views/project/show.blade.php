@@ -89,26 +89,51 @@
                     </div>
                     <div class="">
                         <div class="space-y-2">
-                            @foreach ($topics as $topic)
+                            
+                            @foreach ($topics as $topicName => $selected)
                                 <div class="relative group">
                                     <div class="bg-white border border-stone-200 rounded-2xl py-2 px-3 group-hover:border-indigo-600">
                                         <p class="mb-2">
-                                            <a href="{{ route('projects.index', ['topics' => collect($topic['children'])->pluck('name')->toArray() ])}}" class="group-hover:text-indigo-700">
+                                            <a href="{{ route('projects.index', ['topics' => '' ])}}" class="group-hover:text-indigo-700">
                                                 <span class="z-10 absolute inset-0"></span>
-                                                {{ $topic['name'] }}
+                                                {{ $topicName }}
                                             </a>
                                         </p>
                                         <p class="flex flex-wrap gap-2">
-                                            @foreach ($topic['selected'] as $selectedTopic)
-                                                <a href="{{ route('projects.index', ['topics' => [$selectedTopic['name']]])}}" class="relative z-20 inline-flex gap-2 items-center text-sm px-2 py-1 rounded-xl bg-gray-200 text-gray-900 hover:bg-indigo-200 focus:bg-indigo-200 ">
-                                                    <x-heroicon-o-hashtag class="w-4 h-4" />
-                                                    {{ $selectedTopic['name'] }}
-                                                </a>
+                                            @foreach ($selected as $selectedTopicKey => $selectedTopic)
+
+                                                @if (is_array($selectedTopic))
+
+                                                    <div class="bg-white border border-stone-200 rounded-2xl py-2 px-3 group-hover:border-indigo-600">
+                                                        <p class="mb-2">
+                                                            <a href="{{ route('projects.index', ['topics' => '' ])}}" class="group-hover:text-indigo-700">
+                                                                <span class="z-10 absolute inset-0"></span>
+                                                                {{ $selectedTopicKey }}
+                                                            </a>
+                                                        </p>
+                                                        <p class="flex flex-wrap gap-2">
+                                                    
+                                                            @foreach ($selectedTopic as $subKey => $subValue)
+                                                                <a href="{{ route('projects.index', ['topics' => [$subKey]])}}" class="relative z-20 inline-flex gap-2 items-center text-sm px-2 py-1 rounded-xl bg-gray-200 text-gray-900 hover:bg-indigo-200 focus:bg-indigo-200 ">
+                                                                    <x-heroicon-o-hashtag class="w-4 h-4" />
+                                                                    {{ $subKey }}
+                                                                </a>
+                                                            @endforeach
+                                                        </p>
+                                                    </div>
+                                                @else
+                                                    <a href="{{ route('projects.index', ['topics' => [$selectedTopicKey]])}}" class="relative z-20 inline-flex gap-2 items-center text-sm px-2 py-1 rounded-xl bg-gray-200 text-gray-900 hover:bg-indigo-200 focus:bg-indigo-200 ">
+                                                        <x-heroicon-o-hashtag class="w-4 h-4" />
+                                                        {{ $selectedTopicKey }}
+                                                    </a>
+                                                @endif
                                             @endforeach
                                         </p>
                                     </div>
                                 </div>
                             @endforeach
+
+                            
                         </div>
 
                         <x-section-border />

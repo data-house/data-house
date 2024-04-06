@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
+use InvalidArgumentException;
 
 /** 
  * Project topics as defined in internal representation or in a connected graph.
@@ -45,26 +47,34 @@ class Topic
     /**
      * Select the topics from the hierarchy based on the applied ones
      */
-    public static function from(array|Collection $names): Collection
+    public static function from(array|Collection $names, ?string $model = null): Collection
     {
-        static::all();
-
-        // Select children
-        // group by parent?
-
-        $childToParent = static::$topics->mapWithKeys(function($t){
-                return collect($t['children'] ?? [])->mapWithKeys(fn($child) => [$child['name'] => $t['name']]);
-            })
-            ->only($names);
-
-        return static::$topics->only($childToParent->values()->unique())
-            ->map(function($t) use ($names){
+        return static::conceptsForModel($model)->mapWithKeys(function($t, $key){
                 return [
-                    ...$t,
-                    'selected' => collect($t['children'] ?? [])->whereIn('name', $names)->values()->toArray(),
+
+                    $key => collect($t['children'] ?? [])->mapWithKeys(function($child) use ($t) {
+
+                        if($child['children'] ?? false){
+                            return [$child['name'] => collect($child['children'] ?? [])->mapWithKeys(fn($sub) => [$sub['name'] => $t['name'].'.'.$child['name'].'.'.$sub['name']])];
+                        }
+
+                        return [$child['name'] => $t['name'].'.'.$child['name']];
+                    })->toArray(),
                 ];
             })
-            ->values();
+            ->dot()
+            ->filter(fn($value, $key) => str($key)->contains($names))
+
+            ->undot();
+
+        // return static::$topics->only($childToParent->values()->unique())
+        //     ->map(function($t) use ($names){
+        //         return [
+        //             ...$t,
+        //             'selected' => collect($t['children'] ?? [])->whereIn('name', $names)->values()->toArray(),
+        //         ];
+        //     })
+        //     ->values();
     }
 
 
@@ -81,6 +91,70 @@ class Topic
             })
             ->filter()
             ->mapWithKeys(fn($t) => [$t['name'] => str($t['name'])->title()->toString()]);
+    }
+
+    public static function nameFromKey(string $key): string
+    {
+        static::all();
+
+        $topic = static::$topics->get($key);
+
+        if(!$topic){
+            throw new InvalidArgumentException("No topic with key [{$key}]");
+        }
+
+        return $topic['name'] ?? $topic['id'];
+    }
+
+    protected static function conceptsForModel(?string $model = null): Collection
+    {
+        static::all();
+
+        return static::$topics
+            ->when($model, function(Collection $collection, $model){
+                return $collection->filter(fn($entry) => in_array($model, $entry['resources'] ?? []));
+            });
+    }
+    
+    /**
+     * @internal
+     */
+    public static function conceptCollections(?string $model = null): Collection
+    {
+        return static::conceptsForModel($model)
+            ->mapWithKeys(fn($t) => [
+                $t['id'] => [
+                    'title' => str($t['name'])->title()->toString(),
+                    'children' => $t['children']
+                ]
+            ]);
+    }
+    
+    /**
+     * @internal
+     */
+    public static function selectConceptsForIndexing(string $model, array $selection): Collection
+    {
+
+        $selection = collect($selection)->values();
+
+        $flattenedTopics = static::conceptsForModel($model)
+            ->flatMap(function($entry){
+                $mappedChildren = collect($entry['children'])
+                    ->dot()
+                    ->filter(fn($value, $key) => str($key)->endsWith('.name'))
+                    ->values();
+
+                return [
+                    [$entry['id'] => $mappedChildren],
+                ];
+            })
+            ->collapse();
+        
+
+        return $flattenedTopics->mapWithKeys(function($entries, $key) use ($selection){
+                return [$key => $entries->intersect($selection)->values()];
+            });
     }
 
 

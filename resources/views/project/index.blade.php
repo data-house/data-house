@@ -50,7 +50,7 @@
                         </div>
                     </fieldset>
 
-                    <fieldset>
+                    {{-- <fieldset>
                         <legend class="block font-medium">{{ __('Area') }}</legend>
                         <div class="space-y-6 pt-6 sm:space-y-4 sm:pt-4 max-h-72 overflow-y-auto">
                         @foreach ($facets['topic'] as $topicKey => $topic)
@@ -60,7 +60,22 @@
                             </div>
                         @endforeach
                         </div>
-                    </fieldset>
+                    </fieldset> --}}
+                    
+                    @foreach ($topics as $topic)
+                        <fieldset>
+                            <legend class="block font-medium">{{ $topic['title'] }}</legend>
+                            <div class="space-y-6 pt-6 sm:space-y-4 sm:pt-4 max-h-72 overflow-y-auto">
+                            @foreach ($topic['children'] as $concept)
+
+                                <div class="flex items-center text-base sm:text-sm">
+                                <input id="topic-{{ $concept['id'] ?? str($concept['name'])->slug()->toString() }}" name="topics[]" value="{{ $concept['id'] ?? str($concept['name'])->slug()->toString() }}" type="checkbox" @checked(in_array($concept['id'] ?? str($concept['name'])->slug()->toString(), $filters['topics'] ?? [])) class="h-4 w-4 flex-shrink-0 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                                <label for="topic-{{ $concept['id'] ?? str($concept['name'])->slug()->toString() }}" class="ml-3 min-w-0 flex-1 text-gray-600">{{ $concept['name'] }}</label>
+                                </div>
+                            @endforeach
+                            </div>
+                        </fieldset>
+                    @endforeach
                     
                     <fieldset>
                         <legend class="block font-medium">{{ __('Country') }}</legend>
