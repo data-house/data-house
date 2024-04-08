@@ -60,6 +60,7 @@ class DocumentLibraryController extends Controller
             'filters' => array_merge($filters, $starredFilters, $sourceFilters),
             'is_search' => $searchQuery || $searchFilters,
             'facets' => $facets,
+            'search_topics' => Topic::facets(),
             'applied_filters_count' => count(array_keys($searchFilters ?? [] )),
         ]);
     }

@@ -124,6 +124,11 @@ class Project extends Model
 
         return $this->countries?->map(fn($code) => CountryData::fromCountryCode($code));
     }
+
+    public function formattedTopics(): Collection
+    {
+        return Topic::from($this->topics);
+    }
     
 
     /**
@@ -144,7 +149,7 @@ class Project extends Model
             'description' => $this->description,
             'countries' => $this->countries()->map->name,
             'region' => $this->regions()->flatten(), 
-            'topics' => Topic::selectConceptsForIndexing('project', $this->topics->toArray()),
+            'topics' => $this->topics,
             'starts_at' => $this->starts_at?->toDateString(),
             'ends_at' => $this->ends_at?->toDateString(),
             'organizations' => $this->organizations,

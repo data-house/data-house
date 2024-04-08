@@ -31,8 +31,8 @@ class ProjectController extends Controller
         $filters = $request->hasAny(['countries', 'type', 'region', 'topics', 'status']) ? $request->only(['countries', 'type', 'region', 'topics', 'status']) : [];
 
         $projects = $searchQuery || $filters 
-            ? Project::advancedSearch($searchQuery, $filters)->paginate(50)
-            : Project::query()->orderBy('title', 'ASC')->paginate(50);
+            ? Project::advancedSearch($searchQuery, $filters)->paginate(48)
+            : Project::query()->orderBy('title', 'ASC')->paginate(48);
 
         $projects->withQueryString();
 
@@ -44,7 +44,6 @@ class ProjectController extends Controller
             'regions' => GeographicRegion::facets($countries?->map->value),
             'organizations' => [],
             'topic' => Topic::facets(),
-            'topics' => Topic::conceptCollections('project'),
             'status' => ProjectStatus::facets(),
         ];
 
@@ -54,7 +53,7 @@ class ProjectController extends Controller
             'filters' => $filters,
             'is_search' => $searchQuery || $filters,
             'facets' => $facets,
-            'topics' => Topic::conceptCollections('project'),
+            'topics' => Topic::facets(),
             'applied_filters_count' => count(array_keys($filters ?? [] )),
         ]);
     }
@@ -120,11 +119,12 @@ class ProjectController extends Controller
         return view('project.show', [
             'project' => $project,
             'documents' => $documents,
-            'topics' => Topic::from($project->topics, 'project'),
+            'topics' => $project->formattedTopics(),
             'searchQuery' => $searchQuery,
             'filters' => $searchFilters,
             'is_search' => $searchQuery || $searchFilters,
             'facets' => $facets,
+            'search_topics' => Topic::facets(),
             'applied_filters_count' => count(array_keys($searchFilters ?? [] )),
         ]);
     }

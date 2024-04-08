@@ -38,209 +38,154 @@ class TopicTest extends TestCase
         ]);
     }
 
-    public function test_topic_returned_for_sub_topic_using_predefined_resource()
-    {
-        $this->setTopicsFrom(resource_path('data/iki-topics.json'));
-
-        $topics = Topic::from(['energy efficiency']);
-
-        $this->assertEquals(1, $topics->count());
-
-        $this->assertEquals([
-            "id" => "BI-5",
-            "name" => "sustainable energy supply",
-    
-            "children"  => [
-                [
-                    "id" => "BI-5-1",
-                    "name" => "renewable energies"
-                ],
-                [
-                    "id" => "BI-5-2",
-                    "name" => "energy efficiency"
-                ]
-            ],
-            "selected"  => [
-                [
-                    "id" => "BI-5-2",
-                    "name" => "energy efficiency"
-                ]
-            ],
-        ], $topics->first());
-        
-        
-    }
-
     public function test_topics_returned_for_sub_topic_using_predefined_resource()
     {
-        $this->setTopicsFrom(resource_path('data/iki-topics.json'));
+        config(['library.topics.schemes' => 'area']);
 
-        $topics = Topic::from(["renewable energies", 'energy efficiency']);
+        $this->setTopics([
+
+            "concepts" => [
+
+                "energy" => [
+                    "name" => "Energy",
+                    "scheme" => "area",
+                    "parent" => null,
+                ],
+                "renewable-energy" => [
+                    "name" => "Renewable Energy",
+                    "scheme" => "area",
+                    "parent" => "energy",
+                ],
+                "energy-efficiency" => [
+                    "name" => "Energy Efficiency",
+                    "scheme" => "area",
+                    "parent" => "energy",
+                ],
+                "mobility" => [
+                    "name" => "Mobility",
+                    "scheme" => "area",
+                    "parent" => null,
+                ],
+                "sustainable-mobility" => [
+                    "name" => "Sustainable mobility",
+                    "scheme" => "area",
+                    "parent" => "mobility",
+                ],
+            ],
+
+            "schemes" => [
+                "area" => [
+                    "name" => "Area",
+                    "description" => null
+                ],
+            ],
+        ]);
+
+        $topics = Topic::from(["renewable-energy", 'energy-efficiency']);
         
         $this->assertEquals(1, $topics->count());
         
         $this->assertEquals([
-            "id" => "BI-5",
-            "name" => "sustainable energy supply",
-            
-            "children"  => [
+            "id" => "energy",
+            "name" => "Energy",
+            "scheme" => "area",
+            "parent" => null,
+            "selected"  => collect([
                 [
-                    "id" => "BI-5-1",
-                    "name" => "renewable energies"
+                    "name" => "Renewable Energy",
+                    "scheme" => "area",
+                    "parent" => "energy",
                 ],
                 [
-                    "id" => "BI-5-2",
-                    "name" => "energy efficiency"
-                    ]
+                    "name" => "Energy Efficiency",
+                    "scheme" => "area",
+                    "parent" => "energy",
                 ],
-            "selected"  => [
-                [
-                    "id" => "BI-5-1",
-                    "name" => "renewable energies"
-                ],
-                [
-                    "id" => "BI-5-2",
-                    "name" => "energy efficiency"
-                    ]
-            ],
+            ]),
         ], $topics->first());
         
-        $topics = Topic::from(["sustainable mobility", 'energy efficiency']);
+        $topics = Topic::from(["sustainable-mobility", 'energy-efficiency']);
 
         
         $this->assertEquals(2, $topics->count());
         
         $this->assertEquals([
-            "id" => "BI-5",
-            "name" => "sustainable energy supply",
-            
-            "children"  => [
+            "id" => "energy",
+            "name" => "Energy",
+            "scheme" => "area",
+            "parent" => null,
+            "selected"  => collect([
                 [
-                    "id" => "BI-5-1",
-                    "name" => "renewable energies"
+                    "name" => "Energy Efficiency",
+                    "scheme" => "area",
+                    "parent" => "energy",
                 ],
-                [
-                    "id" => "BI-5-2",
-                    "name" => "energy efficiency"
-                    ]
-                ],
-            "selected"  => [
-                [
-                    "id" => "BI-5-2",
-                    "name" => "energy efficiency"
-                    ]
-            ],
+            ]),
         ], $topics[0]);
         
         $this->assertEquals([
-            "id" => "BI-7",
-            "name" => "sustainable mobility",
-            
-            "children"  => [
+            "id" => "mobility",
+            "name" => "Mobility",
+            "scheme" => "area",
+            "parent" => null,
+            "selected"  => collect([
                 [
-                    "id" => "BI-7-0",
-                    "name" => "sustainable mobility"
+                    "name" => "Sustainable mobility",
+                    "scheme" => "area",
+                    "parent" => "mobility",
                 ],
-            ],
-            "selected"  => [
-                [
-                    "id" => "BI-7-0",
-                    "name" => "sustainable mobility"
-                    ]
-            ],
+            ]),
         ], $topics[1]);
         
     }
 
     public function test_topic_returned_when_reading_from_storage()
     {
+        config(['library.topics.schemes' => 'area']);
+
         $this->setTopics([
-            "Area" => [
-                "id" => "area",
-                "name" => "Area",
-                "children" => [
-                    [
-                        "id" => "energy",
-                        "name" => "Energy"
-                    ]
-                ]
+
+            "concepts" => [
+
+                "energy" => [
+                    "name" => "Energy",
+                    "scheme" => "area",
+                    "parent" => null,
+                ],
+                "renewable-energy" => [
+                    "name" => "Renewable Energy",
+                    "scheme" => "area",
+                    "parent" => "energy",
+                ],
+            ],
+
+            "schemes" => [
+                "area" => [
+                    "name" => "Area",
+                    "description" => null
+                ],
             ],
         ]);
 
 
-        $topics = Topic::from(['Energy']);
+        $topics = Topic::from(['renewable-energy']);
 
         $this->assertEquals(1, $topics->count());
 
         $this->assertEquals([
-            "id" => "area",
-            "name" => "Area",
-    
-            "children"  => [
+            "id" => "energy",
+            "name" => "Energy",
+            "scheme" => "area",
+            "parent" => null,
+            "selected"  => collect([
                 [
-                    "id" => "energy",
-                    "name" => "Energy"
-                ],
-            ],
-            "selected"  => [
-                [
-                    "id" => "energy",
-                    "name" => "Energy"
+                    "name" => "Renewable Energy",
+                    "scheme" => "area",
+                    "parent" => "energy",
                 ]
-            ],
+            ]),
         ], $topics->first());
         
     }
     
-    public function test_topic_mapped_for_search_indexing()
-    {
-        $this->setTopics([
-            "Area" => [
-                "id" => "area",
-                "name" => "Area",
-                "resources" => ["project"],
-                "children" => [
-                    [
-                        "id" => "energy",
-                        "name" => "Energy",
-                        "children" => [
-                            [
-                                "id" => "re",
-                                "name" => "Renewable Energy"
-                            ]
-                        ]
-                    ]
-                ]
-            ],
-        ]);
-
-
-        $topics = Topic::selectConceptsForIndexing("project", [
-            "id" => "energy",
-            "name" => "Energy"
-        ]);
-
-        $this->assertEquals([  
-            "area"  => [
-                "Energy",
-            ],
-        ], $topics->toArray());
-        
-        $topics = Topic::selectConceptsForIndexing("project", ["name" => "Renewable Energy"]);
-
-        $this->assertEquals([  
-            "area"  => [
-                "Renewable Energy",
-            ],
-        ], $topics->toArray());
-        
-        $topics = Topic::selectConceptsForIndexing("project", ["Renewable Energy"]);
-
-        $this->assertEquals([  
-            "area"  => [
-                "Renewable Energy",
-            ],
-        ], $topics->toArray());
-        
-    }
 }

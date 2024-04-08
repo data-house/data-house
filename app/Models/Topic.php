@@ -31,6 +31,11 @@ class Topic
         return Storage::disk($disk)->exists($path) ? Storage::disk($disk)->json($path) : [];
 
     }
+
+    public static function enabledSchemes(): Collection
+    {
+        return str(config('library.topics.schemes', ''))->explode(',')->filter()->values();
+    }
     
     public static function all()
     {
@@ -38,7 +43,11 @@ class Topic
             return static::$topics;
         }
 
-        static::$topics = collect(static::getTopicFileContent());
+        $availableConcepts = collect(collect(static::getTopicFileContent())->get('concepts'));
+
+        $enabledSchemes = self::enabledSchemes();
+
+        static::$topics = $availableConcepts->whereIn('scheme', $enabledSchemes);
 
         return static::$topics;
     }
@@ -47,34 +56,22 @@ class Topic
     /**
      * Select the topics from the hierarchy based on the applied ones
      */
-    public static function from(array|Collection $names, ?string $model = null): Collection
+    public static function from(array|Collection $names): Collection
     {
-        return static::conceptsForModel($model)->mapWithKeys(function($t, $key){
+        static::all();
+
+        return static::$topics->only($names)
+            ->whereNotNull('parent')
+            ->groupBy(['parent'])
+            ->map(function($t, $keys) use ($names){
+                
                 return [
-
-                    $key => collect($t['children'] ?? [])->mapWithKeys(function($child) use ($t) {
-
-                        if($child['children'] ?? false){
-                            return [$child['name'] => collect($child['children'] ?? [])->mapWithKeys(fn($sub) => [$sub['name'] => $t['name'].'.'.$child['name'].'.'.$sub['name']])];
-                        }
-
-                        return [$child['name'] => $t['name'].'.'.$child['name']];
-                    })->toArray(),
+                    ...static::$topics->get($keys),
+                    ...['id' => $keys],
+                    'selected' => collect($t),
                 ];
             })
-            ->dot()
-            ->filter(fn($value, $key) => str($key)->contains($names))
-
-            ->undot();
-
-        // return static::$topics->only($childToParent->values()->unique())
-        //     ->map(function($t) use ($names){
-        //         return [
-        //             ...$t,
-        //             'selected' => collect($t['children'] ?? [])->whereIn('name', $names)->values()->toArray(),
-        //         ];
-        //     })
-        //     ->values();
+            ->values();
     }
 
 
@@ -86,11 +83,10 @@ class Topic
     {
         static::all();
 
-        return static::$topics->flatMap(function($t){
-                return $t['children'] ?? null;
-            })
-            ->filter()
-            ->mapWithKeys(fn($t) => [$t['name'] => str($t['name'])->title()->toString()]);
+        $enabledSchemes = self::enabledSchemes();
+
+        return static::$topics->whereNull('parent')->groupBy('scheme')
+            ->filter();
     }
 
     public static function nameFromKey(string $key): string
@@ -105,58 +101,6 @@ class Topic
 
         return $topic['name'] ?? $topic['id'];
     }
-
-    protected static function conceptsForModel(?string $model = null): Collection
-    {
-        static::all();
-
-        return static::$topics
-            ->when($model, function(Collection $collection, $model){
-                return $collection->filter(fn($entry) => in_array($model, $entry['resources'] ?? []));
-            });
-    }
-    
-    /**
-     * @internal
-     */
-    public static function conceptCollections(?string $model = null): Collection
-    {
-        return static::conceptsForModel($model)
-            ->mapWithKeys(fn($t) => [
-                $t['id'] => [
-                    'title' => str($t['name'])->title()->toString(),
-                    'children' => $t['children']
-                ]
-            ]);
-    }
-    
-    /**
-     * @internal
-     */
-    public static function selectConceptsForIndexing(string $model, array $selection): Collection
-    {
-
-        $selection = collect($selection)->values();
-
-        $flattenedTopics = static::conceptsForModel($model)
-            ->flatMap(function($entry){
-                $mappedChildren = collect($entry['children'])
-                    ->dot()
-                    ->filter(fn($value, $key) => str($key)->endsWith('.name'))
-                    ->values();
-
-                return [
-                    [$entry['id'] => $mappedChildren],
-                ];
-            })
-            ->collapse();
-        
-
-        return $flattenedTopics->mapWithKeys(function($entries, $key) use ($selection){
-                return [$key => $entries->intersect($selection)->values()];
-            });
-    }
-
 
     public static function clear()
     {
