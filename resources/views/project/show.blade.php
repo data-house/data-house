@@ -102,9 +102,11 @@
                         <div class="prose mb-6">
                             <code>{{ $project->slug }}</code>
                         </div>
-                        <div class="prose">
-                            {{ $project->starts_at->format('F Y') }} &mdash; {{ $project->ends_at?->format('F Y') ?? 'ongoing' }}
-                        </div>
+                        @if ($project->starts_at)
+                            <div class="prose">
+                                {{ $project->starts_at->format('F Y') }} &mdash; {{ $project->ends_at?->format('F Y') ?? 'ongoing' }}
+                            </div>
+                        @endif
                         <x-section-border />
                         <div class="space-y-2">
 
