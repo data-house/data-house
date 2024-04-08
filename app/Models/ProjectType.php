@@ -17,4 +17,14 @@ enum ProjectType: int
 
         return $cases[str($value)->upper()->toString()] ?? null;
     }
+
+
+    public function label(): string
+    {
+        return match ($this) {
+            self::BILATERAL => 'Bilateral',
+            self::REGIONAL => 'Transnational',
+            self::GLOBAL => 'Worldwide',
+        };
+    }
 }
