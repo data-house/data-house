@@ -23,6 +23,16 @@ enum ProjectStatus: int
         return $cases[str($value)->upper()->toString()] ?? null;
     }
 
+    public function label(): string
+    {
+        return match ($this) {
+            self::ACTIVE => 'Open',
+            self::COMPLETED => 'Completed',
+            self::INACTIVE => 'Inactive',
+            self::CLOSED => 'Closed',
+        };
+    }
+
 
     public static function facets()
     {
