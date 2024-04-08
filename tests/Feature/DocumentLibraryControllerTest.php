@@ -42,6 +42,8 @@ class DocumentLibraryControllerTest extends TestCase
     
     public function test_ask_questions_to_library_allowed(): void
     {
+        Feature::define(Flag::questionWholeLibraryWithAI(), true);
+
         $user = User::factory()->withPersonalTeam()->manager()->create();
 
         $response = $this->actingAs($user)
