@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Collection;
 use App\Models\CollectionStrategy;
+use App\Models\Flag;
 use App\Models\Question;
 use App\Models\QuestionTarget;
 use App\Models\QuestionType;
@@ -13,6 +14,7 @@ use App\Models\Visibility;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Queue;
+use Laravel\Pennant\Feature;
 use Tests\TestCase;
 
 class CreateMultipleQuestionControllerTest extends TestCase
@@ -21,6 +23,8 @@ class CreateMultipleQuestionControllerTest extends TestCase
 
     public function test_multiple_question_created_from_library(): void
     {
+        Feature::define(Flag::questionWholeLibraryWithAI(), true);
+        
         Queue::fake();
 
         $user = User::factory()->withPersonalTeam()->manager()->create();
@@ -75,6 +79,8 @@ class CreateMultipleQuestionControllerTest extends TestCase
     
     public function test_multiple_question_not_created_from_library_if_rate_limit_exceeded(): void
     {
+        Feature::define(Flag::questionWholeLibraryWithAI(), true);
+
         config([
             'copilot.driver' => 'null',
             'copilot.queue' => false,
