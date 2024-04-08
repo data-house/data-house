@@ -64,7 +64,7 @@ class InsertProject
             'funding' => [
                 'iki' => $validated['iki-funding'] ?? null,
             ],
-            'links' => $validated['links'],
+            'links' => $validated['links'] ?? null,
         ]);
 
     }
