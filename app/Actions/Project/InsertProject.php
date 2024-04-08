@@ -37,7 +37,7 @@ class InsertProject
             'organizations.political_partners.*' => ['nullable', 'string', 'min:1', 'max:255'],
             'properties' => ['nullable', 'array'],
             'slug' => ['nullable', 'string', 'min:1', 'max:255', 'unique:projects,slug'],
-            'description' => ['nullable', 'string', 'max:6000'],
+            'description' => ['nullable', 'string', 'max:16000'],
             'starts_at' => ['nullable', 'date'],
             'ends_at' => ['nullable', 'date', 'after:starts_at'],
             'status' => ['required', new Enum(ProjectStatus::class)],
