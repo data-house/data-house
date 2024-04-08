@@ -175,6 +175,16 @@ return [
                     'topics',
                     'organizations',
                     'status',
+                    'starts_at',
+                    'ends_at',
+                ],
+                'sortableAttributes' => [
+                    'created_at',
+                    'starts_at',
+                    'ends_at',
+                ],
+                'typoTolerance' => [
+                    'disableOnAttributes' => ['slug'],
                 ],
             ],
             Question::class => [

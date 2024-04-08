@@ -50,6 +50,7 @@ class Project extends Model
         'funding',
         'status',
         'website',
+        'links',
     ];
 
     protected $casts = [
@@ -124,7 +125,11 @@ class Project extends Model
         return $this->countries?->map(fn($code) => CountryData::fromCountryCode($code));
     }
 
-
+    public function formattedTopics(): Collection
+    {
+        return Topic::from($this->topics);
+    }
+    
 
     /**
      * Get the indexable data array for the model.
@@ -138,6 +143,7 @@ class Project extends Model
         return [
             'id' => $this->id,
             'ulid' => $this->ulid,
+            'slug' => $this->slug,
             'title' => $this->title,
             'title_alternate' => $this->properties['title_en'] ?? null,
             'description' => $this->description,

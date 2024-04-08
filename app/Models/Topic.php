@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
+use InvalidArgumentException;
 
 /** 
  * Project topics as defined in internal representation or in a connected graph.
@@ -29,6 +31,11 @@ class Topic
         return Storage::disk($disk)->exists($path) ? Storage::disk($disk)->json($path) : [];
 
     }
+
+    public static function enabledSchemes(): Collection
+    {
+        return str(config('library.topics.schemes', ''))->explode(',')->filter()->values();
+    }
     
     public static function all()
     {
@@ -36,7 +43,11 @@ class Topic
             return static::$topics;
         }
 
-        static::$topics = collect(static::getTopicFileContent());
+        $availableConcepts = collect(collect(static::getTopicFileContent())->get('concepts'));
+
+        $enabledSchemes = self::enabledSchemes();
+
+        static::$topics = $availableConcepts->whereIn('scheme', $enabledSchemes);
 
         return static::$topics;
     }
@@ -49,19 +60,15 @@ class Topic
     {
         static::all();
 
-        // Select children
-        // group by parent?
-
-        $childToParent = static::$topics->mapWithKeys(function($t){
-                return collect($t['children'] ?? [])->mapWithKeys(fn($child) => [$child['name'] => $t['name']]);
-            })
-            ->only($names);
-
-        return static::$topics->only($childToParent->values()->unique())
-            ->map(function($t) use ($names){
+        return static::$topics->only($names)
+            ->whereNotNull('parent')
+            ->groupBy(['parent'])
+            ->map(function($t, $keys) use ($names){
+                
                 return [
-                    ...$t,
-                    'selected' => collect($t['children'] ?? [])->whereIn('name', $names)->values()->toArray(),
+                    ...static::$topics->get($keys),
+                    ...['id' => $keys],
+                    'selected' => collect($t),
                 ];
             })
             ->values();
@@ -76,13 +83,24 @@ class Topic
     {
         static::all();
 
-        return static::$topics->flatMap(function($t){
-                return $t['children'] ?? null;
-            })
-            ->filter()
-            ->mapWithKeys(fn($t) => [$t['name'] => str($t['name'])->title()->toString()]);
+        $enabledSchemes = self::enabledSchemes();
+
+        return static::$topics->whereNull('parent')->groupBy('scheme')
+            ->filter();
     }
 
+    public static function nameFromKey(string $key): string
+    {
+        static::all();
+
+        $topic = static::$topics->get($key);
+
+        if(!$topic){
+            throw new InvalidArgumentException("No topic with key [{$key}]");
+        }
+
+        return $topic['name'] ?? $topic['id'];
+    }
 
     public static function clear()
     {

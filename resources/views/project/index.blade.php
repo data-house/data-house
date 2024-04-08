@@ -24,33 +24,37 @@
                 >
 
                 <x-slot:filters>
-                    @feature(Flag::typeProjectFilter())
+
+                    <div class="grid auto-rows-min grid-cols-1 md:col-span-4 gap-y-10 md:grid-cols-2 md:gap-x-6">
+
+                        @feature(Flag::typeProjectFilter())
+                            <fieldset>
+                            <legend class="block font-medium">{{ __('Scope') }}</legend>
+                            <div class="flex  pt-6 gap-4 md:gap-6">
+                                @foreach ($facets['type'] as $item)
+                                    <div class="flex items-center text-base sm:text-sm">
+                                    <input id="type-{{ $item->name }}" name="type[]" value="{{ $item->name }}" @checked(in_array($item->name, $filters['type'] ?? [])) type="checkbox" class="h-4 w-4 flex-shrink-0 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                                    <label for="type-{{ $item->name }}" class="ml-3 min-w-0 flex-1 text-gray-600">{{ $item->label() }}</label>
+                                    </div>
+                                @endforeach
+                            </div>
+                            </fieldset>
+                        @endfeature
+
                         <fieldset>
-                        <legend class="block font-medium">{{ __('Type') }}</legend>
-                        <div class="space-y-6 pt-6 sm:space-y-4 sm:pt-4 max-h-72 overflow-y-auto">
-                            @foreach ($facets['type'] as $item)
+                            <legend class="block font-medium">{{ __('Status') }}</legend>
+                            <div class="flex  pt-6 gap-4 md:gap-6">
+                            @foreach ($facets['status'] as $status)
                                 <div class="flex items-center text-base sm:text-sm">
-                                <input id="type-{{ $item->name }}" name="type[]" value="{{ $item->name }}" @checked(in_array($item->name, $filters['type'] ?? [])) type="checkbox" class="h-4 w-4 flex-shrink-0 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
-                                <label for="type-{{ $item->name }}" class="ml-3 min-w-0 flex-1 text-gray-600">{{ $item->name }}</label>
+                                <input id="status-{{ $status->name }}" name="status[]" value="{{ $status->name }}" type="checkbox" @checked(in_array($status->name, $filters['status'] ?? [])) class="h-4 w-4 flex-shrink-0 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                                <label for="status-{{ $status->name }}" class="ml-3 min-w-0 flex-1 text-gray-600">{{ $status->name }}</label>
                                 </div>
                             @endforeach
-                        </div>
-                        </fieldset>
-                    @endfeature
-
-                    <fieldset>
-                        <legend class="block font-medium">{{ __('Status') }}</legend>
-                        <div class="space-y-6 pt-6 sm:space-y-4 sm:pt-4 max-h-72 overflow-y-auto">
-                        @foreach ($facets['status'] as $status)
-                            <div class="flex items-center text-base sm:text-sm">
-                            <input id="status-{{ $status->name }}" name="status[]" value="{{ $status->name }}" type="checkbox" @checked(in_array($status->name, $filters['status'] ?? [])) class="h-4 w-4 flex-shrink-0 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
-                            <label for="status-{{ $status->name }}" class="ml-3 min-w-0 flex-1 text-gray-600">{{ $status->name }}</label>
                             </div>
-                        @endforeach
-                        </div>
-                    </fieldset>
+                        </fieldset>
+                    </div>
 
-                    <fieldset>
+                    {{-- <fieldset>
                         <legend class="block font-medium">{{ __('Area') }}</legend>
                         <div class="space-y-6 pt-6 sm:space-y-4 sm:pt-4 max-h-72 overflow-y-auto">
                         @foreach ($facets['topic'] as $topicKey => $topic)
@@ -60,7 +64,22 @@
                             </div>
                         @endforeach
                         </div>
-                    </fieldset>
+                    </fieldset> --}}
+                    
+                    @foreach ($topics as $scheme => $concepts)
+                        <fieldset>
+                            <legend class="block font-medium">{{ $scheme }}</legend>
+                            <div class="space-y-6 pt-6 sm:space-y-4 sm:pt-4 max-h-72 overflow-y-auto">
+                            @foreach ($concepts as $concept)
+
+                                <div class="flex items-center text-base sm:text-sm">
+                                <input id="topic-{{ $concept['id'] ?? str($concept['name'])->slug()->toString() }}" name="topics[]" value="{{ $concept['id'] ?? str($concept['name'])->slug()->toString() }}" type="checkbox" @checked(in_array($concept['id'] ?? str($concept['name'])->slug()->toString(), $filters['topics'] ?? [])) class="h-4 w-4 flex-shrink-0 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                                <label for="topic-{{ $concept['id'] ?? str($concept['name'])->slug()->toString() }}" class="ml-3 min-w-0 flex-1 text-gray-600">{{ $concept['name'] }}</label>
+                                </div>
+                            @endforeach
+                            </div>
+                        </fieldset>
+                    @endforeach
                     
                     <fieldset>
                         <legend class="block font-medium">{{ __('Country') }}</legend>
@@ -105,7 +124,7 @@
                         <div class="flex justify-between">
                             @if ($project->type)
                                 <p class="inline text-xs px-2 py-1 rounded bg-lime-100 text-lime-900">
-                                    {{ $project->type->name }}
+                                    {{ $project->type->label() }}
                                 </p>
                             @endif
                         </div>
@@ -115,16 +134,16 @@
                         </a>
 
                         <div class="flex flex-wrap gap-2">
-                            @foreach ($project->topics as $topic)
+                            @foreach ($project->formattedTopics() as $topic)
                                 <span class="inline-flex gap-2 items-center text-xs px-2 py-1 rounded-xl bg-stone-100 text-stone-900">
                                     <x-heroicon-o-hashtag class="w-4 h-4" />
-                                    {{ $topic }}
+                                    {{ $topic['name'] }}
                                 </span>
                             @endforeach
                         </div>
 
                         <div class="space-x-1 text-sm">
-                            <span>{{ $project->countries()->pluck('value')->join(', ') }}</span>
+                            <span>{{ $project->countries()->pluck('name')->join(', ') }}</span>
                             <span>/</span>
                             <span>{{ $project->facetRegions()->join(', ') }}</span>
                         </div>

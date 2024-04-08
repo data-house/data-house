@@ -58,11 +58,14 @@ class ProjectImportCommand extends Command
 
         collect($content)
             ->each(function($p) use ($insert) {
+
+                $cleanedTopics = ($p['topics'][0]['name'] ?? false) ? collect($p['topics'])->pluck('name')->values()->toArray() : $p['topics'];
+
                 try {
                     $project = $insert([
                         'title' => $p['title']['de'] ?? $p['title']['en'] ?? $p['title'],
                         'slug' => $p['slug'],
-                        'topics' => $p['topics'],
+                        'topics' => $cleanedTopics,
                         'type' => $p['type'] ? ProjectType::from($p['type']) : null,
                         'countries' => $p['countries'],
                         'organizations' => $p['organizations'],

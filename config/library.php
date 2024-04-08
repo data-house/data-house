@@ -10,6 +10,8 @@ return [
     'topics' => [
         'disk' => env('TOPIC_FILE_DISK', env('FILESYSTEM_DISK', 'local')),
         'file' => env('TOPIC_FILE_NAME', null),
+
+        'schemes' => env('TOPIC_SCHEMES_ENABLED', null),
     ],
 
 
