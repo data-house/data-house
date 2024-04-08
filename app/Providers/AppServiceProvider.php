@@ -86,18 +86,18 @@ class AppServiceProvider extends ServiceProvider
     protected function configureFeatureFlags()
     {
         Feature::define(Flag::AI_QUESTION_WHOLE_LIBRARY->value, fn (User $user) => match (true) {
-            $user->hasRole(Role::ADMIN->value) => true,
-            $user->hasRole(Role::MANAGER->value) => true,
+            $user->hasRole(Role::ADMIN->value) => false,
+            $user->hasRole(Role::MANAGER->value) => false,
             default => false,
         });
         
         Feature::define(Flag::DOCUMENT_VISIBILITY_EDIT->value, fn (User $user) => match (true) {
-            $user->hasRole(Role::ADMIN->value) => true,
+            $user->hasRole(Role::ADMIN->value) => false,
             default => false,
         });
         
         Feature::define(Flag::DOCUMENT_FILTERS_SOURCE->value, fn (User $user) => match (true) {
-            $user->hasRole(Role::ADMIN->value) => true,
+            $user->hasRole(Role::ADMIN->value) => false,
             default => false,
         });
         
@@ -111,7 +111,7 @@ class AppServiceProvider extends ServiceProvider
         });
         
         Feature::define(Flag::DASHBOARD->value, fn (User $user) => match (true) {
-            $user->hasRole(Role::ADMIN->value) => true,
+            $user->hasRole(Role::ADMIN->value) => false,
             default => false,
         });
         
