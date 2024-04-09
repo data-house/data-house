@@ -19,4 +19,9 @@ return [
         'allow_direct_upload' => (bool)env('LIBRARY_UPLOAD_ALLOW_DIRECT_UPLOAD', true),
     ],
 
+
+    'projects' => [
+        'filterable_status' => env('PROJECTS_FILTERABLE_STATUS', null),
+    ],
+
 ];

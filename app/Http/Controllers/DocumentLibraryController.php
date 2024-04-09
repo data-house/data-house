@@ -48,7 +48,7 @@ class DocumentLibraryController extends Controller
                 'Compressed folder',
             ],
             'type' => DocumentType::cases(),
-            'countries' => $countries->map->getNameInLanguage(LanguageAlpha2::English),
+            'countries' => $countries->map->getNameInLanguage(LanguageAlpha2::English)->sort(),
             'regions' => GeographicRegion::facets($countries?->map->value),
             'organizations' => [],
             'topic' => Topic::facets(),
