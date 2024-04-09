@@ -15,6 +15,8 @@ class Topic
 {
     private static $topics;
 
+    private static $schemes;
+
     public static $dataset;
 
 
@@ -43,9 +45,13 @@ class Topic
             return static::$topics;
         }
 
-        $availableConcepts = collect(collect(static::getTopicFileContent())->get('concepts'));
+        $kb = collect(static::getTopicFileContent());
+
+        $availableConcepts = collect($kb->get('concepts'));
 
         $enabledSchemes = self::enabledSchemes();
+
+        static::$schemes = collect($kb->get('schemes'));
 
         static::$topics = $availableConcepts->whereIn('scheme', $enabledSchemes);
 
@@ -83,10 +89,13 @@ class Topic
     {
         static::all();
 
-        $enabledSchemes = self::enabledSchemes();
-
         return static::$topics->whereNull('parent')->groupBy('scheme')
-            ->filter();
+            ->filter()->mapWithKeys(function($entries, $schemeKey){
+
+                $name = static::$schemes[$schemeKey]['name'] ?? $schemeKey;
+
+                return [$name => $entries];
+            });
     }
 
     public static function nameFromKey(string $key): string
