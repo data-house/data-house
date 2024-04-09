@@ -70,6 +70,29 @@ class RecognizeDocumentProjectTest extends TestCase
 
         $this->assertTrue($project->is($expectedProject));
     }
+    
+    public function test_project_recognized_when_slug_has_spaces(): void
+    {
+        $expectedProject = Project::factory()->create([
+            'slug' => 'project to-match'
+        ]);
+
+        $document = Document::factory()
+            ->has(ImportDocument::factory()->state([
+                'source_path' => 'path [project to-match]/test.pdf'
+            ]), 'importDocument')
+            ->create([
+                'title' => 'A generic title'
+            ]);
+
+        $action = new RecognizeDocumentProject();
+
+        $project = $action($document);
+
+        $this->assertInstanceOf(Project::class, $project);
+
+        $this->assertTrue($project->is($expectedProject));
+    }
 
     public function test_multiple_brackets_handled(): void
     {
