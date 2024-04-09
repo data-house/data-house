@@ -36,10 +36,26 @@ enum ProjectStatus: int
 
     public static function facets()
     {
-        return [
-            self::ACTIVE,
-            self::INACTIVE,
-            self::COMPLETED,
-        ];
+
+        $config = static::enabledStatuses();
+
+        if($config->isEmpty()){
+
+            return [
+                self::ACTIVE,
+                self::INACTIVE,
+                self::COMPLETED,
+            ];
+
+        }
+
+        return collect(self::cases())->whereIn('name', $config);
+
+    }
+
+
+    protected static function enabledStatuses()
+    {
+        return str(config('library.projects.filterable_status', ''))->explode(',')->filter()->values();
     }
 }
