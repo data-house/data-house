@@ -47,7 +47,7 @@
                             @foreach ($facets['status'] as $status)
                                 <div class="flex items-center text-base sm:text-sm">
                                 <input id="status-{{ $status->name }}" name="status[]" value="{{ $status->name }}" type="checkbox" @checked(in_array($status->name, $filters['status'] ?? [])) class="h-4 w-4 flex-shrink-0 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
-                                <label for="status-{{ $status->name }}" class="ml-3 min-w-0 flex-1 text-gray-600">{{ $status->name }}</label>
+                                <label for="status-{{ $status->name }}" class="ml-3 min-w-0 flex-1 text-gray-600">{{ $status->label() }}</label>
                                 </div>
                             @endforeach
                             </div>
