@@ -27,7 +27,7 @@ class RecognizeDocumentProject
             return null;
         }
         
-        $result = $str->matchAll('/\[([a-zA-Z0-9\-\_]*)\]/');
+        $result = $str->matchAll('/\[([a-zA-Z0-9\-\_\s]*)\]/');
 
         return Project::whereIn('slug', $result)->first();
     }
