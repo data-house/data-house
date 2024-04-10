@@ -21,7 +21,7 @@ class MakeDocumentQuestionable extends PipelineJob
      */
     public function handle(): void
     {
-        if(Copilot::disabled()){
+        if(Copilot::disabled() || !(Copilot::enabled() && (Copilot::hasQuestionFeatures() || Copilot::hasTaggingFeatures()))){
             return;
         }
 
