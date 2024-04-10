@@ -71,6 +71,15 @@ class Support
         return 'mailto:'.config('support.email').'?'.$params;
     }
     
+    public static function supportEmail(): ?string
+    {
+        if(!static::hasTicketing()){
+            return null;
+        }
+
+        return config('support.email');
+    }
+    
     public static function buildHelpPageLink(): string
     {
         if(!static::hasHelpPages()){
