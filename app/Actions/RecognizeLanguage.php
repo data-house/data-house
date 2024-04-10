@@ -17,6 +17,7 @@ class RecognizeLanguage
         LanguageAlpha3Terminology::French,
         LanguageAlpha3Terminology::German,
         LanguageAlpha3Terminology::Russian,
+        LanguageAlpha3Terminology::Ukrainian,
     ];
 
     protected const MINIMUM_CONFIDENCE = 0.8;
