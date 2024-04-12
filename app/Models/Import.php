@@ -149,6 +149,11 @@ class Import extends Model
         });
     }
 
+    public function isCancelledOrFailed()
+    {
+        return $this->status == ImportStatus::CANCELLED || $this->status == ImportStatus::FAILED;
+    }
+
 
     /**
      * Get the connection to the file service as a Filesystem
