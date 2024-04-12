@@ -45,7 +45,7 @@ abstract class ImportJobBase implements ShouldQueue
     {
         return [
             new WithoutOverlapping(
-                key: $this->importMap->uuid,
+                key: $this->importMap->ulid,
                 releaseAfter: 45,
                 expiresAfter: 2 * Carbon::MINUTES_PER_HOUR * Carbon::SECONDS_PER_MINUTE
                 )];
@@ -59,6 +59,7 @@ abstract class ImportJobBase implements ShouldQueue
     {
         // If the Import has failed, or been cancelled, stop.
         if ($this->hasBeenCancelled()) {
+            logs()->warning("Import map cancelled.", ['mapping' => $this->importMap->ulid]);
             return;
         }
         
@@ -86,8 +87,8 @@ abstract class ImportJobBase implements ShouldQueue
      */
     protected function hasBeenCancelled(): bool
     {
-        return $this->importMap->fresh()->status !== ImportStatus::RUNNING 
-            && $this->importMap->import->fresh()->status !== ImportStatus::RUNNING;
+        return $this->importMap->fresh()->isCancelledOrFailed() 
+            && $this->importMap->import->fresh()->isCancelledOrFailed();
     }
 
     public function failed()
@@ -99,15 +100,14 @@ abstract class ImportJobBase implements ShouldQueue
         Cache::lock($this->importMap->import->lockKey())->block(30, function() {
             DB::transaction(function () {
 
+                $this->importMap->markAsFailed();
+
                 $import = $this->importMap->import;
 
-                $import->status = ImportStatus::FAILED;
-                $import->save();
-            
-                $import
-                    ->maps()
-                    ->whereIn('status', [ImportStatus::CREATED, ImportStatus::RUNNING])
-                    ->update(['status' => ImportStatus::FAILED, 'last_executed_at' => now()]);
+                if(! $import->maps()->where('status', ImportStatus::RUNNING->value)->exists()){
+                    $import->status = ImportStatus::FAILED;
+                    $import->save();
+                }
             
                 // $import->wipeData(); // Not sure in case of a failed import if we need to clean-it up
             });

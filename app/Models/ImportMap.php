@@ -94,6 +94,12 @@ class ImportMap extends Model
         return $query->where('status', $status->value);
     }
     
+    public function scopeRunning($query)
+    {
+        return $query
+            ->where('status', ImportStatus::RUNNING->value);
+    }
+
     public function scopeNotRunning($query)
     {
         return $query
@@ -127,6 +133,11 @@ class ImportMap extends Model
     {
         return !is_null($this->schedule) && $this->schedule->isScheduled();
     }
+    
+    public function isCancelledOrFailed()
+    {
+        return $this->status == ImportStatus::CANCELLED || $this->status == ImportStatus::FAILED;
+    }
 
     public function resetStatusForRetry()
     {
@@ -152,5 +163,12 @@ class ImportMap extends Model
     public function isDue(): bool
     {
         return $this->schedule?->expressionPasses() ?? false;
+    }
+
+    public function markAsFailed()
+    {
+        $this->status = ImportStatus::FAILED;
+        $this->last_executed_at = now();
+        $this->save();
     }
 }
