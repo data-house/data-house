@@ -45,7 +45,7 @@ abstract class ImportJobBase implements ShouldQueue
     {
         return [
             new WithoutOverlapping(
-                key: $this->importMap->uuid,
+                key: $this->importMap->ulid,
                 releaseAfter: 45,
                 expiresAfter: 2 * Carbon::MINUTES_PER_HOUR * Carbon::SECONDS_PER_MINUTE
                 )];
