@@ -15,6 +15,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use \Illuminate\Support\Str;
+use Throwable;
 
 class RetrieveDocumentsToImportJob extends ImportJobBase
 {
@@ -64,6 +65,8 @@ class RetrieveDocumentsToImportJob extends ImportJobBase
             ->filter();
 
         if($normalizedPaths->isEmpty() || $normalizedPaths->count() < $expectedNormalizedPaths){
+
+            logs()->error("Unexpected number of paths for import map [{$this->importMap->ulid}]", ['normalized' => $normalizedPaths->count(), 'expected' => $expectedNormalizedPaths]);
 
             $this->fail("Some folders or file doesn't exist.");
 
@@ -141,7 +144,17 @@ class RetrieveDocumentsToImportJob extends ImportJobBase
             ->filter(function($path){
                 // Filtering only fully supported documents so far
                 // TODO: define a list of supported formats to check against
-                return MimeType::fromFilename($path) !== ModelsMimeType::APPLICATION_PDF;
+
+                try {
+                    return MimeType::fromFilename($path) !== ModelsMimeType::APPLICATION_PDF;
+                } catch (Throwable $th) {
+                    logs()->error("RetrieveDocumentsToImport, failed to recognize mime from path", ['path' => $path]);
+
+                    report($th);
+
+                    return false;
+                }
+
             });
 
         // TODO: maybe I can prevent something knowing that source_path hash is duplicate
