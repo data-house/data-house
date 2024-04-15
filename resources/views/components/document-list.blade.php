@@ -8,8 +8,7 @@
             'flex',
             'gap-2',
             'items-center',
-            'col-span-7' => \Laravel\Pennant\Feature::inactive(Flag::editDocumentVisibility()),
-            'col-span-5' => \Laravel\Pennant\Feature::active(Flag::editDocumentVisibility()),
+            'col-span-6',
             ]) 
         >
             <div class="h-8 w-h-8" ></div>
@@ -19,24 +18,21 @@
 
         <div
             @class([ 
-            'col-span-2' => \Laravel\Pennant\Feature::inactive(Flag::editDocumentVisibility())
+            'col-span-1', 
             ])>
             {{ __('Format') }}
         </div>
 
         <div
             @class(['truncate', 
-                'col-span-2' => \Laravel\Pennant\Feature::active(Flag::editDocumentVisibility()),
-                'col-span-3' => \Laravel\Pennant\Feature::inactive(Flag::editDocumentVisibility())
+                'col-span-3'
                 ])>
             {{ __('Project') }}
         </div>
-
-        @feature(Flag::editDocumentVisibility())
-        <div class="justify-start  col-span-2">
-            {{ __('Access') }}
+        
+        <div class="col-span-2">
+            {{ __('Added on') }}
         </div>
-        @endfeature
         
     </div>
     @forelse ($documents as $document)
@@ -47,8 +43,7 @@
                 'flex',
                 'gap-2',
                 'items-center',
-                'col-span-7' => \Laravel\Pennant\Feature::inactive(Flag::editDocumentVisibility()),
-                'col-span-5' => \Laravel\Pennant\Feature::active(Flag::editDocumentVisibility()),
+                'col-span-6',
                 ]) 
             >
                 <x-dynamic-component :component="$document->format->icon" class="text-gray-400 h-7 w-7 shrink-0" />
@@ -56,11 +51,15 @@
                 <a href="{{ route('documents.show', $document) }}" class=" block font-bold truncate group-hover:text-blue-800">
                     <span class="z-10 absolute inset-0"></span>{{ $document->title }}
                 </a>
+
+                @feature(Flag::editDocumentVisibility())
+                    <x-document-visibility-badge :value="$document->visibility" />
+                @endfeature
             </div>
 
             <div
                 @class([ 
-                'col-span-2' => \Laravel\Pennant\Feature::inactive(Flag::editDocumentVisibility())
+                'col-span-1'
                 ])>
                 
                 <span class="truncate inline-block text-xs px-3 py-1 rounded-xl ring-0 ring-stone-300 bg-stone-100 text-stone-900">{{ $document->format->name }}</span>
@@ -69,8 +68,7 @@
 
             <div
             @class(['truncate', 
-                'col-span-2' => \Laravel\Pennant\Feature::active(Flag::editDocumentVisibility()),
-                'col-span-3' => \Laravel\Pennant\Feature::inactive(Flag::editDocumentVisibility())
+                'col-span-3'
                 ])>
                 @if ($document->project)
                     <span class="truncate whitespace-nowrap text-sm">
@@ -79,11 +77,9 @@
                 @endif
             </div>
 
-            @feature(Flag::editDocumentVisibility())
             <div class="col-span-2">
-                <x-document-visibility-badge :value="$document->visibility" />
+                {{ $document->created_at?->toDateString() }}
             </div>
-            @endfeature
         </div>
     @empty
         <div class="">

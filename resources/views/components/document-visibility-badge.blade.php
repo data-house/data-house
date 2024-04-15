@@ -4,6 +4,6 @@
     @if (($slot ?? false) && !empty(trim($slot)))
         {{ $slot }}
     @else
-        <x-dynamic-component :component="$value?->icon() ?? 'heroicon-o-eye'" class="w-3 h-3 shrink-0" /> {{ $value?->label() ?? \App\Models\Visibility::TEAM->label() }}
+        <x-dynamic-component :component="$value?->icon() ?? 'heroicon-o-eye'" class="w-3 h-3 shrink-0" /> <span class="truncate">{{ $value?->label() ?? \App\Models\Visibility::TEAM->label() }}</span>
     @endif
 </span>
