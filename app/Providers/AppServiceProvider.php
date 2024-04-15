@@ -17,6 +17,7 @@ use App\Models\Flag;
 use App\Models\Role;
 use App\Models\User;
 use App\Pipelines\PipelineTrigger;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Laravel\Pennant\Feature;
 
@@ -64,6 +65,11 @@ class AppServiceProvider extends ServiceProvider
         $this->configureFeatureFlags();
 
         $this->configureHelpers();
+
+
+        Request::macro('isSearch', function(){
+            return $this->has('s') && !is_null($this->input('s'));
+        });
     }
 
     protected function configureGates()
