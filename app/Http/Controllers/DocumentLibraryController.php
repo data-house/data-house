@@ -31,7 +31,7 @@ class DocumentLibraryController extends Controller
 
         $documents = ($searchQuery || $searchFilters)
             ? Document::tenantSearch($searchQuery, $searchFilters)->paginate(50)
-            : Document::query()->visibleBy(auth()->user())->paginate(50);
+            : Document::queryUsingBuilder()->paginate(50);
 
         $documents->withQueryString();
 

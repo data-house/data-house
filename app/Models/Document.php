@@ -25,6 +25,7 @@ use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
 use PrinsFrank\Standards\Language\LanguageAlpha2;
 use App\Searchable;
+use App\Sorting\Sorting;
 use App\Starrable;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -32,6 +33,8 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Number;
 use MeiliSearch\Exceptions\JsonEncodingException;
 use Oneofftech\LaravelLanguageRecognizer\Support\Facades\LanguageRecognizer;
+use Spatie\QueryBuilder\AllowedSort;
+use Spatie\QueryBuilder\QueryBuilder;
 use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\Uid\Ulid;
 
@@ -523,5 +526,19 @@ class Document extends Model implements Convertible
 
             throw $ex;
         }
+    }
+
+    public static function queryUsingBuilder()
+    {
+        $sorting = Sorting::for(static::class);
+
+        return QueryBuilder::for(static::class)
+            ->defaultSort($sorting->defaultSortForBuilder())
+            ->allowedSorts($sorting->allowedSortsForBuilder())
+            ->allowedFilters([])
+            ->allowedFields([])
+            ->allowedIncludes([])
+            ->visibleBy(auth()->user())
+            ;
     }
 }
