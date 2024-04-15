@@ -160,6 +160,7 @@ return [
                     'stars',
                 ],
                 'sortableAttributes' => [
+                    'title',
                     'updated_at',
                     'created_at',
                     'published_at',
