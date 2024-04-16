@@ -2,9 +2,11 @@
 
 namespace App\Sorting;
 
+use Illuminate\Http\Request;
 use InvalidArgumentException;
 use Illuminate\Support\Collection;
 use Spatie\QueryBuilder\AllowedSort;
+use Spatie\QueryBuilder\QueryBuilderRequest;
 
 class Sorting 
 {
@@ -16,18 +18,26 @@ class Sorting
 
     protected function __construct($model)
     {
-        $this->allowedSorts = collect(config("library.{$model}.sorting.allowed_sorts", []));
+        $this->allowedSorts = collect(config("library.{$model}.sorting.allowed", []))
+            ->mapWithKeys(
+                fn($field, $name) => [ltrim($name, '-+') => new SortOption(ltrim($name, '-+'), $field, strpos($name, '-') === 0 ? 'DESC' : 'ASC')]
+            );
 
-        $this->defaultSort = config("library.{$model}.sorting.default_sort", null);
+        $this->defaultSort = config("library.{$model}.sorting.default", null);
 
         throw_if(is_null($this->defaultSort), InvalidArgumentException::class, 'Default sorting configuration required.');
+        throw_if(is_null($this->allowedSorts[ltrim($this->defaultSort, '-+')] ?? null), InvalidArgumentException::class, 'Default sorting must be allowed in configuration.');
     }
 
 
 
-    public function defaultSort(): string
+    public function defaultSort(): SortOption
     {
-        return $this->defaultSort;
+        $option = $this->allowedSorts[ltrim($this->defaultSort, '-+')];
+
+        $sortingOrder = (strpos($this->defaultSort, '-') === 0 ? 'DESC' : 'ASC') ;
+
+        return  $option->setDirection($sortingOrder);
     }
     
     public function allowerdSorts()
@@ -37,20 +47,50 @@ class Sorting
     
     public function options(): Collection
     {
-        return $this->allowedSorts->keys();
+        return $this->allowedSorts;
     }
     
-    public function defaultSortForBuilder(): string
-    {
-        $sortingOrder = (strpos($this->defaultSort, '-') === 0 ? '-' : '') ;
-
-        return  $sortingOrder . ($this->allowedSorts[ltrim($this->defaultSort, '-+')] ?? $this->allowedSorts[$this->defaultSort]);
-    }
 
     public function allowedSortsForBuilder(): array
     {
-        return $this->allowedSorts->map(fn($field, $sort) => AllowedSort::field($sort, ltrim($field, '-+')))->toArray();
+        return $this->allowedSorts->map->toAllowedSort()->toArray();
     }
+    
+    public function mapRequested(Collection $requested)
+    {
+        return $requested->map(function($sort){
+            $cleanName = ltrim($sort, '-+');
+
+            if(!$this->allowedSorts->has($cleanName)){
+                return null;
+            }
+
+            return $this->allowedSorts->get($cleanName)->setDirection(strpos($sort, '-') === 0 ? 'DESC' : 'ASC');
+        });
+    }
+
+    // public function from(Request $request): Collection
+    // {
+    //     $requested = QueryBuilderRequest::fromRequest($request)->sorts();
+
+    //     if($requested->isEmpty()){
+
+    //         $sort = $this->defaultSortForBuilder();
+
+    //         return collect([ltrim($sort, '-+') => strpos($this->defaultSort, '-') === 0 ? 'DESC' : 'ASC']);
+    //     }
+
+    //     // TODO: remove best_match if present
+
+    //     return $requested->filter(function($sort){
+    //         return $sort !== '_best_match' && $sort !== '-_best_match';
+    //     })->mapWithKeys(function($sort){
+
+    //         $order = $this->allowedSorts[ltrim($sort, '-+')] ?? $this->allowedSorts['-'.$sort];
+
+    //         return [$order => strpos($sort, '-') === 0 ? 'DESC' : 'ASC'];
+    //     });
+    // }
 
 
     /**

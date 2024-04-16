@@ -7,8 +7,14 @@
     >
 
     <x-slot:filters>
+        @if (!empty($sorting))
+            <input type="hidden" name="sort" value="{{ $sorting }}">
+        @endif
+
         @include('document.partials.filters')
     </x-slot>
+
+    
 
     <div class="flex justify-between mt-2 relative">
         <div>

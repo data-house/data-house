@@ -2,36 +2,27 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\RetrievalRequest;
 use App\Models\Document;
 use App\Models\DocumentType;
 use App\Models\GeographicRegion;
 use App\Models\Project;
 use App\Models\Topic;
+use App\Sorting\Sorting;
 use Illuminate\Http\Request;
 use PrinsFrank\Standards\Language\LanguageAlpha2;
+use Spatie\QueryBuilder\QueryBuilderRequest;
 
 class DocumentLibraryController extends Controller
 {
     /**
      * Handle the incoming request.
      */
-    public function __invoke(Request $request)
+    public function __invoke(RetrievalRequest $request)
     {
-        $searchQuery = $request->has('s') ? $request->input('s') : null;
+        $searchFilters = $request->filters();
 
-        $sourceFilters = $request->hasAny(['source']) ? $request->only(['source']) : ['source' => 'all-teams'];
-
-        $teamFilters = $sourceFilters['source'] === 'current-team' ? ['team_id' => $request->user()->currentTeam->getKey()] : [];
-
-        $starredFilters = $request->hasAny(['starred']) ? ['stars' => $request->user()->getKey()] : [];
-
-        $filters = $request->hasAny(['project_countries', 'format', 'type', 'project_region', 'project_topics']) ? $request->only(['project_countries', 'format', 'type', 'project_region', 'project_topics']) : [];
-
-        $searchFilters = array_merge($filters, $teamFilters, $starredFilters);
-
-        $documents = ($searchQuery || $searchFilters)
-            ? Document::tenantSearch($searchQuery, $searchFilters)->paginate(50)
-            : Document::queryUsingBuilder()->paginate(50);
+        $documents = Document::retrieve($request)->paginate(50);
 
         $documents->withQueryString();
 
@@ -56,12 +47,13 @@ class DocumentLibraryController extends Controller
 
         return view('library.index', [
             'documents' => $documents,
-            'searchQuery' => $searchQuery,
-            'filters' => array_merge($filters, $starredFilters, $sourceFilters),
-            'is_search' => $searchQuery || $searchFilters,
+            'searchQuery' => $request->searchQuery(),
+            'filters' => $searchFilters->except('team_id')->toArray(),
+            'is_search' => $request->isSearch() || $request->hasAppliedFilters(),
             'facets' => $facets,
             'search_topics' => Topic::facets(),
-            'applied_filters_count' => count(array_keys($searchFilters ?? [] )),
+            'sorting' => $request->sorts()->join(','),
+            'applied_filters_count' => $request->appliedFiltersCount(),
         ]);
     }
 }

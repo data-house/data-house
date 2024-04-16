@@ -27,10 +27,10 @@ return [
 
     Document::class => [
         'sorting' => [
-            'default_sort' => '-recently_added',
-            'allowed_sorts' => [
+            'default' => '-recently_added',
+            'allowed' => [
                 'title' => 'title',
-                '-recently_added' => 'created_at',
+                '-recently_added' => 'created_at', // the minus prefix indicates the default direction
             ],
         ],
     ],

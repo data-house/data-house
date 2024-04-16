@@ -3,6 +3,7 @@
 namespace App\View\Components;
 
 use App\Sorting\Sorting;
+use App\Sorting\SortOption;
 use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
@@ -35,13 +36,13 @@ class SortingDropdown extends Component
     }
 
 
-    protected function url($option): string
+    protected function url(SortOption $option): string
     {
         $path = $this->request->url();
         
         $query = collect($this->request->query())->except(['page']);
 
-        $parameters = ['sort' => $option];
+        $parameters = ['sort' => (string)$option];
 
         $parameters = array_merge($query->toArray(), $parameters);
 
@@ -57,11 +58,8 @@ class SortingDropdown extends Component
     {
  
         $options = $this->configuration->options()
-            ->when($this->request->isSearch(), function(Collection $collection, int $value){
-                return $collection->prepend('_best_match');
-            })
-            ->mapWithKeys(function($option){
-                return [ltrim($option, '-+') => $this->url($option)];
+            ->mapWithKeys(function($option, $name){
+                return [$name => $this->url($option)];
             });
 
         $current = collect($this->currentSorts)->first() ?? ($this->request->isSearch() ? '_best_match' : $this->configuration->defaultSort());

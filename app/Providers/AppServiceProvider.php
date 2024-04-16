@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Http\Requests\RetrievalRequest;
 use App\Jobs\Pipeline\Document\ConvertToPdf;
 use App\Models\Document;
 use App\Pipelines\Pipeline;
@@ -69,6 +70,10 @@ class AppServiceProvider extends ServiceProvider
 
         Request::macro('isSearch', function(){
             return $this->has('s') && !is_null($this->input('s'));
+        });
+
+        $this->app->bind(RetrievalRequest::class, function ($app) {
+            return RetrievalRequest::fromRequest($app['request']);
         });
     }
 

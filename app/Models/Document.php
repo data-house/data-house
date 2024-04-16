@@ -6,6 +6,7 @@ use App\Copilot\Questionable;
 use App\Data\FileFormatData;
 use App\DocumentConversion\Contracts\Convertible;
 use App\DocumentConversion\ConversionRequest;
+use App\Http\Requests\RetrievalRequest;
 use App\PdfProcessing\DocumentContent;
 use App\PdfProcessing\DocumentReference;
 use App\PdfProcessing\Facades\Pdf;
@@ -528,12 +529,36 @@ class Document extends Model implements Convertible
         }
     }
 
-    public static function queryUsingBuilder()
+    /**
+     * @return \Spatie\QueryBuilder\QueryBuilder|\Laravel\Scout\Builder
+     */
+    public static function retrieve(RetrievalRequest $request)
     {
         $sorting = Sorting::for(static::class);
 
-        return QueryBuilder::for(static::class)
-            ->defaultSort($sorting->defaultSortForBuilder())
+        $filters = $request->filters()->except(['source']);
+
+        if ($request->isSearch() || $filters->isNotEmpty()){
+
+            $defaultSort = $sorting->defaultSort();
+
+            $sorts = $sorting->mapRequested($request->sorts())->whenEmpty(function($collection) use ($defaultSort){
+                return $collection->push($defaultSort);
+            });
+            
+            return static::tenantSearch($request->searchQuery(), $filters->toArray())
+                ->when($sorts, function($builder, $requestedSorts){
+
+                    $requestedSorts->each(function($sort) use ($builder){
+                        $builder->orderBy($sort->field, $sort->direction);
+                    });
+
+                    return $builder;
+                });
+        }
+
+        return QueryBuilder::for(static::class, $request)
+            ->defaultSort($sorting->defaultSort()->toFieldString())
             ->allowedSorts($sorting->allowedSortsForBuilder())
             ->allowedFilters([])
             ->allowedFields([])

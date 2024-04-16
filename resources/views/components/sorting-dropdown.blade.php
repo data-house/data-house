@@ -4,6 +4,9 @@
         <span>{{ __('Sort by') }}</span>
 
         <span class="font-bold">
+            @if ($is_search)
+                {{ __('Best match')}}&nbsp;+&nbsp;
+            @endif
             {{ trans("sorting.{$current}") }}
         </span>
         
@@ -17,9 +20,14 @@
             x-transition:leave="transition ease-in duration-75"
             x-transition:leave-start="transform opacity-100 scale-100"
             x-transition:leave-end="transform opacity-0 scale-95"
-            class="absolute z-50 mt-2 w-48 rounded-md shadow-lg border border-stone-300/40 origin-top-right right-0 "
+            class="absolute z-50 mt-2 w-full min-w-48 rounded-md shadow-lg border border-stone-300/40 origin-top-right right-0 "
             style="display: none;">
         <div class="rounded-md ring-1 ring-black ring-opacity-5  py-1 bg-white">
+
+            @if ($is_search)
+                <p class="px-4 py-2  prose prose-sm">{{ __('Sorting is applied after the best matches are found') }}</p>
+            @endif
+
             @foreach ($options as $option => $url)
                 <x-dropdown-link :active="$option === $current" :href="$url">
                     {{ trans("sorting.{$option}") }}
