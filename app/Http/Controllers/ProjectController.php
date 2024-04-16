@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\RetrievalRequest;
 use App\Models\Document;
 use App\Models\DocumentType;
 use App\Models\GeographicRegion;
@@ -77,23 +78,11 @@ class ProjectController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Project $project, Request $request)
+    public function show(Project $project, RetrievalRequest $request)
     {
-        $searchQuery = $request->has('s') ? $request->input('s') : null;
+        $searchFilters = $request->filters();
 
-        $sourceFilters = $request->hasAny(['source']) ? $request->only(['source']) : ['source' => 'all-teams'];
-
-        $teamFilters = $sourceFilters['source'] === 'current-team' ? ['team_id' => $request->user()->currentTeam->getKey()] : [];
-
-        $starredFilters = $request->hasAny(['starred']) ? ['stars' => $request->user()->getKey()] : [];
-
-        $filters = $request->hasAny(['project_countries', 'format', 'type', 'project_region', 'project_topics']) ? $request->only(['project_countries', 'format', 'type', 'project_region', 'project_topics']) : [];
-
-        $searchFilters = array_merge($filters, $teamFilters, $starredFilters);
-
-        $documents = ($searchQuery || $searchFilters)
-            ? Document::tenantSearch($searchQuery, $searchFilters, $request->user(), $project)->paginate(50)
-            : Document::query()->inProject($project)->visibleBy($request->user())->paginate(50);
+        $documents = Document::retrieve($request, $project)->paginate(50);
 
         $documents->withQueryString();
 
@@ -120,12 +109,13 @@ class ProjectController extends Controller
             'project' => $project,
             'documents' => $documents,
             'topics' => $project->formattedTopics(),
-            'searchQuery' => $searchQuery,
-            'filters' => $searchFilters,
-            'is_search' => $searchQuery || $searchFilters,
+            'searchQuery' => $request->searchQuery(),
+            'filters' => $searchFilters->except('team_id')->toArray(),
+            'is_search' => $request->isSearch() || $request->hasAppliedFilters(),
             'facets' => $facets,
             'search_topics' => Topic::facets(),
-            'applied_filters_count' => count(array_keys($searchFilters ?? [] )),
+            'sorting' => $request->sorts()->join(','),
+            'applied_filters_count' => $request->appliedFiltersCount(),
         ]);
     }
 

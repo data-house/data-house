@@ -532,7 +532,7 @@ class Document extends Model implements Convertible
     /**
      * @return \Spatie\QueryBuilder\QueryBuilder|\Laravel\Scout\Builder
      */
-    public static function retrieve(RetrievalRequest $request)
+    public static function retrieve(RetrievalRequest $request, ?Project $project = null)
     {
         $sorting = Sorting::for(static::class);
 
@@ -546,7 +546,7 @@ class Document extends Model implements Convertible
                 return $collection->push($defaultSort);
             });
             
-            return static::tenantSearch($request->searchQuery(), $filters->toArray())
+            return static::tenantSearch($request->searchQuery(), $filters->toArray(), $request->user(), $project)
                 ->when($sorts, function($builder, $requestedSorts){
 
                     $requestedSorts->each(function($sort) use ($builder){
@@ -563,7 +563,8 @@ class Document extends Model implements Convertible
             ->allowedFilters([])
             ->allowedFields([])
             ->allowedIncludes([])
-            ->visibleBy(auth()->user())
+            ->visibleBy($request->user())
+            ->when($project, fn($builder) => $builder->inProject($project))
             ;
     }
 }
