@@ -62,7 +62,7 @@ class SortingDropdown extends Component
                 return [$name => $this->url($option)];
             });
 
-        $current = collect($this->currentSorts)->first() ?? ($this->request->isSearch() ? '_best_match' : $this->configuration->defaultSort());
+        $current = collect($this->currentSorts)->first() ?? $this->configuration->defaultSort();
 
 
         return view('components.sorting-dropdown', [
