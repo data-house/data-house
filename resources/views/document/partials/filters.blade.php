@@ -1,5 +1,10 @@
 
 <div class="grid auto-rows-min grid-cols-1 md:col-span-4 gap-y-10 md:grid-cols-2 md:gap-x-6">
+
+    @if (!empty($sorting))
+        <input type="hidden" name="sort" value="{{ $sorting }}">
+    @endif
+
     <fieldset>
         <legend class="block font-medium">{{ __('Stars') }}</legend>
         <div class="space-y-6 pt-6 sm:space-y-4 sm:pt-4 max-h-72 overflow-y-auto">

@@ -6,6 +6,7 @@ use App\Copilot\Questionable;
 use App\Data\FileFormatData;
 use App\DocumentConversion\Contracts\Convertible;
 use App\DocumentConversion\ConversionRequest;
+use App\Http\Requests\RetrievalRequest;
 use App\PdfProcessing\DocumentContent;
 use App\PdfProcessing\DocumentReference;
 use App\PdfProcessing\Facades\Pdf;
@@ -25,6 +26,7 @@ use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
 use PrinsFrank\Standards\Language\LanguageAlpha2;
 use App\Searchable;
+use App\Sorting\Sorting;
 use App\Starrable;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -32,6 +34,8 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Number;
 use MeiliSearch\Exceptions\JsonEncodingException;
 use Oneofftech\LaravelLanguageRecognizer\Support\Facades\LanguageRecognizer;
+use Spatie\QueryBuilder\AllowedSort;
+use Spatie\QueryBuilder\QueryBuilder;
 use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\Uid\Ulid;
 
@@ -523,5 +527,44 @@ class Document extends Model implements Convertible
 
             throw $ex;
         }
+    }
+
+    /**
+     * @return \Spatie\QueryBuilder\QueryBuilder|\Laravel\Scout\Builder
+     */
+    public static function retrieve(RetrievalRequest $request, ?Project $project = null)
+    {
+        $sorting = Sorting::for(static::class);
+
+        $filters = $request->filters()->except(['source']);
+
+        if ($request->isSearch() || $filters->isNotEmpty()){
+
+            $defaultSort = $sorting->defaultSort();
+
+            $sorts = $sorting->mapRequested($request->sorts())->whenEmpty(function($collection) use ($defaultSort){
+                return $collection->push($defaultSort);
+            });
+            
+            return static::tenantSearch($request->searchQuery(), $filters->toArray(), $request->user(), $project)
+                ->when($sorts, function($builder, $requestedSorts){
+
+                    $requestedSorts->each(function($sort) use ($builder){
+                        $builder->orderBy($sort->field, $sort->direction);
+                    });
+
+                    return $builder;
+                });
+        }
+
+        return QueryBuilder::for(static::class, $request)
+            ->defaultSort($sorting->defaultSort()->toFieldString())
+            ->allowedSorts($sorting->allowedSortsForBuilder())
+            ->allowedFilters([])
+            ->allowedFields([])
+            ->allowedIncludes([])
+            ->visibleBy($request->user())
+            ->when($project, fn($builder) => $builder->inProject($project))
+            ;
     }
 }

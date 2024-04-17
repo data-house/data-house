@@ -10,6 +10,8 @@
         @include('document.partials.filters')
     </x-slot>
 
+    
+
     <div class="flex justify-between mt-2 relative">
         <div>
             @feature(Flag::questionWholeLibraryWithAI())

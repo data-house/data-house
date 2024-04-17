@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Document;
 use App\Models\Visibility;
 
 return [
@@ -22,6 +23,16 @@ return [
 
     'projects' => [
         'filterable_status' => env('PROJECTS_FILTERABLE_STATUS', null),
+    ],
+
+    Document::class => [
+        'sorting' => [
+            'default' => '-recently_added',
+            'allowed' => [
+                'title' => 'title',
+                '-recently_added' => 'created_at', // the minus prefix indicates the default direction
+            ],
+        ],
     ],
 
 ];

@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Http\Requests\RetrievalRequest;
 use App\Jobs\Pipeline\Document\ConvertToPdf;
 use App\Models\Document;
 use App\Pipelines\Pipeline;
@@ -17,6 +18,7 @@ use App\Models\Flag;
 use App\Models\Role;
 use App\Models\User;
 use App\Pipelines\PipelineTrigger;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Laravel\Pennant\Feature;
 
@@ -64,6 +66,15 @@ class AppServiceProvider extends ServiceProvider
         $this->configureFeatureFlags();
 
         $this->configureHelpers();
+
+
+        Request::macro('isSearch', function(){
+            return $this->has('s') && !is_null($this->input('s'));
+        });
+
+        $this->app->bind(RetrievalRequest::class, function ($app) {
+            return RetrievalRequest::fromRequest($app['request']);
+        });
     }
 
     protected function configureGates()

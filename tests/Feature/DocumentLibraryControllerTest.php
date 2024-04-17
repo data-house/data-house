@@ -90,7 +90,7 @@ class DocumentLibraryControllerTest extends TestCase
         $response->assertViewHas('documents');
         $actualDocuments = $response->viewData('documents');
 
-        $this->assertEquals($documents->pluck('id')->toArray(), $actualDocuments->pluck('id')->toArray());
+        $this->assertEquals($documents->sortByDesc('created_at')->pluck('id')->toArray(), $actualDocuments->pluck('id')->toArray());
     }
     
     public function test_library_shows_documents_when_user_prefer_list_view(): void
@@ -121,12 +121,12 @@ class DocumentLibraryControllerTest extends TestCase
             'Document',
             'Format',
             'Project',
-            'Access',
+            'Added on',
         ]);
 
         $actualDocuments = $response->viewData('documents');
 
-        $this->assertEquals($documents->pluck('id')->toArray(), $actualDocuments->pluck('id')->toArray());
+        $this->assertEquals($documents->sortByDesc('created_at')->pluck('id')->toArray(), $actualDocuments->pluck('id')->toArray());
     }
 
 
@@ -165,7 +165,7 @@ class DocumentLibraryControllerTest extends TestCase
 
         $actualDocuments = $response->viewData('documents');
 
-        $this->assertEquals($visibleDocuments->pluck('id')->toArray(), $actualDocuments->pluck('id')->toArray());
+        $this->assertEquals($visibleDocuments->sortByDesc('created_at')->pluck('id')->toArray(), $actualDocuments->pluck('id')->toArray());
     }
 
 

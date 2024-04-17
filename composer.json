@@ -27,6 +27,7 @@
         "rinvex/countries": "^9.0",
         "smalot/pdfparser": "^2.4",
         "spatie/laravel-data": "^3.11",
+        "spatie/laravel-query-builder": "^5.8",
         "timokoerber/laravel-one-time-operations": "^1.3",
         "vitorccs/laravel-csv": "^1.1"
     },

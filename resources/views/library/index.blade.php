@@ -34,8 +34,13 @@
                 @if (!$is_search)
                     <div class="text-sm py-2 text-right">{{ trans_choice(':total document in the library|:total documents in the library', $documents->total(), ['total' => $documents->total()]) }}</div>
                 @endif
+                
+                <div class="pl-4">
+                    <x-sorting-dropdown model="\App\Models\Document" />
+                </div>
 
                 <x-visualization-style-switcher :user="auth()->user()" class="pl-4" />
+
             </div>
 
             @php
