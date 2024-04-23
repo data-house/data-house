@@ -68,7 +68,7 @@ class JsonDriver implements Driver
      */
     public function facets(): Collection
     {
-        return $this->data->dump()
+        return $this->data
             ->mapWithKeys(function($entries, $schemeKey){
 
                 $concepts = collect($entries['children'])
