@@ -49,9 +49,9 @@
                     </div>
 
                     <div class="flex-wrap gap-2 hidden sm:flex">
-                        @foreach ($project->formattedTopics() as $topic)
+                        @foreach ($project->formattedTopics()->pluck('selected')->collapse() as $topic)
                             <a title="{{ __('Explore projects in :value', ['value' => $topic['name']]) }}"
-                            href="{{ route('projects.index', ['topics' => [$topic['id']]])}}"
+                            href="{{ route('projects.index', ['topics' => [$topic['id'] ?? $topic['name']]])}}"
                             class="inline-flex gap-1 items-center text-xs px-2 py-1 rounded-xl bg-gray-200 text-gray-900 hover:bg-indigo-200 focus:bg-indigo-200 hover:text-indigo-800 focus:text-indigo-800 group">
                                 <x-heroicon-o-hashtag class="w-3 h-3 text-gray-700 group-hover:text-indigo-600" />
                                 {{ $topic['name'] }}
@@ -114,20 +114,23 @@
                                 <div class="relative group">
                                     <div class="bg-white border border-stone-200 rounded-2xl py-2 px-3 group-hover:border-indigo-600">
                                         <p class="mb-2">
-                                            <a href="{{ route('projects.index', ['topics' => [$topic['id']] ])}}" class="group-hover:text-indigo-700">
-                                                <span class="z-10 absolute inset-0"></span>
-                                                {{ $topic['name'] }}
-                                            </a>
-                                        </p>
-                                        <p class="flex flex-wrap gap-2">
-                                        
-                                            @foreach ($topic['selected'] as $selectedTopic)
-                                                <a href="{{ route('projects.index', ['topics' => [$selectedTopic['name']]])}}" class="relative z-20 inline-flex gap-2 items-center text-sm px-2 py-1 rounded-xl bg-gray-200 text-gray-900 hover:bg-indigo-200 focus:bg-indigo-200 ">
-                                                    <x-heroicon-o-hashtag class="w-4 h-4" />
-                                                    {{ $selectedTopic['name'] }}
+                                            @if($topic['id'] ?? false)
+                                                <a href="{{ route('projects.index', ['topics' => [$topic['id']] ])}}" class="group-hover:text-indigo-700">
+                                                    <span class="z-10 absolute inset-0"></span>
+                                                    {{ $topic['name'] }}
                                                 </a>
-                                            @endforeach
+                                            @endif
                                         </p>
+                                        @if ($topic['selected'] && !is_string($topic['selected']))
+                                            <p class="flex flex-wrap gap-2">
+                                                @foreach ($topic['selected'] as $selectedTopic)
+                                                    <a href="{{ route('projects.index', ['topics' => [$selectedTopic['name']]])}}" class="relative z-20 inline-flex gap-2 items-center text-sm px-2 py-1 rounded-xl bg-gray-200 text-gray-900 hover:bg-indigo-200 focus:bg-indigo-200 ">
+                                                        <x-heroicon-o-hashtag class="w-4 h-4" />
+                                                        {{ $selectedTopic['name'] }}
+                                                    </a>
+                                                @endforeach
+                                            </p>
+                                        @endif
                                     </div>
                                 </div>
                             @endforeach

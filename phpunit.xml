@@ -24,6 +24,7 @@
     <env name="COPILOT_QUESTION" value="true"/>
     <env name="COPILOT_TAGGING" value="true"/>
     <env name="PULSE_ENABLED" value="false"/>
+    <env name="TOPICS_PROVIDER" value="'null'"/>
   </php>
   <source>
     <include>

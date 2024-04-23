@@ -1,48 +1,25 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Feature\Topics\Drivers;
 
-use App\Models\Topic;
+use App\Topics\Facades\Topic;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Support\Facades\Storage;
+use Tests\Feature\Topics\InitializeTopics;
 use Tests\TestCase;
 
-class TopicTest extends TestCase
+class JsonConceptsDriverTest extends TestCase
 {
-    use RefreshDatabase;
+    use InitializeTopics;
 
-    protected function setTopics(array $topics)
-    {
-        Topic::clear();
+    protected $driverName = 'json-concepts';
 
-        Storage::fake('local');
-
-        Storage::put('topics.json', json_encode($topics));
-
-        config([
-            'library.topics.file' => 'topics.json',
-        ]);
-    }
-    
-    protected function setTopicsFrom(string $filepath)
-    {
-        Topic::clear();
-
-        Storage::fake('local');
-
-        Storage::put('topics.json', file_get_contents($filepath));
-
-        config([
-            'library.topics.file' => 'topics.json',
-        ]);
-    }
 
     public function test_topics_returned_for_sub_topic_using_predefined_resource()
     {
-        config(['library.topics.schemes' => 'area']);
+        config(['topics.schemes' => 'area']);
 
-        $this->setTopics([
+        $this->createTopicFileWithContent([
 
             "concepts" => [
 
@@ -141,9 +118,9 @@ class TopicTest extends TestCase
 
     public function test_topic_returned_when_reading_from_storage()
     {
-        config(['library.topics.schemes' => 'area']);
+        config(['topics.schemes' => 'area']);
 
-        $this->setTopics([
+        $this->createTopicFileWithContent([
 
             "concepts" => [
 
