@@ -10,7 +10,7 @@ return [
     |
     */
 
-    'default' => env('TOPICS_PROVIDER', 'json-concept'),
+    'default' => env('TOPICS_PROVIDER', 'json-concepts'),
 
     /*
     |--------------------------------------------------------------------------

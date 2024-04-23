@@ -2,6 +2,7 @@
 
 namespace App\Topics;
 
+use App\Topics\Drivers\NullDriver;
 use App\Topics\Drivers\JsonConceptsDriver;
 use App\Topics\Drivers\JsonDriver;
 use Illuminate\Support\Manager;
@@ -18,6 +19,19 @@ class TopicManager extends Manager
     protected function createJsonDriver()
     {
         return new JsonDriver([
+            'schemes' => config('topics.schemes'),
+            ...config('topics.drivers.json')
+        ]);
+    }
+
+    /**
+     * Create an instance of the specified driver.
+     *
+     * @return \App\Topics\Contracts\Driver
+     */
+    protected function createNullDriver()
+    {
+        return new NullDriver([
             'schemes' => config('topics.schemes'),
             ...config('topics.drivers.json')
         ]);
