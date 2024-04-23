@@ -68,11 +68,14 @@ class JsonDriver implements Driver
      */
     public function facets(): Collection
     {
-        return $this->data->flatMap(function($t){
-                return $t['children'] ?? null;
-            })
-            ->filter()
-            ->mapWithKeys(fn($t) => [$t['name'] => str($t['name'])->title()->toString()]);
+        return $this->data->dump()
+            ->mapWithKeys(function($entries, $schemeKey){
+
+                $concepts = collect($entries['children'])
+                    ->map(fn($t) => ['id' => $t['id'], 'name' => str($t['name'])->title()->toString()]);
+
+                return [$schemeKey => $concepts->toArray()];
+            });
     }
 
 }
