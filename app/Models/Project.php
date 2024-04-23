@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use App\Searchable;
+use App\Topics\Facades\Topic;
 use PrinsFrank\Standards\Country\CountryAlpha3;
 use PrinsFrank\Standards\Language\LanguageAlpha2;
 
