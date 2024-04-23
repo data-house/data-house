@@ -9,7 +9,7 @@ use App\Models\GeographicRegion;
 use App\Models\Project;
 use App\Models\ProjectStatus;
 use App\Models\ProjectType;
-use App\Models\Topic;
+use App\Topics\Facades\Topic;
 use Illuminate\Http\Request;
 use PrinsFrank\Standards\Language\LanguageAlpha2;
 

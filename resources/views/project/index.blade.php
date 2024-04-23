@@ -73,7 +73,7 @@
                             @foreach ($concepts as $concept)
 
                                 <div class="flex items-center text-base sm:text-sm">
-                                <input id="topic-{{ $concept['id'] ?? str($concept['name'])->slug()->toString() }}" name="topics[]" value="{{ $concept['id'] ?? str($concept['name'])->slug()->toString() }}" type="checkbox" @checked(in_array($concept['id'] ?? str($concept['name'])->slug()->toString(), $filters['topics'] ?? [])) class="h-4 w-4 flex-shrink-0 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                                <input id="topic-{{ $concept['id'] ?? str($concept['name'])->slug()->toString() }}" name="topics[]" value="{{ $concept['id'] ?? str($concept['name'])->slug()->toString() }}" type="checkbox" @checked(in_array($concept['id'] ?? str($concept['name'])->slug()->toString(), $filters['topics'] ?? []) || in_array($concept['name'], $filters['topics'] ?? [])) class="h-4 w-4 flex-shrink-0 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
                                 <label for="topic-{{ $concept['id'] ?? str($concept['name'])->slug()->toString() }}" class="ml-3 min-w-0 flex-1 text-gray-600">{{ $concept['name'] }}</label>
                                 </div>
                             @endforeach
@@ -134,7 +134,7 @@
                         </a>
 
                         <div class="flex flex-wrap gap-2">
-                            @foreach ($project->formattedTopics() as $topic)
+                            @foreach ($project->formattedTopics()->pluck('selected')->collapse() as $topic)
                                 <span class="inline-flex gap-2 items-center text-xs px-2 py-1 rounded-xl bg-stone-100 text-stone-900">
                                     <x-heroicon-o-hashtag class="w-4 h-4" />
                                     {{ $topic['name'] }}
