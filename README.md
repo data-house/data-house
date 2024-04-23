@@ -83,7 +83,7 @@ If you discover a security vulnerability within Data House, please send an e-mai
 
 ## License
 
-The Data House code is currently open, but use requires to get a license from OneOff-Tech. Contact us at info@oneofftech.xyz.
+The Data House code is licenced under the terms of the [AGPL v3](./LICENCE).
 
-Copyright (c) 2023-Present OneOff-tech UG, Germany [www.oneofftech.xyz](https://oneofftech.xyz)
+Copyright (c) 2023-Present OneOff-tech UG, Germany [www.oneofftech.de](https://oneofftech.de)
 
