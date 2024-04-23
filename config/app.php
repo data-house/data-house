@@ -6,6 +6,7 @@ use App\DocumentThumbnail\DocumentThumbnailServiceProvider;
 use App\HelpAndSupport\SupportServiceProvider;
 use App\PdfProcessing\PdfProcessingServiceProvider;
 use App\Providers\ImportFilesystemProvider;
+use App\Topics\TopicServiceProvider;
 use Illuminate\Support\Facades\Facade;
 
 return [
@@ -197,6 +198,7 @@ return [
         PdfProcessingServiceProvider::class,
         ImportFilesystemProvider::class,
         DocumentThumbnailServiceProvider::class,
+        TopicServiceProvider::class,
         CopilotServiceProvider::class,
         SupportServiceProvider::class,
         AnalyticsServiceProvider::class,
