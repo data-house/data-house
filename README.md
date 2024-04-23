@@ -41,12 +41,13 @@ Data House is built using the [Laravel framework](https://laravel.com/) and
 components, while [TailwindCSS](https://tailwindcss.com/) powers
 the UI styling.
 
-Given the selected stack the development requires:
+Given the selected stack and feature set the development requires:
 
 - [PHP 8.1](https://www.php.net/) or above
 - [Composer](https://getcomposer.org/)
 - [NodeJS](https://nodejs.org/en/) version 14 or above with [Yarn](https://yarnpkg.com/getting-started/install) package manager (tested with v1.x)
 - [MariaDB](https://mariadb.org/) version 10.8 or above
+- [Meilisearch](https://www.meilisearch.com/) version 1.6 or above as the full-text search engine
 - [Docker](https://www.docker.com/)
 
 A [Docker Compose file](./docker-compose.yml) (generated using [Laravel Sail](https://laravel.com/docs/10.x/sail)) is provided to quick start the required services.
