@@ -76,11 +76,13 @@
                                     {{ $project->status->label() }}
                                 </a>
                             @endif
-                            @if ($project->type)
-                                <p class="inline px-2 py-1 rounded bg-lime-100 text-lime-900">
-                                    {{ $project->type->label() }}
-                                </p>
-                            @endif
+                            @feature(Flag::typeProjectFilter())
+                                @if ($project->type)
+                                    <p class="inline px-2 py-1 rounded bg-lime-100 text-lime-900">
+                                        {{ $project->type->label() }}
+                                    </p>
+                                @endif
+                            @endfeature
                         </div>
 
                         <div>
@@ -99,15 +101,19 @@
                         </div>
                     </div>
                     <div class="">
-                        <div class="prose mb-6">
-                            <code>{{ $project->slug }}</code>
-                        </div>
-                        @if ($project->starts_at)
-                            <div class="prose">
-                                {{ $project->starts_at->format('F Y') }} &mdash; {{ $project->ends_at?->format('F Y') ?? 'ongoing' }}
+                        @if (config('library.projects.signature'))
+                            <div class="prose mb-6">
+                                <code>{{ $project->slug }}</code>
                             </div>
                         @endif
-                        <x-section-border />
+                        @if (config('library.projects.period'))
+                            @if ($project->starts_at)
+                                <div class="prose">
+                                    {{ $project->starts_at->format('F Y') }} &mdash; {{ $project->ends_at?->format('F Y') ?? 'ongoing' }}
+                                </div>
+                            @endif
+                            <x-section-border />
+                        @endif
                         <div class="space-y-2">
 
                            @foreach ($topics as $topic)

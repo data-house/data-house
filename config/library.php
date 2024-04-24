@@ -14,6 +14,9 @@ return [
 
 
     'projects' => [
+        'signature' => (bool)env('PROJECTS_SIGNATURE_ENABLED', true),
+        'period' => (bool)env('PROJECTS_PERIOD_ENABLED', true),
+
         'filterable_status' => env('PROJECTS_FILTERABLE_STATUS', null),
     ],
 
