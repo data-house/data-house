@@ -69,29 +69,6 @@ class Sorting
         });
     }
 
-    // public function from(Request $request): Collection
-    // {
-    //     $requested = QueryBuilderRequest::fromRequest($request)->sorts();
-
-    //     if($requested->isEmpty()){
-
-    //         $sort = $this->defaultSortForBuilder();
-
-    //         return collect([ltrim($sort, '-+') => strpos($this->defaultSort, '-') === 0 ? 'DESC' : 'ASC']);
-    //     }
-
-    //     // TODO: remove best_match if present
-
-    //     return $requested->filter(function($sort){
-    //         return $sort !== '_best_match' && $sort !== '-_best_match';
-    //     })->mapWithKeys(function($sort){
-
-    //         $order = $this->allowedSorts[ltrim($sort, '-+')] ?? $this->allowedSorts['-'.$sort];
-
-    //         return [$order => strpos($sort, '-') === 0 ? 'DESC' : 'ASC'];
-    //     });
-    // }
-
 
     /**
      * Get the sorting configuration for the specified resource

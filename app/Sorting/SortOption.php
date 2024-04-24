@@ -25,6 +25,11 @@ class SortOption
         return $this;
     }
 
+    public function invertDirection()
+    {
+        return new self($this->name, $this->field, $this->direction === 'DESC' ? 'ASC' : 'DESC');
+    }
+
 
     public function __toString()
     {
@@ -39,6 +44,16 @@ class SortOption
     public function toAllowedSort(): AllowedSort
     {
         return AllowedSort::field(($this->direction === 'DESC' ? '-' : '') . $this->name, $this->field);
+    }
+
+
+    public function is(SortOption|string $option)
+    {
+        if(is_string($option)){
+            return $this->name === $option;
+        }
+
+        return $this->name === $option->name;
     }
     
 }

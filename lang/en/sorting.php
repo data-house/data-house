@@ -13,7 +13,13 @@ return [
     */
 
     'title' => 'Title',
-    'recently_added' => 'Recently added',
+    'date_upload' => 'Upload date',
     '_best_match' => 'Search relevance',
+
+
+    'direction' => [
+        'desc' => 'Descending',
+        'asc' => 'Ascending',
+    ],
 
 ];
