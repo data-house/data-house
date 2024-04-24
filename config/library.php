@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Document;
+use App\Models\Project;
 use App\Models\Visibility;
 
 return [
@@ -22,10 +23,19 @@ return [
 
     Document::class => [
         'sorting' => [
-            'default' => '-recently_added',
+            'default' => '-date_upload',
             'allowed' => [
                 'title' => 'title',
-                '-recently_added' => 'created_at', // the minus prefix indicates the default direction
+                '-date_upload' => 'created_at', // the minus prefix indicates the default direction
+            ],
+        ],
+    ],
+    
+    Project::class => [
+        'sorting' => [
+            'default' => 'title',
+            'allowed' => [
+                'title' => 'title',
             ],
         ],
     ],

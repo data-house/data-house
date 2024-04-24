@@ -29,7 +29,7 @@ trait Searchable
      * @param array $filters The filters to apply
      * @param User|null $user The user that is performing the search. If null the currently authenticated user is considered
      */
-    public static function advancedSearch($query = '', array $filters = [])
+    public static function advancedSearch($query = '', array $filters = [], BaseCollection|array $sorting = [])
     {
         $escapedQuery = htmlspecialchars($query ?? '', ENT_NOQUOTES | ENT_SUBSTITUTE, 'UTF-8');
 
@@ -47,6 +47,14 @@ trait Searchable
             foreach($filters as $filter => $value){
                 $builder->whereIn($filter, Arr::wrap($value));
             }
+            return $builder;
+        })
+        ->when($sorting, function($builder, $requestedSorts){
+
+            collect($requestedSorts)->each(function($sort) use ($builder){
+                $builder->orderBy($sort->field, $sort->direction);
+            });
+
             return $builder;
         })
         ->options([

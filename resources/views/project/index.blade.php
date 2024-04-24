@@ -109,15 +109,23 @@
 
             </x-search-form>
 
-            @if ($is_search && $projects->isNotEmpty())
-                <div class="text-sm mt-3 py-2 text-right">{{ trans_choice(':total project found|:total projects found', $projects->total(), ['total' => $projects->total()]) }}</div>
-            @endif
+            <div class="flex space-x-4 mt-3 divide-x divide-stone-200 items-center justify-end">
 
-            @if (!$is_search && $projects->isNotEmpty())
-                <div class="text-sm mt-3 py-2 text-right">{{ trans_choice(':total project|:total projects', $projects->total(), ['total' => $projects->total()]) }}</div>
-            @endif
+                @if ($is_search && $projects->isNotEmpty())
+                    <div class="text-sm py-2 text-right">{{ trans_choice(':total project found|:total projects found', $projects->total(), ['total' => $projects->total()]) }}</div>
+                @endif
 
-            <div class="mt-6 grid grid-cols-3 gap-4">
+                @if (!$is_search && $projects->isNotEmpty())
+                    <div class="text-sm py-2 text-right">{{ trans_choice(':total project|:total projects', $projects->total(), ['total' => $projects->total()]) }}</div>
+                @endif
+
+                <div class="pl-4">
+                    <x-sorting-dropdown model="\App\Models\Project" />
+                </div>
+
+            </div>
+
+            <div class="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 @forelse ($projects as $project)
                     <div class="space-y-2 rounded overflow-hidden bg-white p-4 group relative">
                         

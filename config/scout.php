@@ -180,6 +180,7 @@ return [
                     'ends_at',
                 ],
                 'sortableAttributes' => [
+                    'title',
                     'created_at',
                     'starts_at',
                     'ends_at',

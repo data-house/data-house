@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\View\Component;
+use Nette\InvalidStateException;
 use Spatie\QueryBuilder\QueryBuilderRequest;
 
 class SortingDropdown extends Component
@@ -20,6 +21,11 @@ class SortingDropdown extends Component
     protected $currentSorts;
 
     protected $configuration;
+    
+    /**
+     * @var \App\Sorting\SortOption
+     */
+    public $current;
 
     /**
      * Create a new component instance.
@@ -33,10 +39,12 @@ class SortingDropdown extends Component
         $this->currentSorts = QueryBuilderRequest::fromRequest($this->request)->sorts();
 
         $this->configuration = Sorting::for($model);
+
+        $this->current = $this->currentOption();
     }
 
 
-    protected function url(SortOption $option): string
+    public function url(SortOption $option): string
     {
         $path = $this->request->url();
         
@@ -51,25 +59,46 @@ class SortingDropdown extends Component
                 .Arr::query($parameters);
     }
 
+
+    public function currentOption(): SortOption
+    {
+        if($this->currentSorts->isEmpty()){
+            return $this->configuration->defaultSort();
+        }
+
+        $currentSortName = $this->currentSorts->first();
+
+        /**
+         * @var \App\Sorting\SortOption
+         */
+        $option = $this->configuration->options()->get(ltrim($currentSortName, '-'));
+
+        $option->setDirection(strpos($currentSortName, '-') === 0 ? 'DESC': 'ASC');
+
+        if(is_null($option)){
+            throw new InvalidStateException(__('Requested sort is not available.'));
+        }
+
+        return $option;
+    }
+
+    public function isCurrent(SortOption $option): bool
+    {
+        return $this->current->is($option);
+    }
+
     /**
      * Get the view / contents that represent the component.
      */
     public function render(): View|Closure|string
-    {
- 
-        $options = $this->configuration->options()
-            ->mapWithKeys(function($option, $name){
-                return [$name => $this->url($option)];
-            });
-
-        $current = collect($this->currentSorts)->first() ?? $this->configuration->defaultSort();
-
+    { 
+        $options = $this->configuration->options();
 
         return view('components.sorting-dropdown', [
             'is_search' => $this->request->isSearch(),
             'options' => $options,
-            'current' => ltrim($current, '-+'),
-            
+            'current' => $this->current,
+            'current_direction' => strtolower($this->current->direction),
         ]);
     }
 }

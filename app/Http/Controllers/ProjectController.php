@@ -9,9 +9,12 @@ use App\Models\GeographicRegion;
 use App\Models\Project;
 use App\Models\ProjectStatus;
 use App\Models\ProjectType;
+use App\Sorting\Sorting;
 use App\Topics\Facades\Topic;
 use Illuminate\Http\Request;
 use PrinsFrank\Standards\Language\LanguageAlpha2;
+use Spatie\QueryBuilder\QueryBuilder;
+use Spatie\QueryBuilder\QueryBuilderRequest;
 
 class ProjectController extends Controller
 {
@@ -25,15 +28,29 @@ class ProjectController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(QueryBuilderRequest $request)
     {
         $searchQuery = $request->has('s') ? $request->input('s') : null;
 
         $filters = $request->hasAny(['countries', 'type', 'region', 'topics', 'status']) ? $request->only(['countries', 'type', 'region', 'topics', 'status']) : [];
 
+        $sorting = Sorting::for(Project::class);
+
+        $defaultSort = $sorting->defaultSort();
+
+        $sorts = $sorting->mapRequested($request->sorts())->whenEmpty(function($collection) use ($defaultSort){
+            return $collection->push($defaultSort);
+        });
+
         $projects = $searchQuery || $filters 
-            ? Project::advancedSearch($searchQuery, $filters)->paginate(48)
-            : Project::query()->orderBy('title', 'ASC')->paginate(48);
+            ? Project::advancedSearch($searchQuery, $filters, $sorts)->paginate(48)
+            : QueryBuilder::for(Project::class, $request)
+                ->defaultSort($defaultSort->toFieldString())
+                ->allowedSorts($sorting->allowedSortsForBuilder())
+                ->allowedFilters([])
+                ->allowedFields([])
+                ->allowedIncludes([])
+                ->paginate(48);
 
         $projects->withQueryString();
 
