@@ -26,10 +26,10 @@ enum ProjectStatus: int
     public function label(): string
     {
         return match ($this) {
-            self::ACTIVE => 'Open',
-            self::COMPLETED => 'Completed',
-            self::INACTIVE => 'Inactive',
-            self::CLOSED => 'Closed',
+            self::ACTIVE => trans('project-status.active'),
+            self::COMPLETED => trans('project-status.completed'),
+            self::INACTIVE => trans('project-status.inactive'),
+            self::CLOSED => trans('project-status.closed'),
         };
     }
 

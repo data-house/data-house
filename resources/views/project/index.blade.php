@@ -120,14 +120,16 @@
             <div class="mt-6 grid grid-cols-3 gap-4">
                 @forelse ($projects as $project)
                     <div class="space-y-2 rounded overflow-hidden bg-white p-4 group relative">
-            
-                        <div class="flex justify-between">
-                            @if ($project->type)
-                                <p class="inline text-xs px-2 py-1 rounded bg-lime-100 text-lime-900">
-                                    {{ $project->type->label() }}
-                                </p>
-                            @endif
-                        </div>
+                        
+                        @feature(Flag::typeProjectFilter())
+                            <div class="flex justify-between">
+                                @if ($project->type)
+                                    <p class="inline text-xs px-2 py-1 rounded bg-lime-100 text-lime-900">
+                                        {{ $project->type->label() }}
+                                    </p>
+                                @endif
+                            </div>
+                        @endfeature
 
                         <a href="{{ route('projects.show', $project) }}" class="block font-bold group-hover:text-blue-800">
                             <span class="z-10 absolute inset-0"></span>{{ $project->title }}
