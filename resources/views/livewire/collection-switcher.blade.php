@@ -24,14 +24,14 @@
             </div>
 
             <div class="mt-2">
-                <x-dropdown-link 
+                {{-- <x-dropdown-link 
                     class="inline-flex gap-2 items-center"
                     href="{{ route('documents.library') }}"
                     :active="request()->routeIs('documents.*')"
                     >
                     <x-heroicon-o-book-open class="w-6 h-6 {{ request()->routeIs('documents.*') ? 'text-lime-600' : 'text-stone-600' }}" />
                     {{ __('All Library') }}
-                </x-dropdown-link>
+                </x-dropdown-link> --}}
 
                 @foreach ($this->collections as $collection)
                     <x-dropdown-link class="inline-flex gap-2 items-center"
