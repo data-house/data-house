@@ -49,20 +49,33 @@ class CollectionController extends Controller
      */
     public function show(Request $request, Collection $collection)
     {
-        $collection->load(['documents' => function($query){
-            $query
-                ->visibleBy(auth()->user());
-        }, 'questions' => function($query){
-            $query
-                ->viewableBy(auth()->user())
-                ->orderBy('created_at', 'DESC')
-                ->limit(3);
-        }]);
+        $collection->load([
+            'documents' => function($query){
+                $query
+                    ->visibleBy(auth()->user());
+            },
+            'questions' => function($query){
+                $query
+                    ->viewableBy(auth()->user())
+                    ->orderBy('created_at', 'DESC')
+                    ->limit(3);
+            },
+            'notes' => function($query){
+                $query
+                    ->orderBy('created_at', 'DESC')
+                    ->limit(1);
+            },
+        ])
+        ->loadCount('documents');
 
         return view('collection.show', [
             'collection' => $collection,
             'documents' => $collection->documents,
             'questions' => $collection->questions ?? [],
+            'notes' => $collection->notes ?? collect(),
+            'owner_user' => $collection->user,
+            'owner_team' => $collection->team,
+            'total_documents' => $collection->documents_count,
         ]);
     }
 

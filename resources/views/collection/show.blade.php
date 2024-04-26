@@ -26,6 +26,99 @@
         </div>
     </x-slot>
 
+    <div class="bg-white/80 py-3 shadow"  x-data="{ expanded: false }">
+        {{-- Collection expandable details --}}
+
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+
+            <div class="" x-show="!expanded" x-collapse>
+                <div class="flex items-center gap-8">
+                    <div class="grow prose max-w-none line-clamp-1 mt-1">
+                        @if ($notes->first())
+                            {{ str($notes->first()->content)->limit(160)->inlineMarkdown()->toHtmlString() }}
+                        @endif
+                    </div>
+                    <x-small-button class="shrink-0" @click="expanded = ! expanded">{{ __('Expand collection details') }}</x-small-button>
+                </div>
+            </div>
+
+            <div x-cloak x-show="expanded" x-collapse>
+                <div class="mb-6 space-y-2">
+                    <div class="flex justify-between items-center">
+                        <div class="flex gap-2 items-center">
+                            
+                        </div>
+
+                        <div>
+                            <x-small-button @click="expanded = ! expanded">{{ __('Close collection details') }}</x-small-button>
+                        </div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-3 gap-4  pb-12">
+                    <div class="space-y-4 col-span-2">
+                        @foreach ($notes as $note)
+                            <div class="prose">
+                                {{ $note }}
+                            </div>
+                        @endforeach
+                    </div>
+                    <div class="">
+
+                        <div class="space-y-2">
+                            <p class="text-xs uppercase block text-stone-700">{{ __('Documents') }}</p>
+
+                            <div class="">{{ trans_choice(':total document|:total documents', $total_documents, ['total' => $total_documents]) }}</div>
+
+                        </div>
+
+                        <x-section-border />
+
+                        <div class="space-y-2">
+                            <p class="text-xs uppercase block text-stone-700">{{ __('Contact') }}</p>
+
+
+                            <div class="">
+
+                                @if ($owner_team)
+                                    <div class="flex items-center gap-1 ">
+                                        <div class="rounded-xl h-10 w-10 object-cover shadow flex items-center justify-center bg-stone-200">
+                                            <x-heroicon-o-users class="w-6 h-6 text-stone-600" />
+                                        </div>
+                                        
+                                        {{ $owner_team->name }} {{ __('by') }} {{ $owner_user->name }}
+                                    </div>
+                                @else
+    
+                                    <div class="flex items-center gap-1 ">
+                                        <div class="rounded-full h-10 w-10 object-cover shadow flex items-center justify-center bg-stone-200">
+                                            <x-heroicon-o-user class="w-6 h-6 text-stone-600" />
+                                        </div>
+                                        
+                                        {{ $owner_user->name }}
+                                    </div>
+    
+                                @endif
+                            </div>
+
+                        </div>
+                        
+                        <x-section-border />
+                        
+                        <div class="space-y-2">
+                            <p class="text-xs uppercase block text-stone-700">{{ __('Created on') }}</p>
+                            <div class="prose">
+                                {{ $collection->created_at->format('d F Y') }}
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
     <div class="pt-8 pb-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             
@@ -67,7 +160,7 @@
             <div class="flex space-x-4 mt-3 divide-x divide-stone-200 items-center justify-end">
 
                 @if ($documents->isNotEmpty())
-                    <div class="text-sm py-2 text-right">{{ trans_choice(':total document in the collection|:total documents in the collection', $documents->count(), ['total' => $documents->count()]) }}</div>
+                    <div class="text-sm py-2 text-right">{{ trans_choice(':total document in the collection|:total documents in the collection', $total_documents, ['total' => $total_documents]) }}</div>
                 @endif
 
                 <x-visualization-style-switcher :user="auth()->user()" class="pl-4" />
