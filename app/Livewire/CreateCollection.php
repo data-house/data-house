@@ -20,6 +20,13 @@ class CreateCollection extends Component
      * @var string
      */
     public $title;
+    
+    /**
+     * The description of the collection
+     *
+     * @var string
+     */
+    public $description;
 
     /**
      * Stop the collection creation.
@@ -41,6 +48,7 @@ class CreateCollection extends Component
             $this->user,
             [
                 'title' => $this->title,
+                'description' => $this->description,
             ],
         );
 
