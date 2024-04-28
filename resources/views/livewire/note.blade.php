@@ -31,7 +31,12 @@
             <div class="flex text-xs mt-1 justify-between">
                 <div class="inline-flex gap-2">
                     <p class="inline-flex gap-1"><x-heroicon-m-user class="w-4 h-4 text-stone-500" />{{ $note->user?->name }}</p>
-                    <p class="inline-flex gap-1"><x-heroicon-m-calendar class="w-4 h-4 text-stone-500" /><x-date :value="$note->created_at" /></p>
+                    <p class="inline-flex gap-1">
+                        <x-heroicon-m-calendar class="w-4 h-4 text-stone-500" /><x-date :value="$note->created_at" />
+                        @if ($note->updated_at->notEqualTo($note->created_at))
+                            ({{ __('last updated on :date', ['date' => $note->updated_at->toDateString()]) }})
+                        @endif
+                    </p>
                 </div>
 
                 <div class="inline-flex gap-2">
