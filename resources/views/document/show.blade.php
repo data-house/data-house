@@ -56,13 +56,13 @@
 
             <div class="flex flex-col md:flex-row">
 
-                <div class="col-span-2 md:basis-3/5 mb-12">
+                <div class="col-span-2 md:basis-3/5 shrink-0 mb-12">
 
                     <livewire:document-summaries-viewer :document="$document" />
                     
                 </div>
 
-                <div class="flex flex-col gap-6 md:gap-0">
+                <div class="flex flex-col gap-6 md:gap-0 grow">
                     @feature(Flag::collections())
                         <div class="space-y-2">
                             <h4 class="font-bold text-stone-700">{{ __('Collections') }}</h4>
