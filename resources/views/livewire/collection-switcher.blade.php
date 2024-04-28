@@ -34,7 +34,7 @@
                 </x-dropdown-link> --}}
 
                 @foreach ($this->collections as $collection)
-                    <x-dropdown-link class="inline-flex gap-2 items-center"
+                    <x-dropdown-link x-tooltip.raw="{{ $collection->firstNote?->previewContent()}}" class="inline-flex gap-2 items-center"
                         href="{{ route('collections.show', $collection) }}"
                         :active="request()->is('*/'.$collection->ulid)">
                         <x-heroicon-o-archive-box class="w-6 h-6  {{ request()->is('*/'.$collection->ulid) ? 'text-lime-600' : 'text-stone-600' }}" />

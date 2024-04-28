@@ -35,7 +35,7 @@
                 <div class="flex items-center gap-8">
                     <div class="grow prose max-w-none line-clamp-1 mt-1">
                         @if ($notes->first())
-                            {{ str($notes->first()->content)->limit(160)->inlineMarkdown()->toHtmlString() }}
+                            {{ $notes->first()->previewContent() }}
                         @endif
                     </div>
                     <x-small-button class="shrink-0" @click="expanded = ! expanded">{{ __('Expand collection details') }}</x-small-button>

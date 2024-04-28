@@ -109,4 +109,9 @@ class Note extends Model implements Htmlable
     {
         return str($this->content)->markdown()->toHtmlString();
     }
+    
+    public function previewContent()
+    {
+        return str($this->content)->limit(160)->inlineMarkdown()->toHtmlString();
+    }
 }

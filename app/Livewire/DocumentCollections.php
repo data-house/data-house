@@ -72,6 +72,7 @@ class DocumentCollections extends Component
         return Collection::query()
             ->withoutSystem()
             ->visibleBy($this->user)
+            ->with('firstNote')
             ->whereNotIn('id', $this->collections->modelKeys())
             ->get();
     }

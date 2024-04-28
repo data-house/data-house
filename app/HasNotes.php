@@ -8,6 +8,7 @@ use App\Models\Note;
 use App\Models\Star;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 
 trait HasNotes
 {
@@ -18,6 +19,11 @@ trait HasNotes
     public function notes(): MorphMany
     {
         return $this->morphMany(Note::class, 'noteable');
+    }
+    
+    public function firstNote(): MorphOne
+    {
+        return $this->morphOne(Note::class, 'noteable')->oldestOfMany();
     }
     
     public function annotatedByAuthor(): MorphMany
