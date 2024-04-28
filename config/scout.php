@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Collection;
 use App\Models\Document;
 use App\Models\Note;
 use App\Models\Project;
@@ -218,6 +219,19 @@ return [
                 ],
                 'sortableAttributes' => [
                     'created_at',
+                ],
+            ],
+            Collection::class => [
+                'filterableAttributes'=> [
+                    'id',
+                    'visibility',
+                    'user_id',
+                    'team_id',
+                ],
+                'sortableAttributes' => [
+                    'title',
+                    'created_at',
+                    'updated_at',
                 ],
             ],
         ],
