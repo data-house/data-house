@@ -42,7 +42,7 @@
                 @empty
                     
                     @can('create', \App\Models\Note::class)
-                        <livewire:take-note @saved="$refresh" :resource="$this->userStar" />
+                        <livewire:take-note @saved="$refresh" :resource="$this->userStar" :description="__('Keep track of what you\'re thinking about. Add a personal note for future retrieval.')" />
                     @else
                         <p class="text-stone-700">{{ __('No thoughts noted down yet.') }}</p>
                     @endcan

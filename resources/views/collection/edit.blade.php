@@ -5,7 +5,11 @@
     <x-slot name="header">
         <div class="md:flex md:items-center md:justify-between relative">
             <h2 class="font-semibold text-xl text-stone-800 leading-tight">
-                {{ __('Edit :collection', ['collection' => $collection->title]) }}
+                <a href="{{ route('collections.show', $collection) }}" class="px-1 py-0.5 bg-blue-50 rounded text-base inline-flex items-center text-blue-700 underline hover:text-blue-800" title="{{ __('Back to :collection', ['collection' => $collection->title]) }}">
+                    <x-heroicon-m-arrow-left class="w-4 h-4" />
+                    {{ $collection->title }}
+                </a>
+                {{ __('Edit') }}
             </h2>
             <div class="flex gap-2">
 
@@ -61,6 +65,21 @@
                 </x-slot>
 
             </x-section>
+
+            <x-section-border />
+
+            <div class="md:grid md:grid-cols-3 md:gap-6">
+                <x-section-title>
+                    <x-slot name="title">{{ __('Collection Description and notes') }}</x-slot>
+                    <x-slot name="description">{{ __('Describe how it is used and whether any rules apply to adding documents to the collection.') }}</x-slot>
+                </x-section-title>
+            
+                <div class="mt-5 md:mt-0 md:col-span-2 space-y-4">
+
+                    <livewire:note-list :resource="$collection" />
+
+                </div>
+            </div>
 
             <x-section-border />
 

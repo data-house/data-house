@@ -62,7 +62,7 @@ class CollectionController extends Controller
             },
             'notes' => function($query){
                 $query
-                    ->orderBy('created_at', 'DESC')
+                    ->orderBy('created_at', 'ASC')
                     ->limit(1);
             },
         ])
@@ -84,12 +84,13 @@ class CollectionController extends Controller
      */
     public function edit(Collection $collection)
     {
-        $collection->load(['user', 'team']);
+        $collection->load(['user', 'team', 'notes']);
 
         return view('collection.edit', [
             'owner_user' => $collection->user,
             'owner_team' => $collection->team,
             'collection' => $collection,
+            'notes' => $collection->notes,
         ]);
     }
 
