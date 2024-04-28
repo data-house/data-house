@@ -44,7 +44,7 @@ class DocumentSummariesViewer extends Component
     #[Computed()]
     public function summaries()
     {
-        return $this->document()->summaries;
+        return $this->document()->summaries()->with('user')->orderBy('created_at', 'DESC')->get();
     }
 
     /**
