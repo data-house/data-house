@@ -31,7 +31,7 @@
         </div>
         
         <div class="col-span-2">
-            {{ __('Added on') }}
+            {{ __('Uploaded on') }}
         </div>
         
     </div>

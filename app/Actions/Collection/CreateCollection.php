@@ -8,6 +8,7 @@ use App\Models\CollectionType;
 use App\Models\Team;
 use App\Models\User;
 use App\Models\Visibility;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -51,21 +52,33 @@ class CreateCollection
             'type' => ['required', new Enum(CollectionType::class)],
             'strategy' => ['nullable', new Enum(CollectionStrategy::class)],
             'draft' => ['nullable', 'bool'],
+            'description' => ['nullable', 'string', 'max:6000'],
         ])->validate();
 
         if($input['visibility'] == Visibility::TEAM && is_null($user->currentTeam)){
             throw ValidationException::withMessages(['team' => __('Team required, but User doesn\'t have a current team set.')]);
         }
 
-        return Collection::create([
-            'user_id' => $user->getKey(),
-            'title' => $input['title'],
-            'visibility' => $input['visibility'] ?? Visibility::TEAM,
-            'type' => $input['type'],
-            'strategy' => $input['strategy'] ?? CollectionStrategy::STATIC,
-            'draft' => $input['draft'] ?? true,
-            'team_id' => $user->currentTeam?->getKey(),
-        ]);
+        $collection = DB::transaction(function() use ($input, $user){
+
+            $collection = Collection::create([
+                'user_id' => $user->getKey(),
+                'title' => $input['title'],
+                'visibility' => $input['visibility'] ?? Visibility::TEAM,
+                'type' => $input['type'],
+                'strategy' => $input['strategy'] ?? CollectionStrategy::STATIC,
+                'draft' => $input['draft'] ?? true,
+                'team_id' => $user->currentTeam?->getKey(),
+            ]);
+    
+            if($input['description'] ?? false){
+                $collection->addNote($input['description'], $user);
+            }
+
+            return $collection;
+        });
+
+        return $collection;
 
     }
 }

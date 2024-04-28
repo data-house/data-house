@@ -36,6 +36,7 @@ class CreateCollectionTest extends TestCase
         $this->assertEquals(CollectionType::STATIC, $collection->type);
         $this->assertEquals(CollectionStrategy::LIBRARY, $collection->strategy);
         $this->assertTrue($collection->draft);
+        $this->assertEmpty($collection->notes);
     }
 
     public function test_collection_title_must_be_non_empty(): void
@@ -104,5 +105,32 @@ class CreateCollectionTest extends TestCase
             'strategy' => CollectionStrategy::LIBRARY,
             'draft' => true,
         ]);
+    }
+
+    public function test_collection_with_note_created(): void
+    {
+        $user = User::factory()->manager()->create()->withAccessToken(new TransientToken);
+
+        $collection = (new CreateCollection)($user, [
+            'title' => 'Collection title',
+            'description' => 'Example description',
+            'visibility' => Visibility::PERSONAL,
+            'type' => CollectionType::STATIC,
+            'strategy' => CollectionStrategy::LIBRARY,
+            'draft' => true,
+        ]);
+
+        $this->assertInstanceOf(Collection::class, $collection);
+        $this->assertEquals('Collection title', $collection->title);
+        $this->assertEquals(Visibility::PERSONAL, $collection->visibility);
+        $this->assertEquals(CollectionType::STATIC, $collection->type);
+        $this->assertEquals(CollectionStrategy::LIBRARY, $collection->strategy);
+        $this->assertTrue($collection->draft);
+        $this->assertEquals(1, $collection->notes->count());
+
+        $note = $collection->notes->first();
+
+        $this->assertTrue($note->user->is($user));
+        $this->assertEquals('Example description', $note->content);
     }
 }

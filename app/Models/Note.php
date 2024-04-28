@@ -4,12 +4,13 @@ namespace App\Models;
 
 use App\Searchable;
 use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
-class Note extends Model
+class Note extends Model implements Htmlable
 {
     use HasFactory;
 
@@ -102,5 +103,15 @@ class Note extends Model
             'content' => $this->content,
             'linked_resource_type' => $this->noteable_type,
         ];
+    }
+
+    public function toHtml()
+    {
+        return str($this->content)->markdown()->toHtmlString();
+    }
+    
+    public function previewContent()
+    {
+        return str($this->content)->limit(160)->inlineMarkdown()->toHtmlString();
     }
 }

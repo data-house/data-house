@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use App\Copilot\AskMultipleQuestion;
+use App\HasNotes;
+use App\Searchable;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -15,6 +17,10 @@ class Collection extends Model
     use HasUlids;
 
     use AskMultipleQuestion;
+
+    use HasNotes;
+
+    use Searchable;
 
     /**
      * The attributes that should be hidden for serialization.
@@ -145,6 +151,42 @@ class Collection extends Model
                 $this->visibility === Visibility::SYSTEM &&
                 $user->getKey() === $this->user_id
             );
+    }
+
+    /**
+     * Modify the query used to retrieve models when making all of the models searchable.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    protected function makeAllSearchableUsing($query)
+    {
+        return $query->with(['notes', 'notes.user']);
+    }
+
+    /**
+     * Get the indexable data array for the model.
+     *
+     * @return array
+     */
+    public function toSearchableArray()
+    {
+        logs()->info("Making collection [{$this->id}] searchable");
+
+        return [
+            'id' => $this->id,
+            'ulid' => $this->ulid,
+            'title' => $this->title,
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
+            'user_id' => $this->user_id,
+            'team_id' => $this->team_id,
+            'team_name' => $this->team?->name,
+            'visibility' => $this->visibility?->value,
+            'notes' => $this->notes->map(function($note){
+                return $note->user?->name . ' - ' . $note->created_at->toDateString() . ' - ' . $note->content;
+            })->toArray(),
+        ];
     }
 
 }

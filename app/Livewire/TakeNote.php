@@ -11,12 +11,28 @@ class TakeNote extends Component
 
     #[Locked]
     public $resource;
+    
+    #[Locked]
+    public $description;
 
     public $content = null;
 
-    protected $rules = [
-        'content' => 'required|min:1|max:4000',
-    ];
+
+    public function rules() 
+    {
+        return [
+            'content' => 'required|min:1|max:4000',
+        ];
+    }
+
+    public function messages() 
+    {
+        return [
+            'content.required' => 'Please add some content to the note before continuing.',
+            'content.min' => 'Please add some content to the note before continuing. At least two characters are required.',
+            'content.max' => 'The note can contain up to 4000 characters.',
+        ];
+    }
 
 
 

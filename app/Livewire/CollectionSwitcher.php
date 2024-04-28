@@ -13,7 +13,7 @@ class CollectionSwitcher extends Component
     #[On('collection-created')]
     public function collections()
     {
-        return Collection::query()->withoutSystem()->visibleBy(auth()->user())->orderBy('title', 'ASC')->get();
+        return Collection::query()->withoutSystem()->with('firstNote')->visibleBy(auth()->user())->orderBy('title', 'ASC')->get();
     }
 
     public function render()

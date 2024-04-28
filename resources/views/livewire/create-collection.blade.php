@@ -18,6 +18,12 @@
                             <x-input-error for="title" class="mt-2" />
                             <x-input id="title" type="text" wire:model="title" name="title" class="mt-1 block w-full" autofocus autocomplete="title" />
                         </div>
+                        <div class="mt-4">
+                            <x-label for="description" value="{{ __('Description') }}" />
+                            <p class="text-stone-600 text-sm mt-1">{{ __('Describe how it is used and whether any rules apply to adding documents to the collection.') }}</p>
+                            <x-input-error for="description" class="mt-2" />
+                            <x-textarea id="description" wire:model="description" name="description" class="mt-1 block w-full" autocomplete="none" />
+                        </div>
                     </div>
                 </form>
             </x-slot>
