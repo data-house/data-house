@@ -20,6 +20,18 @@
                         {{ $summary }}
                     </div>
 
+                    <div class="flex gap-2 text-sm mt-2">
+                        @if ($summary->user)
+                            <p class="inline-flex gap-1"><x-heroicon-m-user class="w-4 h-4 text-stone-500" />{{ $summary->user?->name }}</p>
+                        @endif
+                        <p class="inline-flex gap-1">
+                            <x-heroicon-m-calendar class="w-4 h-4 text-stone-500" /><x-date :value="$summary->created_at" />
+                            @if ($summary->updated_at->notEqualTo($summary->created_at))
+                                ({{ __('last updated on :date', ['date' => $summary->updated_at->toDateString()]) }})
+                            @endif
+                        </p>
+                    </div>
+
                     <x-small-button class="mt-1" x-show="selected != {{ $loop->iteration }}" type="button" @click="selected = {{ $loop->iteration }}">{{ __('Expand') }}</x-small-button>
                 </div>
                 
