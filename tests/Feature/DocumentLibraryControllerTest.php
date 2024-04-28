@@ -121,7 +121,7 @@ class DocumentLibraryControllerTest extends TestCase
             'Document',
             'Format',
             'Project',
-            'Added on',
+            'Uploaded on',
         ]);
 
         $actualDocuments = $response->viewData('documents');
