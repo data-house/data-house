@@ -19,9 +19,9 @@ class TrackUserSecurityEvents
      */
     public function handle(object $event): void
     {
-        $eventName = str(basename(get_class($event)))->kebab()->toString();
+        $eventName = str(class_basename($event))->kebab()->toString();
 
-        Log::info("User " . basename(get_class($event)), [
+        Log::info("User " . class_basename($event), [
             'user' => $event->user->id,
         ]);
 
