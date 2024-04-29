@@ -2,8 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Events\Auth\PasswordChanged;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Jetstream\Http\Livewire\UpdatePasswordForm;
 use Livewire\Livewire;
@@ -15,6 +17,8 @@ class UpdatePasswordTest extends TestCase
 
     public function test_password_can_be_updated(): void
     {
+        Event::fake();
+
         $this->actingAs($user = User::factory()->create());
 
         Livewire::test(UpdatePasswordForm::class)
@@ -26,6 +30,10 @@ class UpdatePasswordTest extends TestCase
                 ->call('updatePassword');
 
         $this->assertTrue(Hash::check('new-password', $user->fresh()->password));
+
+        Event::assertDispatched(PasswordChanged::class, function($evt) use ($user) {
+            return $user->is($evt->user);
+        });
     }
 
     public function test_current_password_must_be_correct(): void
