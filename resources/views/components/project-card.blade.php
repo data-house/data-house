@@ -28,7 +28,7 @@
             </div>
 
             <div class="flex flex-wrap gap-2">
-                @foreach ($project->formattedTopics() as $topic)
+                @foreach ($project->formattedTopics()->pluck('selected')->collapse() as $topic)
                     <a title="{{ __('Explore documents connected to projects in :value', ['value' => $topic['name']]) }}"
                     href="{{ route('documents.library', ['project_topics' => [$topic['id']]])}}"
                     class="inline-flex gap-1 items-center text-xs px-2 py-1 rounded-xl bg-gray-200 text-gray-900 hover:bg-indigo-200 focus:bg-indigo-200 hover:text-indigo-800 focus:text-indigo-800 group">
