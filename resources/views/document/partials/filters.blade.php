@@ -74,9 +74,9 @@
 </fieldset> --}}
 
 @foreach ($search_topics as $scheme => $concepts)
-    <fieldset>
-        <legend class="block font-medium">{{ $scheme }}</legend>
-        <div class="space-y-6 pt-6 sm:space-y-4 sm:pt-4 max-h-72 overflow-y-auto">
+    <div class="">
+        <p class="block font-medium">{{ $scheme }}</p>
+        <div class="flex flex-col gap-4 pt-6 sm:pt-4 max-h-72  overflow-y-auto">
         @foreach ($concepts as $concept)
 
             <div class="flex items-center text-base sm:text-sm">
@@ -85,7 +85,7 @@
             </div>
         @endforeach
         </div>
-    </fieldset>
+    </div>
 @endforeach
         
 <fieldset>

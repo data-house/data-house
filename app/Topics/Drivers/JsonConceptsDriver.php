@@ -59,15 +59,21 @@ class JsonConceptsDriver implements Driver
      */
     public function from(array|Collection $names): Collection
     {
-        return $this->concepts->only($names)
-            ->whereNotNull('parent')
-            ->groupBy(['parent'])
+        $topicsOfInterest = $this->concepts->only($names)->pluck('parent')->values()->filter();
+
+        return $this->concepts->only($topicsOfInterest)
+            ->whereNull('parent')
+            ->groupBy('scheme', true)
             ->map(function($t, $keys) use ($names){
-                
                 return [
-                    ...$this->concepts->get($keys),
+                    ...$this->schemes->get($keys),
                     ...['id' => $keys],
-                    'selected' => collect($t),
+                    'selected' => collect($t)->map(function($entry, $entryKey){
+                        return [
+                            'id' => $entryKey,
+                            ...$entry,
+                        ];
+                    })->values(),
                 ];
             })
             ->values();
@@ -80,12 +86,19 @@ class JsonConceptsDriver implements Driver
      */
     public function facets(): Collection
     {
-        return $this->concepts->whereNull('parent')->groupBy('scheme')
+        return $this->concepts->whereNull('parent')->groupBy('scheme', true)
             ->filter()->mapWithKeys(function($entries, $schemeKey){
+
+                $withIds = $entries->map(function($entry, $entryKey){
+                    return [
+                        ...$entry,
+                        'id' => $entryKey,
+                    ];
+                });
 
                 $name = $this->schemes[$schemeKey]['name'] ?? $schemeKey;
 
-                return [$name => $entries];
+                return [$name => $withIds->values()];
             });
     }
 

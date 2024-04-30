@@ -63,20 +63,15 @@ class JsonConceptsDriverTest extends TestCase
         $this->assertEquals(1, $topics->count());
         
         $this->assertEquals([
-            "id" => "energy",
-            "name" => "Energy",
-            "scheme" => "area",
-            "parent" => null,
+            "id" => "area",
+            "name" => "Area",
+            "description" => null,
             "selected"  => collect([
                 [
-                    "name" => "Renewable Energy",
+                    "id" => "energy",
+                    "name" => "Energy",
                     "scheme" => "area",
-                    "parent" => "energy",
-                ],
-                [
-                    "name" => "Energy Efficiency",
-                    "scheme" => "area",
-                    "parent" => "energy",
+                    "parent" => null,
                 ],
             ]),
         ], $topics->first());
@@ -84,35 +79,27 @@ class JsonConceptsDriverTest extends TestCase
         $topics = Topic::from(["sustainable-mobility", 'energy-efficiency']);
 
         
-        $this->assertEquals(2, $topics->count());
+        $this->assertEquals(1, $topics->count());
         
         $this->assertEquals([
-            "id" => "energy",
-            "name" => "Energy",
-            "scheme" => "area",
-            "parent" => null,
+            "id" => "area",
+            "name" => "Area",
+            "description" => null,
             "selected"  => collect([
                 [
-                    "name" => "Energy Efficiency",
+                    "id" => "energy",
+                    "name" => "Energy",
                     "scheme" => "area",
-                    "parent" => "energy",
+                    "parent" => null,
                 ],
+                [
+                    "id" => "mobility",
+                    "name" => "Mobility",
+                    "scheme" => "area",
+                    "parent" => null,
+                ]
             ]),
         ], $topics[0]);
-        
-        $this->assertEquals([
-            "id" => "mobility",
-            "name" => "Mobility",
-            "scheme" => "area",
-            "parent" => null,
-            "selected"  => collect([
-                [
-                    "name" => "Sustainable mobility",
-                    "scheme" => "area",
-                    "parent" => "mobility",
-                ],
-            ]),
-        ], $topics[1]);
         
     }
 
@@ -150,16 +137,16 @@ class JsonConceptsDriverTest extends TestCase
         $this->assertEquals(1, $topics->count());
 
         $this->assertEquals([
-            "id" => "energy",
-            "name" => "Energy",
-            "scheme" => "area",
-            "parent" => null,
+            "id" => "area",
+            "name" => "Area",
+            "description" => null,
             "selected"  => collect([
                 [
-                    "name" => "Renewable Energy",
+                    "id" => "energy",
+                    "name" => "Energy",
                     "scheme" => "area",
-                    "parent" => "energy",
-                ]
+                    "parent" => null,
+                ],
             ]),
         ], $topics->first());
         
