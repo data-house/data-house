@@ -28,6 +28,7 @@ use PrinsFrank\Standards\Language\LanguageAlpha2;
 use App\Searchable;
 use App\Sorting\Sorting;
 use App\Starrable;
+use audunru\EagerLoadPivotRelations\EagerLoadPivotTrait;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -44,6 +45,8 @@ use Symfony\Component\Uid\Ulid;
  */
 class Document extends Model implements Convertible
 {
+    use EagerLoadPivotTrait;
+    
     use HasFactory;
 
     use HasUlids;
@@ -193,7 +196,10 @@ class Document extends Model implements Convertible
 
     public function collections(): BelongsToMany
     {
-        return $this->belongsToMany(Collection::class);
+        return $this->belongsToMany(Collection::class)
+            ->using(LinkedDocument::class)
+            ->withTimestamps()
+            ->withPivot('id', 'user_id');
     }
 
     public function project()

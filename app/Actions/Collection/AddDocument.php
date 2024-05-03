@@ -4,6 +4,7 @@ namespace App\Actions\Collection;
 
 use App\Models\Collection;
 use App\Models\Document;
+use App\Models\LinkedDocument;
 use App\Models\Team;
 use App\Models\User;
 use App\Models\Visibility;
@@ -19,7 +20,7 @@ class AddDocument
      *
      * @param  array  $input
      */
-    public function __invoke(Document $document, Collection $collection, ?User $user = null): void
+    public function __invoke(Document $document, Collection $collection, ?User $user = null): LinkedDocument
     {
         $user = $user ?? auth()->user();
 
@@ -37,6 +38,10 @@ class AddDocument
             ]);
         }
 
-        $collection->documents()->attach($document->getKey());
+        $collection->documents()->attach($document->getKey(), [
+            'user_id' => $user->getKey(),
+        ]);
+
+        return LinkedDocument::where('collection_id', $collection->getKey())->where('document_id', $document->getKey())->first();
     }
 }

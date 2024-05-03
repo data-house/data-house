@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Actions\Collection\AddDocument;
 use App\Models\Collection;
 use App\Models\Document;
+use App\Models\RelationType;
 use App\Models\User;
 use App\Models\Visibility;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -72,19 +73,52 @@ class AddDocumentCollectionTest extends TestCase
 
     public function test_document_added_to_collection(): void
     {
+        $relationType = RelationType::factory()->create();
+
         $user = User::factory()->manager()->withPersonalTeam()->create()->withAccessToken(new TransientToken);
 
-        $collection = Collection::factory()->for($user)->recycle($user->currentTeam)->team()->create();
+        $collection = Collection::factory()->for($user)->recycle($user->currentTeam)->team()->create(['title' => 'Approach: Private Sector']);
 
         $document = Document::factory()
             ->recycle($user->currentTeam)
             ->visibleByTeamMembers()
             ->create();
 
-        (new AddDocument)($document, $collection, $user);
+        $linkedDocument = (new AddDocument)($document, $collection, $user);
 
+        $linkedDocument->linkTypes()->attach($relationType);
+
+        $this->assertTrue($linkedDocument->user->is($user));
         $this->assertTrue($document->collections()->first()->is($collection));
         $this->assertTrue($collection->documents()->first()->is($document));
+
+        $document = $collection->documents()->with('pivot.user', 'pivot.collection', 'pivot.linkTypes')->first();
+
+        $this->assertTrue($document->pivot->is($linkedDocument));
+        $this->assertTrue($document->pivot->linkTypes()->first()->is($relationType));
+        $this->assertTrue($document->pivot->collection->is($collection));
+        $this->assertTrue($document->pivot->user->is($user));
+    }
+
+    public function test_linked_document_have_notes(): void
+    {
+        $user = User::factory()->manager()->withPersonalTeam()->create()->withAccessToken(new TransientToken);
+
+        $collection = Collection::factory()->for($user)->recycle($user->currentTeam)->team()->create(['title' => 'Approach: Private Sector']);
+
+        $document = Document::factory()
+            ->recycle($user->currentTeam)
+            ->visibleByTeamMembers()
+            ->create();
+
+        $linkedDocument = (new AddDocument)($document, $collection, $user);
+
+        $linkedDocument->addNote('Note content', $user);
+
+        $notes = $linkedDocument->fresh()->notes;
+
+        $this->assertCount(1, $notes);
+        $this->assertEquals('Note content', $notes->first()->content);
     }
 
 }

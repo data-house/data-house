@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Copilot\AskMultipleQuestion;
 use App\HasNotes;
 use App\Searchable;
+use audunru\EagerLoadPivotRelations\EagerLoadPivotTrait;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -12,6 +13,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Collection extends Model
 {
+    use EagerLoadPivotTrait;
+    
     use HasFactory;
 
     use HasUlids;
@@ -97,7 +100,10 @@ class Collection extends Model
     
     public function documents(): BelongsToMany
     {
-        return $this->belongsToMany(Document::class);
+        return $this->belongsToMany(Document::class)
+            ->using(LinkedDocument::class)
+            ->withTimestamps()
+            ->withPivot('id', 'user_id');
     }
 
     public function url()
