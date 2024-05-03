@@ -33,8 +33,19 @@ abstract class Engine
      */
     protected function getLibrary(): string
     {
-        return str(config('app.url', 3))->slug()->toString();
+        return $config['library'] ?? str(config('app.url'))->slug()->toString();
     }
+    
+    /**
+     * Get the library name
+     */
+    protected function getLibraryName(): string
+    {
+        return config('app.name', 'Data House');
+    }
+
+
+    abstract public function syncLibrarySettings();
 
     /**
      * Update the given model in the index.

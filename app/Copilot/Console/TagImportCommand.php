@@ -6,6 +6,9 @@ use App\Copilot\CopilotManager;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Events\Dispatcher;
 
+/**
+ * @deprecated
+ */
 class TagImportCommand extends Command
 {
     /**

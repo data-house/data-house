@@ -17,10 +17,7 @@ use InvalidArgumentException;
 use PrinsFrank\Standards\Language\LanguageAlpha2;
 use Throwable;
 
-/**
- * @deprecated
- */
-class OaksEngine extends Engine
+class CloudEngine extends Engine
 {
 
     protected const SUPPORTED_LANGUAGES = [
@@ -36,6 +33,14 @@ class OaksEngine extends Engine
         }
 
         parent::__construct($config);
+    }
+
+
+    public function syncLibrarySettings()
+    {
+        // Check if library exists
+        // Create library if needed
+        // Update settings 
     }
     
     /**
@@ -66,8 +71,6 @@ class OaksEngine extends Engine
                 $questionableData,
                 [
                     'id' => $model->getCopilotKey(),
-                    'library_id' => $this->getLibrary(),
-                    'key_name' => $model->getCopilotKeyName(),
                 ],
             );
         })->filter()->values();
@@ -88,8 +91,10 @@ class OaksEngine extends Engine
                     $response = Http::acceptJson()
                         ->timeout($this->getRequestTimeout())
                         ->asJson()
-                        ->post(rtrim($this->config['host'], '/') . '/documents', $object)
+                        ->post(rtrim($this->config['host'], '/') . '/library/'.$this->getLibrary().'/documents', $object)
                         ->throw();
+
+                    // TODO: check http status code
 
                     if($status = $response->json('status') !== 'ok'){
                         throw new Exception("Document not added [{$status}]");

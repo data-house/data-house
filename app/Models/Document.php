@@ -468,10 +468,10 @@ class Document extends Model implements Convertible
 
         return [
             'id' => $this->getCopilotKey(),
-            'ulid' => $this->ulid,
-            'title' => $this->title,
+            // 'ulid' => $this->ulid,
+            // 'title' => $this->title,
             'lang' => $this->language?->value ?? LanguageAlpha2::English->value,
-            'content' => $content->collect()->map(function($pageContent, $pageNumber){
+            'data' => $content->collect()->map(function($pageContent, $pageNumber){
                 // TODO: maybe this transformation should be driver specific
                 // TODO: prepend info coming from the project
                 return [
