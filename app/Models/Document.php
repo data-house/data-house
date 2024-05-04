@@ -171,11 +171,11 @@ class Document extends Model implements Convertible
     public function scopeVisibleBy($query, User $user)
     {
         return $query
-            ->where(fn($q) => $q->whereIn('visibility', [Visibility::PUBLIC, Visibility::PROTECTED]))
+            ->where(fn($q) => $q->whereIn($this->qualifyColumn('visibility'), [Visibility::PUBLIC, Visibility::PROTECTED]))
             ->when($user->currentTeam, function ($query, Team $team) {
-                $query->orWhere(fn($q) => $q->where('visibility', Visibility::TEAM)->where('team_id', $team->getKey()));
+                $query->orWhere(fn($q) => $q->where($this->qualifyColumn('visibility'), Visibility::TEAM)->where($this->qualifyColumn('team_id'), $team->getKey()));
             })
-            ->orWhere(fn($q) => $q->where('visibility', Visibility::PERSONAL)->where('uploaded_by', $user->getKey()));
+            ->orWhere(fn($q) => $q->where($this->qualifyColumn('visibility'), Visibility::PERSONAL)->where($this->qualifyColumn('uploaded_by'), $user->getKey()));
     }
     
     public function scopeInProject($query, Project $project)

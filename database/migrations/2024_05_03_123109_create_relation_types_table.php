@@ -2,6 +2,7 @@
 
 use App\Models\LinkedDocument;
 use App\Models\RelationType;
+use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -24,9 +25,11 @@ return new class extends Migration
             
             $table->timestamps();
 
-            $table->foreignId('linked_document_id')->references('id')->on('collection_document');
+            $table->foreignId('linked_document_id')->references('id')->on('collection_document')->cascadeOnDelete();
             
             $table->foreignIdFor(RelationType::class);
+
+            $table->foreignIdFor(User::class)->nullable();
         });
     }
 

@@ -5,6 +5,8 @@ namespace Tests\Feature;
 use App\Actions\Collection\RemoveDocument;
 use App\Models\Collection;
 use App\Models\Document;
+use App\Models\LinkedDocument;
+use App\Models\RelationType;
 use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
@@ -31,7 +33,7 @@ class RemoveDocumentFromCollectionTest extends TestCase
         (new RemoveDocument)($document, $collection);
     }
 
-    public function test_add_denied_if_document_not_accessible_by_user(): void
+    public function test_remove_denied_if_document_not_accessible_by_user(): void
     {
         $user = User::factory()->manager()->create();
 
@@ -63,13 +65,25 @@ class RemoveDocumentFromCollectionTest extends TestCase
 
         $document = $collection->documents()->first();
 
+        $relationType = RelationType::factory()->create();
+
+        $linkedDocument = LinkedDocument::findBy($document, $collection);
+        
+        $linkedDocument->linkTypes()->attach($relationType);
+        $linkedDocument->addNote('Test note', $user);
+
         $this->assertEquals(3, $collection->documents()->count());
+        $this->assertNotNull($note = $linkedDocument->fresh()->notes()->first());
+        $this->assertNotNull($linkedDocument->fresh()->linkTypes()->first());
         
         (new RemoveDocument)($document, $collection, $user);
         
         $this->assertEquals(2, $collection->documents()->count());
 
         $this->assertNotContains($document->getKey(), $collection->documents->pluck('id'));
+
+        $this->assertNull($note->fresh());
+        $this->assertNotNull($relationType->fresh());
     }
 
 }

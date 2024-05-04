@@ -84,9 +84,34 @@ class AddDocumentCollectionTest extends TestCase
             ->visibleByTeamMembers()
             ->create();
 
-        $linkedDocument = (new AddDocument)($document, $collection, $user);
+        $linkedDocument = (new AddDocument)($document, $collection, $user, $relationType);
 
-        $linkedDocument->linkTypes()->attach($relationType);
+        $this->assertTrue($linkedDocument->user->is($user));
+        $this->assertTrue($document->collections()->first()->is($collection));
+        $this->assertTrue($collection->documents()->first()->is($document));
+
+        $document = $collection->documents()->with('pivot.user', 'pivot.collection', 'pivot.linkTypes')->first();
+
+        $this->assertTrue($document->pivot->is($linkedDocument));
+        $this->assertTrue($document->pivot->linkTypes()->first()->is($relationType));
+        $this->assertTrue($document->pivot->collection->is($collection));
+        $this->assertTrue($document->pivot->user->is($user));
+    }
+
+    public function test_document_added_when_document_accessible_by_all_users(): void
+    {
+        $relationType = RelationType::factory()->create();
+
+        $user = User::factory()->manager()->withPersonalTeam()->create()->withAccessToken(new TransientToken);
+
+        $collection = Collection::factory()->for($user)->recycle($user->currentTeam)->team()->create(['title' => 'Approach: Private Sector']);
+
+        $document = Document::factory()
+            ->recycle($user->currentTeam)
+            ->visibleByAnyUser()
+            ->create();
+
+        $linkedDocument = (new AddDocument)($document, $collection, $user, $relationType);
 
         $this->assertTrue($linkedDocument->user->is($user));
         $this->assertTrue($document->collections()->first()->is($collection));

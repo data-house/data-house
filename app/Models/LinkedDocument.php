@@ -21,8 +21,13 @@ class LinkedDocument extends Pivot
 
     public function linkTypes(): BelongsToMany
     {
-        return $this->belongsToMany(RelationType::class, 'linked_document_relation_type', 'linked_document_id')
-            ->withTimestamps();
+        return $this->belongsToMany(
+                RelationType::class,
+                'linked_document_relation_type',
+                'linked_document_id'
+            )
+            ->withTimestamps()
+            ->withPivot(['user_id']);
     }
     
     public function user(): BelongsTo
@@ -38,5 +43,13 @@ class LinkedDocument extends Pivot
     public function collection(): BelongsTo
     {
         return $this->belongsTo(Collection::class);
+    }
+
+    public static function findBy(Document $document, Collection $collection): self
+    {
+        return self::where('collection_id', $collection->getKey())
+            ->where('document_id', $document->getKey())
+            ->firstOrFail();
+
     }
 }
