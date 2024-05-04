@@ -29,7 +29,7 @@ class AddDocument
             throw new AuthenticationException(__('Unauthenticated. Authentication is required to add a document to a collection'));
         }
 
-        if ($user->cannot('update', $document) || $user->cannot('view', $collection)) { 
+        if (!($document->isVisibleBy($user) && $user->can('view', $collection))) { 
             throw new AuthorizationException(__('User not allowed to add document to collection'));
         }
 

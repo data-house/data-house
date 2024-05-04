@@ -31,7 +31,7 @@ class RemoveDocument
             throw new AuthenticationException(__('Unauthenticated. Authentication is required to remove a document from a collection'));
         }
 
-        if ($user->cannot('update', $document) || $user->cannot('view', $collection)) {
+        if (!($document->isVisibleBy($user) && $user->can('view', $collection))) { 
             throw new AuthorizationException(__('User not allowed to remove document from collection'));
         }
         $linkedDocument = LinkedDocument::findBy($document, $collection);
