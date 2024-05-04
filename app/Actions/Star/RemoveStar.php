@@ -7,6 +7,7 @@ use App\Models\Star;
 use App\Models\User;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Support\Facades\DB;
 
 class RemoveStar
 {
@@ -25,10 +26,12 @@ class RemoveStar
 
         $model = $star->starrable;
 
-        $star->delete();
+        DB::transaction(function() use ($star){
+            $star->notes()->delete();
+    
+            $star->delete();
+        });
 
         event(new StarRemoved($user, $model));
-
-        // TODO: if star has a note remove also the attached notes
     }
 }
