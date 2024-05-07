@@ -230,11 +230,12 @@ class Document extends Model implements Convertible
     /**
      * Get the URL for downloading the file
      */
-    public function url(): string
+    public function url($original = true): string
     {
         return route('documents.download', [
             'document' => $this,
-            'filename' => $this->filenameForDownload()
+            'filename' => $this->filenameForDownload(),
+            'original' => $original
         ]);
     }
 
@@ -298,7 +299,7 @@ class Document extends Model implements Convertible
 
         return route('pdf.viewer', [
             'document' => $this->ulid,
-            'file' => Str::replace(config('app.url'),'',$this->url()),
+            'file' => Str::replace(config('app.url'),'',$this->url(false)),
             'page' => $page
         ]);
     }
