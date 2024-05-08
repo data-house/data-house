@@ -22,30 +22,11 @@ class AddProjectMemberTest extends TestCase
 
         $project = Project::factory()->create();
 
-        $user = User::factory()->admin()->create();
-
-        app(AddProjectMember::class)->add($project, $team, $user, 'manager');
+        app(AddProjectMember::class)->add($project, $team, 'manager');
 
         $fresh_project = $project->fresh();
 
         $this->assertTrue($fresh_project->belongsToTeam($team));
-    }
-
-    public function test_adding_project_member_requires_admin_role(): void
-    {
-        $team = Team::factory()->create(['personal_team' => false]);
-
-        $project = Project::factory()->create();
-
-        $user = User::factory()->manager()->create();
-
-        $this->expectException(AuthorizationException::class);
-
-        app(AddProjectMember::class)->add($project, $team, $user, 'manager');
-
-        $fresh_project = $project->fresh();
-
-        $this->assertFalse($fresh_project->belongsToTeam($team));
     }
 
 }

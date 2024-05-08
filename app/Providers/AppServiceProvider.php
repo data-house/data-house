@@ -89,7 +89,7 @@ class AppServiceProvider extends ServiceProvider
             return $user->hasRole(Role::ADMIN->value);
         });
         
-        Gate::define('addProjectMember', function (User $user, Project $project) {
+        Gate::define('addProjectMember', function (User $user) {
             return $user->hasRole(Role::ADMIN->value);
         });
     }

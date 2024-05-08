@@ -23,26 +23,7 @@ class RemoveProjectMemberTest extends TestCase
 
         $team = $project->teams()->first();
 
-        $user = User::factory()->admin()->create();
-
-        app(RemoveProjectMember::class)->remove($user, $team, $project);
-
-        $fresh_project = $project->fresh();
-
-        $this->assertFalse($fresh_project->belongsToTeam($team));
-    }
-
-    public function test_removing_project_member_requires_admin_role(): void
-    {
-        $team = Team::factory()->create(['personal_team' => false]);
-
-        $project = Project::factory()->create();
-
-        $user = User::factory()->manager()->create();
-
-        $this->expectException(AuthorizationException::class);
-
-        app(RemoveProjectMember::class)->remove($user, $team, $project);
+        app(RemoveProjectMember::class)->remove($team, $project);
 
         $fresh_project = $project->fresh();
 

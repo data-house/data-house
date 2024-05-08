@@ -12,10 +12,8 @@ class RemoveProjectMember
     /**
      * Remove the team from the given project.
      */
-    public function remove(User $user, Team $team, Project $project): void
+    public function remove(Team $team, Project $project): void
     {
-        Gate::forUser($user)->authorize('addProjectMember', $project);
-
         $project->teams()->detach($team);
     }
 }

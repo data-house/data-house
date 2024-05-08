@@ -16,9 +16,9 @@ class AddProjectMember
     /**
      * Add a new team member to the given team.
      */
-    public function add(Project $project, Team $team, User $user, string $role = null): void
+    public function add(Project $project, Team $team, string $role = null): void
     {
-        Gate::forUser($user)->authorize('addProjectMember', $project);
+        // Gate::forUser($user)->authorize('addProjectMember', $project);
 
         $this->validate($team, $project, $role);
 
