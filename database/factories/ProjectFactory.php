@@ -2,7 +2,10 @@
 
 namespace Database\Factories;
 
+use App\Models\Project;
 use App\Models\ProjectType;
+use App\Models\Team;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use PrinsFrank\Standards\Country\CountryAlpha3;
 
@@ -31,5 +34,25 @@ class ProjectFactory extends Factory
             'ends_at' => null,
             'website' => fake()->url(),
         ];
+    }
+
+    /**
+     * Indicate that the project should belong to team.
+     *
+     * @return $this
+     */
+    public function withTeam(array $teamState = [], array $pivotAttributes = []): static
+    {
+        return $this->hasAttached(
+            Team::factory()
+                ->state(fn (array $attributes, Project $project) => [
+                    'name' => $project->name.'\'s Team',
+                    'user_id' => User::factory(),
+                    'personal_team' => false,
+                    ...$teamState,
+                ]),
+            $pivotAttributes,
+            'teams'
+        );
     }
 }

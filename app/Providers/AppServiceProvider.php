@@ -15,7 +15,9 @@ use App\Jobs\Pipeline\Document\MakeDocumentQuestionable;
 use App\Jobs\Pipeline\Document\MakeDocumentSearchable;
 use App\Jobs\Pipeline\Document\RecognizeLanguage;
 use App\Models\Flag;
+use App\Models\Project;
 use App\Models\Role;
+use App\Models\Team;
 use App\Models\User;
 use App\Pipelines\PipelineTrigger;
 use Illuminate\Http\Request;
@@ -84,6 +86,10 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Gate::define('viewPulse', function (User $user) {
+            return $user->hasRole(Role::ADMIN->value);
+        });
+        
+        Gate::define('addProjectMember', function (User $user, Project $project) {
             return $user->hasRole(Role::ADMIN->value);
         });
     }
