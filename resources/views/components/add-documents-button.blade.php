@@ -15,6 +15,7 @@
                         href="{{ route('documents.create') }}"
                         :active="request()->routeIs('documents.create')"
                         >
+                        <x-heroicon-o-arrow-up-tray class="w-4 h-4 text-stone-600"  />
                         {{ __('Upload Document') }}
                     </x-dropdown-link>
                 @endcan
@@ -25,6 +26,7 @@
                         href="{{ $uploadLink }}"
                         target="_blank"
                         >
+                        <x-heroicon-o-arrow-top-right-on-square class="w-4 h-4 text-stone-600"  />
                         {{ __('View folder') }}
                     </x-dropdown-link>
                 @endcan
@@ -34,6 +36,7 @@
                     href="{{ route('imports.index') }}"
                     :active="request()->routeIs('imports.*')"
                     >
+                        <x-heroicon-o-arrows-right-left class="w-4 h-4 text-stone-600"  />
                     {{ __('Imports') }}
                 </x-dropdown-link>
             @endcan

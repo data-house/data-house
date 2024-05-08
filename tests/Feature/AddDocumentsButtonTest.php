@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Project;
+use App\Models\Role;
 use App\Models\User;
 use App\View\Components\AddDocumentsButton;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -119,12 +120,14 @@ class AddDocumentsButtonTest extends TestCase
             ]
             
         ])->create();
+
+        $project = Project::factory()->hasAttached($user->currentTeam, [], 'teams')->create([
+            'title' => 'Project title',
+            'slug' => 'project-slug',
+        ]);
         
         $view = $this->actingAs($user)->component(AddDocumentsButton::class, [
-            'project' => Project::factory()->create([
-                'title' => 'Project title',
-                'slug' => 'project-slug',
-            ]),
+            'project' => $project,
         ]);
  
         $view->assertSee('View folder');
@@ -145,6 +148,61 @@ class AddDocumentsButtonTest extends TestCase
             ]
             
         ])->create();
+        
+        $view = $this->actingAs($user)->component(AddDocumentsButton::class);
+ 
+        $view->assertSee('View folder');
+        
+        $view->assertSee('http://link.localhost');
+        $view->assertDontSee('path=');
+    }
+    
+    public function test_upload_link_rendered_consider_team_managed_projects(): void
+    {
+        config(['library.upload.allow_direct_upload' => false]);
+
+        $user = User::factory()->manager()->withPersonalTeam([
+            'settings' => [
+                'upload' => [
+                    'uploadLinkUrl' => 'http://link.localhost',
+                    'supportProjects' => true,
+                ]
+            ]
+            
+        ])->create();
+
+        $project = Project::factory()->hasAttached($user->currentTeam, ['role' => 'admin'], 'teams')->create([
+            'title' => 'Project title',
+            'slug' => 'project-slug',
+        ]);
+
+        $this->assertTrue($user->currentTeam->fresh()->managedProjects()->first()->is($project));
+        
+        $view = $this->actingAs($user)->component(AddDocumentsButton::class);
+ 
+        $view->assertSee('View folder');
+        
+        $view->assertSee('http://link.localhost?path=' . urlencode('/Project title [project-slug]'));
+    }
+    
+    public function test_upload_link_rendered_does_not_consider_team_managed_projects_when_team_not_owner(): void
+    {
+        config(['library.upload.allow_direct_upload' => false]);
+
+        $user = User::factory()->manager()->withPersonalTeam([
+            'settings' => [
+                'upload' => [
+                    'uploadLinkUrl' => 'http://link.localhost',
+                    'supportProjects' => true,
+                ]
+            ]
+            
+        ])->create();
+
+        $project = Project::factory()->hasAttached($user->currentTeam, ['role' => 'guest'], 'teams')->create([
+            'title' => 'Project title',
+            'slug' => 'project-slug',
+        ]);
         
         $view = $this->actingAs($user)->component(AddDocumentsButton::class);
  

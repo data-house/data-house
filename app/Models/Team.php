@@ -53,4 +53,10 @@ class Team extends JetstreamTeam
             ->withPivot('role')
             ->withTimestamps();
     }
+    
+    public function managedProjects()
+    {
+        return $this->projects()
+            ->wherePivotIn('role', [Role::ADMIN->value, Role::MANAGER->value]);
+    }
 }
