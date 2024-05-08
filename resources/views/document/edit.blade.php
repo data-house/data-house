@@ -37,9 +37,22 @@
                         {{ __('Save') }}
                     </x-button>
 
-                    <a class="underline text-sm text-stone-600 hover:text-stone-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-lime-500" href="{{ route('password.request') }}">
+                    <a class="underline text-sm text-stone-600 hover:text-stone-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-lime-500" href="{{ route('documents.show', $document) }}">
                         {{ __('Cancel') }}
                     </a>
+                </div>
+
+            </form>
+
+
+            <form action="{{ route('documents.delete', $document) }}" method="post" class="space-y-4">
+                @csrf
+                @method('DELETE')
+
+                <div class="flex items-center gap-4">
+                    <x-danger-button class="">
+                        {{ __('Delete document') }}
+                    </x-danger-button>
                 </div>
 
             </form>
