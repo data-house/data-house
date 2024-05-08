@@ -54,7 +54,7 @@ class ImportControllerTest extends TestCase
     public function test_import_creation_page_loads(): void
     {
         $user = User::factory()
-            ->manager()
+            ->admin()
             ->create();
 
         
@@ -72,7 +72,7 @@ class ImportControllerTest extends TestCase
     public function test_import_created(): void
     {
         $user = User::factory()
-            ->manager()
+            ->admin()
             ->create();
 
         $this->withExceptionHandling();
