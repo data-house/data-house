@@ -21,7 +21,7 @@
                     <tr>
                         <td class="p-2 w-8/12">Project title</td>
                         <td class="p-2 w-2/12">Added on</td>
-                        <td class="p-2 w-2/12"></td>
+                        <td class="p-2 w-2/12">Teams</td>
                     </tr>
                 </thead>
                 <tbody>
@@ -34,7 +34,7 @@
                             </td>
                             <td class="p-2">{{ $project->created_at }}</td>
                             <td class="p-2">
-
+                                {{ $project->teams->map(fn($team) => $team->name)->join(', ') }}
                             </td>
                         </tr>
                     @endforeach

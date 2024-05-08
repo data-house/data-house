@@ -46,4 +46,17 @@ class Team extends JetstreamTeam
         'updated' => TeamUpdated::class,
         'deleted' => TeamDeleted::class,
     ];
+
+    public function projects()
+    {
+        return $this->belongsToMany(Project::class)
+            ->withPivot('role')
+            ->withTimestamps();
+    }
+    
+    public function managedProjects()
+    {
+        return $this->projects()
+            ->wherePivotIn('role', [Role::ADMIN->value, Role::MANAGER->value]);
+    }
 }

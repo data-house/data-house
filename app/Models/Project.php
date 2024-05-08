@@ -23,6 +23,8 @@ class Project extends Model
     
     use Searchable;
 
+    use HasResponsibleTeams;
+
     /**
      * The attributes that should be hidden for serialization.
      *
