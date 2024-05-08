@@ -21,7 +21,7 @@ class AdminProjectController extends Controller
         Gate::authorize('admin-area');
         
         return view('admin.project.index', [
-            'projects' => Project::orderBy('created_at', 'DESC')->get(),
+            'projects' => Project::orderBy('created_at', 'DESC')->with('teams')->get(),
         ]);
     }
 
