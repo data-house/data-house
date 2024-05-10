@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Actions\DeleteDocument;
 use App\Models\Document;
 use App\Models\ImportDocument;
 use Illuminate\Support\Str;
@@ -30,29 +31,13 @@ class DocumentDeleteCommand extends Command
      *
      * @return int
      */
-    public function handle()
+    public function handle(DeleteDocument $deleteDocument)
     {
         $documentKey = $this->argument('document');
         
         $document = Str::isUlid($documentKey) ? Document::whereUlid($documentKey)->firstOrFail() : Document::findOrFail($documentKey);
 
-        DB::transaction(function() use ($document){
-            $document->importDocument?->wipe();
-
-            ImportDocument::whereDocumentHash($document->document_hash)->whereNull('document_id')->get()->each->wipe();
-
-            $document->pipelineRuns->each->delete();
-            
-            $document->summaries->each->delete();
-            
-            $document->questions->each->delete();
-
-            rescue(fn() => $document->unsearchable());
-
-            rescue(fn() => $document->unquestionable());
-
-            $document->wipe();
-        });
+        $deleteDocument($document);
 
         
         $this->line('');

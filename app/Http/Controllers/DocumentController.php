@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\DeleteDocument;
 use App\Models\Disk;
 use App\Models\Document;
 use App\Models\Visibility;
@@ -143,8 +144,12 @@ class DocumentController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Document $document)
+    public function destroy(Document $document, DeleteDocument $deleteDocument)
     {
-        //
+        $deleteDocument($document);
+
+        return redirect()
+            ->route('documents.library')
+            ->with('flash.banner', __(':Document deleted.', ['document' => $document->title]));
     }
 }
