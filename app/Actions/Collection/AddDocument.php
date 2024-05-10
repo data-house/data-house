@@ -4,6 +4,8 @@ namespace App\Actions\Collection;
 
 use App\Models\Collection;
 use App\Models\Document;
+use App\Models\LinkedDocument;
+use App\Models\RelationType;
 use App\Models\Team;
 use App\Models\User;
 use App\Models\Visibility;
@@ -19,7 +21,7 @@ class AddDocument
      *
      * @param  array  $input
      */
-    public function __invoke(Document $document, Collection $collection, ?User $user = null): void
+    public function __invoke(Document $document, Collection $collection, ?User $user = null, ?RelationType $relationType = null): LinkedDocument
     {
         $user = $user ?? auth()->user();
 
@@ -27,7 +29,7 @@ class AddDocument
             throw new AuthenticationException(__('Unauthenticated. Authentication is required to add a document to a collection'));
         }
 
-        if ($user->cannot('update', $document) || $user->cannot('view', $collection)) { 
+        if (!($document->isVisibleBy($user) && $user->can('view', $collection))) { 
             throw new AuthorizationException(__('User not allowed to add document to collection'));
         }
 
@@ -37,6 +39,18 @@ class AddDocument
             ]);
         }
 
-        $collection->documents()->attach($document->getKey());
+        $collection->documents()->attach($document->getKey(), [
+            'user_id' => $user->getKey(),
+        ]);
+
+        $linkedDocument = LinkedDocument::findBy($document, $collection);
+
+        if(!is_null($relationType)){
+            $linkedDocument->linkTypes()->attach($relationType, [
+                'user_id' => $user->getKey(),
+            ]);
+        }
+        
+        return $linkedDocument;
     }
 }
