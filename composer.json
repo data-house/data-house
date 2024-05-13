@@ -8,6 +8,7 @@
         "php": "^8.1",
         "blade-ui-kit/blade-heroicons": "^2.1",
         "blade-ui-kit/blade-icons": "^1.5",
+        "cloudmeshdev/livewire-slideover": "^1.0",
         "codeat3/blade-codicons": "^1.31",
         "guzzlehttp/guzzle": "^7.2",
         "http-interop/http-factory-guzzle": "^1.2",

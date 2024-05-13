@@ -39,5 +39,7 @@
         @stack('modals')
 
         @livewireScriptConfig
+
+        @livewire('livewire-ui-slideover')
     </body>
 </html>
