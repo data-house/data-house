@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Symfony\Component\Mime\MimeTypes;
+use Throwable;
 
 class ImportDocument extends Model
 {
@@ -87,14 +88,18 @@ class ImportDocument extends Model
             /**
              * @var \Illuminate\Contracts\Filesystem\Filesystem
              */
-            $remoteDisk = $this->import->connection();
+            $remoteDisk = $this->importMap?->import?->connection();
+
+            if(is_null($remoteDisk)){
+                logs()->error('Could not get source disk of imported document. Import map or import is null');
+            }
     
-            if($remoteDisk->exists($this->source_path)){
+            if(!is_null($remoteDisk) && $remoteDisk->exists($this->source_path)){
                 $remoteDisk->delete($this->source_path);
             }
 
-        } catch (\Throwable $th) {
-            logs()->error('File on source disk not removed', ['import_map' => $this->import_map_id, 'source_path' => $this->source_path]);
+        } catch (Throwable $th) {
+            logs()->error('File on source disk not removed', ['error' => $th->getMessage(), 'import_map' => $this->import_map_id, 'source_path' => $this->source_path]);
         }
 
         $storage = Storage::disk($this->disk_name);
