@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Laravel\Pennant\Feature;
+use Laravel\Sanctum\TransientToken;
 
 class DocumentControllerTest extends TestCase
 {
@@ -345,4 +346,48 @@ class DocumentControllerTest extends TestCase
         
         $this->assertEquals('The original abstract', $updatedDocument->description);
     }
+
+
+    public function test_document_deleted()
+    {
+        $user = User::factory()->withPersonalTeam()->manager()->create();
+
+        $document = Document::factory()
+            ->recycle($user->currentTeam)
+            ->visibleByUploader($user)
+            ->create([
+                'title' => 'The title of the document'
+            ]);
+
+        $response = $this->actingAs($user)
+            ->from("/documents/{$document->ulid}/edit")
+            ->delete("/documents/{$document->ulid}");
+
+        $response->assertRedirect(route('documents.library'));
+
+        $response->assertSessionHas('flash.banner', 'The title of the document deleted.');
+
+        $this->assertNull($document->fresh());
+    }
+
+    public function test_document_delete_require_permission()
+    {
+        $user = User::factory()->guest()->create();
+
+        $document = Document::factory()
+            ->visibleByAnyUser()
+            ->create([
+                'title' => 'The title of the document'
+            ]);
+
+        $response = $this->actingAs($user)
+            ->from("/documents/{$document->ulid}/edit")
+            ->delete("/documents/{$document->ulid}");
+
+        $response->assertForbidden();
+
+        $this->assertNotNull($document->fresh());
+    }
+
+
 }

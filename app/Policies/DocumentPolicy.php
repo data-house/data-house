@@ -66,8 +66,8 @@ class DocumentPolicy
     public function delete(User $user, Document $document): bool
     {
         return ($user->hasPermission('document:delete') ||
-           $user->hasTeamPermission($user->currentTeam, 'document:delete') ||
-           $user->tokenCan('document:delete')) && $document->isVisibleBy($user);
+           $user->hasTeamPermission($document->team, 'document:delete')) &&
+           $user->tokenCan('document:delete') && $document->isVisibleBy($user);
     }
 
     /**
@@ -76,8 +76,8 @@ class DocumentPolicy
     public function restore(User $user, Document $document): bool
     {
         return ($user->hasPermission('document:delete') ||
-           $user->hasTeamPermission($user->currentTeam, 'document:delete') ||
-           $user->tokenCan('document:delete')) && $document->isVisibleBy($user);
+           $user->hasTeamPermission($document->team, 'document:delete')) &&
+           $user->tokenCan('document:delete') && $document->isVisibleBy($user);
     }
 
     /**
@@ -86,7 +86,7 @@ class DocumentPolicy
     public function forceDelete(User $user, Document $document): bool
     {       
         return ($user->hasPermission('document:delete') ||
-           $user->hasTeamPermission($user->currentTeam, 'document:delete') ||
-           $user->tokenCan('document:delete')) && $document->isVisibleBy($user);
+           $user->hasTeamPermission($document->team, 'document:delete')) &&
+           $user->tokenCan('document:delete') && $document->isVisibleBy($user);
     }
 }

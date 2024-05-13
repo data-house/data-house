@@ -83,6 +83,20 @@ class ImportDocument extends Model
 
     public function wipe()
     {
+        try {
+            /**
+             * @var \Illuminate\Contracts\Filesystem\Filesystem
+             */
+            $remoteDisk = $this->import->connection();
+    
+            if($remoteDisk->exists($this->source_path)){
+                $remoteDisk->delete($this->source_path);
+            }
+
+        } catch (\Throwable $th) {
+            logs()->error('File on source disk not removed', ['import_map' => $this->import_map_id, 'source_path' => $this->source_path]);
+        }
+
         $storage = Storage::disk($this->disk_name);
 
         if($storage->exists($this->disk_path)){

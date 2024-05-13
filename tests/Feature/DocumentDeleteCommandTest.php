@@ -36,6 +36,10 @@ class DocumentDeleteCommandTest extends TestCase
         
         $fakeDocumentDisk = Storage::fake(Disk::DOCUMENTS->value);
 
+        $fakeWebdavDisk = Storage::fake('ondemand');
+
+        $fakeWebdavDisk->putFileAs('', new File(base_path('tests/fixtures/documents/data-house-test-doc.pdf')), 'test.pdf');
+
         Queue::fake();
 
         $fakeImportDisk->putFileAs('', new File(base_path('tests/fixtures/documents/data-house-test-doc.pdf')), 'test.pdf');
@@ -47,7 +51,7 @@ class DocumentDeleteCommandTest extends TestCase
             'source' => ImportSource::LOCAL,
             'status' => ImportStatus::RUNNING,
             'configuration' => [
-                'root' => $fakeImportDisk->path(''), // only used to make the import configuration looks correct
+                'root' => $fakeWebdavDisk->path(''), // only used to make the import configuration looks correct
             ],
         ]);
 
@@ -171,6 +175,8 @@ class DocumentDeleteCommandTest extends TestCase
         Storage::disk(Disk::DOCUMENTS->value)->assertMissing($document->disk_path);
         
         Storage::disk(Disk::IMPORTS->value)->assertMissing($importDocument->disk_path);
+        
+        $fakeWebdavDisk->assertMissing($importDocument->source_path);
 
         Queue::assertNothingPushed();
     }
