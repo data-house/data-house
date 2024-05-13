@@ -59,4 +59,10 @@ class Team extends JetstreamTeam
         return $this->projects()
             ->wherePivotIn('role', [Role::ADMIN->value, Role::MANAGER->value]);
     }
+    
+    public function collaboratingProjects()
+    {
+        return $this->projects()
+            ->wherePivotNotIn('role', [Role::ADMIN->value, Role::MANAGER->value]);
+    }
 }

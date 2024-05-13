@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "46a77da67487dca08642b5dbcdc6d1f5",
+    "content-hash": "f53ff3affd097b0be3d28d01de6cd331",
     "packages": [
         {
             "name": "amphp/amp",
@@ -1192,6 +1192,63 @@
                 }
             ],
             "time": "2023-12-11T17:09:12+00:00"
+        },
+        {
+            "name": "cloudmeshdev/livewire-slideover",
+            "version": "v1.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/cloudmeshdev/livewire-slideover.git",
+                "reference": "3b67eabc7ffa85d29af2b88e2fb0e45fe4a1c475"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/cloudmeshdev/livewire-slideover/zipball/3b67eabc7ffa85d29af2b88e2fb0e45fe4a1c475",
+                "reference": "3b67eabc7ffa85d29af2b88e2fb0e45fe4a1c475",
+                "shasum": ""
+            },
+            "require": {
+                "livewire/livewire": "^3.0",
+                "php": "^8.1",
+                "spatie/laravel-package-tools": "^1.9"
+            },
+            "require-dev": {
+                "orchestra/testbench": "^6.15",
+                "phpunit/phpunit": "^10.1"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "LivewireUI\\Slideover\\LivewireSlideoverServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "LivewireUI\\Slideover\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "cloudmesh.dev",
+                    "email": "hello@cloudmesh.dev"
+                }
+            ],
+            "description": "Laravel Livewire slideover component",
+            "keywords": [
+                "laravel",
+                "livewire",
+                "slideover"
+            ],
+            "support": {
+                "source": "https://github.com/cloudmeshdev/livewire-slideover/tree/v1.0.2"
+            },
+            "time": "2024-02-12T09:19:09+00:00"
         },
         {
             "name": "clue/stream-filter",
