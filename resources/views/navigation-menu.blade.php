@@ -53,6 +53,23 @@
                                 <div class="w-60">
                                     <!-- Team Management -->
                                     <div class="block px-4 py-2 text-xs text-stone-400">
+                                        {{ __('Projects') }}
+                                    </div>
+
+                                    @if (Auth::user()->currentTeam)
+                                        <button class="inline-flex items-center gap-2 w-full px-4 py-2 text-left text-sm leading-5 focus:outline-none transition duration-150 ease-in-out text-stone-700 hover:bg-stone-100 focus:bg-stone-100"
+                                            @click="Livewire.dispatch('openSlideover', {component: 'team-projects'}); open = !open"
+                                        >
+                                            {{ __('Team projects') }}
+                                        </button>
+                                        
+                                    @endif
+
+                                    <div class="border-t border-stone-200"></div>
+
+
+                                    <!-- Team Management -->
+                                    <div class="block px-4 py-2 text-xs text-stone-400">
                                         {{ __('Manage Team') }}
                                     </div>
 
