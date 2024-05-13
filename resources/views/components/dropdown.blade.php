@@ -23,7 +23,10 @@ switch ($width) {
         $width = 'w-48';
         break;
     case 'half':
-        $width = 'w-[50vw]';
+        $width = 'w-[100vw] md:w-[50vw]';
+        break;
+    case 'third':
+        $width = 'w-[100vw] md:w-[30vw]';
         break;
 }
 @endphp

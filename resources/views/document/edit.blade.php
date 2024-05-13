@@ -9,6 +9,50 @@
             </h2>
             <div class="flex gap-2">
 
+                <div class="ml-3 relative">
+                    <x-dropdown align="right" width="min-w-[448px] w-[100vw] md:w-[448px]" contentClasses="bg-white">
+                        <x-slot name="trigger">
+                            <x-danger-button type="button">
+                                {{ __('Delete document') }}
+                            </x-danger-button>
+                        </x-slot>
+
+                        <x-slot name="content">
+
+                            <div class="">
+                                <form action="{{ route('documents.destroy', $document) }}" method="post" class="">
+                                    @csrf
+                                    @method('DELETE')
+    
+                                    <div class="py-4 text-center sm:mt-0 sm:ml-4 sm:text-left px-4">
+                                        <h3 class="text-lg font-medium text-stone-900">
+                                            {{ __('Delete document') }}
+                                        </h3>
+                        
+                                        <div class="mt-4 text-sm text-stone-600 ">
+                                            <p class="break-all">{{ __('Delete ":document" from the digital library?', ['document' => $document->title]) }}</p>
+                                            <p>{{ __('This will remove also the document in the document management system.') }}</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex flex-row justify-end px-4 py-2 bg-stone-100 text-right rounded-b-md">
+                                        <x-secondary-button type="button" @click="open = ! open">
+                                            {{ __('Cancel') }}
+                                        </x-secondary-button>
+                            
+                                        <x-danger-button  type="submit" class="ml-3">
+                                            {{ __('Delete') }}
+                                        </x-danger-button>
+                                    </div>
+    
+                                </form>
+
+
+                            </div>
+
+                        </x-slot>
+                    </x-dropdown>
+
             </div>
         </div>
     </x-slot>
@@ -45,17 +89,6 @@
             </form>
 
 
-            <form action="{{ route('documents.delete', $document) }}" method="post" class="space-y-4">
-                @csrf
-                @method('DELETE')
-
-                <div class="flex items-center gap-4">
-                    <x-danger-button class="">
-                        {{ __('Delete document') }}
-                    </x-danger-button>
-                </div>
-
-            </form>
 
         </div>
     </div>
