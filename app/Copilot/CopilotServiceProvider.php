@@ -4,6 +4,7 @@ namespace App\Copilot;
 
 use App\Copilot\Console\FlushCommand;
 use App\Copilot\Console\ImportCommand;
+use App\Copilot\Console\SyncLibraryCommand;
 use App\Copilot\Console\TagImportCommand;
 use App\Copilot\Console\TagRemoveCommand;
 use Illuminate\Support\Facades\Blade;
@@ -35,6 +36,7 @@ class CopilotServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             
             $this->commands([
+                SyncLibraryCommand::class,
                 FlushCommand::class,
                 ImportCommand::class,
                 TagImportCommand::class,

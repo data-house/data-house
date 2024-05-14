@@ -10,11 +10,14 @@ use App\Copilot\CopilotSummarizeRequest;
 use App\Copilot\Exceptions\CopilotException;
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\RequestException;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Http;
 use InvalidArgumentException;
 use PrinsFrank\Standards\Language\LanguageAlpha2;
+use RuntimeException;
 use Throwable;
 
 class CloudEngine extends Engine
@@ -35,12 +38,36 @@ class CloudEngine extends Engine
         parent::__construct($config);
     }
 
+    protected function getLibrarySettings(): array
+    {
+        return [
+            "database" => [
+                "index_fields" => $this->config['library-settings']['indexed-fields'] ?? ['resource_id']
+            ],
+            "text" => $this->config['library-settings']['text-processing'] ?? [
+                "n_context_chunk" => 10,
+                "chunk_length" => 490,
+                "chunk_overlap" => 10
+            ],
+        ];
+    }
+
 
     public function syncLibrarySettings()
     {
-        // Check if library exists
-        // Create library if needed
-        // Update settings 
+        $libConfig = $this->httpGetLibrary($this->getLibrary());
+
+        if(is_null($libConfig) || empty($libConfig)){
+            $this->httpCreateLibrary([
+                "id" => $this->getLibrary(),
+                "name" => $this->getLibraryName(),
+                "config" => $this->getLibrarySettings(),
+            ]);
+
+            return;
+        }
+
+        $this->httpUpdateLibrary($this->getLibrary(), $this->getLibrarySettings());
     }
     
     /**
@@ -62,6 +89,8 @@ class CloudEngine extends Engine
             if(!isset($traits[Questionable::class])){
                 return;
             }
+
+            // TODO: Maybe we could check if document is already in copilot to not waste time
 
             if (empty($questionableData = $model->toQuestionableArray())) {
                 return;
@@ -88,17 +117,11 @@ class CloudEngine extends Engine
 
                 try {   
 
-                    $response = Http::acceptJson()
-                        ->timeout($this->getRequestTimeout())
-                        ->asJson()
-                        ->post(rtrim($this->config['host'], '/') . '/library/'.$this->getLibrary().'/documents', $object)
+                    $response = $this->getHttpClient()
+                        ->post('/library/'.$this->getLibrary().'/documents', $object)
                         ->throw();
 
-                    // TODO: check http status code
-
-                    if($status = $response->json('status') !== 'ok'){
-                        throw new Exception("Document not added [{$status}]");
-                    }
+                    return $response->json();
                     
                 } catch (RequestException $th) {
                     if($th->getCode() !== 409){
@@ -115,8 +138,6 @@ class CloudEngine extends Engine
         catch(Throwable $ex)
         {
             // TODO: response body can contain error information
-            // {"code":500,"message":"Error while parsing file","type":"Internal Server Error"}
-            // {"code":422,"message":"No content found in request","type":"Unprocessable Entity"}
             logs()->error("Error adding documents to copilot", ['error' => $ex->getMessage(), 'type' => get_class($ex)]);
             throw $ex;
         }
@@ -144,25 +165,17 @@ class CloudEngine extends Engine
 
             $keys->each(function($key){
 
-                $response = Http::acceptJson()
-                    ->timeout($this->getRequestTimeout())
-                    ->asJson()
-                    ->delete(rtrim($this->config['host'], '/') . '/documents/' . $key, [
-                        'library_id' => $this->getLibrary()
-                    ])
+                $response = $this->getHttpClient()
+                    ->delete('/library/'.$this->getLibrary().'/documents/' . $key)
                     ->throw();
 
-                if($status = $response->json('status') !== 'ok'){
-                    throw new Exception("Document not removed [{$key}: {$status}]");
-                }
             });
 
 
         }
         catch(Throwable $ex)
         {
-            // TODO: response body can contain error information // {"code":500,"message":"Error while parsing file","type":"Internal Server Error"}
-            // {"code":422,"message":"No content found in request","type":"Unprocessable Entity"}
+            // TODO: response body can contain error information
             logs()->error("Error removing documents from copilot", ['error' => $ex->getMessage()]);
 
             if($ex->getCode() === 404){
@@ -183,52 +196,39 @@ class CloudEngine extends Engine
     {
         try{
 
-            $endpoint = $question->multipleQuestionRequest() ? '/transform-question' : '/question';
+            $endpoint = $question->multipleQuestionRequest() ? 'library/{library_id}/questions/transform' : 'library/{library_id}/documents/{document_id}/questions';
 
-            $data = array_merge(
-                $question->jsonSerialize(),
-                ['library_id' => $this->getLibrary()],
-            );
+            // TODO: check if document is available in copilot before proceeding
 
-            $response = Http::acceptJson()
-                ->timeout($this->getRequestTimeout())
-                ->asJson()
-                ->post(rtrim($this->config['host'], '/') . $endpoint, $data)
-                ->throwIfServerError();
+            $queryParams = [
+                'library_id' => $this->getLibrary(),
+                'document_id' => collect($question->documents)->first(),
+            ];
+
+            $data = $question->jsonSerialize();
+
+            logs()->info("Asking question [{$question->id}]", array_merge($queryParams, $data));
+
+            $response = $this->getHttpClient()
+                ->withUrlParameters($queryParams)
+                ->post($endpoint, $data)
+                ->throw();
 
             $json = $response->json();
 
-            logs()->info("Asking question", [
-                'question' => $data,
+            logs()->info("Response to question [{$question->id}]", [
                 'answer' => $json,
             ]);
-
-            if(isset($json['code']) && $json['code'] == 404){
-                logs()->error("Question cannot be answered [{$response->status()}]", ['response' => $json, 'request' => $question]);
-                throw new CopilotException("Document might not be ready to accept questions.");
-            }
-
-            if($question->multipleQuestionRequest()){
-
-                // TODO: this is not a correct response handling, but for now transformation will be in answer
-                return new CopilotResponse('', $json);
-
-            }
             
-            
-            if(empty($json['q_id'] ?? null) || $json['q_id'] && $json['q_id'] !== $question->id){
+            if($json['id'] !== $question->id){
                 // In case of a question decomposition request the original question id is not present
                 throw new CopilotException("Communication error with the copilot. [{$response->status()}]");
             }
-            
-            if(empty($json['answer'] ?? null)){
-                throw new CopilotException("Communication error with the copilot. Missing answer.");
-            }
 
-            $answerText = $json['answer'][0]['text'] ?? $json['answer']['text'] ?? null;
-            $answerReferences = $json['answer'][0]['references'] ?? $json['answer']['references'] ?? [];
+            $answerText = $json['text'] ?? null;
+            $answerReferences = $json['refs'] ?? [];
 
-            if(is_null($answerText)){
+            if(blank($answerText)){
                 throw new CopilotException(__('There was a problem while obtaining the answer. Please report it.'));
             }
 
@@ -236,8 +236,7 @@ class CloudEngine extends Engine
         }
         catch(Throwable $ex)
         {
-            // TODO: response body can contain error information // {"code":500,"message":"Error while parsing file","type":"Internal Server Error"}
-            // {"code":422,"message":"No content found in request","type":"Unprocessable Entity"}
+            // TODO: response body can contain error information 
             logs()->error("Error asking question copilot", ['error' => $ex->getMessage(), 'request' => $question]);
             throw $ex;
         }
@@ -255,10 +254,8 @@ class CloudEngine extends Engine
 
         try{
 
-            $response = Http::acceptJson()
-                ->timeout($this->getRequestTimeout())
-                ->asJson()
-                ->post(rtrim($this->config['host'], '/') . '/summarize', $request->jsonSerialize())
+            $response = $this->getHttpClient()
+                ->post("/library/{$this->getLibrary()}/summary", $request->jsonSerialize())
                 ->throwIfServerError();
 
             $json = $response->json();
@@ -267,18 +264,20 @@ class CloudEngine extends Engine
                 'request' => $request->jsonSerialize(),
                 'response' => $json,
             ]);
-            
-            if(empty($json['summary'] ?? null)){
-                throw new CopilotException("Communication error with the copilot. Missing answer.");
+
+            $summary = $json['text'] ?? null;
+
+            if(blank($summary)){
+                throw new CopilotException("Summary not generated.");
             }
 
-            return new CopilotResponse($json['summary']);
+            return new CopilotResponse($summary);
         }
         catch(Throwable $ex)
         {
             // TODO: response body can contain error information // {"code":500,"message":"Error while parsing file","type":"Internal Server Error"}
             // {"code":422,"message":"No content found in request","type":"Unprocessable Entity"}
-            logs()->error("Error asking summary to copilot", ['error' => $ex->getMessage(), 'request' => $request]);
+            logs()->error("Error generating summary", ['error' => $ex->getMessage(), 'request' => $request]);
             throw $ex;
         }
     }
@@ -286,35 +285,28 @@ class CloudEngine extends Engine
     public function aggregate(AnswerAggregationCopilotRequest $request): CopilotResponse
     {
         try{
+            logs()->info("Aggregating answers for question [{$request->id}]");
 
-            $endpoint = '/answer-aggregation';
-
-            $response = Http::acceptJson()
-                ->timeout($this->getRequestTimeout())
-                ->asJson()
-                ->post(rtrim($this->config['host'], '/') . $endpoint, $request->jsonSerialize())
-                ->throwIfServerError();
+            $response = $this->getHttpClient()
+                ->post("/library/{$this->getLibrary()}/questions/aggregate", $request->jsonSerialize())
+                ->throw();
 
             $json = $response->json();
 
-            logs()->info("Aggregating question answers", [
+            logs()->info("Answer aggregation complete for question [{$request->id}]", [
                 'request' => $request->jsonSerialize(),
                 'answer' => $json,
             ]);
 
-            if(isset($json['code']) && $json['code'] == 404){
-                logs()->error("Question cannot be answered [{$response->status()}]", ['response' => $json, 'request' => $question]);
-                throw new CopilotException("Document might not be ready to accept questions.");
-            }
-            
-            if(empty($json['answer'] ?? null)){
-                throw new CopilotException("Communication error with the copilot. Missing answer.");
+            if($json['id'] !== $request->id){
+                // In case of a question decomposition request the original question id is not present
+                throw new CopilotException("Communication error with the copilot. [{$response->status()}]");
             }
 
-            $answerText = $json['answer'][0]['text'] ?? $json['answer']['text'] ?? $json['answer'] ?? null;
-            $answerReferences = $json['answer'][0]['references'] ?? $json['answer']['references'] ?? $json['references'] ?? [];
+            $answerText = $json['text'] ?? null;
+            $answerReferences = $json['refs'] ?? [];
 
-            if(is_null($answerText)){
+            if(blank($answerText)){
                 throw new CopilotException(__('There was a problem while obtaining the answer. Please report it.'));
             }
 
@@ -322,8 +314,7 @@ class CloudEngine extends Engine
         }
         catch(Throwable $ex)
         {
-            // TODO: response body can contain error information // {"code":500,"message":"Error while parsing file","type":"Internal Server Error"}
-            // {"code":422,"message":"No content found in request","type":"Unprocessable Entity"}
+            // TODO: response body can contain error information 
             logs()->error("Error asking question copilot", ['error' => $ex->getMessage(), 'request' => $request]);
             throw $ex;
         }
@@ -331,117 +322,57 @@ class CloudEngine extends Engine
 
     public function defineTagList(string $name, array $tags)
     {
-        $requestData = [
-            'topic_list_id' => $name,
-            'library_id' => $this->getLibrary(),
-            'topics' => $tags,
-        ];
-
-        try{
-
-            $endpoint = '/topic';
-
-            $response = Http::acceptJson()
-                ->timeout($this->getRequestTimeout())
-                ->asJson()
-                ->post(rtrim($this->config['host'], '/') . $endpoint, $requestData)
-                ->throwIfServerError();
-
-            $json = $response->json();
-
-            if(!$json ){
-                logs()->error("Topic list not added [{$response->status()}]", ['response' => $response->body(), 'request' => $requestData]);
-                throw new CopilotException("Error adding topic list. See error log for more details.");
-            }
-
-            if(isset($json['code']) && $json['code'] != 200){
-                logs()->error("Topic list not added [{$response->status()}]", ['response' => $json, 'request' => $requestData]);
-                throw new CopilotException(isset($json['message']) ? $json['message'] : "Error adding topic list. [{$json['code']}]");
-            }
-            
-            if(!isset($json['id'])){
-                logs()->error("Topic list not added [{$response->status()}]", ['response' => $response->body(), 'request' => $requestData]);
-                throw new CopilotException("Error adding topic list.");
-            }
-            
-        }
-        catch(Throwable $ex)
-        {
-            logs()->error("Error creating topic list", ['error' => $ex->getMessage(), 'request' => $requestData]);
-            throw $ex;
-        }
+        throw new RuntimeException(__('Tag feature not available in cloud version'));
     }
 
     public function tag($list, $model): Collection
     {
-        $traits = class_uses_recursive($model);
-
-        if(!isset($traits[Questionable::class])){
-            throw new InvalidArgumentException("Model not questionable");
-        }
-
-        $requestData = [
-            'topic_list_id' => $list,
-            'library_id' => $this->getLibrary(),
-            'doc_id' => $model->getCopilotKey(),
-        ];
-        
-        try{
-
-            $endpoint = '/topic/classify';
-
-            $response = Http::acceptJson()
-                ->timeout($this->getRequestTimeout())
-                ->asJson()
-                ->post(rtrim($this->config['host'], '/') . $endpoint, $requestData)
-                ->throwIfServerError();
-
-            $json = $response->json();
-
-            if(isset($json['code']) && $json['code'] != 200){
-                logs()->error("Document not tagged [{$response->status()}]", ['response' => $json, 'request' => $requestData]);
-                throw new CopilotException(isset($json['message']) ? $json['message'] : "Error document tagging. [{$json['code']}]");
-            }
-            
-            return collect($json['topics'] ?? []);
-        }
-        catch(Throwable $ex)
-        {
-            logs()->error("Error tagging document", ['error' => $ex->getMessage(), 'request' => $requestData]);
-            throw $ex;
-        }
-
+        throw new RuntimeException(__('Tag feature not available in cloud version'));
     }
 
     public function removeTagList(string $name)
     {
-        try{
+        throw new RuntimeException(__('Tag feature not available in cloud version'));
+    }
 
-            $response = Http::acceptJson()
+    protected function getHttpClient(): PendingRequest
+    {
+        return Http::acceptJson()
                 ->timeout($this->getRequestTimeout())
                 ->asJson()
-                ->delete(rtrim($this->config['host'], '/') . '/topic/' . $name, [
-                    'library_id' => $this->getLibrary()
-                ])
-                ->throw();
+                ->baseUrl(rtrim($this->config['host'], '/'));
+    }
 
-            $json = $response->json();
 
-            if(isset($json['code']) && $json['code'] != 200){
-                logs()->error("Document not tagged [{$response->status()}]", ['response' => $json, 'request' => $name]);
-                throw new CopilotException(isset($json['message']) ? $json['message'] : "Error document tagging. [{$json['code']}]");
-            }
+    // Client specific methods that should be separate in a reusable package
+
+    protected function httpGetLibrary(string $id): array|null
+    {
+        $response = $this->getHttpClient()->get('/libraries/' . $id);
+
+        if($response->notFound()){
+            return null;
         }
-        catch(Throwable $ex)
-        {
-            logs()->error("Error removing tag list from copilot", ['error' => $ex->getMessage()]);
 
-            if($ex->getCode() === 404){
-                return;
-            }
+        return $response->json();
+    }
+    
+    protected function httpUpdateLibrary(string $id, array $settings)
+    {
+        $response = $this->getHttpClient()->put('/libraries/' . $id, $settings)
+            ->throwIfServerError()
+            ->throwIfClientError();
 
-            throw $ex;
-        }
+        return $response->json();
+    }
+    
+    protected function httpCreateLibrary(array $request)
+    {
+        $response = $this->getHttpClient()->post('/libraries', $request)
+            ->throwIfServerError()
+            ->throwIfClientError();
+
+        return $response->json();
     }
 
 }

@@ -33,18 +33,21 @@ class CopilotRequest implements JsonSerializable
     {
         if($this->multipleQuestionRequest()){
             return [
-                'q_id' => $this->id,
-                'arguments' => ['text' => $this->question],
-                'template_id' => $this->guidanceTemplate ?? '0', // template id corresponding to free multiple question on the backend
-                'doc_list' => Arr::wrap($this->documents),
-                'lang' => $this->language,
+                'question' => [
+                    'id' => $this->id,
+                    'text' => $this->question,
+                    'lang' => $this->language,
+                ],
+                'transformation' => [
+                    'id' => $this->guidanceTemplate ?? '0', // template id corresponding to free multiple question on the backend
+                    'args' => [$this->question],
+                ]
             ];
         }
 
         return [
-            'q_id' => $this->id,
-            'q' => $this->question,
-            'doc_id' => $this->documents,
+            'id' => $this->id,
+            'text' => $this->question,
             'lang' => $this->language,
         ];
     }

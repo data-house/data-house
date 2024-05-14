@@ -27,6 +27,8 @@ class SuggestDocumentAbstract
     {
         $content = null;
 
+        // TODO: switch to generate summary for all text by default and consider only pages if explicitly asked
+
         if(is_null($document->properties['pages'] ?? null)){
             throw new InvalidArgumentException("Could not determine the number of pages in the document");
         }

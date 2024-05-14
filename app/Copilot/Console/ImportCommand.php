@@ -2,12 +2,18 @@
 
 namespace App\Copilot\Console;
 
-use App\Copilot\Events\ModelsQuestionable;
+use Carbon\CarbonInterval;
 use Illuminate\Console\Command;
+use Illuminate\Support\InteractsWithTime;
+use App\Copilot\Events\ModelsQuestionable;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class ImportCommand extends Command
 {
+    use InteractWithModels;
+
+    use InteractsWithTime;
+
     /**
      * The name and signature of the console command.
      *
@@ -32,7 +38,9 @@ class ImportCommand extends Command
      */
     public function handle(Dispatcher $events)
     {
-        $class = $this->argument('model');
+        $startTime = microtime(true);
+
+        $class = $this->qualifyModel($this->argument('model'));
 
         $model = new $class;
 
@@ -46,6 +54,28 @@ class ImportCommand extends Command
 
         $events->forget(ModelsQuestionable::class);
 
-        $this->info('All ['.$class.'] records have been imported.');
+        $runTime = $this->runTimeForHumans($startTime);
+
+        $this->info("All [{$class}] records have been imported. ({$runTime})");
+    }
+
+
+    /**
+     * Given a start time, format the total run time for human readability.
+     *
+     * @param  float  $startTime
+     * @param  float  $endTime
+     * @return string
+     */
+    protected function runTimeForHumans($startTime, $endTime = null)
+    {
+        // TODO: Remove this method before upgrading to Laravel 11
+        $endTime ??= microtime(true);
+
+        $runTime = ($endTime - $startTime) * 1000;
+
+        return $runTime > 1000
+            ? CarbonInterval::milliseconds($runTime)->cascade()->forHumans(short: true)
+            : number_format($runTime, 2).'ms';
     }
 }

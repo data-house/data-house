@@ -16,10 +16,15 @@ class AnswerAggregationCopilotRequest extends CopilotRequest
     public function jsonSerialize()
     {
         return [
-            'q_id' => $this->id,
-            'arguments' => ['text' => $this->question],
-            'template_id' => $this->guidanceTemplate ?? '0', // template id corresponding to free multiple question on the backend
-            'lang' => $this->language,
+            'question' => [
+                'id' => $this->id,
+                'text' => $this->question,
+                'lang' => $this->language,
+            ],
+            'transformation' => [
+                'id' => $this->guidanceTemplate ?? '0', // template id corresponding to free multiple question on the backend
+                'args' => [$this->question],
+            ],
             'answers' => collect($this->documents)->filter()
                 ->values()
                 ->toArray(),

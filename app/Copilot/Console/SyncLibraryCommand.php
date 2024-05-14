@@ -2,6 +2,7 @@
 
 namespace App\Copilot\Console;
 
+use App\Copilot\CopilotManager;
 use App\Copilot\Events\ModelsQuestionable;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Events\Dispatcher;
@@ -13,7 +14,7 @@ class SyncLibraryCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'copilot:sync-library';
+    protected $signature = 'copilot:sync-library-settings';
 
     /**
      * The console command description.
@@ -30,6 +31,10 @@ class SyncLibraryCommand extends Command
      */
     public function handle(Dispatcher $events)
     {
+        $copilot = app(CopilotManager::class)->driver();
+
+        $copilot->syncLibrarySettings();
         
+        $this->info("Settings for the [{$copilot->getLibrary()}] library synced successfully.");
     }
 }

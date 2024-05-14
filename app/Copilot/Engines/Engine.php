@@ -31,15 +31,15 @@ abstract class Engine
     /**
      * Get the library tenant
      */
-    protected function getLibrary(): string
+    public function getLibrary(): string
     {
-        return $config['library'] ?? str(config('app.url'))->slug()->toString();
+        return $this->config['library'] ?? str(config('app.url'))->slug()->toString();
     }
     
     /**
      * Get the library name
      */
-    protected function getLibraryName(): string
+    public function getLibraryName(): string
     {
         return config('app.name', 'Data House');
     }
