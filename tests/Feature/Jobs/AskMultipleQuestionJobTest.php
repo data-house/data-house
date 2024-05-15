@@ -31,10 +31,11 @@ class AskMultipleQuestionJobTest extends TestCase
     public function test_question_decomposed_and_children_queued(): void
     {
         config([
-            'copilot.driver' => 'oaks',
+            'copilot.driver' => 'cloud',
             'copilot.queue' => false,
-            'copilot.engines.oaks' => [
+            'copilot.engines.cloud' => [
                 'host' => 'http://localhost:5000/',
+                'library' => 'library-id',
             ],
         ]);
 
@@ -62,32 +63,17 @@ class AskMultipleQuestionJobTest extends TestCase
 
         
         Http::fake([
-            'http://localhost:5000/transform-question' => Http::response($documents->mapWithKeys(function($doc){
-                return [$doc->getCopilotKey() => 'Question to execute on document'];})->toArray(), 200),
-            'http://localhost:5000/question' => Http::response([
-                "q_id" => $question->uuid,
-                "answer" => [
-                    [
-                        "text" => "Yes, I can provide information and answer questions related to renewable energy and sustainable development based on the context information provided.",
-                        "references" => [
-                            [
-                                "doc_id" => 1,
-                                "page_number" => 2,
-                            ],
-                            [
-                                "doc_id" => 1,
-                                "page_number" => 4,
-                            ]
-                        ],
-                    ],
-                ]
+            'http://localhost:5000/library/library-id/questions/transform' => Http::response([
+                "id" => $question->uuid,
+                "lang" => "en",
+                "text" => "Question to execute on document",
             ], 200),
         ]);
 
         (new AskMultipleQuestionJob($question))->handle();
 
         Http::assertSent(function (Request $request) use ($question) {
-            return $request->url() == 'http://localhost:5000/transform-question';
+            return $request->url() == 'http://localhost:5000/library/library-id/questions/transform';
         });
 
         $savedQuestion = $question->fresh();
@@ -134,10 +120,11 @@ class AskMultipleQuestionJobTest extends TestCase
     public function test_descriptive_question_decomposed_and_children_queued(): void
     {
         config([
-            'copilot.driver' => 'oaks',
+            'copilot.driver' => 'cloud',
             'copilot.queue' => false,
-            'copilot.engines.oaks' => [
+            'copilot.engines.cloud' => [
                 'host' => 'http://localhost:5000/',
+                'library' => 'library-id',
             ],
         ]);
 
@@ -160,39 +147,27 @@ class AskMultipleQuestionJobTest extends TestCase
             ->multiple()
             ->recycle($collection)
             ->create([
-                'question' => 'Do you really reply to my question?',
+                'question' => 'challenges',
                 'type' => QuestionType::DESCRIPTIVE,
+                'language' => 'en',
             ]);
 
         
         Http::fake([
-            'http://localhost:5000/transform-question' => Http::response($documents->mapWithKeys(function($doc){
-                return [$doc->getCopilotKey() => ['Question to execute on document']];})->toArray(), 200),
-            'http://localhost:5000/question' => Http::response([
-                "q_id" => $question->uuid,
-                "answer" => [
-                    [
-                        "text" => "Yes, I can provide information and answer questions related to renewable energy and sustainable development based on the context information provided.",
-                        "references" => [
-                            [
-                                "doc_id" => 1,
-                                "page_number" => 2,
-                            ],
-                            [
-                                "doc_id" => 1,
-                                "page_number" => 4,
-                            ]
-                        ],
-                    ],
-                ]
+            'http://localhost:5000/library/library-id/questions/transform' => Http::response([
+                "id" => $question->uuid,
+                "lang" => $question->language,
+                "text" => "What are the main challenges in the report?",
             ], 200),
         ]);
 
         (new AskMultipleQuestionJob($question))->handle();
 
         Http::assertSent(function (Request $request) use ($question) {
-            return $request->url() == 'http://localhost:5000/transform-question' && 
-                $request['template_id'] == '1';
+            return $request->url() == 'http://localhost:5000/library/library-id/questions/transform' && 
+                $request['transformation'] && 
+                $request['transformation']['id'] == 1 &&
+                $request['transformation']['args'][0] == "challenges";
         });
 
         $savedQuestion = $question->fresh();

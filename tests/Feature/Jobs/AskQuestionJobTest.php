@@ -22,10 +22,11 @@ class AskQuestionJobTest extends TestCase
     public function test_question_executed(): void
     {
         config([
-            'copilot.driver' => 'oaks',
+            'copilot.driver' => 'cloud',
             'copilot.queue' => false,
-            'copilot.engines.oaks' => [
+            'copilot.engines.cloud' => [
                 'host' => 'http://localhost:5000/',
+                'library' => 'library-id'
             ],
         ]);
 
@@ -37,35 +38,32 @@ class AskQuestionJobTest extends TestCase
             'question' => 'Do you really reply to my question?',
         ]);
 
+        $documentKey = $question->questionable->getCopilotKey();
         
         Http::fake([
-            'http://localhost:5000/question' => Http::response([
-                "q_id" => $question->uuid,
-                "answer" => [
+            "http://localhost:5000/library/library-id/documents/{$documentKey}/questions" => Http::response([
+                "id" => $question->uuid,
+                "lang" => "en",
+                "text" => "Yes, I can provide information and answer questions related to renewable energy and sustainable development based on the context information provided.",
+                "refs" => [
                     [
-                        "text" => "Yes, I can provide information and answer questions related to renewable energy and sustainable development based on the context information provided.",
-                        "references" => [
-                            [
-                                "doc_id" => 1,
-                                "page_number" => 2,
-                            ],
-                            [
-                                "doc_id" => 1,
-                                "page_number" => 4,
-                            ]
-                        ],
+                        "id" => $documentKey,
+                        "page_number" => 2,
                     ],
-                ]
+                    [
+                        "id" => $documentKey,
+                        "page_number" => 4,
+                    ]
+                ],
             ], 200),
         ]);
 
         (new AskQuestionJob($question))->handle();
 
-        Http::assertSent(function (Request $request) use ($question) {
-            return $request->url() == 'http://localhost:5000/question' &&
-                   $request['q_id'] === $question->uuid &&
-                   $request['q'] == 'Do you really reply to my question?' &&
-                   $request['doc_id'][0] === ''.$question->questionable->getCopilotKey() &&
+        Http::assertSent(function (Request $request) use ($question, $documentKey) {
+            return $request->url() == "http://localhost:5000/library/library-id/documents/{$documentKey}/questions" &&
+                   $request['id'] === $question->uuid &&
+                   $request['text'] == 'Do you really reply to my question?' &&
                    $request['lang'];
         });
 
@@ -74,11 +72,11 @@ class AskQuestionJobTest extends TestCase
         $this->assertEquals('Yes, I can provide information and answer questions related to renewable energy and sustainable development based on the context information provided.', $savedQuestion->answer['text']);
         $this->assertEquals([
             [
-                "doc_id" => 1,
+                "id" => $documentKey,
                 "page_number" => 2,
             ],
             [
-                "doc_id" => 1,
+                "id" => $documentKey,
                 "page_number" => 4,
             ]
             ], $savedQuestion->answer['references']);
@@ -99,25 +97,37 @@ class AskQuestionJobTest extends TestCase
     public function test_errors_are_handled(): void
     {
         config([
-            'copilot.driver' => 'oaks',
+            'copilot.driver' => 'cloud',
             'copilot.queue' => false,
-            'copilot.engines.oaks' => [
+            'copilot.engines.cloud' => [
                 'host' => 'http://localhost:5000/',
+                'library' => 'library-id'
             ],
         ]);
 
         Http::preventStrayRequests();
-        
-        Http::fake([
-            'http://localhost:5000/question' => Http::response([
-                "code" => 422,
-                "message" => "No content found in request",
-                "type" => "Unprocessable Entity",
-            ], 422),
-        ]);
-        
+
         $question = Question::factory()->create([
             'question' => 'Do you really reply to my question?',
+        ]);
+        
+        Http::fake([
+            "http://localhost:5000/library/library-id/documents/{$question->questionable->getCopilotKey()}/questions" => Http::response([
+                "detail" => [
+                    [
+                      "type" => "missing",
+                      "loc" => [
+                        "body",
+                        "text"
+                      ],
+                      "msg" => "Field required",
+                      "input" => [
+                        "id" => $question->uuid,
+                        "lang" => $question->language
+                      ]
+                    ]
+                  ]
+            ], 422),
         ]);
 
         $job = new AskQuestionJob($question);
@@ -130,10 +140,9 @@ class AskQuestionJobTest extends TestCase
         }
 
         Http::assertSent(function (Request $request) use ($question) {
-            return $request->url() == 'http://localhost:5000/question' &&
-                   $request['q_id'] === $question->uuid &&
-                   $request['q'] == 'Do you really reply to my question?' &&
-                   $request['doc_id'][0] === ''.$question->questionable->getCopilotKey() &&
+            return $request->url() == "http://localhost:5000/library/library-id/documents/{$question->questionable->getCopilotKey()}/questions" &&
+                   $request['id'] === $question->uuid &&
+                   $request['text'] == 'Do you really reply to my question?' &&
                    $request['lang'];
         });
 

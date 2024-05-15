@@ -24,10 +24,11 @@ class SuggestDocumentAbstractTest extends TestCase
             'pdf.processors.extractor' => [
                 'host' => 'http://localhost:9000',
             ],
-            'copilot.driver' => 'oaks',
+            'copilot.driver' => 'cloud',
             'copilot.queue' => false,
-            'copilot.engines.oaks' => [
+            'copilot.engines.cloud' => [
                 'host' => 'http://localhost:5000/',
+                'library' => 'library-id'
             ],
         ]);
 
@@ -55,10 +56,11 @@ class SuggestDocumentAbstractTest extends TestCase
             'pdf.processors.extractor' => [
                 'host' => 'http://localhost:9000',
             ],
-            'copilot.driver' => 'oaks',
+            'copilot.driver' => 'cloud',
             'copilot.queue' => false,
-            'copilot.engines.oaks' => [
+            'copilot.engines.cloud' => [
                 'host' => 'http://localhost:5000/',
+                'library' => 'library-id'
             ],
         ]);
 
@@ -82,10 +84,11 @@ class SuggestDocumentAbstractTest extends TestCase
             'pdf.processors.extractor' => [
                 'host' => 'http://localhost:9000',
             ],
-            'copilot.driver' => 'oaks',
+            'copilot.driver' => 'cloud',
             'copilot.queue' => false,
-            'copilot.engines.oaks' => [
+            'copilot.engines.cloud' => [
                 'host' => 'http://localhost:5000/',
+                'library' => 'library-id'
             ],
         ]);
 
@@ -113,10 +116,11 @@ class SuggestDocumentAbstractTest extends TestCase
             'pdf.processors.extractor' => [
                 'host' => 'http://localhost:9000',
             ],
-            'copilot.driver' => 'oaks',
+            'copilot.driver' => 'cloud',
             'copilot.queue' => false,
-            'copilot.engines.oaks' => [
+            'copilot.engines.cloud' => [
                 'host' => 'http://localhost:5000/',
+                'library' => 'library-id'
             ],
         ]);
 
@@ -144,9 +148,10 @@ class SuggestDocumentAbstractTest extends TestCase
                 ],
                 "status" => "ok"
             ], 200),
-            'http://localhost:5000/summarize' => Http::response([
+            'http://localhost:5000/library/library-id/summary' => Http::response([
                 "id" => $document->getCopilotKey(),
-                "summary" => "Summary."
+                "lang" => "en",
+                "text" => "Summary."
             ], 200),
         ]);
 
@@ -158,7 +163,7 @@ class SuggestDocumentAbstractTest extends TestCase
         $this->assertEquals("Summary.", $abstract);
 
         Http::assertSent(function (Request $request) use ($document) {
-            return $request->url() == 'http://localhost:5000/summarize' &&
+            return $request->url() == 'http://localhost:5000/library/library-id/summary' &&
                    $request->method() === 'POST' &&
                    $request['id'] == $document->getCopilotKey() &&
                    $request['text'] == 'Content of the document' &&
@@ -172,10 +177,11 @@ class SuggestDocumentAbstractTest extends TestCase
             'pdf.processors.extractor' => [
                 'host' => 'http://localhost:9000',
             ],
-            'copilot.driver' => 'oaks',
+            'copilot.driver' => 'cloud',
             'copilot.queue' => false,
-            'copilot.engines.oaks' => [
+            'copilot.engines.cloud' => [
                 'host' => 'http://localhost:5000/',
+                'library' => 'library-id'
             ],
         ]);
 
@@ -234,9 +240,10 @@ class SuggestDocumentAbstractTest extends TestCase
                 ],
                 "status" => "ok"
             ], 200),
-            'http://localhost:5000/summarize' => Http::response([
+            'http://localhost:5000/library/library-id/summary' => Http::response([
                 "id" => $document->getCopilotKey(),
-                "summary" => "Summary."
+                "lang" => "en",
+                "text" => "Summary."
             ], 200),
         ]);
 
@@ -248,7 +255,7 @@ class SuggestDocumentAbstractTest extends TestCase
         $this->assertEquals("Summary.", $abstract);
 
         Http::assertSent(function (Request $request) use ($document) {
-            return $request->url() == 'http://localhost:5000/summarize' &&
+            return $request->url() == 'http://localhost:5000/library/library-id/summary' &&
                    $request->method() === 'POST' &&
                    $request['id'] == $document->getCopilotKey() &&
                    $request['text'] == '-' . PHP_EOL . '-' . PHP_EOL . '-' . PHP_EOL . 'SUMMARY Content of the document' . PHP_EOL . 'ZUSAMMENFASSUNG (and other content)' . PHP_EOL . '-' &&
@@ -262,10 +269,11 @@ class SuggestDocumentAbstractTest extends TestCase
             'pdf.processors.extractor' => [
                 'host' => 'http://localhost:9000',
             ],
-            'copilot.driver' => 'oaks',
+            'copilot.driver' => 'cloud',
             'copilot.queue' => false,
-            'copilot.engines.oaks' => [
+            'copilot.engines.cloud' => [
                 'host' => 'http://localhost:5000/',
+                'library' => 'library-id'
             ],
         ]);
 
@@ -324,9 +332,10 @@ class SuggestDocumentAbstractTest extends TestCase
                 ],
                 "status" => "ok"
             ], 200),
-            'http://localhost:5000/summarize' => Http::response([
+            'http://localhost:5000/library/library-id/summary' => Http::response([
                 "id" => $document->getCopilotKey(),
-                "summary" => "Summary."
+                "lang" => "en",
+                "text" => "Summary."
             ], 200),
         ]);
 
@@ -338,7 +347,7 @@ class SuggestDocumentAbstractTest extends TestCase
         $this->assertEquals("Summary.", $abstract);
 
         Http::assertSent(function (Request $request) use ($document) {
-            return $request->url() == 'http://localhost:5000/summarize' &&
+            return $request->url() == 'http://localhost:5000/library/library-id/summary' &&
                    $request->method() === 'POST' &&
                    $request['id'] == $document->getCopilotKey() &&
                    $request['text'] == '-' . PHP_EOL . '-' . PHP_EOL . '-' . PHP_EOL . 'ZUSAMMENFASSUNG Content of the document' . PHP_EOL . 'SUMMARY' . PHP_EOL . '-' &&
@@ -353,10 +362,11 @@ class SuggestDocumentAbstractTest extends TestCase
             'pdf.processors.extractor' => [
                 'host' => 'http://localhost:9000',
             ],
-            'copilot.driver' => 'oaks',
+            'copilot.driver' => 'cloud',
             'copilot.queue' => false,
-            'copilot.engines.oaks' => [
+            'copilot.engines.cloud' => [
                 'host' => 'http://localhost:5000/',
+                'library' => 'library-id'
             ],
         ]);
 
@@ -415,9 +425,10 @@ class SuggestDocumentAbstractTest extends TestCase
                 ],
                 "status" => "ok"
             ], 200),
-            'http://localhost:5000/summarize' => Http::response([
+            'http://localhost:5000/library/library-id/summary' => Http::response([
                 "id" => $document->getCopilotKey(),
-                "summary" => "Summary."
+                "lang" => "en",
+                "text" => "Summary."
             ], 200),
         ]);
 
@@ -429,7 +440,7 @@ class SuggestDocumentAbstractTest extends TestCase
         $this->assertEquals("Summary.", $abstract);
 
         Http::assertSent(function (Request $request) use ($document) {
-            return $request->url() == 'http://localhost:5000/summarize' &&
+            return $request->url() == 'http://localhost:5000/library/library-id/summary' &&
                    $request->method() === 'POST' &&
                    $request['id'] == $document->getCopilotKey() &&
                    $request['text'] == 'SUMMARY Content of the document' &&

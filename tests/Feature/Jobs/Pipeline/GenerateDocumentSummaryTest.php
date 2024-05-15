@@ -23,10 +23,11 @@ class GenerateDocumentSummaryTest extends TestCase
             'pdf.processors.extractor' => [
                 'host' => 'http://localhost:9000',
             ],
-            'copilot.driver' => 'oaks',
+            'copilot.driver' => 'cloud',
             'copilot.queue' => false,
-            'copilot.engines.oaks' => [
+            'copilot.engines.cloud' => [
                 'host' => 'http://localhost:5000/',
+                'library' => 'library-id'
             ],
         ]);
 
@@ -54,9 +55,10 @@ class GenerateDocumentSummaryTest extends TestCase
                 ],
                 "status" => "ok"
             ], 200),
-            'http://localhost:5000/summarize' => Http::response([
-                "doc_id" => $model->ulid,
-                "summary" => "Summary."
+            'http://localhost:5000/library/library-id/summary' => Http::response([
+                "id" => $model->ulid,
+                "lang" => "en",
+                "text" => "Summary."
             ], 200),
         ]);
 
@@ -81,10 +83,11 @@ class GenerateDocumentSummaryTest extends TestCase
             'pdf.processors.extractor' => [
                 'host' => 'http://localhost:9000',
             ],
-            'copilot.driver' => 'oaks',
+            'copilot.driver' => 'cloud',
             'copilot.queue' => false,
-            'copilot.engines.oaks' => [
+            'copilot.engines.cloud' => [
                 'host' => 'http://localhost:5000/',
+                'library' => 'library-id'
             ],
         ]);
 
@@ -113,9 +116,10 @@ class GenerateDocumentSummaryTest extends TestCase
                 ],
                 "status" => "ok"
             ], 200),
-            'http://localhost:5000/summarize' => Http::response([
-                "doc_id" => $model->ulid,
-                "summary" => "Summary."
+            'http://localhost:5000/library/library-id/summary' => Http::response([
+                "id" => $model->ulid,
+                "lang" => "en",
+                "text" => "Summary."
             ], 200),
         ]);
 
@@ -142,10 +146,11 @@ class GenerateDocumentSummaryTest extends TestCase
             'pdf.processors.extractor' => [
                 'host' => 'http://localhost:9000',
             ],
-            'copilot.driver' => 'oaks',
+            'copilot.driver' => 'cloud',
             'copilot.queue' => false,
-            'copilot.engines.oaks' => [
+            'copilot.engines.cloud' => [
                 'host' => 'http://localhost:5000/',
+                'library' => 'library-id'
             ],
         ]);
 
@@ -174,9 +179,10 @@ class GenerateDocumentSummaryTest extends TestCase
                 ],
                 "status" => "ok"
             ], 200),
-            'http://localhost:5000/summarize' => Http::response([
-                "doc_id" => $model->ulid,
-                "summary" => "Summary."
+            'http://localhost:5000/library/library-id/summary' => Http::response([
+                "id" => $model->ulid,
+                "lang" => "en",
+                "text" => "Summary."
             ], 200),
         ]);
 

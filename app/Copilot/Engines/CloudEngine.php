@@ -139,7 +139,7 @@ class CloudEngine extends Engine
         {
             // TODO: response body can contain error information
             logs()->error("Error adding documents to copilot", ['error' => $ex->getMessage(), 'type' => get_class($ex)]);
-            throw $ex;
+            throw new CopilotException($ex->getMessage(), $ex->getCode(), $ex);
         }
     }
 
@@ -182,7 +182,7 @@ class CloudEngine extends Engine
                 return;
             }
 
-            throw $ex;
+            throw new CopilotException($ex->getMessage(), $ex->getCode(), $ex);
         }
     }
 
@@ -238,7 +238,7 @@ class CloudEngine extends Engine
         {
             // TODO: response body can contain error information 
             logs()->error("Error asking question copilot", ['error' => $ex->getMessage(), 'request' => $question]);
-            throw $ex;
+            throw new CopilotException($ex->getMessage(), $ex->getCode(), $ex);
         }
     }
 
@@ -278,7 +278,7 @@ class CloudEngine extends Engine
             // TODO: response body can contain error information // {"code":500,"message":"Error while parsing file","type":"Internal Server Error"}
             // {"code":422,"message":"No content found in request","type":"Unprocessable Entity"}
             logs()->error("Error generating summary", ['error' => $ex->getMessage(), 'request' => $request]);
-            throw $ex;
+            throw new CopilotException($ex->getMessage(), $ex->getCode(), $ex);
         }
     }
     
@@ -316,7 +316,7 @@ class CloudEngine extends Engine
         {
             // TODO: response body can contain error information 
             logs()->error("Error asking question copilot", ['error' => $ex->getMessage(), 'request' => $request]);
-            throw $ex;
+            throw new CopilotException($ex->getMessage(), $ex->getCode(), $ex);
         }
     }
 

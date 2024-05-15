@@ -30,10 +30,11 @@ class AskMultipleQuestionTraitTest extends TestCase
     public function test_model_can_be_questioned(): void
     {
         config([
-            'copilot.driver' => 'oaks',
+            'copilot.driver' => 'cloud',
             'copilot.queue' => false,
-            'copilot.engines.oaks' => [
+            'copilot.engines.cloud' => [
                 'host' => 'http://localhost:5000/',
+                'library' => 'library-id',
             ],
         ]);
 

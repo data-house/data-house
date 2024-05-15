@@ -22,10 +22,11 @@ class DocumentSummaryCommandTest extends TestCase
             'pdf.processors.extractor' => [
                 'host' => 'http://localhost:9000',
             ],
-            'copilot.driver' => 'oaks',
+            'copilot.driver' => 'cloud',
             'copilot.queue' => false,
-            'copilot.engines.oaks' => [
+            'copilot.engines.cloud' => [
                 'host' => 'http://localhost:5000/',
+                'library' => 'library-id'
             ],
         ]);
 
@@ -52,9 +53,10 @@ class DocumentSummaryCommandTest extends TestCase
                 ],
                 "status" => "ok"
             ], 200),
-            'http://localhost:5000/summarize' => Http::response([
-                "doc_id" => $document->ulid,
-                "summary" => "Summary."
+            'http://localhost:5000/library/library-id/summary' => Http::response([
+                "id" => $document->ulid,
+                "lang" => "en",
+                "text" => "Summary."
             ], 200),
         ]);
 
@@ -81,10 +83,11 @@ class DocumentSummaryCommandTest extends TestCase
             'pdf.processors.extractor' => [
                 'host' => 'http://localhost:9000',
             ],
-            'copilot.driver' => 'oaks',
+            'copilot.driver' => 'cloud',
             'copilot.queue' => false,
-            'copilot.engines.oaks' => [
+            'copilot.engines.cloud' => [
                 'host' => 'http://localhost:5000/',
+                'library' => 'library-id'
             ],
         ]);
 
@@ -111,9 +114,10 @@ class DocumentSummaryCommandTest extends TestCase
                 ],
                 "status" => "ok"
             ], 200),
-            'http://localhost:5000/summarize' => Http::response([
-                "doc_id" => $document->ulid,
-                "summary" => "Summary."
+            'http://localhost:5000/library/library-id/summary' => Http::response([
+                "id" => $document->ulid,
+                "lang" => "en",
+                "text" => "Summary."
             ], 200),
         ]);
 
@@ -134,7 +138,7 @@ class DocumentSummaryCommandTest extends TestCase
         $this->assertNull($updatedDocument->description);
 
         Http::assertSent(function (Request $request) {
-            return $request->url() == 'http://localhost:5000/summarize' &&
+            return $request->url() == 'http://localhost:5000/library/library-id/summary' &&
                    $request->method() === 'POST' &&
                    $request['lang'] == 'de';
         });
@@ -146,10 +150,11 @@ class DocumentSummaryCommandTest extends TestCase
             'pdf.processors.extractor' => [
                 'host' => 'http://localhost:9000',
             ],
-            'copilot.driver' => 'oaks',
+            'copilot.driver' => 'cloud',
             'copilot.queue' => false,
-            'copilot.engines.oaks' => [
+            'copilot.engines.cloud' => [
                 'host' => 'http://localhost:5000/',
+                'library' => 'library-id'
             ],
         ]);
 
@@ -179,9 +184,10 @@ class DocumentSummaryCommandTest extends TestCase
                 ],
                 "status" => "ok"
             ], 200),
-            'http://localhost:5000/summarize' => Http::response([
-                "doc_id" => $document->ulid,
-                "summary" => "Summary."
+            'http://localhost:5000/library/library-id/summary' => Http::response([
+                "id" => $document->ulid,
+                "lang" => "en",
+                "text" => "Summary."
             ], 200),
         ]);
 
@@ -211,10 +217,11 @@ class DocumentSummaryCommandTest extends TestCase
             'pdf.processors.extractor' => [
                 'host' => 'http://localhost:9000',
             ],
-            'copilot.driver' => 'oaks',
+            'copilot.driver' => 'cloud',
             'copilot.queue' => false,
-            'copilot.engines.oaks' => [
+            'copilot.engines.cloud' => [
                 'host' => 'http://localhost:5000/',
+                'library' => 'library-id'
             ],
         ]);
 
@@ -245,9 +252,10 @@ class DocumentSummaryCommandTest extends TestCase
                 ],
                 "status" => "ok"
             ], 200),
-            'http://localhost:5000/summarize' => Http::response([
-                "doc_id" => $document->ulid,
-                "summary" => "Summary."
+            'http://localhost:5000/library/library-id/summary' => Http::response([
+                "id" => $document->ulid,
+                "lang" => "en",
+                "text" => "Summary."
             ], 200),
         ]);
 
