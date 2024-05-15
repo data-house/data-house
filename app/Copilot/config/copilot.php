@@ -92,22 +92,6 @@ return [
     
         /*
         |--------------------------------------------------------------------------
-        | Oaks Copilot Configuration
-        |--------------------------------------------------------------------------
-        |
-        | This is a closed source service developed by OneOffTech (https://www.oneofftech.xyz)
-        | in collaboration with Oaks (https://www.oaks.cloud).
-        | The OAKS Copilot is powered by OpenAI to support questioning documents
-        | in multiple languages.
-        |
-        */
-
-        'oaks' => [
-            'host' => env('OAKS_COPILOT_HOST', 'http://localhost:5000'),
-        ],
-    
-        /*
-        |--------------------------------------------------------------------------
         | Copilot Cloud Configuration
         |--------------------------------------------------------------------------
         |
