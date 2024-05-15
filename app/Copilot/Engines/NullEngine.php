@@ -10,6 +10,11 @@ use Illuminate\Support\Collection;
 
 class NullEngine extends Engine
 {
+    public function syncLibrarySettings()
+    {
+
+    }
+    
     /**
      * Update the given model in the index.
      *
