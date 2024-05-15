@@ -366,7 +366,7 @@ class Question extends Model implements Htmlable
                     
                     logs()->info('this', ['this' => $this->toArray(), 'document' => $document->toArray()]);
                     
-                    $singleQuestion = $response->references[$document->getCopilotKey()][0] ?? $response->references[$document->getCopilotKey()];
+                    $singleQuestion = $response->text;
 
                     $question = $document->question($singleQuestion, $this->language);
                     
@@ -390,8 +390,12 @@ class Question extends Model implements Htmlable
      */
     public function aggregateAnswers(): self
     {
-        $subQuestions = $this->children()->select(['answer', 'execution_time'])->get();
-        $answers = $subQuestions->pluck('answer')->toArray();
+        $subQuestions = $this->children()->get();
+        $answers = $subQuestions->map(fn($q) => [
+            'id' => $q->uuid,
+            'lang' => $q->language,
+            ...$q['answer']
+        ])->toArray();
 
         $request = new AnswerAggregationCopilotRequest($this->uuid, $this->question, $answers, $this->language, $this->type?->copilotTemplate());
         

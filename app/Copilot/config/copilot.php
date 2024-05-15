@@ -13,7 +13,7 @@ return [
     | Copilot. This connection is used when syncing all models to the
     | copilot service. You should adjust this based on your needs.
     |
-    | Supported: "oaks", "null"
+    | Supported: "oaks", "cloud", "null"
     |
     */
 
@@ -92,18 +92,28 @@ return [
     
         /*
         |--------------------------------------------------------------------------
-        | Oaks Copilot Configuration
+        | Copilot Cloud Configuration
         |--------------------------------------------------------------------------
         |
-        | This is a closed source service developed by OneOffTech (https://www.oneofftech.xyz)
-        | in collaboration with Oaks (https://www.oaks.cloud).
-        | The OAKS Copilot is powered by OpenAI to support questioning documents
-        | in multiple languages.
+        | This is a closed source service developed by OneOffTech (https://www.oneofftech.xyz).
+        | To access the Copilot Cloud service contact OneOffTech (https://www.oneofftech.xyz).
         |
         */
 
-        'oaks' => [
-            'host' => env('OAKS_COPILOT_HOST', 'http://localhost:5000'),
+        'cloud' => [
+            'host' => env('COPILOT_CLOUD_HOST', null),
+            'key' => env('COPILOT_CLOUD_KEY', null),
+            'library' => env('COPILOT_CLOUD_LIBRARY', null),
+            'library-settings' => [
+                'indexed-fields' => [
+                    'resource_id',
+                ],
+                'text-processing' => [
+                    'n_context_chunk' => env('COPILOT_CLOUD_TEXT_CONTEXT_CHUNKS', 10),
+                    'chunk_length' => env('COPILOT_CLOUD_LIBRARY_CHUNK_LENGTH', 490),
+                    'chunk_overlap' => env('COPILOT_CLOUD_LIBRARY_CHUNK_OVERLAP', 10),
+                ]
+            ],
         ],
 
     ],

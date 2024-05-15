@@ -2,12 +2,7 @@
 
 namespace App\HelpAndSupport;
 
-use App\Copilot\Engines\NullEngine;
-use App\Copilot\Engines\OaksEngine;
-use App\Models\User;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\RateLimiter;
-use Illuminate\Support\Manager;
 
 class Support
 {

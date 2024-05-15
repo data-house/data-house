@@ -3,7 +3,7 @@
 namespace Tests\Feature\Copilot;
 
 use App\Copilot\CopilotResponse;
-use App\Copilot\Engines\OaksEngine;
+use App\Copilot\Engines\cloudEngine;
 use App\Jobs\AskQuestionJob;
 use App\Models\Disk;
 use App\Models\Document;
@@ -29,10 +29,11 @@ class QuestionableTraitTest extends TestCase
             'pdf.processors.extractor' => [
                 'host' => 'http://localhost:9000',
             ],
-            'copilot.driver' => 'oaks',
+            'copilot.driver' => 'cloud',
             'copilot.queue' => false,
-            'copilot.engines.oaks' => [
+            'copilot.engines.cloud' => [
                 'host' => 'http://localhost:5000/',
+                'library' => 'library-id',
             ],
         ]);
 
@@ -57,10 +58,9 @@ class QuestionableTraitTest extends TestCase
                 "content" => $textContent,
                 "status" => "ok"
             ], 200),
-            'http://localhost:5000/documents' => Http::response([
-                "id" => $document->getCopilotKey(),
-                "status" => "ok"
-            ], 200),
+            'http://localhost:5000/library/library-id/documents' => Http::response([
+                "message" => "Document {$document->getCopilotKey()} added to the library library-id."
+            ], 201),
         ]);
 
         Queue::fake();
@@ -73,12 +73,12 @@ class QuestionableTraitTest extends TestCase
         $document->questionable();
 
         Http::assertSent(function (Request $request) use ($document, $textContent) {
-            return $request->url() == 'http://localhost:5000/documents' &&
-                   $request['id'] === $document->getCopilotKey() &&
-                   Str::isUuid($document->getCopilotKey()) && 
-                   $request['key_name'] == $document->getCopilotKeyName() &&
+            return $request->url() == 'http://localhost:5000/library/library-id/documents' &&
+                   $request['id'] === $document->getCopilotKey() && 
                    $request['lang'] === 'en' &&
-                   $request['content'] == $textContent;
+                   data_get($request['data'] ?? [], '0.title') == $document->title &&
+                   data_get($request['data'] ?? [], '0.metadata.page_number') == 1 &&
+                   data_get($request['data'] ?? [], '0.text') == $textContent[0]['text'];
         });
 
     }
@@ -89,10 +89,11 @@ class QuestionableTraitTest extends TestCase
             'pdf.processors.extractor' => [
                 'host' => 'http://localhost:9000',
             ],
-            'copilot.driver' => 'oaks',
+            'copilot.driver' => 'cloud',
             'copilot.queue' => false,
-            'copilot.engines.oaks' => [
+            'copilot.engines.cloud' => [
                 'host' => 'http://localhost:5000/',
+                'library' => 'library-id',
             ],
         ]);
 
@@ -113,9 +114,8 @@ class QuestionableTraitTest extends TestCase
         ]);
 
         Http::fake([
-            'http://localhost:5000/documents/*' => Http::response([
-                "id" => $document->getCopilotKey(),
-                "status" => "ok"
+            'http://localhost:5000/library/*' => Http::response([
+                "message" => "Document `{$document->getCopilotKey()}` removed from the library `library-id`."
             ], 200),
         ]);
 
@@ -129,7 +129,8 @@ class QuestionableTraitTest extends TestCase
         $document->unquestionable();
 
         Http::assertSent(function (Request $request) use ($document, $textContent) {
-            return $request->url() == 'http://localhost:5000/documents/' . $document->getCopilotKey();
+            return $request->url() == 'http://localhost:5000/library/library-id/documents/' . $document->getCopilotKey() &&
+                $request->method() === 'DELETE';
         });
 
     }
@@ -138,10 +139,11 @@ class QuestionableTraitTest extends TestCase
     {
 
         config([
-            'copilot.driver' => 'oaks',
+            'copilot.driver' => 'cloud',
             'copilot.queue' => false,
-            'copilot.engines.oaks' => [
+            'copilot.engines.cloud' => [
                 'host' => 'http://localhost:5000/',
+                'library' => 'library-id',
             ],
         ]);
 
@@ -149,17 +151,18 @@ class QuestionableTraitTest extends TestCase
 
         $driver = $document->questionableUsing();
 
-        $this->assertInstanceOf(OaksEngine::class, $driver);
+        $this->assertInstanceOf(cloudEngine::class, $driver);
     }
 
     public function test_should_be_questionable()
     {
 
         config([
-            'copilot.driver' => 'oaks',
+            'copilot.driver' => 'cloud',
             'copilot.queue' => false,
-            'copilot.engines.oaks' => [
+            'copilot.engines.cloud' => [
                 'host' => 'http://localhost:5000/',
+                'library' => 'library-id',
             ],
         ]);
 
@@ -171,10 +174,11 @@ class QuestionableTraitTest extends TestCase
     public function test_model_can_be_questioned(): void
     {
         config([
-            'copilot.driver' => 'oaks',
+            'copilot.driver' => 'cloud',
             'copilot.queue' => false,
-            'copilot.engines.oaks' => [
+            'copilot.engines.cloud' => [
                 'host' => 'http://localhost:5000/',
+                'library' => 'library-id',
             ],
         ]);
 

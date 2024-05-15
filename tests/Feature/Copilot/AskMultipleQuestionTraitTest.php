@@ -2,25 +2,17 @@
 
 namespace Tests\Feature\Copilot;
 
-use App\Copilot\CopilotResponse;
-use App\Copilot\Engines\OaksEngine;
 use App\Jobs\AskMultipleQuestionJob;
-use App\Jobs\AskQuestionJob;
 use App\Models\Collection;
-use App\Models\Disk;
 use App\Models\Document;
 use App\Models\Question;
 use App\Models\QuestionTarget;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Http\Client\Request;
-use Illuminate\Http\File;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
-use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class AskMultipleQuestionTraitTest extends TestCase
@@ -30,10 +22,11 @@ class AskMultipleQuestionTraitTest extends TestCase
     public function test_model_can_be_questioned(): void
     {
         config([
-            'copilot.driver' => 'oaks',
+            'copilot.driver' => 'cloud',
             'copilot.queue' => false,
-            'copilot.engines.oaks' => [
+            'copilot.engines.cloud' => [
                 'host' => 'http://localhost:5000/',
+                'library' => 'library-id',
             ],
         ]);
 

@@ -3,11 +3,14 @@
 namespace App\Copilot\Console;
 
 use App\Copilot\Events\ModelsUnquestionable;
+use App\Models\Document;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class FlushCommand extends Command
 {
+    use InteractWithModels;
+
     /**
      * The name and signature of the console command.
      *
@@ -31,7 +34,7 @@ class FlushCommand extends Command
      */
     public function handle(Dispatcher $events)
     {
-        $class = $this->argument('model');
+        $class = $this->qualifyModel($this->argument('model'));
 
         $model = new $class;
 

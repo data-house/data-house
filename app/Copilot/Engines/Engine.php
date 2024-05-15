@@ -31,10 +31,21 @@ abstract class Engine
     /**
      * Get the library tenant
      */
-    protected function getLibrary(): string
+    public function getLibrary(): string
     {
-        return str(config('app.url', 3))->slug()->toString();
+        return $this->config['library'] ?? str(config('app.url'))->slug()->toString();
     }
+    
+    /**
+     * Get the library name
+     */
+    public function getLibraryName(): string
+    {
+        return config('app.name', 'Data House');
+    }
+
+
+    abstract public function syncLibrarySettings();
 
     /**
      * Update the given model in the index.

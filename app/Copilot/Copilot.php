@@ -2,12 +2,6 @@
 
 namespace App\Copilot;
 
-use App\Copilot\Engines\NullEngine;
-use App\Copilot\Engines\OaksEngine;
-use App\Models\User;
-use Illuminate\Support\Facades\RateLimiter;
-use Illuminate\Support\Manager;
-
 class Copilot
 {
     /**

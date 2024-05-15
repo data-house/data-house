@@ -20,13 +20,14 @@ class MakeDocumentQuestionableTest extends TestCase
             'pdf.processors.extractor' => [
                 'host' => 'http://localhost:9000',
             ],
-            'copilot.driver' => 'oaks',
+            'copilot.driver' => 'cloud',
             'copilot.queue' => false,
             'copilot.features.summary' => false,
             'copilot.features.question' => true,
             'copilot.features.tagging' => false,
-            'copilot.engines.oaks' => [
+            'copilot.engines.cloud' => [
                 'host' => 'http://localhost:5000/',
+                'library' => 'library-id'
             ],
         ]);
 
@@ -54,9 +55,8 @@ class MakeDocumentQuestionableTest extends TestCase
                 ],
                 "status" => "ok"
             ], 200),
-            'http://localhost:5000/documents' => Http::response([
-                "id" => $model->getCopilotKey(),
-                "status" => "ok"
+            'http://localhost:5000/library/library-id/*' => Http::response([
+                "message" => "Document `{$model->getCopilotKey()}` removed from the library `library-id`."
             ], 200),
         ]);
 
@@ -73,13 +73,14 @@ class MakeDocumentQuestionableTest extends TestCase
             'pdf.processors.extractor' => [
                 'host' => 'http://localhost:9000',
             ],
-            'copilot.driver' => 'oaks',
+            'copilot.driver' => 'cloud',
             'copilot.queue' => false,
             'copilot.features.summary' => true,
             'copilot.features.question' => false,
             'copilot.features.tagging' => false,
-            'copilot.engines.oaks' => [
+            'copilot.engines.cloud' => [
                 'host' => 'http://localhost:5000/',
+                'library' => 'library-id'
             ],
         ]);
 
@@ -107,9 +108,8 @@ class MakeDocumentQuestionableTest extends TestCase
                 ],
                 "status" => "ok"
             ], 200),
-            'http://localhost:5000/documents' => Http::response([
-                "id" => $model->getCopilotKey(),
-                "status" => "ok"
+            'http://localhost:5000/library/library-id/*' => Http::response([
+                "message" => "Document `{$model->getCopilotKey()}` removed from the library `library-id`."
             ], 200),
         ]);
 

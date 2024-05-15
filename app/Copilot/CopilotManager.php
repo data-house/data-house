@@ -2,8 +2,8 @@
 
 namespace App\Copilot;
 
+use App\Copilot\Engines\CloudEngine;
 use App\Copilot\Engines\NullEngine;
-use App\Copilot\Engines\OaksEngine;
 use App\Models\User;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\RateLimiter;
@@ -11,15 +11,14 @@ use Illuminate\Support\Manager;
 
 class CopilotManager extends Manager
 {
-
     /**
-     * Create an instance of the specified driver.
+     * Create an instance of the copilot cloud driver.
      *
-     * @return \App\Copilot\Engines\OaksEngine
+     * @return \App\Copilot\Engines\CloudEngine
      */
-    protected function createOaksDriver()
+    protected function createCloudDriver()
     {
-        return new OaksEngine($this->getConfig('oaks'));
+        return new CloudEngine($this->getConfig('cloud'));
     }
 
     /**

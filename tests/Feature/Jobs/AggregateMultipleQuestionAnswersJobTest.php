@@ -30,10 +30,11 @@ class AggregateMultipleQuestionAnswersJobTest extends TestCase
     public function test_answer_to_multiple_question_aggregated(): void
     {
         config([
-            'copilot.driver' => 'oaks',
+            'copilot.driver' => 'cloud',
             'copilot.queue' => false,
-            'copilot.engines.oaks' => [
+            'copilot.engines.cloud' => [
                 'host' => 'http://localhost:5000/',
+                'library' => 'library-id',
             ],
         ]);
 
@@ -84,48 +85,51 @@ class AggregateMultipleQuestionAnswersJobTest extends TestCase
         });
         
         Http::fake([
-            'http://localhost:5000/answer-aggregation' => Http::response([
-                "q_id" => $question->uuid,
-                "answer" => [
+            'http://localhost:5000/library/library-id/questions/aggregate' => Http::response([
+                "id" => $question->uuid,
+                "lang" => 'en',
+                "text" => "Aggregated answer.",
+                "refs" => [
                     [
-                        "text" => "Yes, I can provide information and answer questions related to renewable energy and sustainable development based on the context information provided.",
-                        "references" => [
-                            [
-                                "doc_id" => 1,
-                                "page_number" => 2,
-                            ],
-                            [
-                                "doc_id" => 2,
-                                "page_number" => 4,
-                            ]
-                        ],
+                        "id" => $documents->first()->getCopilotKey(),
+                        "page_number" => 2,
                     ],
-                ]
+                    [
+                        "id" => $documents->last()->getCopilotKey(),
+                        "page_number" => 4,
+                    ]
+                ],
             ], 200),
         ]);
 
         (new AggregateMultipleQuestionAnswersJob($question))->handle();
 
         Http::assertSent(function (Request $request) use ($question, $subQuestions) {
-            return $request->url() == 'http://localhost:5000/answer-aggregation' &&
+            return $request->url() == 'http://localhost:5000/library/library-id/questions/aggregate' &&
                    $request->method() === 'POST' &&
-                   $request['q_id'] == $question->uuid &&
+                   filled($request['question'] ?? []) &&
+                   filled($request['transformation'] ?? []) &&
+                   filled($request['answers'] ?? []) &&
+                   $request['transformation']['args'][0] == $question->question &&
+                   $request['transformation']['id'] == '0' &&
+                   $request['question']['id'] == $question->uuid &&
+                   $request['question']['lang'] == 'en' &&
+                   $request['question']['text'] == $question->question && 
                    $request['answers'][0]['text'] == $subQuestions->first()->answer['text'] &&
-                   $request['arguments']['text'] == $question->question &&
-                   $request['template_id'] == '0' &&
-                   $request['lang'] == 'en';
+                   $request['answers'][0]['id'] == $subQuestions->first()->uuid
+                   ;
         });
 
         $savedQuestion = $question->fresh();
 
-        $this->assertEquals('Yes, I can provide information and answer questions related to renewable energy and sustainable development based on the context information provided.', $savedQuestion->answer['text']);
+        $this->assertEquals('Aggregated answer.', $savedQuestion->answer['text']);
         $this->assertEquals([
             [
-                "doc_id" => 1,
+                "id" => $documents->first()->getCopilotKey(),
                 "page_number" => 2,
             ],
             [
-                "doc_id" => 2,
+                "id" => $documents->last()->getCopilotKey(),
                 "page_number" => 4,
             ]
             ], $savedQuestion->answer['references']);
@@ -160,10 +164,11 @@ class AggregateMultipleQuestionAnswersJobTest extends TestCase
     public function test_answer_to_multiple_question_aggregated_using_descriptive_template(): void
     {
         config([
-            'copilot.driver' => 'oaks',
+            'copilot.driver' => 'cloud',
             'copilot.queue' => false,
-            'copilot.engines.oaks' => [
+            'copilot.engines.cloud' => [
                 'host' => 'http://localhost:5000/',
+                'library' => 'library-id',
             ],
         ]);
 
@@ -215,48 +220,50 @@ class AggregateMultipleQuestionAnswersJobTest extends TestCase
         });
         
         Http::fake([
-            'http://localhost:5000/answer-aggregation' => Http::response([
-                "q_id" => $question->uuid,
-                "answer" => [
+            'http://localhost:5000/library/library-id/questions/aggregate' => Http::response([
+                "id" => $question->uuid,
+                "lang" => 'en',
+                "text" => "Aggregated answer.",
+                "refs" => [
                     [
-                        "text" => "Yes, I can provide information and answer questions related to renewable energy and sustainable development based on the context information provided.",
-                        "references" => [
-                            [
-                                "doc_id" => 1,
-                                "page_number" => 2,
-                            ],
-                            [
-                                "doc_id" => 2,
-                                "page_number" => 4,
-                            ]
-                        ],
+                        "id" => $documents->first()->getCopilotKey(),
+                        "page_number" => 2,
                     ],
-                ]
+                    [
+                        "id" => $documents->last()->getCopilotKey(),
+                        "page_number" => 4,
+                    ]
+                ],
             ], 200),
         ]);
 
         (new AggregateMultipleQuestionAnswersJob($question))->handle();
 
         Http::assertSent(function (Request $request) use ($question, $subQuestions) {
-            return $request->url() == 'http://localhost:5000/answer-aggregation' &&
-                   $request->method() === 'POST' &&
-                   $request['q_id'] == $question->uuid &&
-                   $request['answers'][0]['text'] == $subQuestions->first()->answer['text'] &&
-                   $request['arguments']['text'] == $question->question &&
-                   $request['template_id'] == '1' &&
-                   $request['lang'] == 'en';
+            return $request->url() == 'http://localhost:5000/library/library-id/questions/aggregate' &&
+                $request->method() === 'POST' &&
+                filled($request['question'] ?? []) &&
+                filled($request['transformation'] ?? []) &&
+                filled($request['answers'] ?? []) &&
+                $request['transformation']['args'][0] == $question->question &&
+                $request['transformation']['id'] == '1' &&
+                $request['question']['id'] == $question->uuid &&
+                $request['question']['lang'] == 'en' &&
+                $request['question']['text'] == $question->question && 
+                $request['answers'][0]['text'] == $subQuestions->first()->answer['text'];
+    
         });
 
         $savedQuestion = $question->fresh();
 
-        $this->assertEquals('Yes, I can provide information and answer questions related to renewable energy and sustainable development based on the context information provided.', $savedQuestion->answer['text']);
+        $this->assertEquals('Aggregated answer.', $savedQuestion->answer['text']);
         $this->assertEquals([
             [
-                "doc_id" => 1,
+                "id" => $documents->first()->getCopilotKey(),
                 "page_number" => 2,
             ],
             [
-                "doc_id" => 2,
+                "id" => $documents->last()->getCopilotKey(),
                 "page_number" => 4,
             ]
             ], $savedQuestion->answer['references']);
@@ -293,10 +300,11 @@ class AggregateMultipleQuestionAnswersJobTest extends TestCase
     public function test_job_re_enqued_when_pending_answers()
     {
         config([
-            'copilot.driver' => 'oaks',
+            'copilot.driver' => 'cloud',
             'copilot.queue' => false,
-            'copilot.engines.oaks' => [
+            'copilot.engines.cloud' => [
                 'host' => 'http://localhost:5000/',
+                'library' => 'library-id',
             ],
         ]);
 
