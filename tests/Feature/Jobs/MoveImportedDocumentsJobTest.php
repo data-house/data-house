@@ -4,6 +4,7 @@ namespace Tests\Feature\Jobs;
 
 use App\Jobs\MoveImportedDocumentsJob;
 use App\Jobs\Pipeline\Document\ExtractDocumentProperties;
+use App\Jobs\Pipeline\Document\LinkDocumentWithAProject;
 use App\Models\Disk;
 use App\Models\Document;
 use App\Models\Import;
@@ -102,7 +103,7 @@ class MoveImportedDocumentsJobTest extends TestCase
         $this->assertNotNull($importMap->fresh()->last_executed_at);
         $this->assertEquals(ImportStatus::COMPLETED, $import->fresh()->status);
 
-        Queue::assertPushed(ExtractDocumentProperties::class);
+        Queue::assertPushed(LinkDocumentWithAProject::class);
     }
 
     public function test_imported_document_respect_default_visibility(): void
@@ -180,7 +181,7 @@ class MoveImportedDocumentsJobTest extends TestCase
         $this->assertEquals(ImportStatus::COMPLETED, $importMap->fresh()->status);
         $this->assertEquals(ImportStatus::COMPLETED, $import->fresh()->status);
 
-        Queue::assertPushed(ExtractDocumentProperties::class);
+        Queue::assertPushed(LinkDocumentWithAProject::class);
     }
     
     public function test_imported_document_respect_visibility_defined_in_import_map(): void
@@ -259,7 +260,7 @@ class MoveImportedDocumentsJobTest extends TestCase
         $this->assertEquals(ImportStatus::COMPLETED, $importMap->fresh()->status);
         $this->assertEquals(ImportStatus::COMPLETED, $import->fresh()->status);
 
-        Queue::assertPushed(ExtractDocumentProperties::class);
+        Queue::assertPushed(LinkDocumentWithAProject::class);
     }
 
     public function test_different_hash_after_transfer_raises_failure(): void

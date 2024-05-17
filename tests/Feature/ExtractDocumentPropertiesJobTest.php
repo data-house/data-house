@@ -55,6 +55,7 @@ class ExtractDocumentPropertiesJobTest extends TestCase
                 'disk_path' => 'test-evaluation.docx',
                 'title' => 'test-evaluation.docx',
                 'mime' => MimeType::get('docx'),
+                'properties' => [],
             ]);
 
         $job = new ExtractDocumentProperties($model, $model->latestPipelineRun);
