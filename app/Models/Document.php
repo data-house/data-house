@@ -454,6 +454,9 @@ class Document extends Model implements Convertible
             'id' => $this->getCopilotKey(),
             'lang' => $this->language?->value ?? LanguageAlpha2::English->value,
             'data' => $content->collect()->map(function($pageContent, $pageNumber){
+                if(blank($pageContent)){
+                    return null;
+                }
                 // TODO: maybe this transformation should be driver specific
                 // TODO: prepend info coming from the project
                 return [
@@ -463,7 +466,7 @@ class Document extends Model implements Convertible
                     "text" => $pageContent,
                     "title" => $this->title,
                 ];
-            })->values()->toArray(),
+            })->filter()->values()->toArray(),
         ];
     }
 
@@ -511,6 +514,19 @@ class Document extends Model implements Convertible
 
             throw $ex;
         }
+    }
+
+    public function hasTextualContent(): bool
+    {
+        $propertyValue = $this->properties['has_textual_content'] ?? null;
+
+        if(is_null($propertyValue)){
+            return rescue(function(){
+                return $this->getContent()->isNotEmpty();
+            }, false);
+        }
+
+        return $propertyValue;
     }
 
     /**

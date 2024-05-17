@@ -38,6 +38,7 @@ class MakeDocumentQuestionableTest extends TestCase
             ->create([
                 'properties' => [
                     'pages' => 20,
+                    'has_textual_content' => true,
                 ],
             ]);
 

@@ -44,9 +44,9 @@ class AppServiceProvider extends ServiceProvider
 
         // Define pipelines for Documents
         Pipeline::define(Document::class, PipelineTrigger::MODEL_CREATED, [
-            ExtractDocumentProperties::class,
             LinkDocumentWithAProject::class,
             ConvertToPdf::class,
+            ExtractDocumentProperties::class,
             RecognizeLanguage::class,
             GenerateThumbnail::class,
             MakeDocumentSearchable::class,

@@ -29,6 +29,10 @@ class MakeDocumentQuestionable extends PipelineJob
             return;
         }
 
+        if(!$this->model->hasTextualContent()){
+            return;
+        }
+
         $this->model->questionable();
     }
 }
