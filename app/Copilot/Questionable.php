@@ -14,6 +14,7 @@ use Illuminate\Support\Benchmark;
 use Illuminate\Support\Collection as BaseCollection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\LazyCollection;
 use Nette\InvalidStateException;
 
 trait Questionable
@@ -180,6 +181,17 @@ trait Questionable
             )
             ->questionable($chunk);
     }
+
+    public static function getAllQuestionableLazily(): LazyCollection
+    {
+        $self = new static;
+
+        return $self->newQuery()
+            ->when(true, function ($query) use ($self) {
+                $self->addAllToCopilotUsing($query);
+            })
+            ->lazyById();
+    }
     
     /**
      * Remove all instances of the model from Copilot.
@@ -209,7 +221,9 @@ trait Questionable
      */
     protected function addAllToCopilotUsing(EloquentBuilder $query)
     {
-        return $query->where('mime', 'application/pdf');
+        return $query
+            ->where('mime', 'application/pdf')
+            ->orWhere('conversion_file_mime', 'application/pdf');
     }
 
     /**
