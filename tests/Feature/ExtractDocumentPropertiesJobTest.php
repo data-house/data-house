@@ -55,6 +55,7 @@ class ExtractDocumentPropertiesJobTest extends TestCase
                 'disk_path' => 'test-evaluation.docx',
                 'title' => 'test-evaluation.docx',
                 'mime' => MimeType::get('docx'),
+                'properties' => [],
             ]);
 
         $job = new ExtractDocumentProperties($model, $model->latestPipelineRun);
@@ -64,7 +65,7 @@ class ExtractDocumentPropertiesJobTest extends TestCase
         $document = $model->fresh();
 
         $this->assertEquals(DocumentType::EVALUATION_REPORT, $document->type);
-        $this->assertEmpty($document->properties);
+        $this->assertEquals(false, $document->properties['has_textual_content'] ?? null);
     }
 
     public function test_newly_extracted_properties_are_added_to_existing_ones(): void

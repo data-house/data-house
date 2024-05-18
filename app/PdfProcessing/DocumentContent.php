@@ -42,6 +42,11 @@ class DocumentContent implements JsonSerializable
         
         return str($this->raw)->trim()->isEmpty();
     }
+    
+    public function isNotEmpty(): bool
+    {
+        return !$this->isEmpty();
+    }
 
     /**
      * Get the JSON serializable representation of the object.

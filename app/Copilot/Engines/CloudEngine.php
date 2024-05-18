@@ -96,6 +96,12 @@ class CloudEngine extends Engine
                 return;
             }
 
+
+            if(blank($questionableData['data'])){
+                logs()->warning("Attempt to insert empty document in Copilot [{$model->getKey()} - {$model->getCopilotKey()}");
+                return;
+            }
+
             return array_merge(
                 $questionableData,
                 [

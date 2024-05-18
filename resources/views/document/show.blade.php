@@ -140,11 +140,13 @@
 
     @question()
         @can('viewAny', \App\Models\Question::class)
-            <div class="py-12">
-                <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                    <x-document-chat :document="$document" />
+            @if ($document->hasTextualContent())
+                <div class="py-12">
+                    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                        <x-document-chat :document="$document" />
+                    </div>
                 </div>
-            </div>
+            @endif
         @endcan
     @endquestion
 </x-app-layout>

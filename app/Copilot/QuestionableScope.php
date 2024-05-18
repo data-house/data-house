@@ -32,24 +32,30 @@ class QuestionableScope implements Scope
     public function extend(EloquentBuilder $builder)
     {
         $builder->macro('questionable', function (EloquentBuilder $builder, $chunk = null) {
-            $builder->chunkById($chunk ?: config('copilot.chunk.questionable', 50), function ($models) {
+
+            $keyName = $builder->getModel()->getKeyName();
+
+            $builder->chunkById($chunk ?: max(2, config('copilot.chunk.questionable', 50)), function ($models) {
                 $models->filter->shouldBeQuestionable()->questionable();
 
                 event(new ModelsQuestionable($models));
-            });
+            }, $builder->qualifyColumn($keyName), $keyName);
         });
 
         $builder->macro('unquestionable', function (EloquentBuilder $builder, $chunk = null) {
-            $builder->chunkById($chunk ?: config('copilot.chunk.unquestionable', 50), function ($models) {
+
+            $keyName = $builder->getModel()->getKeyName();
+
+            $builder->chunkById($chunk ?: max(2, config('copilot.chunk.unquestionable', 50)), function ($models) {
                 $models->unquestionable();
 
                 event(new ModelsUnquestionable($models));
-            });
+            }, $builder->qualifyColumn($keyName), $keyName);
         });
 
         HasManyThrough::macro('questionable', function ($chunk = null) {
             /** @var HasManyThrough $this */
-            $this->chunkById($chunk ?: config('copilot.chunk.questionable', 50), function ($models) {
+            $this->chunkById($chunk ?: max(2, config('copilot.chunk.questionable', 50)), function ($models) {
                 $models->filter->shouldBeQuestionable()->questionable();
 
                 event(new ModelsQuestionable($models));
@@ -58,7 +64,7 @@ class QuestionableScope implements Scope
 
         HasManyThrough::macro('unquestionable', function ($chunk = null) {
             /** @var HasManyThrough $this */
-            $this->chunkById($chunk ?: config('copilot.chunk.questionable', 50), function ($models) {
+            $this->chunkById($chunk ?: max(2, config('copilot.chunk.unquestionable', 50)), function ($models) {
                 $models->unquestionable();
 
                 event(new ModelsUnquestionable($models));

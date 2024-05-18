@@ -14,6 +14,7 @@ use Illuminate\Support\Benchmark;
 use Illuminate\Support\Collection as BaseCollection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\LazyCollection;
 use Nette\InvalidStateException;
 
 trait Questionable
@@ -176,9 +177,20 @@ trait Questionable
                 $self->addAllToCopilotUsing($query);
             })
             ->orderBy(
-                $self->qualifyColumn($self->getCopilotKeyName())
+                $self->qualifyColumn($self->getKeyName())
             )
             ->questionable($chunk);
+    }
+
+    public static function getAllQuestionableLazily(): LazyCollection
+    {
+        $self = new static;
+
+        return $self->newQuery()
+            ->when(true, function ($query) use ($self) {
+                $self->addAllToCopilotUsing($query);
+            })
+            ->lazyById();
     }
     
     /**
@@ -196,7 +208,7 @@ trait Questionable
                 $self->addAllToCopilotUsing($query);
             })
             ->orderBy(
-                $self->qualifyColumn($self->getCopilotKeyName())
+                $self->qualifyColumn($self->getKeyName())
             )
             ->unquestionable($chunk);
     }
@@ -209,7 +221,14 @@ trait Questionable
      */
     protected function addAllToCopilotUsing(EloquentBuilder $query)
     {
-        return $query->where('mime', 'application/pdf');
+        return $query
+            ->where('mime', 'application/pdf')
+            ->orWhere(function($builder){
+                return $builder
+                    ->whereNotNull('conversion_file_mime')
+                    ->where('conversion_file_mime', 'application/pdf');
+            })
+            ;
     }
 
     /**

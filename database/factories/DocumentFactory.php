@@ -37,7 +37,7 @@ class DocumentFactory extends Factory
             'published_at' => null,
             'published_by' => null,
             'published_to_url' => null,
-            'properties' => [],
+            'properties' => ['has_textual_content' => true],
         ];
     }
 

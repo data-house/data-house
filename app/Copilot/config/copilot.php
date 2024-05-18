@@ -31,8 +31,8 @@ return [
     */
 
     'chunk' => [
-        'questionable' => 1,
-        'unquestionable' => 1,
+        'questionable' => 2,
+        'unquestionable' => 5,
     ],
 
     /*

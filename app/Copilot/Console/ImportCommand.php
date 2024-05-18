@@ -7,6 +7,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\InteractsWithTime;
 use App\Copilot\Events\ModelsQuestionable;
 use Illuminate\Contracts\Events\Dispatcher;
+use Throwable;
 
 class ImportCommand extends Command
 {
@@ -38,25 +39,33 @@ class ImportCommand extends Command
      */
     public function handle(Dispatcher $events)
     {
-        $startTime = microtime(true);
-
         $class = $this->qualifyModel($this->argument('model'));
 
-        $model = new $class;
+        $this->comment("Making [{$class}] entries questionable.");
 
-        $events->listen(ModelsQuestionable::class, function ($event) use ($class) {
-            $key = $event->models->last()->getKey();
+        $bar = $this->output->createProgressBar();
 
-            $this->line('<comment>Imported ['.$class.'] models up to ID:</comment> '.$key);
-        });
+        $bar->setFormat(' [%current%] %message% %elapsed:16s%');
 
-        $model::addAllToCopilot($this->option('chunk'));
+        $bar->start();
 
-        $events->forget(ModelsQuestionable::class);
+        $class::getAllQuestionableLazily()
+            ->each(function ($modelInstance) use ($bar) {
+                $bar->setMessage("Adding [{$modelInstance->getKey()} - {$modelInstance->ulid}]");
+                $bar->advance();
 
-        $runTime = $this->runTimeForHumans($startTime);
+                try {
+                    $modelInstance->questionable();
+                } catch (Throwable $th) {
+                    $this->error("[{$modelInstance->getKey()} - {$modelInstance->ulid}] {$th->getMessage()}");
+                }
+            });
 
-        $this->info("All [{$class}] records have been imported. ({$runTime})");
+        $bar->finish();
+
+        $this->newLine();
+
+        $this->info("All [{$class}] records have been imported.");
     }
 
 

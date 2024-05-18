@@ -10,6 +10,7 @@ use Livewire\Attributes\Locked;
 use App\Pipelines\PipelineState;
 use Livewire\Attributes\Computed;
 use App\Jobs\Pipeline\Document\GenerateDocumentSummary;
+use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Modelable;
 use PrinsFrank\Standards\Language\LanguageAlpha2;
 
@@ -52,6 +53,12 @@ class DocumentSummaryButton extends Component
     public function pipeline()
     {
         return Document::find($this->documentId)->latestPipelineRun()->whereJob(GenerateDocumentSummary::class)->first();
+    }
+    
+    #[Computed()]
+    public function canGenerateSummary()
+    {
+        return $this->document->language && $this->document->hasTextualContent() && !$this->hasSummary;
     }
     
     #[Computed()]
@@ -102,6 +109,10 @@ class DocumentSummaryButton extends Component
     public function generateSummary()
     {
         $this->resetErrorBag();
+
+        if(!$this->canGenerateSummary){
+            throw ValidationException::withMessages(['generate_summary' => __('Summary generation is not available if the document contains only images or no selectable text.')]);
+        }
 
         $this->authorize('update', $this->document);
 

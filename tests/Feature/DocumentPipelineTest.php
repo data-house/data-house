@@ -29,16 +29,16 @@ class DocumentPipelineTest extends TestCase
 
         $document = Document::factory()->create();
 
-        Queue::assertPushed(ExtractDocumentProperties::class, function($job) use ($document){
+        Queue::assertPushed(LinkDocumentWithAProject::class, function($job) use ($document){
             return $job->model->is($document);
         });
         Queue::assertPushed(MakeDocumentSearchable::class, function($job) use ($document){
             return $job->model->is($document);
         });
 
-        Queue::assertPushedWithChain(ExtractDocumentProperties::class, [
-            LinkDocumentWithAProject::class,
+        Queue::assertPushedWithChain(LinkDocumentWithAProject::class, [
             ConvertToPdf::class,
+            ExtractDocumentProperties::class,
             RecognizeLanguage::class,
             GenerateThumbnail::class,
             MakeDocumentSearchable::class,

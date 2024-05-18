@@ -30,11 +30,12 @@ class DocumentSummaryButtonTest extends TestCase
         $document = Document::factory()
             ->recycle($user)
             ->recycle($user->currentTeam)
-            ->create();
+            ->create(['properties' => ['has_textual_content' => true]]);
             
         Livewire::actingAs($user)->test(DocumentSummaryButton::class, ['document' => $document])
             ->assertStatus(200)
-            ->assertDontSee('Generate a summary for the document')
+            ->assertSee('Generate a summary for the document')
+            ->assertSee('Summary generation is not available if the document contains only images or no selectable text.')
             ->assertSet('documentId', $document->getKey());
     }
 
@@ -50,7 +51,8 @@ class DocumentSummaryButtonTest extends TestCase
             ->recycle($user)
             ->recycle($user->currentTeam)
             ->create([
-                'languages' => collect(LanguageAlpha2::English)
+                'languages' => collect(LanguageAlpha2::English),
+                'properties' => ['has_textual_content' => true]
             ]);
 
         Livewire::actingAs($user)->test(DocumentSummaryButton::class, ['document' => $document])
@@ -74,7 +76,8 @@ class DocumentSummaryButtonTest extends TestCase
                 'text' => 'Existing summary',
             ]), 'summaries')
             ->create([
-                'languages' => collect(LanguageAlpha2::English)
+                'languages' => collect(LanguageAlpha2::English),
+                'properties' => ['has_textual_content' => true]
             ]);
 
         Livewire::actingAs($user)->test(DocumentSummaryButton::class, ['document' => $document])
@@ -95,7 +98,8 @@ class DocumentSummaryButtonTest extends TestCase
             ->recycle($user)
             ->recycle($user->currentTeam)
             ->create([
-                'languages' => collect(LanguageAlpha2::Spanish_Castilian)
+                'languages' => collect(LanguageAlpha2::Spanish_Castilian),
+                'properties' => ['has_textual_content' => true]
             ]);
 
         Livewire::actingAs($user)->test(DocumentSummaryButton::class, ['document' => $document])
@@ -118,7 +122,8 @@ class DocumentSummaryButtonTest extends TestCase
             ->recycle($user)
             ->recycle($user->currentTeam)
             ->create([
-                'languages' => collect(LanguageAlpha2::English)
+                'languages' => collect(LanguageAlpha2::English),
+                'properties' => ['has_textual_content' => true]
             ]);
 
         Livewire::actingAs($user)->test(DocumentSummaryButton::class, ['document' => $document])
@@ -149,7 +154,8 @@ class DocumentSummaryButtonTest extends TestCase
         $document = Document::factory()
             ->visibleByAnyUser()
             ->create([
-                'languages' => collect(LanguageAlpha2::English)
+                'languages' => collect(LanguageAlpha2::English),
+                'properties' => ['has_textual_content' => true]
             ]);
 
         Livewire::actingAs($user)->test(DocumentSummaryButton::class, ['document' => $document])
@@ -176,7 +182,8 @@ class DocumentSummaryButtonTest extends TestCase
             ->recycle($user->currentTeam)
             ->hasPipelineRuns(1, ['status' => PipelineState::CREATED, 'job' => GenerateDocumentSummary::class])
             ->create([
-                'languages' => collect(LanguageAlpha2::English)
+                'languages' => collect(LanguageAlpha2::English),
+                'properties' => ['has_textual_content' => true]
             ]);
 
         Livewire::actingAs($user)->test(DocumentSummaryButton::class, ['document' => $document])
