@@ -177,7 +177,7 @@ trait Questionable
                 $self->addAllToCopilotUsing($query);
             })
             ->orderBy(
-                $self->qualifyColumn($self->getCopilotKeyName())
+                $self->qualifyColumn($self->getKeyName())
             )
             ->questionable($chunk);
     }
@@ -208,7 +208,7 @@ trait Questionable
                 $self->addAllToCopilotUsing($query);
             })
             ->orderBy(
-                $self->qualifyColumn($self->getCopilotKeyName())
+                $self->qualifyColumn($self->getKeyName())
             )
             ->unquestionable($chunk);
     }
@@ -223,7 +223,12 @@ trait Questionable
     {
         return $query
             ->where('mime', 'application/pdf')
-            ->orWhere('conversion_file_mime', 'application/pdf');
+            ->orWhere(function($builder){
+                return $builder
+                    ->whereNotNull('conversion_file_mime')
+                    ->where('conversion_file_mime', 'application/pdf');
+            })
+            ;
     }
 
     /**
