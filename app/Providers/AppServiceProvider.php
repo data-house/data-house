@@ -108,6 +108,11 @@ class AppServiceProvider extends ServiceProvider
             default => false,
         });
         
+        Feature::define(Flag::AI_QUESTION->value, fn (User $user) => match (true) {
+            $user->hasRole(Role::ADMIN->value) => true,
+            default => false,
+        });
+        
         Feature::define(Flag::DOCUMENT_VISIBILITY_EDIT->value, fn (User $user) => match (true) {
             $user->hasRole(Role::ADMIN->value) => false,
             default => false,

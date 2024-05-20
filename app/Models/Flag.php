@@ -5,6 +5,7 @@ namespace App\Models;
 
 enum Flag: string
 {
+    case AI_QUESTION = 'ai.question';
     case AI_QUESTION_WHOLE_LIBRARY = 'ai.question-whole-library';
     case DOCUMENT_VISIBILITY_EDIT = 'document.visibility.edit';
     case DOCUMENT_FILTERS_SOURCE = 'document.filters.source';
@@ -50,6 +51,11 @@ enum Flag: string
     public static function questionWholeLibraryWithAI(): string
     {
         return static::AI_QUESTION_WHOLE_LIBRARY->value;
+    }
+    
+    public static function questionWithAI(): string
+    {
+        return static::AI_QUESTION->value;
     }
     
     public static function showProjectFunding(): string
