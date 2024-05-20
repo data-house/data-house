@@ -1,7 +1,7 @@
 @props(['document'])
 
 <div {{ $attributes->merge(['class' => '']) }} id="chat">
-
+@feature(Flag::questionWithAI())
     <div class="flex justify-between">
         <p class="mb-2 text-sm text-lime-700 flex items-center gap-1">
             <x-heroicon-s-sparkles class="text-lime-500 h-6 w-6" />{{ __('Explore document\'s content by asking questions...') }}
@@ -32,5 +32,5 @@
         <livewire:question-list :document="$document" />
 
     </div>
-    
+@endfeature
 </div>

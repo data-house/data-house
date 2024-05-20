@@ -123,6 +123,7 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             
             @question()
+            @feature(Flag::questionWithAI())
             <div class="space-y-2">
                 <div class="flex justify-between mt-2 relative">
                     <div class="" x-data="{ open: false }" x-trap="open" @click.away="open = false" @close.stop="open = false">
@@ -155,6 +156,7 @@
                     @endforeach
                 </div>
             </div>
+            @endfeature
             @endquestion
 
             <div class="flex space-x-4 mt-3 divide-x divide-stone-200 items-center justify-end">
