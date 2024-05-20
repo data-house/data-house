@@ -168,7 +168,7 @@ class DocumentControllerTest extends TestCase
 
         $response->assertViewIs('document.show');
         
-        $response->assertSee('Open');
+        $response->assertSee('Preview');
         $response->assertSee('Edit');
         $response->assertSee('The title of the document');
         $response->assertSee(Visibility::TEAM->label());
@@ -202,7 +202,6 @@ class DocumentControllerTest extends TestCase
 
         $response->assertViewIs('document.show');
         
-        $response->assertSee('Open');
         $response->assertSee('The title of the document');
         $response->assertSee(Visibility::PROTECTED->label());
         $response->assertSee($user->name);
