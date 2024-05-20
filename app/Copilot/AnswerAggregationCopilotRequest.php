@@ -27,6 +27,12 @@ class AnswerAggregationCopilotRequest extends CopilotRequest
             ],
             'answers' => collect($this->documents)->filter()
                 ->values()
+                ->map(function($answer){
+                    return [
+                        ...Arr::only($answer, ['text', 'id', 'lang']),
+                        'refs' => $answer['references'] ?? $answer['refs'],
+                    ];
+                })
                 ->toArray(),
         ];
     }
