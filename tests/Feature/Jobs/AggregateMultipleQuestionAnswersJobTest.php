@@ -116,6 +116,7 @@ class AggregateMultipleQuestionAnswersJobTest extends TestCase
                    $request['question']['lang'] == 'en' &&
                    $request['question']['text'] == $question->question && 
                    $request['answers'][0]['text'] == $subQuestions->first()->answer['text'] &&
+                   is_array($request['answers'][0]['refs']) &&
                    $request['answers'][0]['id'] == $subQuestions->first()->uuid
                    ;
         });
