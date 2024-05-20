@@ -38,13 +38,27 @@ class DocumentSummariesViewer extends Component
     #[Computed()]
     public function latestSummary()
     {
-        return $this->document()->latestSummary;
+        return $this->document->latestSummary;
+    }
+
+    #[Computed()]
+    public function languages()
+    {
+        return $this->document->summaries()->select('language')->distinct()->get()->pluck('language');
+        ;
     }
 
     #[Computed()]
     public function summaries()
     {
-        return $this->document()->summaries()->with('user')->orderBy('created_at', 'DESC')->get();
+        return $this->languages->map(function($language){
+            return $this->document
+                ->summaries()
+                ->where('language', $language)
+                ->orderBy('created_at', 'DESC')
+                ->with('user')
+                ->first();
+        })->filter();
     }
 
     /**
