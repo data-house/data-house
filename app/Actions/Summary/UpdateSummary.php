@@ -16,6 +16,11 @@ class UpdateSummary
      */
     public function __invoke(DocumentSummary $summary, string $text, ?LanguageAlpha2 $language = null, User $user = null): DocumentSummary
     {
+        if(trim($summary->text) === trim($text)){
+            // No changes, so we don't update
+            return $summary;
+        }
+
         if($summary->isAiGenerated() || $summary->user_id !== $user?->getKey()){
             return (new SaveSummary())($summary->document, $text, $language, $user);
         }
