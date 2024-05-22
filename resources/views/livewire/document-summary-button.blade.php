@@ -5,7 +5,7 @@
     <x-small-button type="button" wire:click="generateSummary" :disabled="!$this->canGenerateSummary" class="text-lime-700 flex items-center gap-1 border border-lime-400 bg-lime-50 hover:bg-lime-100 hover:border-lime-400 focus:outline-none focus:ring-2 focus:ring-lime-500 focus:ring-offset-2 focus:bg-lime-100 focus:border-lime-500">
         @unless ($this->generatingSummary)
             <x-heroicon-s-sparkles class="text-lime-500 h-4 w-4" />
-            {{ __('Generate a summary for the document')}}
+            {{ __('Generate a summary')}}
         @else
             <svg class="animate-spin h-4 w-4 text-lime-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -41,7 +41,7 @@
         @endunless
 
     @else
-        <p class="text-sm text-stone-700 flex gap-1">
+        <p class="text-sm text-stone-700 flex gap-1 max-w-sm">
             <x-heroicon-c-exclamation-triangle class="mt-0.5 w-4 h-4 text-yellow-500 shrink-0" />
             {{ __('Summary generation is not available if the document contains only images or no selectable text.') }}
         </p>

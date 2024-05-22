@@ -3,6 +3,7 @@
 namespace App\Actions;
 
 use App\Models\Document;
+use App\PdfProcessing\DocumentContent;
 use Illuminate\Support\Collection;
 use PrinsFrank\Standards\Language\LanguageAlpha3Terminology;
 use Oneofftech\LaravelLanguageRecognizer\Support\Facades\LanguageRecognizer;
@@ -25,11 +26,11 @@ class RecognizeLanguage
     /**
      * Attempt to recognize the most probable language of the documen's content
      *
-     * @param  \App\Models\Document  $document
+     * @param  \App\Models\Document|string  $document
      */
-    public function __invoke(Document $document): ?Collection
+    public function __invoke(Document|string $document): ?Collection
     {
-        $content = $document->getContent();
+        $content = is_string($document) ? new DocumentContent($document) : $document->getContent();
 
         if($content->isEmpty()){
             return collect();

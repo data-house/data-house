@@ -110,32 +110,13 @@ class DocumentController extends Controller
     {
         $validated = $this->validate($request, [
             'title' => ['required', 'string', 'max:250'],
-            'description' => ['nullable', 'string', 'max:10000'],
         ]);
-
-        $summary = $document->latestSummary;
-
-        if($summary && !$summary->isAiGenerated()){
-            $summary->update([
-                'text' => $validated['description'],
-                'user_id' => auth()->user()->getKey(),
-            ]);
-        }
-        else {
-            $document->summaries()->create([
-                'language' => 'en',
-                'text' => $validated['description'],
-                'user_id' => auth()->user()->getKey(),
-            ]);
-        }
 
         $document->update([
             'title' => $validated['title'],
         ]);
-
         
-        
-        return to_route('documents.show', $document)
+        return to_route('documents.edit', $document)
             ->with('flash.banner', __(':document updated.', [
                 'document' => $validated['title']
             ]));
