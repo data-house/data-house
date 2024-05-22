@@ -5,7 +5,11 @@
     <x-slot name="header">
         <div class="md:flex md:items-center md:justify-between relative">
             <h2 class="font-semibold text-xl text-stone-800 leading-tight">
-                {{ __('Edit :document', ['document' => $document->title]) }}
+                <a href="{{ route('documents.show', $document) }}" class="px-1 py-0.5 bg-blue-50 rounded text-base inline-flex items-center text-blue-700 underline hover:text-blue-800" title="{{ __('Back to :entry', ['entry' => $document->title]) }}">
+                    <x-heroicon-m-arrow-left class="w-4 h-4" />
+                    {{ $document->title }}
+                </a>
+                {{ __('Edit') }}
             </h2>
             <div class="flex gap-2">
 
@@ -62,35 +66,51 @@
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
-            <form action="{{ route('documents.update', $document) }}" method="post" class="space-y-4">
-                @csrf
-                @method('PUT')
+            <x-section submit="{{ route('documents.update', $document) }}">
 
-                <div>
-                    <x-label for="title" value="{{ __('Document title') }}" />
-                    <x-input-error for="title" class="mt-2" />
-                    <x-input id="title" type="text" name="title" class="mt-1 block w-full max-w-prose" autocomplete="title" value="{{ old('title', $document->title) }}" />
-                </div>
+                <x-slot name="title">
+                    {{ __('Document Title') }}
+                </x-slot>
+
+                <x-slot name="description">
+                    {{ __('The document\'s title information.') }}
+                </x-slot>
+
+                <x-slot name="form">
+
+                    @csrf
+                    @method('PUT')
+
+                    <div class="col-span-6 sm:col-span-4">
+                        <x-label for="title" value="{{ __('Document title') }}" />
+                        <x-input-error for="title" class="mt-2" />
+                        <x-input id="title" type="text" name="title" class="mt-1 block w-full max-w-prose" autocomplete="title" value="{{ old('title', $document->title) }}" />
+                    </div>
+
+                </x-slot>
                     
-                <div>
-                    <x-label for="description" value="{{ __('Abstract') }}" />
-                    <x-input-error for="description" class="mt-2" />
-                    <x-textarea id="description" type="text" name="description" class="mt-1 block w-full max-w-prose" autocomplete="abstract">{{ old('description', $document->latestSummary?->text) }}</x-textarea>
-                </div>
-
-                <div class="flex items-center gap-4">
+                <x-slot name="actions">
                     <x-button class="">
                         {{ __('Save') }}
                     </x-button>
+                </x-slot>
 
-                    <a class="underline text-sm text-stone-600 hover:text-stone-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-lime-500" href="{{ route('documents.show', $document) }}">
-                        {{ __('Cancel') }}
-                    </a>
+            </x-section>
+
+            <x-section-border />
+
+            <x-section-no-form>
+                <x-slot name="title">{{ __('Summaries') }}</x-slot>
+                <x-slot name="description">{{ __('Manage summaries and abstract generated with the help of AI or by users.') }}</x-slot>
+            
+                <div class="col-span-6">
+
+                    @include('document.partials.summary-buttons')
+
+                    <livewire:document-summaries-viewer :show-all="true" :document="$document" />
+
                 </div>
-
-            </form>
-
-
+            </x-section-no-form>
 
         </div>
     </div>

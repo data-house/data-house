@@ -266,9 +266,7 @@ class DocumentControllerTest extends TestCase
 
         $summary = $updatedDocument->latestSummary;
 
-        $this->assertInstanceOf(DocumentSummary::class, $summary);
-        $this->assertEquals('New abstract', $summary->text);
-        $this->assertFalse($summary->ai_generated);
+        $this->assertNull($summary);
     }
 
     public static function generateInvalidTitles()
@@ -306,44 +304,6 @@ class DocumentControllerTest extends TestCase
         $updatedDocument = Document::first();
         
         $this->assertEquals('The title of the document', $updatedDocument->title);
-    }
-
-
-    public static function generateInvalidDescriptions()
-    {
-        return [
-            [Str::random(10001)],
-        ];
-    }
-    
-    /**
-     * @dataProvider generateInvalidDescriptions
-     */
-    public function test_document_update_validates_description($description)
-    {
-        $user = User::factory()->withPersonalTeam()->manager()->create();
-
-        $document = Document::factory()
-            ->visibleByUploader($user)
-            ->create([
-                'title' => 'The title of the document',
-                'description' => 'The original abstract',
-            ]);
-
-        $response = $this->actingAs($user)
-            ->from("/documents/{$document->ulid}/edit")
-            ->put("/documents/{$document->ulid}", [
-                'title' => 'The title of the document',
-                'description' => $description,
-            ]);
-
-        $response->assertRedirect(route('documents.edit', $document));
-
-        $response->assertSessionHasErrors('description');
-        
-        $updatedDocument = Document::first();
-        
-        $this->assertEquals('The original abstract', $updatedDocument->description);
     }
 
 

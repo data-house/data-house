@@ -8,6 +8,7 @@ use Livewire\Attributes\Locked;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
+
 class DocumentSummariesViewer extends Component
 {
     /**
@@ -16,11 +17,19 @@ class DocumentSummariesViewer extends Component
     #[Locked]
     public $documentId;
 
+    #[Locked]
+    public $showAll = false;
+    
+    #[Locked]
+    public $showCreate = false;
+
     public $waitForSummaryGeneration = false;
 
-    public function mount(Document $document)
+    public function mount(Document $document, bool $showAll = false, bool $showCreate = false)
     {
         $this->documentId = $document->getKey();
+        $this->showAll = $showAll;
+        $this->showCreate = $showCreate;
     }
 
     #[Computed()]
@@ -49,8 +58,17 @@ class DocumentSummariesViewer extends Component
     }
 
     #[Computed()]
+    #[On('summary-saved')]
     public function summaries()
     {
+        if($this->showAll){
+            return $this->document
+                ->summaries()
+                ->orderBy('created_at', 'DESC')
+                ->with('user')
+                ->get();
+        }
+
         return $this->languages->map(function($language){
             return $this->document
                 ->summaries()

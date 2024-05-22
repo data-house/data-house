@@ -58,7 +58,7 @@
 
                 <div class="col-span-2 md:basis-3/5 shrink-0 mb-12">
 
-                    <livewire:document-summaries-viewer :document="$document" />
+                    <livewire:document-summaries-viewer :show-create="true" :document="$document" />
                     
                 </div>
 
