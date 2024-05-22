@@ -3,6 +3,7 @@
 namespace Tests\Feature\Jobs\Pipeline;
 
 use App\Actions\SuggestDocumentAbstract;
+use App\Actions\Summary\SaveSummary;
 use App\Jobs\Pipeline\Document\GenerateDocumentSummary;
 use App\Models\Document;
 use App\Models\DocumentSummary;
@@ -64,7 +65,7 @@ class GenerateDocumentSummaryTest extends TestCase
 
         $job = new GenerateDocumentSummary($model, $model->latestPipelineRun);
 
-        $job->handle(app()->make(SuggestDocumentAbstract::class));
+        $job->handle(app()->make(SuggestDocumentAbstract::class), app()->make(SaveSummary::class));
 
         $document = $model->fresh();
 
@@ -125,7 +126,7 @@ class GenerateDocumentSummaryTest extends TestCase
 
         $job = new GenerateDocumentSummary($model, $model->latestPipelineRun);
 
-        $job->handle(app()->make(SuggestDocumentAbstract::class));
+        $job->handle(app()->make(SuggestDocumentAbstract::class), app()->make(SaveSummary::class));
 
         $document = $model->fresh();
 
@@ -188,7 +189,7 @@ class GenerateDocumentSummaryTest extends TestCase
 
         $job = new GenerateDocumentSummary($model, $model->latestPipelineRun);
 
-        $job->handle(app()->make(SuggestDocumentAbstract::class));
+        $job->handle(app()->make(SuggestDocumentAbstract::class), app()->make(SaveSummary::class));
 
         $document = $model->fresh();
 

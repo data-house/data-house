@@ -255,7 +255,7 @@ class DocumentControllerTest extends TestCase
                 'description' => 'New abstract',
             ]);
 
-        $response->assertRedirect(route('documents.show', $document));
+        $response->assertRedirect(route('documents.edit', $document));
 
         $response->assertSessionHas('flash.banner', 'New title updated.');
         

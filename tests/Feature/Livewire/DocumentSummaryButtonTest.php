@@ -34,7 +34,7 @@ class DocumentSummaryButtonTest extends TestCase
             
         Livewire::actingAs($user)->test(DocumentSummaryButton::class, ['document' => $document])
             ->assertStatus(200)
-            ->assertSee('Generate a summary for the document')
+            ->assertSee('Generate a summary')
             ->assertSee('Summary generation is not available if the document contains only images or no selectable text.')
             ->assertSet('documentId', $document->getKey());
     }
@@ -57,7 +57,7 @@ class DocumentSummaryButtonTest extends TestCase
 
         Livewire::actingAs($user)->test(DocumentSummaryButton::class, ['document' => $document])
             ->assertStatus(200)
-            ->assertSee('Generate a summary for the document')
+            ->assertSee('Generate a summary')
             ->assertSee('A summary is automatically generated in English.')
             ->assertSet('documentId', $document->getKey());
     }
@@ -82,7 +82,7 @@ class DocumentSummaryButtonTest extends TestCase
 
         Livewire::actingAs($user)->test(DocumentSummaryButton::class, ['document' => $document])
             ->assertStatus(200)
-            ->assertDontSee('Generate a summary for the document')
+            ->assertDontSee('Generate a summary')
             ->assertSet('generatingSummary', false)
             ->assertSet('hasSummary', true);
     }
@@ -104,7 +104,7 @@ class DocumentSummaryButtonTest extends TestCase
 
         Livewire::actingAs($user)->test(DocumentSummaryButton::class, ['document' => $document])
             ->assertStatus(200)
-            ->assertSee('Generate a summary for the document')
+            ->assertSee('Generate a summary')
             ->assertSee('A summary is automatically generated in Spanish and English.')
             ->assertSet('documentId', $document->getKey());
     }
@@ -226,7 +226,7 @@ class DocumentSummaryButtonTest extends TestCase
         Livewire::actingAs($user)->test(DocumentSummaryButton::class, ['document' => $document])
             ->assertStatus(200)
             ->assertSet('generatingSummary', false)
-            ->assertSee('Generate a summary for the document')
+            ->assertSee('Generate a summary')
             ->assertSee('A summary could not be generated at the moment. Please try again later.');
     }
     
@@ -255,7 +255,7 @@ class DocumentSummaryButtonTest extends TestCase
         Livewire::actingAs($user)->test(DocumentSummaryButton::class, ['document' => $document])
             ->assertStatus(200)
             ->assertSet('generatingSummary', false)
-            ->assertSee('Generate a summary for the document')
+            ->assertSee('Generate a summary')
             ->assertSee('A summary could not be generated at the moment. Please try later')
             ->assertSee('contact the support')
             ->assertSee('ticket@ticket.localhost');
