@@ -2,16 +2,11 @@
 
 namespace App\Console\Commands;
 
-use App\Models\User;
 use Illuminate\Console\Command;
-use App\Actions\Fortify\CreateNewUser;
+use App\Actions\Summary\SaveSummary;
 use App\Actions\SuggestDocumentAbstract;
 use App\Copilot\Copilot;
 use App\Models\Document;
-use App\Models\Role;
-use App\Pipelines\PipelineTrigger;
-use Illuminate\Validation\ValidationException;
-use Laravel\Jetstream\Jetstream;
 use PrinsFrank\Standards\Language\LanguageAlpha2;
 
 class DocumentSummaryCommand extends Command
@@ -54,18 +49,16 @@ class DocumentSummaryCommand extends Command
         
         $action = new SuggestDocumentAbstract();
 
+        $saveSummary = new SaveSummary();
+
         $documents
-            ->each(function($document) use ($action, $language){
+            ->each(function($document) use ($action, $saveSummary, $language){
 
                 $language = $language ?? $document->language ?? LanguageAlpha2::English;
 
                 $abstract = $action($document, $language);
-                
-                $document->summaries()->create([
-                    'text' => $abstract,
-                    'ai_generated' => true,
-                    'language' => $language,
-                ]);
+
+                $saveSummary($document, $abstract, $language);
 
                 $this->line("Abstract generated for document [{$document->id} - {$document->ulid}]");
             });

@@ -5,6 +5,7 @@ namespace App\Jobs\Pipeline\Document;
 use App\Models\Document;
 use App\Pipelines\Queue\PipelineJob;
 use App\Actions\SuggestDocumentAbstract;
+use App\Actions\Summary\SaveSummary;
 use App\Models\MimeType;
 use InvalidArgumentException;
 use PrinsFrank\Standards\Language\LanguageAlpha2;
@@ -25,7 +26,7 @@ class GenerateDocumentSummary extends PipelineJob
     /**
      * Execute the job.
      */
-    public function handle(SuggestDocumentAbstract $suggestAbstract): void
+    public function handle(SuggestDocumentAbstract $suggestAbstract, SaveSummary $saveSummary): void
     {
         if(! $this->model instanceof Document){
             return;
@@ -41,15 +42,11 @@ class GenerateDocumentSummary extends PipelineJob
             ? [$documentLanguage, LanguageAlpha2::English]
             : [LanguageAlpha2::English];
 
-        collect($summaryLanguages)->each(function($language) use ($suggestAbstract){
+        collect($summaryLanguages)->each(function($language) use ($suggestAbstract, $saveSummary){
 
             $abstract = $suggestAbstract($this->model, $language);
-            
-            $this->model->summaries()->create([
-                'text' => $abstract,
-                'ai_generated' => true,
-                'language' => $language,
-            ]);
+
+            $saveSummary($this->model, $abstract, $language);
 
         });
 
