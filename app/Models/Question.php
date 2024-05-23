@@ -479,12 +479,12 @@ class Question extends Model implements Htmlable
                 return 'de';
             }
     
-            return null;
+            return 'en';
         } catch (\Throwable $th) {
             
             logs()->error("Failed to run language recognition", ['error' => $th->getMessage()]);
 
-            return null;
+            return 'en';
         }
     }
 
