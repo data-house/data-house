@@ -141,7 +141,7 @@ class SummaryEditor extends SlideoverComponent
             return LanguageAlpha2::English;
         }
 
-        return LanguageAlpha2::from($languages->first());
+        return $languages->first();
     }
     
     public function render()
