@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\RetrievalRequest;
+use App\Models\Collection;
 use App\Models\Document;
 use App\Models\DocumentType;
 use App\Models\GeographicRegion;
@@ -52,6 +53,7 @@ class DocumentLibraryController extends Controller
             'is_search' => $request->isSearch() || $request->hasAppliedFilters(),
             'facets' => $facets,
             'search_topics' => Topic::facets(),
+            'search_collections' => Collection::query()->library()->whereNotNull('topic_group')->get()->groupBy('topic_group'),
             'sorting' => $request->sorts()->join(','),
             'applied_filters_count' => $request->appliedFiltersCount(),
         ]);

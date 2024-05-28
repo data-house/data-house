@@ -158,6 +158,7 @@ return [
                     'project_countries',
                     'project_region',
                     'project_topics',
+                    'library_collections',
                     'stars',
                 ],
                 'sortableAttributes' => [
@@ -227,11 +228,13 @@ return [
                     'visibility',
                     'user_id',
                     'team_id',
+                    'topic_group',
                 ],
                 'sortableAttributes' => [
                     'title',
                     'created_at',
                     'updated_at',
+                    'topic_group',
                 ],
             ],
         ],

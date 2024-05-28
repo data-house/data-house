@@ -190,6 +190,8 @@ class Collection extends Model
             'team_id' => $this->team_id,
             'team_name' => $this->team?->name,
             'visibility' => $this->visibility?->value,
+            'topic_name' => $this->topic_name,
+            'topic_group' => $this->topic_group,
             'notes' => $this->notes->map(function($note){
                 return $note->user?->name . ' - ' . $note->created_at->toDateString() . ' - ' . $note->content;
             })->toArray(),

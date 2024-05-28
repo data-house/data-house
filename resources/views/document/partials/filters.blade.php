@@ -1,5 +1,5 @@
 
-<div class="grid auto-rows-min grid-cols-1 md:col-span-4 gap-y-10 md:grid-cols-2 md:gap-x-6">
+<div class="grid auto-rows-min grid-cols-1 md:col-span-4 gap-y-10 md:grid-cols-4 md:gap-x-6">
 
     @if (!empty($sorting))
         <input type="hidden" name="sort" value="{{ $sorting }}">
@@ -15,6 +15,23 @@
             </div>
         </div>
     </fieldset>
+
+    @feature(Flag::collections())
+        @foreach ($search_collections as $scheme => $concepts)
+            <div class="col-span-3">
+                <p class="block font-medium">{{ $scheme }}</p>
+                <div class="flex flex-row gap-4 pt-6 sm:pt-4 max-h-72  overflow-y-auto">
+                @foreach ($concepts as $concept)
+
+                    <div class="flex items-center text-base sm:text-sm">
+                    <input id="lc-{{ $concept->getKey() }}" name="library_collections[]" value="{{ $concept->getKey() }}" type="checkbox" @checked(in_array($concept->getKey(), $filters['library_collections'] ?? [])) class="h-4 w-4 flex-shrink-0 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                    <label for="lc-{{ $concept->getKey() }}" class="ml-3 min-w-0 flex-1 text-gray-600">{{ $concept->title }}</label>
+                    </div>
+                @endforeach
+                </div>
+            </div>
+        @endforeach
+    @endfeature
 
     @feature(Flag::sourceDocumentFilter())
         <fieldset>
@@ -87,6 +104,8 @@
         </div>
     </div>
 @endforeach
+
+
         
 <fieldset>
     <legend class="block font-medium">{{ __('Country') }}</legend>

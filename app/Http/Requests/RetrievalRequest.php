@@ -39,7 +39,7 @@ class RetrievalRequest extends QueryBuilderRequest
             ->merge($teamFilters)
             ->merge($starredFilters)
             ->merge($sourceFilters)
-            ->merge($this->only(['project_countries', 'format', 'type', 'project_region', 'project_topics']));
+            ->merge($this->only(['project_countries', 'format', 'type', 'project_region', 'project_topics', 'library_collections']));
     }
 
     public function hasAppliedFilters(): bool
