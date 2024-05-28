@@ -224,7 +224,9 @@ class Document extends Model implements Convertible
      */
     protected function makeAllSearchableUsing($query)
     {
-        return $query->with(['team', 'project']);
+        return $query->with(['team', 'project', 'collections' => function($query){
+            $query->library();
+        }]);
     }
 
     /**
@@ -394,6 +396,8 @@ class Document extends Model implements Convertible
             'project_topics' => $this->project?->topics,
             'visibility' => $this->visibility?->value,
             'stars' => $this->stars()->get(['user_id'])->pluck('user_id')->values(),
+            'library_topics' => $this->collections->map(fn($c) => $c->topic_name)->filter()->unique()->values(),
+            'library_collections' => $this->collections->modelKeys(),
         ];
     }
     
