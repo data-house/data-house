@@ -266,6 +266,7 @@ class CollectionControllerTest extends TestCase
         $response->assertSessionHas('flash.banner', 'Collection updated.');
         
         $this->assertEquals('Test collection', $updatedCollection->title);
+        $this->assertEquals('test-collection', $updatedCollection->topic_name);
         $this->assertTrue($updatedCollection->user->is($user));
         $this->assertTrue($updatedCollection->team->is($user->currentTeam));
         $this->assertEquals(Visibility::TEAM, $updatedCollection->visibility);
