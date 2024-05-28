@@ -80,6 +80,35 @@ class AttachDocumentToLibraryCollectionTest extends TestCase
         $this->assertTrue($document->collections()->first()->is($expectedCollection));
     }
 
+    public function test_same_collection_attached_once(): void
+    {
+        $collection = Collection::factory()->library()->create([
+            'title' => "Reports and Studies",
+            'topic_name' => 'reports-and-studies',
+        ]);
+
+        $model = Document::factory()
+            ->visibleByAnyUser()
+            ->hasPipelineRuns(1)
+            ->has(ImportDocument::factory()->state([
+                'source_path' => 'path [t:reports-and-studies]/test.pdf'
+            ]), 'importDocument')
+            ->create([
+                'title' => 'A generic title'
+            ]);
+
+        $collection->documents()->attach($model);
+
+        $job = new AttachDocumentToLibraryCollection($model, $model->latestPipelineRun);
+
+        $job->handle(app()->make(MatchDocumentCollections::class));
+
+        $document = $model->fresh();
+
+        $this->assertTrue($document->collections()->first()->is($collection));
+        $this->assertEquals(1, $document->collections()->count());
+    }
+
     public function test_execution_performed_only_on_document_models(): void
     {
         $expectedProject = Project::factory()->create([
