@@ -35,6 +35,7 @@ class CreateCollectionTest extends TestCase
         $this->assertEquals(Visibility::PERSONAL, $collection->visibility);
         $this->assertEquals(CollectionType::STATIC, $collection->type);
         $this->assertEquals(CollectionStrategy::LIBRARY, $collection->strategy);
+        $this->assertEquals('collection-title', $collection->topic_name);
         $this->assertTrue($collection->draft);
         $this->assertEmpty($collection->notes);
     }
