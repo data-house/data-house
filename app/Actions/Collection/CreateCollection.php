@@ -8,6 +8,7 @@ use App\Models\CollectionType;
 use App\Models\Team;
 use App\Models\User;
 use App\Models\Visibility;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Validator;
@@ -69,6 +70,7 @@ class CreateCollection
                 'strategy' => $input['strategy'] ?? CollectionStrategy::STATIC,
                 'draft' => $input['draft'] ?? true,
                 'team_id' => $user->currentTeam?->getKey(),
+                'topic_name' => Str::slug($input['title']),
             ]);
     
             if($input['description'] ?? false){

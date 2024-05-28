@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Jobs\Pipeline\Document\AttachDocumentToLibraryCollection;
 use App\Jobs\Pipeline\Document\ConvertToPdf;
 use App\Jobs\Pipeline\Document\ExtractDocumentProperties;
 use App\Jobs\Pipeline\Document\GenerateThumbnail;
@@ -37,6 +38,7 @@ class DocumentPipelineTest extends TestCase
         });
 
         Queue::assertPushedWithChain(LinkDocumentWithAProject::class, [
+            AttachDocumentToLibraryCollection::class,
             ConvertToPdf::class,
             ExtractDocumentProperties::class,
             RecognizeLanguage::class,

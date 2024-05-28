@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Http\Requests\RetrievalRequest;
+use App\Jobs\Pipeline\Document\AttachDocumentToLibraryCollection;
 use App\Jobs\Pipeline\Document\ConvertToPdf;
 use App\Models\Document;
 use App\Pipelines\Pipeline;
@@ -45,6 +46,7 @@ class AppServiceProvider extends ServiceProvider
         // Define pipelines for Documents
         Pipeline::define(Document::class, PipelineTrigger::MODEL_CREATED, [
             LinkDocumentWithAProject::class,
+            AttachDocumentToLibraryCollection::class,
             ConvertToPdf::class,
             ExtractDocumentProperties::class,
             RecognizeLanguage::class,

@@ -44,6 +44,8 @@ class Collection extends Model
         'user_id',
         'team_id',
         'draft',
+        'topic_name',
+        'topic_group',
     ];
 
     protected $casts = [
@@ -113,6 +115,11 @@ class Collection extends Model
     public function scopeWithoutSystem($query)
     {
         return $query->whereNot('visibility', Visibility::SYSTEM);
+    }
+    
+    public function scopeLibrary($query)
+    {
+        return $query->where('visibility', Visibility::PROTECTED);
     }
 
     /**

@@ -9,6 +9,7 @@ use App\Models\CollectionType;
 use App\Models\Document;
 use App\Models\Visibility;
 use Illuminate\Http\Request;
+use \Illuminate\Support\Str;
 
 class CollectionController extends Controller
 {
@@ -104,6 +105,7 @@ class CollectionController extends Controller
         ]);
 
         $collection->title = $validated['title'];
+        $collection->topic_name = Str::slug($validated['title']);
 
         $collection->save();
 
