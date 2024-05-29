@@ -7,9 +7,9 @@
     </x-slot>
 
     <x-slot name="content">
-        <div class="relative w-full text-base font-normal min-h-[24rem] max-h-[24rem] overflow-y-auto">
+        <div class="relative w-full text-base font-normal min-h-[24rem] max-h-[24rem] flex flex-col">
 
-            <div class="sticky inset-0 bg-white/80">
+            <div>
                 <div class="flex justify-between items-center px-4">
                     <h4 class="text-stone-700 font-semibold">
                         {{ __('Collections') }}
@@ -17,21 +17,13 @@
                     
                     <livewire:create-collection />
                 </div>
-            </div>
-            
-            <div class="px-4 mt-1 basis-full prose prose-sm prose-stone prose-p:text-sm prose-p:mb-0">
-                <p class="">{{ __('A document can simultaneously belong to multiple collections. The same document is synced across all collections to which it belongs in order to avoid duplicates.') }}</p>
+                
+                <div class="mt-1 px-4 basis-full prose prose-sm prose-stone prose-p:text-sm prose-p:mb-0">
+                    <p class="">{{ __('A document can simultaneously belong to multiple collections. The same document is synced across all collections to which it belongs in order to avoid duplicates.') }}</p>
+                </div>
             </div>
 
-            <div class="mt-2">
-                {{-- <x-dropdown-link 
-                    class="inline-flex gap-2 items-center"
-                    href="{{ route('documents.library') }}"
-                    :active="request()->routeIs('documents.*')"
-                    >
-                    <x-heroicon-o-book-open class="w-6 h-6 {{ request()->routeIs('documents.*') ? 'text-lime-600' : 'text-stone-600' }}" />
-                    {{ __('All Library') }}
-                </x-dropdown-link> --}}
+            <div class="mt-2 grow overflow-y-auto">
 
                 @foreach ($this->collections as $collection)
                     <x-dropdown-link x-tooltip.raw="{{ $collection->firstNote?->previewContent()}}" class="inline-flex gap-2 items-center"
