@@ -18,13 +18,13 @@ class MatchDocumentCollections
         $importDocument = $document->importDocument;
 
         if(! $importDocument){
-            return null;
+            return collect();
         }
 
         $str = str($importDocument->source_path);
 
         if(! $str->contains('[')){
-            return null;
+            return collect();
         }
         
         $result = $str->matchAll('/\[t:([a-zA-Z0-9\-\_\s]*)\]/');
