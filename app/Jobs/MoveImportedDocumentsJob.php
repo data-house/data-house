@@ -87,7 +87,7 @@ class MoveImportedDocumentsJob extends ImportJobBase
     }
 
 
-    protected function insertDocuments(ImportDocument $import)
+    protected function insertDocuments(ImportDocument $import): bool
     {
         // Checking for possible duplicates based on document hash
         // Focusing to documents that are accessible in the user's team
@@ -98,7 +98,7 @@ class MoveImportedDocumentsJob extends ImportJobBase
     
             $import->save();
 
-            return;
+            return false;
         }
 
 
@@ -110,7 +110,7 @@ class MoveImportedDocumentsJob extends ImportJobBase
     
             $import->save();
 
-            return;
+            return false;
         }
 
         $path = $import->moveToDisk(Disk::DOCUMENTS->value);
@@ -126,7 +126,7 @@ class MoveImportedDocumentsJob extends ImportJobBase
     
             $import->save();
 
-            return;
+            return false;
         }
 
         $document = Document::withoutEvents(fn() => Document::create([
@@ -151,5 +151,7 @@ class MoveImportedDocumentsJob extends ImportJobBase
         $import->save();
         
         $document->dispatchPipeline(PipelineTrigger::MODEL_CREATED);
+
+        return true;
     }
 }

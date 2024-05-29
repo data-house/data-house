@@ -171,7 +171,7 @@
 
                 <!-- Notifications Dropdown -->
                 <div class="ml-3 relative">
-                    <x-dropdown align="right"   width="third" contentClasses="py-1 bg-white flex flex-col  min-h-[24rem] max-h-[24rem]">
+                    <x-dropdown align="right" width="third" contentClasses="py-1 bg-white flex flex-col  min-h-[24rem] max-h-[24rem]">
                         <x-slot name="trigger">
                             <livewire:notifications.notification-bell />
                         </x-slot>

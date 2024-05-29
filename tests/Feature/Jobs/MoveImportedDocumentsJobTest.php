@@ -20,6 +20,7 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\File;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
+use Spatie\Activitylog\Models\Activity;
 use Tests\TestCase;
 
 class MoveImportedDocumentsJobTest extends TestCase
@@ -101,9 +102,12 @@ class MoveImportedDocumentsJobTest extends TestCase
 
         $this->assertEquals(ImportStatus::COMPLETED, $importMap->fresh()->status);
         $this->assertNotNull($importMap->fresh()->last_executed_at);
+        $this->assertNotNull($importMap->fresh()->last_session_completed_at);
         $this->assertEquals(ImportStatus::COMPLETED, $import->fresh()->status);
 
         Queue::assertPushed(LinkDocumentWithAProject::class);
+
+        $this->assertEquals('activity.import-map-completed', Activity::all()->first()->description);
     }
 
     public function test_imported_document_respect_default_visibility(): void

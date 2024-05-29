@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Models\ImportMap;
 use App\Models\ImportStatus;
+use App\Notifications\ImportFailedNotification;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
@@ -100,9 +101,11 @@ abstract class ImportJobBase implements ShouldQueue
         Cache::lock($this->importMap->import->lockKey())->block(30, function() {
             DB::transaction(function () {
 
-                $this->importMap->markAsFailed();
+                $this->importMap->markAsFailed(class_basename($this));
 
                 $import = $this->importMap->import;
+
+                $import->creator->notify(new ImportFailedNotification($this->importMap));
 
                 if(! $import->maps()->where('status', ImportStatus::RUNNING->value)->exists()){
                     $import->status = ImportStatus::FAILED;
@@ -118,10 +121,7 @@ abstract class ImportJobBase implements ShouldQueue
     {
         Cache::lock($this->importMap->import->lockKey())->block(30, function() {
             DB::transaction(function () {
-                $this->importMap->status = ImportStatus::COMPLETED;
-                $this->importMap->last_executed_at = now();
-
-                $this->importMap->save();
+                $this->importMap->markAsCompleted();
 
                 if(! $this->importMap->import->maps()->where('status', ImportStatus::RUNNING->value)->exists()){
                     $import = $this->importMap->import;

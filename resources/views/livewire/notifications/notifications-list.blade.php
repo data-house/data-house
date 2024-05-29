@@ -1,4 +1,4 @@
-<div class="overflow-y-auto grow flex flex-col">
+<div class="overflow-y-auto grow  flex flex-col items-stretch">
 
     <div class="grow flex flex-col space-y-2">
         
@@ -6,6 +6,8 @@
     
             <div class="px-4 py-2 space-y-2 " wire:key="{{ $item->id }}">
                 <p class="text-stone-900 text-sm {{ $item->unread() ? 'font-bold' : '' }}">{{ trans("notification-types." . $item->type) }}</p>
+
+                @includeFirst([$item->type, 'notification.default'], ['notification' => $item])
 
                 <p class="text-xs text-stone-600 flex justify-between">
                     <x-time :value="$item->created_at" />
@@ -36,7 +38,7 @@
         
     </div>
 
-    <div class="mb-4 px-4">
+    <div class="mb-4 px-4 self-end">
         <x-small-button wire:click="markAllAsRead">{{ __('Mark all as read') }}</x-small-button>
     </div>
     
