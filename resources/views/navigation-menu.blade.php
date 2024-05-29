@@ -168,6 +168,29 @@
                         </x-slot>
                     </x-dropdown>
                 </div>
+
+                <!-- Notifications Dropdown -->
+                <div class="ml-3 relative">
+                    <x-dropdown align="right"   width="third" contentClasses="py-1 bg-white flex flex-col  min-h-[24rem] max-h-[24rem]">
+                        <x-slot name="trigger">
+                            <livewire:notifications.notification-bell />
+                        </x-slot>
+
+                        <x-slot name="content">
+
+                            <div class="mb-4 flex items-center justify-between px-4 shrink-0">
+                                <h4 class="font-medium text-stone-900">{{ __('Notifications') }}</h4>
+
+                                <x-small-button type="button" @click="open = ! open">
+                                    {{ __('Close')}}
+                                </x-small-button>
+                            </div>
+
+                            <livewire:notifications.notifications-list />
+                            
+                        </x-slot>
+                    </x-dropdown>
+                </div>
                 
                 <!-- Help and support Dropdown -->
                 @support()
