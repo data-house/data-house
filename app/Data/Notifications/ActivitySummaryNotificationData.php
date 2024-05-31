@@ -25,19 +25,14 @@ class ActivitySummaryNotificationData extends Data
       public NotificationFrequency $frequency = NotificationFrequency::WEEKLY,
       
       /**
-       * Set the preferred day to receive the summary. Default on Monday.
+       * Set the preferred day to receive the summary. Default on Monday. Ignored if frequency is daily
        */
       #[WithCast(EnumCast::class)]
       public WeekDays $day = WeekDays::MONDAY,
 
       /**
-       * Set the preferred time to receive the notifications. Default to 3pm
+       * Set the preferred UTC time to receive the notifications. Default to 3pm.
        */
       public ?string $time = '15:00',
-
-      /**
-       * Set the timezone of the provided time. Default null, time is considered UTC
-       */
-      public ?string $timezone = null,
     ) {}
 }
