@@ -35,6 +35,14 @@ class NotificationBell extends Component
     {
         return $this->user->unreadNotifications()->count();
     }
+    
+    #[Computed()]
+    #[On("notifications")]
+    public function snoozed()
+    {
+        return $this->user->notification_settings?->snooze ?? false;
+    }
+    
 
     public function pollingBeat()
     {

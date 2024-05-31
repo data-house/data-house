@@ -40,6 +40,10 @@
 
     <div class="mb-4 px-4 self-end">
         <x-small-button wire:click="markAllAsRead">{{ __('Mark all as read') }}</x-small-button>
+        <x-small-button @click="open = ! open" wire:click="$dispatch(
+            'openSlideover', { 
+                component: 'notifications.notification-preference-slideover', 
+            })">{{ __('Preferences') }}</x-small-button>
     </div>
     
 </div>
