@@ -24,6 +24,7 @@ class AnswerAggregationCopilotRequest extends CopilotRequest
             'transformation' => [
                 'id' => $this->guidanceTemplate ?? '0', // template id corresponding to free multiple question on the backend
                 'args' => [$this->question],
+                'append' => $this->guidanceTemplateAppend,
             ],
             'answers' => collect($this->documents)->filter()
                 ->values()

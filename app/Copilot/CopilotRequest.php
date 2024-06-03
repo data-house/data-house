@@ -13,7 +13,7 @@ class CopilotRequest implements JsonSerializable
         public readonly string|array $documents,
         public readonly ?string $language = null,
         public readonly ?string $guidanceTemplate = null,
-
+        public readonly ?array $guidanceTemplateAppend = null,
         )
     {
     }
