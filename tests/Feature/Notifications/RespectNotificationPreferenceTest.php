@@ -24,9 +24,7 @@ class RespectNotificationPreferenceTest extends TestCase
             ]
         ]);
 
-        $channels = $this->via($user);
-
-        $this->assertEmpty($channels);
+        $this->assertFalse($this->shouldSend($user, 'mail'));
     }
     
     public function test_database_only_channel_when_email_notifications_disabled(): void
@@ -39,9 +37,9 @@ class RespectNotificationPreferenceTest extends TestCase
             ]
         ]);
 
-        $channels = $this->via($user);
+        $this->assertTrue($this->shouldSend($user, 'database'));
 
-        $this->assertEquals(['database'], $channels);
+        $this->assertFalse($this->shouldSend($user, 'mail'));
     }
     
     public function test_database_only_channel_when_notifications_snoozed(): void
@@ -54,9 +52,9 @@ class RespectNotificationPreferenceTest extends TestCase
             ]
         ]);
 
-        $channels = $this->via($user);
-
-        $this->assertEquals(['database'], $channels);
+        $this->assertTrue($this->shouldSend($user, 'database'));
+        
+        $this->assertFalse($this->shouldSend($user, 'mail'));
     }
     
     public function test_all_channels_active(): void
@@ -69,8 +67,8 @@ class RespectNotificationPreferenceTest extends TestCase
             ]
         ]);
 
-        $channels = $this->via($user);
-
-        $this->assertEquals(['mail', 'database'], $channels);
+        $this->assertTrue($this->shouldSend($user, 'database'));
+        
+        $this->assertTrue($this->shouldSend($user, 'mail'));
     }
 }

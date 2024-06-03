@@ -7,12 +7,10 @@ use App\Models\User;
 trait RespectNotificationPreference
 {
 
-    public function channels()
-    {
-        return ['mail', 'database'];
-    }
-
-    protected function shouldSend($notifiable)
+    /**
+     * Check if notification should be sent to the user using a specific channel
+     */
+    public function shouldSend($notifiable, $channel): bool
     {
         if(!$notifiable instanceof User){
             return false;
@@ -25,39 +23,13 @@ trait RespectNotificationPreference
         }
 
         if(method_exists($this, 'shouldSendUsing')){
-            return $this->shouldSendUsing($notifiable, $preferences);
+            return $this->shouldSendUsing($notifiable, $preferences, $channel);
+        }
+
+        if(($preferences->snooze || !$preferences->enableMailNotifications) && $channel === 'mail'){
+            return false;
         }
         
         return true;
-    }
-
-
-    protected function filterDeliveryChannels($notifiable, array $channels)
-    {
-        $preferences = $notifiable->notification_settings;
-
-        $allowedChannels = array_merge([], $channels);
-
-        if($preferences->snooze || !$preferences->enableMailNotifications){
-            $allowedChannels = array_diff($allowedChannels, ['mail']);
-        }
-
-        return array_values($allowedChannels);
-    }
-
-
-    
-    /**
-     * Get the notification's delivery channels.
-     *
-     * @return array<int, string>
-     */
-    public function via(object $notifiable): array
-    {
-        if(!$this->shouldSend($notifiable)){
-            return [];
-        }
-
-        return $this->filterDeliveryChannels($notifiable, $this->channels());
     }
 }

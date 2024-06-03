@@ -133,6 +133,10 @@ class Project extends Model
         return Topic::from($this->topics);
     }
     
+    public function url(): string
+    {
+        return route('projects.show', $this);
+    }
 
     /**
      * Get the indexable data array for the model.
