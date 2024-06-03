@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Data\NotificationSettingsData;
 use App\HasPreferences;
 use App\HasRole;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -55,6 +56,7 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'role' => Role::class,
+        'notification_settings' => NotificationSettingsData::class . ':default',
     ];
 
     protected $with = [

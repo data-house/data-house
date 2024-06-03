@@ -40,8 +40,11 @@
                         <span class="ml-4 text-sm">{{ __('next run') }}&nbsp;{{ $mapping->schedule->nextRunDate() }}</span>
                     @endif
                     
-                    
-                    <span class="ml-4 text-sm">{{ __('last run') }}&nbsp;{{ $mapping->last_executed_at ?? '-' }}</span>
+                    @if ($mapping->last_session_started_at && $mapping->last_session_completed_at)
+                    <span class="ml-4 text-sm">{{ __('last run') }}&nbsp; <x-time :value="$mapping->last_session_started_at" /> {{ __('to') }} <x-time :value="$mapping->last_session_completed_at" /></span>
+                    @else
+                        <span class="ml-4 text-sm">{{ __('last run') }}&nbsp;{{ $mapping->last_executed_at ?? '-' }}</span>
+                    @endif
                 </div>
 
                 

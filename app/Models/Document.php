@@ -255,6 +255,11 @@ class Document extends Model implements Convertible
             ->toString();
     }
     
+    public function pageUrl(): string
+    {
+        return route('documents.show', $this);
+    }
+
     /**
      * Get the URL for the file thumbnail
      */

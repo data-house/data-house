@@ -101,6 +101,7 @@ class StartImportJobTest extends TestCase
         (new StartImportJob($import))->handle();
 
         $this->assertEquals(ImportStatus::RUNNING, $map->fresh()->status);
+        $this->assertNotNull($map->fresh()->last_session_started_at);
 
         Queue::assertPushed(RetrieveDocumentsToImportJob::class, function($job) use ($map) {
             return $job->importMap->is($map);

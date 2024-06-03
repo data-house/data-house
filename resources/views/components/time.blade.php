@@ -4,6 +4,6 @@
     @if (($slot ?? false) && !empty(trim($slot)))
         {{ $slot }}
     @else
-        {{ $value->locale(app()->currentLocale())->setTimezone($timezone)->isoFormat('l HH:mm') }}
+        {{ $value->locale(app()->currentLocale())->setTimezone($timezone)->isoFormat('l HH:mm') }} {{ $timezone }}
     @endif
 </time>

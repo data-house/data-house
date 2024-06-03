@@ -38,6 +38,8 @@ class ImportMap extends Model
         'visibility',
         'schedule',
         'last_executed_at',
+        'last_session_started_at',
+        'last_session_completed_at',
     ];
 
     protected $casts = [
@@ -47,6 +49,8 @@ class ImportMap extends Model
         'visibility' => Visibility::class,
         'schedule' => ImportScheduleSettings::class . ':default',
         'last_executed_at' => 'datetime',
+        'last_session_started_at' => 'datetime',
+        'last_session_completed_at' => 'datetime',
     ];
     
     /**
@@ -165,10 +169,45 @@ class ImportMap extends Model
         return $this->schedule?->expressionPasses() ?? false;
     }
 
-    public function markAsFailed()
+    public function markAsRunning()
+    {
+        $this->status = ImportStatus::RUNNING;
+        $this->last_session_started_at = now();
+        $this->save();
+
+        activity('imports')
+            ->causedByAnonymous()
+            ->performedOn($this)
+            ->event('import-map-running')
+            ->log('activity.import-map-running');
+    }
+
+    public function markAsFailed($job = null)
     {
         $this->status = ImportStatus::FAILED;
+        $this->last_session_completed_at = now();
         $this->last_executed_at = now();
         $this->save();
+
+        activity('imports')
+            ->causedByAnonymous()
+            ->performedOn($this)
+            ->event('import-map-error')
+            ->when(!is_null($job), fn($activity) => $activity->withProperties(['job' => $job]))
+            ->log('activity.import-map-failed');
+    }
+    
+    public function markAsCompleted()
+    {
+        $this->status = ImportStatus::COMPLETED;
+        $this->last_session_completed_at = now();
+        $this->last_executed_at = now();
+        $this->save();
+
+        activity('imports')
+            ->causedByAnonymous()
+            ->performedOn($this)
+            ->event('import-map-completed')
+            ->log('activity.import-map-completed');
     }
 }

@@ -61,8 +61,7 @@ class StartImportJob implements ShouldQueue, ShouldBeUnique
             ->where('status', ImportStatus::CREATED)
             ->each(function($map){
 
-                $map->status = ImportStatus::RUNNING;
-                $map->save();
+                $map->markAsRunning();
 
                 dispatch(new RetrieveDocumentsToImportJob($map));
             });

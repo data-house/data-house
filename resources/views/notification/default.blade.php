@@ -1,0 +1,1 @@
+{{-- Default notification body is empty --}}
