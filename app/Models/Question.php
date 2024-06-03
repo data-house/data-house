@@ -390,14 +390,21 @@ class Question extends Model implements Htmlable
      */
     public function aggregateAnswers(): self
     {
-        $subQuestions = $this->children()->get();
+        $subQuestions = $this->children()->with('questionable.project')->get();
         $answers = $subQuestions->map(fn($q) => [
             'id' => $q->uuid,
             'lang' => $q->language,
             ...$q['answer']
         ])->toArray();
 
-        $request = new AnswerAggregationCopilotRequest($this->uuid, $this->question, $answers, $this->language, $this->type?->copilotTemplate());
+        $append = $subQuestions->map(fn($q) => [
+            'id' => $q->uuid,
+            'text' => $q->questionable instanceof Document ? 
+                ($q->questionable->project ? "## Project **{$q->questionable->project->title}**" . PHP_EOL : "## Document **{$q->questionable->title}**" . PHP_EOL)
+                : "",
+        ])->toArray();
+
+        $request = new AnswerAggregationCopilotRequest($this->uuid, $this->question, $answers, $this->language, $this->type?->copilotTemplate() ?? '0', $append);
         
         // We cache the response for each user as it requires time and resources.
         // This improves also the responsiveness of the system on the short run.
