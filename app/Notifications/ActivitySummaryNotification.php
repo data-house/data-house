@@ -61,7 +61,7 @@ class ActivitySummaryNotification extends Notification
                     'num' => $this->total_documents_added,
                 ]));
                 
-                $docs = $this->documents->map(fn($doc) => "- [{$doc->title}]({$doc->pageUrl()}) ([{$doc->project->title}]({$doc->project->url()}))");
+                $docs = $this->documents->map(fn($doc) => $doc->project ? "- [{$doc->title}]({$doc->pageUrl()}) ([{$doc->project->title}]({$doc->project->url()}))" : "- [{$doc->title}]({$doc->pageUrl()})");
 
                 $message->lines([
                     Lang::get('Here are some recent additions:'),
