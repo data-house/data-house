@@ -61,8 +61,13 @@ class DocumentCollections extends Component
     #[Computed()]
     public function collections()
     {
+        $showCollectionsWithTopicGroup = Feature::active(Flag::collectionsTopicGroup());
+
         return $this->document->collections()
             ->withoutSystem()
+            ->when(!$showCollectionsWithTopicGroup, function($query){
+                return $query->whereNull('topic_group');
+            })
             ->visibleBy($this->user)
             ->get();
     }
