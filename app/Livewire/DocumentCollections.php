@@ -5,6 +5,8 @@ namespace App\Livewire;
 use App\Actions\Collection\AddDocument;
 use App\Actions\Collection\RemoveDocument;
 use App\Models\Collection;
+use App\Models\Flag;
+use Laravel\Pennant\Feature;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
 use Livewire\Component;
@@ -69,11 +71,17 @@ class DocumentCollections extends Component
     #[On('collection-created')]
     public function selectableCollections()
     {
+        $showCollectionsWithTopicGroup = Feature::active(Flag::collectionsTopicGroup());
+
         return Collection::query()
             ->withoutSystem()
+            ->when(!$showCollectionsWithTopicGroup, function($query){
+                return $query->whereNull('topic_group');
+            })
             ->visibleBy($this->user)
             ->with('firstNote')
             ->whereNotIn('id', $this->collections->modelKeys())
+            ->orderBy('title', 'ASC')
             ->get();
     }
 

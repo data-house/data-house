@@ -16,22 +16,20 @@
         </div>
     </fieldset>
 
-    @feature(Flag::collections())
-        @foreach ($search_collections as $scheme => $concepts)
-            <div class="col-span-3">
-                <p class="block font-medium">{{ $scheme }}</p>
-                <div class="flex flex-row flex-wrap gap-4 pt-6 sm:pt-4 max-h-72  overflow-y-auto">
-                @foreach ($concepts as $concept)
+    @foreach ($search_collections as $scheme => $concepts)
+        <div class="col-span-3">
+            <p class="block font-medium">{{ $scheme }}</p>
+            <div class="flex flex-row flex-wrap gap-4 pt-6 sm:pt-4 max-h-72  overflow-y-auto">
+            @foreach ($concepts as $concept)
 
-                    <div class="flex items-center text-base sm:text-sm shrink-0">
-                    <input id="lc-{{ $concept->getKey() }}" name="library_collections[]" value="{{ $concept->getKey() }}" type="checkbox" @checked(in_array($concept->getKey(), $filters['library_collections'] ?? [])) class="h-4 w-4 flex-shrink-0 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
-                    <label for="lc-{{ $concept->getKey() }}" class="ml-3 min-w-0 flex-1 text-gray-600">{{ $concept->title }}</label>
-                    </div>
-                @endforeach
+                <div class="flex items-center text-base sm:text-sm shrink-0">
+                <input id="lc-{{ $concept->getKey() }}" name="library_collections[]" value="{{ $concept->getKey() }}" type="checkbox" @checked(in_array($concept->getKey(), $filters['library_collections'] ?? [])) class="h-4 w-4 flex-shrink-0 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                <label for="lc-{{ $concept->getKey() }}" class="ml-3 min-w-0 flex-1 text-gray-600">{{ $concept->title }}</label>
                 </div>
+            @endforeach
             </div>
-        @endforeach
-    @endfeature
+        </div>
+    @endforeach
 
     @feature(Flag::sourceDocumentFilter())
         <fieldset>
