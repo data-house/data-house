@@ -14,6 +14,7 @@ enum Flag: string
     case PROJECT_FUNDING = 'project.funding';
     case DASHBOARD = 'dashboard';
     case COLLECTIONS = 'collections';
+    case COLLECTIONS_TOPIC_GROUP = 'collections-topic';
 
 
 
@@ -21,6 +22,11 @@ enum Flag: string
     public static function collections(): string
     {
         return static::COLLECTIONS->value;
+    }
+    
+    public static function collectionsTopicGroup(): string
+    {
+        return static::COLLECTIONS_TOPIC_GROUP->value;
     }
 
     public static function dashboard(): string
