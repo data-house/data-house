@@ -50,7 +50,11 @@ class NotificationBell extends Component
 
         if($count != $this->lastChecked){
             $this->lastChecked = $count;
+            
             $this->dispatch('notifications');
+            
+            unset($this->hasUnreadNotifications);
+            unset($this->unreadNotificationsCount);
         }
     }
     

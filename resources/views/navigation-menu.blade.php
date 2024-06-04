@@ -186,7 +186,7 @@
                                 </x-small-button>
                             </div>
 
-                            <livewire:notifications.notifications-list />
+                            <livewire:notifications.notifications-list x-on:notifications.window="$refresh" />
                             
                         </x-slot>
                     </x-dropdown>
