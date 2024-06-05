@@ -107,7 +107,7 @@ class AggregateMultipleQuestionAnswersJobTest extends TestCase
 
         Http::assertSent(function (Request $request) use ($question, $subQuestions) {
 
-            $expectedAppendText =  "## Document **{$subQuestions->first()->questionable->title}**" . PHP_EOL;
+            $expectedAppendText =  "## Document **{$subQuestions->first()->questionable->title}**" . PHP_EOL . PHP_EOL;
 
             return $request->url() == 'http://localhost:5000/library/library-id/questions/aggregate' &&
                    $request->method() === 'POST' &&
@@ -250,7 +250,7 @@ class AggregateMultipleQuestionAnswersJobTest extends TestCase
 
         Http::assertSent(function (Request $request) use ($question, $subQuestions, $project) {
 
-            $expectedAppendText =  "## Project **{$project->title}**" . PHP_EOL;
+            $expectedAppendText =  "## Project **{$project->title}**" . PHP_EOL. PHP_EOL;
 
             return $request->url() == 'http://localhost:5000/library/library-id/questions/aggregate' &&
                    $request->method() === 'POST' &&
@@ -516,5 +516,109 @@ class AggregateMultipleQuestionAnswersJobTest extends TestCase
         $this->assertNull($savedQuestion->answer);
         $this->assertEquals(QuestionStatus::ANSWERING, $savedQuestion->status);
     }
-    
+
+    public function test_empty_child_answers_handled(): void
+    {
+        config([
+            'copilot.driver' => 'cloud',
+            'copilot.queue' => false,
+            'copilot.engines.cloud' => [
+                'host' => 'http://localhost:5000/',
+                'library' => 'library-id',
+            ],
+        ]);
+
+        Http::preventStrayRequests();
+
+        Queue::fake();
+
+        $user = User::factory()->manager()->create();
+
+        $collection = Collection::factory()
+            ->for($user)
+            ->hasAttached(
+                Document::factory()->count(2),
+            )
+            ->create();
+
+        $documents = $collection->documents;
+        
+        $question = Question::factory()
+            ->multiple()
+            ->recycle($collection)
+            ->create([
+                'question' => 'Do you really reply to my question?',
+                'language' => 'en',
+                'status' => QuestionStatus::ANSWERING,
+                'execution_time' => null,
+            ]);
+
+        $subQuestions = Question::factory()
+            ->count(2)
+            ->errored()
+            ->sequence(
+                [
+                    'questionable_id' => $documents->first()->getKey(),
+                    'execution_time' => 120,
+                ],
+                [
+                    'questionable_id' => $documents->last()->getKey(),
+                    'execution_time' => 200,
+                ],
+            )
+            ->create([
+                'language' => 'en',
+            ]);
+
+        $subQuestions->each(function($q) use ($question) {
+            $question->related()->attach($q->getKey(), ['type' => QuestionRelation::CHILDREN]);
+        });
+        
+        Http::fake([
+            'http://localhost:5000/library/library-id/questions/aggregate' => Http::response([
+                "id" => $question->uuid,
+                "lang" => 'en',
+                "text" => "Aggregated answer.",
+                "refs" => [
+                    [
+                        "id" => $documents->first()->getCopilotKey(),
+                        "page_number" => 2,
+                    ],
+                    [
+                        "id" => $documents->last()->getCopilotKey(),
+                        "page_number" => 4,
+                    ]
+                ],
+            ], 200),
+        ]);
+
+        $this->expectException(CopilotException::class);
+        $this->expectExceptionMessage("No answers to aggregate");
+
+        (new AggregateMultipleQuestionAnswersJob($question))->handle();
+
+        Http::assertNotSent(function (Request $request) use ($question, $subQuestions) {
+
+            $expectedAppendText =  "## Document **{$subQuestions->first()->questionable->title}**" . PHP_EOL. PHP_EOL;
+
+            return $request->url() == 'http://localhost:5000/library/library-id/questions/aggregate' &&
+                   $request->method() === 'POST' &&
+                   filled($request['question'] ?? []) &&
+                   filled($request['transformation'] ?? []) &&
+                   filled($request['answers'] ?? []) &&
+                   $request['transformation']['args'][0] == $question->question &&
+                   $request['transformation']['id'] == '0' &&
+                   is_array($request['transformation']['append']) &&
+                   $request['transformation']['append'][0]['id'] === $subQuestions->first()->uuid &&
+                   $request['transformation']['append'][0]['text'] === $expectedAppendText &&
+                   $request['question']['id'] == $question->uuid &&
+                   $request['question']['lang'] == 'en' &&
+                   $request['question']['text'] == $question->question && 
+                   $request['answers'][0]['text'] == $subQuestions->first()->answer['text'] &&
+                   is_array($request['answers'][0]['refs']) &&
+                   $request['answers'][0]['id'] == $subQuestions->first()->uuid
+                   ;
+        });
+
+    }
 }

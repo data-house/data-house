@@ -390,7 +390,12 @@ class Question extends Model implements Htmlable
      */
     public function aggregateAnswers(): self
     {
-        $subQuestions = $this->children()->with('questionable.project')->get();
+        $subQuestions = $this->children()->with('questionable.project')->whereNotNull('answer')->where('answer', '!=', 'null')->get();
+
+        if($subQuestions->isEmpty()){
+            throw new CopilotException(__('No answers to aggregate'));
+        }
+
         $answers = $subQuestions->map(fn($q) => [
             'id' => $q->uuid,
             'lang' => $q->language,
@@ -400,7 +405,7 @@ class Question extends Model implements Htmlable
         $append = $subQuestions->map(fn($q) => [
             'id' => $q->uuid,
             'text' => $q->questionable instanceof Document ? 
-                ($q->questionable->project ? "## Project **{$q->questionable->project->title}**" . PHP_EOL : "## Document **{$q->questionable->title}**" . PHP_EOL)
+                ($q->questionable->project ? "## Project **{$q->questionable->project->title}**" . PHP_EOL . PHP_EOL : "## Document **{$q->questionable->title}**" . PHP_EOL . PHP_EOL)
                 : "",
         ])->toArray();
 
