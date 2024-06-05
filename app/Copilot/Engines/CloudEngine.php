@@ -8,6 +8,7 @@ use App\Copilot\CopilotRequest;
 use App\Copilot\CopilotResponse;
 use App\Copilot\CopilotSummarizeRequest;
 use App\Copilot\Exceptions\CopilotException;
+use App\Copilot\Exceptions\ModelNotFoundException;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Client\PendingRequest;
@@ -240,9 +241,18 @@ class CloudEngine extends Engine
 
             return new CopilotResponse($answerText, $answerReferences);
         }
+        catch(RequestException $ex)
+        {
+            logs()->error("Error asking question copilot", ['error' => $ex->getMessage(), 'request' => $question]);
+
+            if($ex->response->notFound()){
+                throw new ModelNotFoundException($ex->getMessage(), $ex->getCode(), $ex);    
+            }
+            
+            throw new CopilotException($ex->getMessage(), $ex->getCode(), $ex);
+        }
         catch(Throwable $ex)
         {
-            // TODO: response body can contain error information 
             logs()->error("Error asking question copilot", ['error' => $ex->getMessage(), 'request' => $question]);
             throw new CopilotException($ex->getMessage(), $ex->getCode(), $ex);
         }
