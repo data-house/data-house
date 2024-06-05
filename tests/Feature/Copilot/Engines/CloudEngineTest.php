@@ -462,6 +462,109 @@ class CloudEngineTest extends TestCase
                    filled($request['answers'] ?? []) &&
                    $request['transformation']['args'][0] == 'Question text' &&
                    $request['transformation']['id'] == '0' &&
+                   is_null($request['transformation']['append']) &&
+                   $request['question']['id'] == $id &&
+                   $request['question']['lang'] == 'en' &&
+                   $request['question']['text'] == 'Question text'
+                   ;
+        });
+    }
+
+    public function test_multiple_question_aggregation_with_append(): void
+    {
+        config([
+            'copilot.driver' => 'cloud',
+            'copilot.queue' => false,
+            'copilot.engines.cloud' => [
+                'host' => 'http://localhost:5000/',
+                'library' => 'library-id'
+            ],
+        ]);
+
+        Queue::fake();
+
+        Http::preventStrayRequests();
+
+        $id = Str::uuid();
+
+        Http::fake([
+            'http://localhost:5000/library/library-id/questions/aggregate' => Http::response([
+                "id" => $id,
+                "lang" => 'en',
+                "text" => "Aggregated answer.",
+                "refs" => [
+                    [
+                        "id" => 1,
+                        "page_number" => 2,
+                    ]
+                ],
+            ], 200),
+        ]);
+        
+
+        /**
+         * @var \App\Copilot\Engines\Engine
+         */
+        $engine = app(CopilotManager::class)->driver('cloud');
+        
+        $request = new AnswerAggregationCopilotRequest($id, 'Question text', [
+            [
+                "text" => "First answer.",
+                "id" => "q1",
+                "lang" => "en",
+                "refs" => [
+                    [
+                        "id" => 1,
+                        "page_number" => 2,
+                    ],
+                    [
+                        "id" => 1,
+                        "page_number" => 4,
+                    ]
+                ]
+            ],
+            [
+                "text" => "Second answer.",
+                "id" => "q2",
+                "lang" => "en",
+                "refs" => [
+                    [
+                        "id" => 1,
+                        "page_number" => 2,
+                    ],
+                    [
+                        "id" => 1,
+                        "page_number" => 4,
+                    ]
+                ]
+            ],
+        ], 'en', '0', [['id' => 'q1', 'text' => 'Append']]);
+
+        $response = $engine->aggregate($request);
+
+        $this->assertInstanceOf(CopilotResponse::class, $response);
+
+        $this->assertEquals([
+            "text" => "Aggregated answer.",
+            "references" => [
+                [
+                    "id" => 1,
+                    "page_number" => 2,
+                ]
+            ],
+        ], $response->jsonSerialize());
+
+        Http::assertSent(function (Request $request) use ($id) {
+            return $request->url() == 'http://localhost:5000/library/library-id/questions/aggregate' &&
+                   $request->method() === 'POST' &&
+                   filled($request['question'] ?? []) &&
+                   filled($request['transformation'] ?? []) &&
+                   filled($request['answers'] ?? []) &&
+                   $request['transformation']['args'][0] == 'Question text' &&
+                   $request['transformation']['id'] == '0' &&
+                   is_array($request['transformation']['append']) &&
+                   $request['transformation']['append'][0]['id'] === 'q1' &&
+                   $request['transformation']['append'][0]['text'] === 'Append' &&
                    $request['question']['id'] == $id &&
                    $request['question']['lang'] == 'en' &&
                    $request['question']['text'] == 'Question text'

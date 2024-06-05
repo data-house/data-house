@@ -58,6 +58,22 @@ class QuestionFactory extends Factory
         });
     }
     
+    /**
+     * Create questions with error state
+     *
+     * @return \Illuminate\Database\Eloquent\Factories\Factory
+     */
+    public function errored()
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'answer' => null,
+                'execution_time' => fake()->randomFloat(2, 10, 20),
+                'status' => QuestionStatus::ERROR,
+            ];
+        });
+    }
+    
     public function multiple()
     {
         return $this->state(function (array $attributes) {

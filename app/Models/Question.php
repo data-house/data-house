@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Copilot\AnswerAggregationCopilotRequest;
 use App\Copilot\CopilotRequest;
 use App\Copilot\CopilotResponse;
+use App\Copilot\Exceptions\CopilotException;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\AsArrayObject;
@@ -390,14 +391,26 @@ class Question extends Model implements Htmlable
      */
     public function aggregateAnswers(): self
     {
-        $subQuestions = $this->children()->get();
+        $subQuestions = $this->children()->with('questionable.project')->whereNotNull('answer')->where('answer', '!=', 'null')->get();
+
+        if($subQuestions->isEmpty()){
+            throw new CopilotException(__('No answers to aggregate'));
+        }
+
         $answers = $subQuestions->map(fn($q) => [
             'id' => $q->uuid,
             'lang' => $q->language,
             ...$q['answer']
         ])->toArray();
 
-        $request = new AnswerAggregationCopilotRequest($this->uuid, $this->question, $answers, $this->language, $this->type?->copilotTemplate());
+        $append = $subQuestions->map(fn($q) => [
+            'id' => $q->uuid,
+            'text' => $q->questionable instanceof Document ? 
+                ($q->questionable->project ? "## Project **{$q->questionable->project->title}**" . PHP_EOL . PHP_EOL : "## Document **{$q->questionable->title}**" . PHP_EOL . PHP_EOL)
+                : "",
+        ])->toArray();
+
+        $request = new AnswerAggregationCopilotRequest($this->uuid, $this->question, $answers, $this->language, $this->type?->copilotTemplate() ?? '0', $append);
         
         // We cache the response for each user as it requires time and resources.
         // This improves also the responsiveness of the system on the short run.
