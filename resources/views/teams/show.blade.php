@@ -12,6 +12,8 @@
             @livewire('teams.team-member-manager', ['team' => $team])
             
             @livewire('manage-team-upload-settings', ['team' => $team])
+            
+            @livewire('manage-team-review-settings', ['team' => $team])
 
             @if (Gate::check('delete', $team) && ! $team->personal_team)
                 <x-section-border />
