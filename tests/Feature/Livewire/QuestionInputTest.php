@@ -20,6 +20,8 @@ class QuestionInputTest extends TestCase
 
     public function test_question_input_rendered()
     {
+        config(['copilot.limits.question_length' => 200]);
+
         $user = User::factory()->withPersonalTeam()->create();
 
         $document = Document::factory()->create();
@@ -43,6 +45,8 @@ class QuestionInputTest extends TestCase
 
     public function test_question_maximum_length()
     {
+        config(['copilot.limits.question_length' => 200]);
+
         $user = User::factory()->withPersonalTeam()->create();
 
         $document = Document::factory()->create();
@@ -68,6 +72,8 @@ class QuestionInputTest extends TestCase
     
     public function test_question_limit_visible()
     {
+        config(['copilot.limits.question_length' => 200]);
+
         $user = User::factory()->withPersonalTeam()->create();
 
         $document = Document::factory()->create();
@@ -89,6 +95,7 @@ class QuestionInputTest extends TestCase
         config([
             'copilot.driver' => 'null',
             'copilot.queue' => false,
+            'copilot.limits.question_length' => 200,
         ]);
 
 
