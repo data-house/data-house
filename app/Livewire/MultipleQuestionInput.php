@@ -28,9 +28,12 @@ class MultipleQuestionInput extends Component
 
     public $dailyQuestionLimit = null;
 
-    protected $rules = [
-        'question' => 'required|min:10|max:200',
-    ];
+    public function rules() 
+    {
+        return [
+            'question' => 'required|min:2|max:'.config('copilot.limits.question_length'),
+        ];
+    }
 
     public function mount($strategy, $collection = null)
     {

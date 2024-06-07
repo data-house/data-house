@@ -20,7 +20,7 @@ class CreateMultipleQuestionController extends Controller
     public function __invoke(Request $request)
     {
         $validated = $this->validate($request, [
-            'question' => ['required', 'string', 'min:1', 'max:'.config('copilot.limits.question_length')],
+            'question' => ['required', 'string', 'min:2', 'max:'.config('copilot.limits.question_length')],
             'strategy' => ['required', new Enum(CollectionStrategy::class)],
             'collection' => ['nullable', 'exists:collections,id', 'required_if:strategy,' . CollectionStrategy::STATIC->value],
             'guidance' => ['sometimes', 'nullable', 'boolean'],
