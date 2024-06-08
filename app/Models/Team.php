@@ -65,4 +65,11 @@ class Team extends JetstreamTeam
         return $this->projects()
             ->wherePivotNotIn('role', [Role::ADMIN->value, Role::MANAGER->value]);
     }
+
+    public function scopeQuestionReviewers($query)
+    {
+        return $query
+            ->whereNotNull('settings->review')
+            ->where('settings->review->questionReview', 'true');
+    }
 }

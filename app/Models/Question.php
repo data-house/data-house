@@ -136,6 +136,11 @@ class Question extends Model implements Htmlable
         return $this->hasMany(QuestionFeedback::class);
     }
     
+    public function reviews()
+    {
+        return $this->hasMany(QuestionReview::class);
+    }
+    
     public function likes()
     {
         return $this->feedbacks()->positive();

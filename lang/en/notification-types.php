@@ -16,6 +16,7 @@ return [
     'notification' => [
         'password-changed' => 'Your account password changed',
         'import-failed' => 'Import mapping processing failed',
+        'question-review-assigned' => 'Answer review assigned',
     ],
 
 ];
