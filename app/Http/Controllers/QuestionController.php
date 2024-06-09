@@ -75,6 +75,7 @@ class QuestionController extends Controller
         $question->load([
             'questionable',
             'user',
+            'team',
             'children.questionable',
             'ancestors.questionable',
         ]);

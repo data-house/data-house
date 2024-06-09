@@ -2,15 +2,15 @@
     @canany(['viewAny', 'create'], \App\Models\QuestionFeedback::class)    
         <div class="flex gap-2">
 
-            <button type="button" wire:click="recordPositiveFeedback" wire:loading.attr="disabled" class="group/like text-sm inline-flex gap-1 items-center text-stone-600 px-1 py-0.5 border border-transparent rounded-md  hover:bg-stone-200 focus:bg-stone-200 active:bg-stone-300 focus:outline-none focus:ring-2 focus:ring-lime-500 focus:ring-offset-2 transition ease-in-out duration-150">
+            <button type="button" x-tooltip.raw="{{ str(__('**Good**. Express a positive feedback.'))->inlineMarkdown() }}" wire:click="recordPositiveFeedback" wire:loading.attr="disabled" class="group/like text-sm inline-flex gap-1 items-center text-stone-600 px-1 py-0.5 border border-transparent rounded-md  hover:bg-stone-200 focus:bg-stone-200 active:bg-stone-300 focus:outline-none focus:ring-2 focus:ring-lime-500 focus:ring-offset-2 transition ease-in-out duration-150">
                 <x-heroicon-o-hand-thumb-up class="w-5 h-5 group-hover/like:text-emerald-600 transition-all" wire:target="recordPositiveFeedback" wire:loading.class="animate-pulse -translate-y-2"  />
-                {{ __('Good') }}
+                {{-- {{ __('Good') }} --}}
                 
                 <span class="tabular-nums rounded-full p-1 w-6 h-6 bg-stone-100 text-stone-700 text-xs font-mono">
                     {{ $question->likes_count > 100 ? '99+' : $question->likes_count }}
                 </span>
             </button>
-            <button type="button" wire:click="recordNeutralFeedback" wire:loading.attr="disabled"  class="group/improvable text-sm inline-flex gap-1 items-center text-stone-600 px-1 py-0.5 border border-transparent rounded-md  hover:bg-stone-200 focus:bg-stone-200 active:bg-stone-300 focus:outline-none focus:ring-2 focus:ring-fuchsia-500 focus:ring-offset-2 transition ease-in-out duration-150">
+            {{-- <button type="button" x-tooltip.raw="{{ str(__('**Improvable**. Answer is acceptable.'))->inlineMarkdown() }}" wire:click="recordNeutralFeedback" wire:loading.attr="disabled"  class="group/improvable text-sm inline-flex gap-1 items-center text-stone-600 px-1 py-0.5 border border-transparent rounded-md  hover:bg-stone-200 focus:bg-stone-200 active:bg-stone-300 focus:outline-none focus:ring-2 focus:ring-fuchsia-500 focus:ring-offset-2 transition ease-in-out duration-150">
                 <x-heroicon-o-hand-raised class="w-5 h-5 group-hover/improvable:text-fuchsia-600 transition-all" wire:target="recordNeutralFeedback" wire:loading.class="animate-pulse -translate-y-2"  />
 
                 {{ __('Improvable') }}
@@ -18,10 +18,10 @@
                 <span class="tabular-nums rounded-full p-1 w-6 h-6 bg-stone-100 text-stone-700 text-xs font-mono">
                     {{ $question->improvables_count > 100 ? '99+' : $question->improvables_count }}
                 </span>
-            </button>
-            <button type="button" wire:click="recordNegativeFeedback" wire:loading.attr="disabled"  class="group/dislike text-sm inline-flex gap-1 items-center text-stone-600 px-1 py-0.5 border border-transparent rounded-md  hover:bg-stone-200 focus:bg-stone-200 active:bg-stone-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition ease-in-out duration-150">
+            </button> --}}
+            <button type="button" x-tooltip.raw="{{ str(__('**Poor**. Answer does not reflect the truth.'))->inlineMarkdown() }}" wire:click="recordNegativeFeedback" wire:loading.attr="disabled"  class="group/dislike text-sm inline-flex gap-1 items-center text-stone-600 px-1 py-0.5 border border-transparent rounded-md  hover:bg-stone-200 focus:bg-stone-200 active:bg-stone-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition ease-in-out duration-150">
                 <x-heroicon-o-hand-thumb-down class="w-5 h-5 group-hover/dislike:text-red-600 transition-all" wire:target="recordNegativeFeedback" wire:loading.class="animate-pulse translate-y-2"  />
-                {{ __('Poor') }}
+                {{-- {{ __('Poor') }} --}}
 
                 <span class="tabular-nums rounded-full p-1 w-6 h-6 bg-stone-100 text-stone-700 text-xs font-mono">
                     {{ $question->dislikes_count > 100 ? '99+' : $question->dislikes_count }}

@@ -83,4 +83,34 @@ class QuestionReview extends Model
     {
         return $query->where('evaluation_result', ReviewEvaluationResult::REJECTED);
     }
+
+
+    public function statusLabel(): string
+    {
+        if($this->status === ReviewStatus::COMPLETED){
+            return match ($this->evaluation_result) {
+                ReviewEvaluationResult::APPROVED =>  __('Approved'),
+                ReviewEvaluationResult::CHANGES_APPLIED => __('Reviewed'),
+                ReviewEvaluationResult::REJECTED => __('Rejected'),
+            };
+        }
+
+        return match ($this->status) {
+            ReviewStatus::SUBMITTED => __('Review in progress...'),
+            ReviewStatus::IN_PROGRESS => __('Review in progress...'),
+        };
+    }
+
+    public function statusIcon(): string
+    {
+        if($this->status === ReviewStatus::COMPLETED){
+            return match ($this->evaluation_result) {
+                ReviewEvaluationResult::APPROVED =>  'heroicon-o-check-circle',
+                ReviewEvaluationResult::CHANGES_APPLIED => 'heroicon-o-check-circle',
+                ReviewEvaluationResult::REJECTED => 'heroicon-o-x-circle',
+            };
+        }
+
+        return 'heroicon-o-ellipsis-horizontal-circle';
+    }
 }
