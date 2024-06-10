@@ -88,15 +88,132 @@
                                 <span>{{ $question->execution_time ? trans_choice(':amount second|:amount seconds', round($question->execution_time / 1000), ['amount' => round($question->execution_time / 1000)]) : '...'  }}</span>
                             </div>
                         </div>
-                
-                        <x-section-border />
 
-                        <livewire:note-list :resource="$review" />
+                        <h3 class="text-lg font-bold">{{ __('Assignee reviews and comments') }}</h3>
+
+                        @if ($current_user_review_missing)
+
+                            <div class="p-4 bg-white rounded shadow-md">
+
+                                <p class="font-bold mb-3">{{ __('Add your review') }}</p>
+
+                                <form action="{{ route('question-reviews.review-feedbacks.store', $review) }}" method="post">
+
+                                    @csrf
+                                
+                                    <div class="">
+                                        <x-input-error for="rating" class="mt-2" />
+
+                                        <div class="grid grid-cols-3 gap-6">
+
+                                            <label for="rating-good" class="flex gap-2 items-start">
+                                                <x-radio id="rating-good" class="mt-0.5" name="rating" value="{{ \App\Models\FeedbackVote::LIKE->value }}" />
+                                                
+                                                <div>
+                                                
+                                                    <div class="ml-2 text-stone-900 font-medium flex items-center gap-1">
+                                                    
+                                                        <x-heroicon-o-hand-thumb-up class="w-5 h-5" />
+
+                                                        {{ __('Good') }}
+
+                                                    </div>
+
+                                                    <p class="mt-1 text-sm text-stone-600 max-w-md">
+                                                        {{ __('The  answer quality is good enough and the content is correct to be used as reference.') }}
+                                                    </p>
+                                                </div>
+                                            </label>
+                                            
+                                            <label for="rating-improvable" class="flex gap-2 items-start">
+                                                <x-radio id="rating-improvable" class="mt-0.5" name="rating" value="{{ \App\Models\FeedbackVote::IMPROVABLE->value }}" />
+                                                
+                                                <div>
+                                                
+                                                    <div class="ml-2 text-stone-900 font-medium flex items-center gap-1">
+                                                    
+                                                        <x-heroicon-o-hand-raised class="w-5 h-5" />
+
+                                                        {{ __('Improvable') }}
+
+                                                    </div>
+
+                                                    <p class="mt-1 text-sm text-stone-600 max-w-md">
+                                                        {{ __('The answer quality can be improved with some additional information and/or references.') }}
+                                                    </p>
+                                                </div>
+                                            </label>
+                                            
+                                            <label for="rating-poor" class="flex gap-2 items-start">
+                                                <x-radio id="rating-poor" class="mt-0.5" name="rating" value="{{ \App\Models\FeedbackVote::DISLIKE->value }}" />
+                                                
+                                                <div>
+                                                
+                                                    <div class="ml-2 text-stone-900 font-medium flex items-center gap-1">
+                                                    
+                                                        <x-heroicon-o-hand-thumb-down class="w-5 h-5" />
+
+                                                        {{ __('Poor') }}
+
+                                                    </div>
+
+                                                    <p class="mt-1 text-sm text-stone-600 max-w-md">
+                                                        {{ __('The quality of the answer is not sufficient as might contain not relevant information.') }}
+                                                    </p>
+                                                </div>
+                                            </label>
+
+                                        </div>
+
+                                    </div>
+                                    <div class="mt-4">
+                                        <x-label for="comment" value="{{ __('Comment') }}" />
+                                        <p class="text-stone-600 text-sm mt-1">{{ __('Add a comment about your rating and judment of this question. Comments are visible by the coordinator and the other assignees.') }}</p>
+                                        <x-input-error for="comment" class="mt-2" />
+                                        <x-textarea id="comment" name="comment" class="mt-1 block w-full" autocomplete="none">{{ old('comment') }}</x-textarea>
+                                    </div>
+
+                                    <div class="mt-4">
+                                        <x-button type="submit">{{ __('Submit review') }}</x-button>
+                                    </div>
+
+                                </form>
+
+                            </div>
+                            
+                        @endif
+
+
+
                         
-                        <div>
-                            <form action="" method="post">
 
-                            </form>
+
+
+                        @forelse ($review->feedbacks as $item)
+                            <div class="py-4 px-2 bg-white border border-stone-200 rounded flex justify-between items-center">
+                                <div class="flex items-center gap-2">
+                                    <x-user :user="$item->user" />
+                                    
+                                    &mdash;
+                                    {{ $item->vote->label() }}
+                                </div>
+
+                                @if ($item->user->is(auth()->user()))
+                                    <form action="{{ route('review-feedbacks.destroy', $item) }}" method="post">
+                                        @csrf
+                                        @method('DELETE')
+
+                                        <x-small-button type="submit">{{ __('Remove') }}</x-small-button>
+                                    </form>
+                                @endif
+                            </div>
+                        @empty
+                            <p class="py-4 text-stone-700">{{ __('Reviewers did not provide feedback yet.') }}</p>
+                        @endforelse
+                
+
+                        <div class="pl-8">
+                            <livewire:note-list :resource="$review" />
                         </div>
                         
                     </div>

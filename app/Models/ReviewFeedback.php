@@ -17,6 +17,7 @@ class ReviewFeedback extends Model
     protected $fillable = [
         'question_review_id',
         'reviewer_user_id',
+        'vote',
     ];
 
     protected $casts = [
@@ -26,6 +27,11 @@ class ReviewFeedback extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class, 'reviewer_user_id');
+    }
+    
+    public function review()
+    {
+        return $this->belongsTo(QuestionReview::class, 'question_review_id');
     }
 }

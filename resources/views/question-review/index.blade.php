@@ -83,7 +83,7 @@
                                 'col-span-1 text-sm'
                                 ])>
                                 
-                                {{ $review->coordinator->name }}
+                                {{ $review->coordinator?->name }}
                                 
                             </div>
 

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\QuestionReview;
+use App\Models\ReviewStatus;
 use Illuminate\Http\Request;
 
 class QuestionReviewController extends Controller
@@ -35,12 +36,16 @@ class QuestionReviewController extends Controller
      */
     public function show(QuestionReview $questionReview)
     {
+        $user = auth()->user();
 
-        $questionReview->load('question', 'assignees');
+        $questionReview->load('question', 'assignees', 'feedbacks.user');
+
+        $questionReview->loadCount('assignees');
 
         return view('question-review.show', [
             'review' => $questionReview,
             'question' => $questionReview->question,
+            'current_user_review_missing' => $questionReview->status !== ReviewStatus::COMPLETED && $questionReview->isAssigned($user) && !$questionReview->feedbacks->pluck('reviewer_user_id')->contains($user->getKey()),
         ]);
     }
 

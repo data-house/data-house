@@ -73,11 +73,12 @@ class QuestionReview extends Model
 
     public function isAssigned(User $user): bool
     {
-        if($user->getKey() === $this->user_id){
-            return true;
-        }
-
-        return $this->assignees->contains($user) || $this->coordinator_user_id === $user->getKey(); 
+        return $this->assignees->contains($user);
+    }
+    
+    public function isCoordinator(User $user): bool
+    {
+        return $this->coordinator_user_id === $user->getKey(); 
     }
 
 

@@ -29,7 +29,7 @@ class QuestionReviewPolicy
 
         return $permission
             && (($user->currentTeam && $user->currentTeam->canReviewQuestions() && $user->current_team_id === $questionReview->team_id)
-            || $questionReview->isAssigned($user));
+            || $questionReview->isAssigned($user) || $questionReview->isCoordinator($user));
     }
 
     /**
@@ -53,7 +53,7 @@ class QuestionReviewPolicy
 
         return $permission
             && (($user->currentTeam && $user->currentTeam->canReviewQuestions() && $user->current_team_id === $questionReview->team_id)
-            || $questionReview->isAssigned($user));
+            || $questionReview->isAssigned($user) || $questionReview->isCoordinator($user));
     }
 
     // /**
