@@ -45,10 +45,23 @@ class QuestionReview extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+    
+    public function coordinator()
+    {
+        return $this->belongsTo(User::class, 'coordinator_user_id');
+    }
 
     public function team()
     {
         return $this->belongsTo(Team::class);
+    }
+    
+    /**
+     * Get the feedbacks provided by the assignees
+     */
+    public function feedbacks()
+    {
+        return $this->hasMany(ReviewFeedback::class);
     }
 
     public function assignees()
@@ -56,6 +69,15 @@ class QuestionReview extends Model
         return $this->belongsToMany(User::class)
                         ->withTimestamps()
                         ->as('assignee');
+    }
+
+    public function isAssigned(User $user): bool
+    {
+        if($user->getKey() === $this->user_id){
+            return true;
+        }
+
+        return $this->assignees->contains($user) || $this->coordinator_user_id === $user->getKey(); 
     }
 
 

@@ -24,6 +24,8 @@ return new class extends Migration
 
             $table->foreignIdFor(User::class);
             
+            $table->foreignIdFor(User::class, 'coordinator_user_id')->nullable();
+            
             $table->foreignIdFor(Question::class);
 
             $table->unsignedInteger('status');

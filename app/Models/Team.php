@@ -72,4 +72,10 @@ class Team extends JetstreamTeam
             ->whereNotNull('settings->review')
             ->where('settings->review->questionReview', 'true');
     }
+
+
+    public function canReviewQuestions(): bool
+    {
+        return $this->settings->review?->questionReview ?? false;
+    }
 }

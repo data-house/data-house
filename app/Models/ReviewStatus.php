@@ -14,9 +14,18 @@ enum ReviewStatus: int
     public function label(): string
     {
         return match ($this) {
-            self::SUBMITTED => __('Submitted'),
+            self::SUBMITTED => __('Pending'),
             self::COMPLETED => __('Completed'),
             self::IN_PROGRESS => __('In-progress'),
+        };
+    }
+
+    public function style(): ?string
+    {
+        return match ($this) {
+            self::SUBMITTED => 'warning',
+            self::IN_PROGRESS => 'pending',
+            self::COMPLETED => 'success',
         };
     }
 }

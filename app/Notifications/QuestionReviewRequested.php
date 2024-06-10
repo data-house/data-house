@@ -43,11 +43,11 @@ class QuestionReviewRequested extends Notification
         $resourceTitle = $this->review->question->questionable->title;
 
         return (new MailMessage)
-                ->subject(Lang::get('You\'ve been invited to review a question/answer on :instance', ['instance' => config('app.name')]))
+                ->subject(Lang::get('Your team was asked to review a question/answer on :instance', ['instance' => config('app.name')]))
                 ->greeting(Lang::get('A new answer review is waiting you on :resource', ['resource' => $resourceTitle]))
-                ->line(Lang::get('You have been assigned as reviewer of the following question asked to :resource.', ['resource' => $resourceTitle]))
+                ->line(Lang::get('**:team** been invited to review the following question asked to :resource:', ['team' => $this->review->team->name, 'resource' => $resourceTitle]))
                 ->line($this->review->question->question)
-                ->action('Review the question', url('/'));
+                ->action('Review the question', route('question-reviews.show', $this->review));
     }
 
     /**
@@ -69,6 +69,6 @@ class QuestionReviewRequested extends Notification
      */
     public function databaseType(object $notifiable): string
     {
-        return 'notification.question-review-assigned';
+        return 'notification.question-review-requested';
     }
 }
