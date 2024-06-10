@@ -25,12 +25,19 @@
                             'flex',
                             'gap-2',
                             'items-center',
-                            'col-span-6',
+                            'col-span-5',
                             ]) 
                         >
                             <div class="h-8 w-h-8" ></div>
                             
                             {{ __('Question') }}
+                        </div>
+
+                        <div
+                            @class([ 
+                            'col-span-1', 
+                            ])>
+                            {{ __('Coordinator') }}
                         </div>
 
                         <div
@@ -60,7 +67,7 @@
                                 'flex',
                                 'gap-2',
                                 'items-center',
-                                'col-span-6',
+                                'col-span-5',
                                 ]) 
                             >
                                 
@@ -69,6 +76,15 @@
                                     <span class="z-10 absolute inset-0"></span>{{ $review->question->question }}
                                 </a>
 
+                            </div>
+
+                            <div
+                                @class([ 
+                                'col-span-1 text-sm'
+                                ])>
+                                
+                                {{ $review->coordinator->name }}
+                                
                             </div>
 
                             <div

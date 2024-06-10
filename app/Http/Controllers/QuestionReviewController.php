@@ -20,7 +20,7 @@ class QuestionReviewController extends Controller
         $userTeam = auth()->user()->current_team_id;
 
         $questionReviews = QuestionReview::query()
-            ->with('question', 'assignees')
+            ->with('question', 'assignees', 'coordinator')
             ->where('team_id', $userTeam)
             ->orderBy('status', 'ASC')
             ->paginate();
