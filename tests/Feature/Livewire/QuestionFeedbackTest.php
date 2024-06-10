@@ -35,7 +35,7 @@ class QuestionFeedbackTest extends TestCase
         $component->assertStatus(200);
 
         $component->assertSee('Good');
-        $component->assertSee('Improvable');
+        $component->assertDontSee('Improvable');
         $component->assertSee('Poor');
     }
     
@@ -184,7 +184,7 @@ class QuestionFeedbackTest extends TestCase
 
         $component->assertSet('showingCommentModal', false);
         
-        $component->assertSeeInOrder(['Improvable', 1]);
+        $component->assertDontSee('Improvable');
         
         $feedback = ModelsQuestionFeedback::first();
         
