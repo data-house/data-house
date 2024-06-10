@@ -22,7 +22,7 @@ class SelectQuestionReviewAssignee extends Component
     public function rules() 
     {
         return [
-            'selectedAssignees' => 'array|exists:users,id', // todo: ensure that users exists in the team of the review
+            'selectedAssignees' => 'array|max:10|exists:users,id', // todo: ensure that users exists in the team of the review
         ];
     }
 
