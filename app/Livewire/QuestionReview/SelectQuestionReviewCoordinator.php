@@ -2,6 +2,7 @@
 
 namespace App\Livewire\QuestionReview;
 
+use App\Data\ReviewSettings;
 use App\Livewire\Concern\InteractWithUser;
 use App\Models\QuestionReview;
 use Livewire\Attributes\Computed;
@@ -27,6 +28,13 @@ class SelectQuestionReviewCoordinator extends Component
     
     }
 
+    public function rules() 
+    {
+        return [
+            'selectedCoordinator' => 'nullable|exists:users,id', // todo: ensure that users exists in the team of the review
+        ];
+    }
+
     #[Computed()]
     public function review()
     {
@@ -42,7 +50,20 @@ class SelectQuestionReviewCoordinator extends Component
     #[Computed()]
     public function availableCoordinators()
     {
-        return $this->review->assignees;
+        $reviewSettings = $this->review->team->settings?->review ?? new ReviewSettings();
+
+        if(!$reviewSettings->questionReview){
+            return collect();
+        }
+
+        if(empty($reviewSettings->assignableUserRoles)){
+            return collect();
+        }
+        
+        return $this->review->team
+            ->users()
+            ->wherePivotIn('role', $reviewSettings->assignableUserRoles)
+            ->get();
     }
 
 
@@ -70,6 +91,20 @@ class SelectQuestionReviewCoordinator extends Component
         unset($this->coordinator);
 
         $this->selectedCoordinator = null;
+
+        $this->dispatch('closedropdown');
+    }
+
+    public function save()
+    {
+        $this->validate();
+
+        $this->review->coordinator_user_id = $this->selectedCoordinator;
+
+        $this->review->save();
+
+        unset($this->review);
+        unset($this->coordinator);
 
         $this->dispatch('closedropdown');
     }

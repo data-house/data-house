@@ -11,7 +11,9 @@
 
         <x-slot name="content">
             <div class="p-2 text-sm">
-                <p class="font-bold">{{ __('Assign a review coordinator') }}</p>
+                <p class="font-bold mb-3">{{ __('Assign a review coordinator') }}</p>
+
+                <x-input-error for="selectedCoordinator" class="mb-2" />
 
                 @forelse ($this->availableCoordinators as $item)
     
@@ -23,8 +25,12 @@
                 @empty
                     <p class="text-stone-600">{{ __('No users eligible as coordinator.') }}</p>
                 @endforelse
+
+                @if($this->availableCoordinators->isNotEmpty())
+                    <x-button type="button" class="w-full justify-center mt-2" wire:click="save">{{ __('Save') }}</x-button>
+                @endif
             </div>
-            <div class="p-2">
+            <div class="p-2 mt-3 border-t border-stone-200">
                 <x-small-button type="button" wire:click="removeCoordinator">{{ __('Clear assigned coordinator.') }}</x-small-button>
             </div>
         </x-slot>
@@ -34,7 +40,7 @@
 
     @if (is_null($this->coordinator) || !$this->coordinator->exists())
         <p class="prose">
-            {{ __('No coordinator appointed.') }} <x-small-button type="button" wire:click="assignMyselfAsCoordinator">{{ __('Assign to me.') }}</x-small-button>
+            {{ __('No coordinator appointed.') }} <x-small-button type="button" wire:click="assignMyselfAsCoordinator">{{ __('Assign to me') }}</x-small-button>
         </p>
     @else
         <p>
