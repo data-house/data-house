@@ -2,7 +2,7 @@
     @canany(['viewAny', 'create'], \App\Models\QuestionFeedback::class)    
         <div class="flex gap-2">
 
-            <button type="button" x-tooltip.raw="{{ str(__('**Good**. Express a positive feedback.'))->inlineMarkdown() }}" wire:click="recordPositiveFeedback" wire:loading.attr="disabled" class="group/like text-sm inline-flex gap-1 items-center text-stone-600 px-1 py-0.5 border border-transparent rounded-md  hover:bg-stone-200 focus:bg-stone-200 active:bg-stone-300 focus:outline-none focus:ring-2 focus:ring-lime-500 focus:ring-offset-2 transition ease-in-out duration-150">
+            <button type="button" x-tooltip.raw="{{ str(__('**Good**. Response quality is acceptable.'))->inlineMarkdown() }}" wire:click="recordPositiveFeedback" wire:loading.attr="disabled" class="group/like text-sm inline-flex gap-1 items-center text-stone-600 px-1 py-0.5 border border-transparent rounded-md  hover:bg-stone-200 focus:bg-stone-200 active:bg-stone-300 focus:outline-none focus:ring-2 focus:ring-lime-500 focus:ring-offset-2 transition ease-in-out duration-150">
                 <x-heroicon-o-hand-thumb-up class="w-5 h-5 group-hover/like:text-emerald-600 transition-all" wire:target="recordPositiveFeedback" wire:loading.class="animate-pulse -translate-y-2"  />
                 {{-- {{ __('Good') }} --}}
                 
@@ -19,7 +19,7 @@
                     {{ $question->improvables_count > 100 ? '99+' : $question->improvables_count }}
                 </span>
             </button> --}}
-            <button type="button" x-tooltip.raw="{{ str(__('**Poor**. Quality of the answer is not enough to be shared or used.'))->inlineMarkdown() }}" wire:click="recordNegativeFeedback" wire:loading.attr="disabled"  class="group/dislike text-sm inline-flex gap-1 items-center text-stone-600 px-1 py-0.5 border border-transparent rounded-md  hover:bg-stone-200 focus:bg-stone-200 active:bg-stone-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition ease-in-out duration-150">
+            <button type="button" x-tooltip.raw="{{ str(__('**Poor**. Quality of response can be improved.'))->inlineMarkdown() }}" wire:click="recordNegativeFeedback" wire:loading.attr="disabled"  class="group/dislike text-sm inline-flex gap-1 items-center text-stone-600 px-1 py-0.5 border border-transparent rounded-md  hover:bg-stone-200 focus:bg-stone-200 active:bg-stone-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition ease-in-out duration-150">
                 <x-heroicon-o-hand-thumb-down class="w-5 h-5 group-hover/dislike:text-red-600 transition-all" wire:target="recordNegativeFeedback" wire:loading.class="animate-pulse translate-y-2"  />
                 {{-- {{ __('Poor') }} --}}
 

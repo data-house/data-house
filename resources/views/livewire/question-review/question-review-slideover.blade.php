@@ -50,8 +50,8 @@
                     <div class="">
                         <h4 class="font-bold mb-3">{{ __('Review by :team', ['team' => $review->team->name]) }}</h4>
 
-                        <div class="mb-2 inline-flex items-center gap-1 text-stone-900 px-1 py-0.5 border border-transparent rounded-md  bg-stone-200">
-                            <x-dynamic-component :component="$review->statusIcon()" class="w-5 h-5 text-stone-700"  />
+                        <div class="mb-2 inline-flex items-center gap-1 {{ $review->isCompleteAndApproved() ? 'bg-green-50 text-green-700' : 'text-stone-900 bg-stone-200' }}  px-1 py-0.5 border border-transparent rounded-md  ">
+                            <x-dynamic-component :component="$review->statusIcon()" class="w-5 h-5 {{ $review->isCompleteAndApproved() ? 'text-green-700' : 'text-stone-700' }}"  />
                                     
                             {{ $review->statusLabel() }}
                         </div>

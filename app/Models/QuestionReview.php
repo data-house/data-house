@@ -152,4 +152,9 @@ class QuestionReview extends Model
     {
         return $this->status === ReviewStatus::COMPLETED;
     }
+    
+    public function isCompleteAndApproved(): bool
+    {
+        return $this->isComplete() && $this->evaluation_result !== ReviewEvaluationResult::REJECTED;
+    }
 }

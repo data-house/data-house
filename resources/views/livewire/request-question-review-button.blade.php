@@ -1,4 +1,17 @@
 @auth    
+
+@php
+    $iconStyle = 'group-hover/reviewers:text-stone-800';
+    $buttonStyle = 'text-stone-600 hover:bg-stone-200 focus:bg-stone-200 active:bg-stone-300';
+    
+    if($this->isApproved || $this->isApprovedWithChanges){
+        $iconStyle = 'group-hover/reviewers:text-green-700';
+        $buttonStyle = 'bg-green-50 text-green-700 hover:bg-green-100 focus:bg-green-100 active:bg-green-100';
+    }
+
+
+@endphp
+
 <button type="button"
     x-data
     x-on.review-requested.window="$refresh"
@@ -22,25 +35,25 @@
                 question: '{{ $this->question->uuid }}'
             }
         })"
-    class="group/reviewers text-sm inline-flex gap-1 items-center text-stone-600 px-1 py-0.5 border border-transparent rounded-md  hover:bg-stone-200 focus:bg-stone-200 active:bg-stone-300 focus:outline-none focus:ring-2 focus:ring-lime-500 focus:ring-offset-2 transition ease-in-out duration-150">
+    class="group/reviewers text-sm inline-flex gap-1 items-center px-1 py-0.5 border border-transparent rounded-md focus:outline-none focus:ring-2 focus:ring-lime-500 focus:ring-offset-2 transition ease-in-out duration-150 {{ $buttonStyle }}">
     @if ($this->isUnderReview)
-        <x-heroicon-o-ellipsis-horizontal-circle class="w-5 h-5 group-hover/reviewers:text-stone-800 transition-all"  />
+        <x-heroicon-o-ellipsis-horizontal-circle class="w-5 h-5 transition-all {{ $iconStyle }}"  />
         
         {{ __('Review in progress...') }}
     @elseif ($this->isApproved)
-        <x-heroicon-o-check-circle class="w-5 h-5 group-hover/reviewers:text-stone-800 transition-all"  />
+        <x-heroicon-o-check-circle class="w-5 h-5 transition-all {{ $iconStyle }}"  />
         
         {{ __('Approved') }}
     @elseif ($this->isApprovedWithChanges)
-        <x-heroicon-o-check-circle class="w-5 h-5 group-hover/reviewers:text-stone-800 transition-all"  />
+        <x-heroicon-o-check-circle class="w-5 h-5 transition-all {{ $iconStyle }}"  />
         
         {{ __('Reviewed') }}
     @elseif ($this->isRejected)
-        <x-heroicon-o-x-circle class="w-5 h-5 group-hover/reviewers:text-stone-800 transition-all"  />
+        <x-heroicon-o-x-circle class="w-5 h-5 transition-all {{ $iconStyle }}"  />
         
         {{ __('Rejected') }}
     @else
-        <x-heroicon-o-users class="w-5 h-5 group-hover/reviewers:text-stone-800 transition-all"  />
+        <x-heroicon-o-users class="w-5 h-5 transition-all {{ $iconStyle }}"  />
         {{ __('Request a review') }}
     @endif
 </button>
