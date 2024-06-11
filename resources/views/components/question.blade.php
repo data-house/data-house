@@ -1,4 +1,4 @@
-@aware(['question', 'id' => null, 'poll' => false, 'document' => null, 'collapsed' => false])
+@aware(['question', 'id' => null, 'poll' => false, 'document' => null, 'collapsed' => false, 'showFeedbackButton' => true])
 
 @php
 $classes = ($question?->isPending() ?? false)
@@ -113,15 +113,11 @@ if($question->status === \App\Models\QuestionStatus::ERROR){
                 </x-copy-clipboard-button>
 
                 <div class="flex items-center gap-2">
-                    <button type="button" class="group/reviewers text-sm inline-flex gap-1 items-center text-stone-600 px-1 py-0.5 border border-transparent rounded-md  hover:bg-stone-200 focus:bg-stone-200 active:bg-stone-300 focus:outline-none focus:ring-2 focus:ring-lime-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                        <x-heroicon-o-users class="w-5 h-5 group-hover/reviewers:text-stone-800 transition-all"  />
-                        {{ __('Assign reviewers') }}
-                        
-                        <span class="inline-block text-xs normal-case rounded-full px-2 py-0.5 bg-stone-100 text-stone-700">
-                            {{ __('coming soon') }}
-                        </span>
-                    </button>
-                    <livewire:question-feedback :wire:key="$question->uuid" :question="$question" />
+                    <livewire:request-question-review-button wire:key="rqrb_{{$question->uuid}}" :question="$question" />
+
+                    @if ($showFeedbackButton)
+                        <livewire:question-feedback :wire:key="$question->uuid" :question="$question" />
+                    @endif
                 </div>
             </div>
         @endunless

@@ -16,6 +16,8 @@ use App\Http\Controllers\InternalDocumentDownloadController;
 use App\Http\Controllers\PdfViewerController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\QuestionController;
+use App\Http\Controllers\QuestionReviewController;
+use App\Http\Controllers\ReviewFeedbackController;
 use App\Http\Controllers\StarController;
 use App\Http\Controllers\StartImportController;
 use App\Http\Controllers\UserPreferenceController;
@@ -63,6 +65,10 @@ Route::middleware([
     Route::post('/imports-start', StartImportController::class)->name('imports.start');
     
     Route::resource('questions', QuestionController::class)->only(['index', 'show']);
+    
+    Route::resource('question-reviews', QuestionReviewController::class)->only(['index', 'show', 'update']);
+    
+    Route::resource('question-reviews.review-feedbacks', ReviewFeedbackController::class)->shallow()->only(['store', 'destroy']);
     
     Route::post('multiple-question', CreateMultipleQuestionController::class)->name('multiple-questions.store');
     

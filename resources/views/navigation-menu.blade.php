@@ -23,7 +23,7 @@
                             {{ __('Dashboard') }}
                         </x-nav-link>
                     @endfeature
-                    <x-nav-link href="{{ route('documents.library') }}" :active="request()->routeIs('documents.*') || request()->routeIs('imports.*') || request()->routeIs('mappings.*') || request()->routeIs('questions.*') || request()->routeIs('collections.*')">
+                    <x-nav-link href="{{ route('documents.library') }}" :active="request()->routeIs('documents.*') || request()->routeIs('imports.*') || request()->routeIs('mappings.*') || request()->routeIs('questions.*') || request()->routeIs('question-reviews.*') || request()->routeIs('collections.*')">
                         {{ __('Digital Library') }}
                     </x-nav-link>
                     <x-nav-link href="{{ route('projects.index') }}" :active="request()->routeIs('projects.*')">

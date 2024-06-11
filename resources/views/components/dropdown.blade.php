@@ -31,7 +31,7 @@ switch ($width) {
 }
 @endphp
 
-<div class="relative" x-data="{{ $state }}" x-trap="open" @click.away="open = false" @close.stop="open = false" @keydown.escape="open = false">
+<div class="relative" x-data="{{ $state }}" x-trap="open" x-on:closedropdown.window="open = false" @click.away="open = false" @close.stop="open = false" @keydown.escape="open = false">
     <div @click="open = ! open">
         {{ $trigger }}
     </div>

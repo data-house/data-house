@@ -46,11 +46,11 @@ class JetstreamServiceProvider extends ServiceProvider
     {
         Jetstream::defaultApiTokenPermissions(['documents:view', 'collection:view', 'project:view']);
 
-        Jetstream::role(Role::ADMIN->value, 'Administrator', [
+        Jetstream::role(Role::ADMIN->value, Role::ADMIN->label(), [
             '*',
         ])->description('Can do everything the Focal Point does plus create new teams and users');
 
-        Jetstream::role(Role::MANAGER->value, 'Focal Point', [
+        Jetstream::role(Role::MANAGER->value, Role::MANAGER->label(), [
             'project:view',
             'project:create',
             'project:update',
@@ -64,6 +64,9 @@ class JetstreamServiceProvider extends ServiceProvider
             'question-feedback:view',
             'question-feedback:create',
             'question-feedback:update',
+            'question-review:view',
+            'question-review:create',
+            'question-review:update',
             'collection:view',
             'collection:create',
             'collection:update',
@@ -77,7 +80,7 @@ class JetstreamServiceProvider extends ServiceProvider
             'note:delete',
         ])->description('Can do everything the Contributor does plus upload documents, create collections and invite team members');
 
-        Jetstream::role(Role::CONTRIBUTOR->value, 'Contributor', [
+        Jetstream::role(Role::CONTRIBUTOR->value, Role::CONTRIBUTOR->label(), [
             'project:view',
             'project:create',
             'project:update',
@@ -88,6 +91,8 @@ class JetstreamServiceProvider extends ServiceProvider
             'question:create',
             'collection:view',
             'question-feedback:view',
+            'question-review:view',
+            'question-review:create',
             'star:view',
             'star:create',
             'star:update',
@@ -98,7 +103,7 @@ class JetstreamServiceProvider extends ServiceProvider
             'note:delete',
         ])->description('Can do everything the Guest does plus edit document titles and summaries.');
         
-        Jetstream::role(Role::GUEST->value, 'Guest', [
+        Jetstream::role(Role::GUEST->value, Role::GUEST->label(), [
             'document:view',
             'collection:view',
             'project:view',

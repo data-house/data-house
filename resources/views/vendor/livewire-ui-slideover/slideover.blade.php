@@ -10,6 +10,7 @@
         x-data="LivewireUISlideover()"
         x-init="init()"
         x-show="isEnabled"
+        x-trap="isEnabled"
         x-on:keydown.escape.window="closeSlideoverOnEscape()"
         class="fixed inset-0 z-10 overflow-y-auto"
         style="display: none;"

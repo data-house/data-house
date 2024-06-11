@@ -8,6 +8,7 @@ class TeamSettings extends Data
 {
     public function __construct(
         public ?UploadSettings $upload = null,
+        public ?ReviewSettings $review = new ReviewSettings(),
     ) {
     }
 }
