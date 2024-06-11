@@ -13,9 +13,12 @@ class QuestionReviewPolicy
      */
     public function viewAny(User $user): bool
     {
-        return ($user->hasPermission('question-review:create') ||
+        $permission = ($user->hasPermission('question-review:create') ||
             $user->hasTeamPermission($user->currentTeam, 'question-review:create')) &&
             $user->tokenCan('question-review:create');
+
+        return $permission
+            && ($user->currentTeam && $user->currentTeam->canReviewQuestions());
     }
 
     /**
