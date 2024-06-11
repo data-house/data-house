@@ -66,7 +66,7 @@ Route::middleware([
     
     Route::resource('questions', QuestionController::class)->only(['index', 'show']);
     
-    Route::resource('question-reviews', QuestionReviewController::class)->only(['index', 'show']);
+    Route::resource('question-reviews', QuestionReviewController::class)->only(['index', 'show', 'update']);
     
     Route::resource('question-reviews.review-feedbacks', ReviewFeedbackController::class)->shallow()->only(['store', 'destroy']);
     

@@ -5,6 +5,7 @@ namespace App\Models;
 use App\HasNotes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 
 class QuestionReview extends Model
 {
@@ -71,6 +72,11 @@ class QuestionReview extends Model
                         ->as('assignee');
     }
 
+    public function subscribers(): Collection
+    {
+        return collect([$this->coordinator, $this->requestor])->merge($this->assignees)->unique(fn($item) => $item->getKey());
+    }
+
     public function isAssigned(User $user): bool
     {
         return $this->assignees->contains($user);
@@ -79,6 +85,11 @@ class QuestionReview extends Model
     public function isCoordinator(User $user): bool
     {
         return $this->coordinator_user_id === $user->getKey(); 
+    }
+    
+    public function isRequestor(User $user): bool
+    {
+        return $this->user_id === $user->getKey(); 
     }
 
 
@@ -135,5 +146,10 @@ class QuestionReview extends Model
         }
 
         return 'heroicon-o-ellipsis-horizontal-circle';
+    }
+
+    public function isComplete(): bool
+    {
+        return $this->status === ReviewStatus::COMPLETED;
     }
 }

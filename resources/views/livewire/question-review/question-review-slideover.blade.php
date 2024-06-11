@@ -12,7 +12,7 @@
                 <x-label for="" value="{{ __('Select reviewers') }}" />
                 <p class="text-stone-600 text-sm">{{ __('Select one or more teams to ask the review of the answer.') }}</p>
                 <x-input-error for="editingForm.teams" class="mt-2" />
-                {{-- <x-textarea id="description" rows="12" type="text" wire:model.live.debounce.2000ms="editingForm.text" name="description" class="mt-1 block w-full max-w-prose" autocomplete="abstract"></x-textarea> --}}
+
                 @forelse ($this->reviewerTeams as $team)
     
                     <label class="flex items-center px-4 py-3">
@@ -48,23 +48,26 @@
                 
                 @foreach ($this->reviews as $review)
                     <div class="">
-                        <h4 class="font-bold mb-2">{{ __('Review by :team', ['team' => $review->team->name]) }}</h4>
+                        <h4 class="font-bold mb-3">{{ __('Review by :team', ['team' => $review->team->name]) }}</h4>
 
-                        <p class="mb-2 flex items-center gap-1 text-stone-600">
-                            <x-dynamic-component :component="$review->statusIcon()" class="w-5 h-5 group-hover/reviewers:text-stone-800 transition-all"  />
+                        <div class="mb-2 inline-flex items-center gap-1 text-stone-900 px-1 py-0.5 border border-transparent rounded-md  bg-stone-200">
+                            <x-dynamic-component :component="$review->statusIcon()" class="w-5 h-5 text-stone-700"  />
                                     
                             {{ $review->statusLabel() }}
-                        </p>
-                        <p class="mb-2">
-                            @foreach ($review->assignees as $reviewer)
-                                {{ $reviewer->name }}
+                        </div>
+
+                        <div>
+                            @foreach ($review->feedbacks->map->user as $reviewer)
+                                <p class="mb-2">
+                                    <x-user :user="$reviewer" />
+                                </p>
                             @endforeach
-                        </p>
+                        </div>
 
                         @if ($review->remarks)
-                            <p class="prose">
-                                {{ str($review->remarks)->inlineMarkdown() }}
-                            </p>
+                            <div class="prose prose-sm">
+                                {{ str($review->remarks)->markdown()->toHtmlString() }}
+                            </div>
                         @endif
 
                     </div>

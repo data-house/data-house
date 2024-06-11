@@ -22,6 +22,8 @@ use Illuminate\Support\Facades\DB;
 use Laravel\Scout\Searchable;
 use Illuminate\Support\Str;
 use Oneofftech\LaravelLanguageRecognizer\Support\Facades\LanguageRecognizer;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Question extends Model implements Htmlable
 {
@@ -30,6 +32,10 @@ class Question extends Model implements Htmlable
     use HasUuids;
 
     use Searchable;
+
+    use LogsActivity;
+
+    protected static $recordEvents = ['updated'];
 
     /**
      * The attributes that should be hidden for serialization.
@@ -301,6 +307,8 @@ class Question extends Model implements Htmlable
             return $this->executeQuestionRequest($request);
         });
 
+        $this->disableLogging();
+
         Cache::lock($this->lockKey())->block(30, function() use($request, $response) {
         
             $this->fill([
@@ -423,6 +431,8 @@ class Question extends Model implements Htmlable
         $response = Cache::remember('qa-'.$request->hash(), config('copilot.cache.ttl'), function() use ($request) {
             return $this->executeAggregationRequest($request);
         });
+
+        $this->disableLogging();
 
         Cache::lock($this->lockKey())->block(30, function() use($request, $response, $subQuestions) {
         
@@ -602,6 +612,17 @@ class Question extends Model implements Htmlable
             'language' => $this->language,
             'visibility' => $this->visibility?->value,
         ];
+    }
+
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->useLogName('question')
+            ->logOnly(['answer'])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
+        // Chain fluent methods for configuration options
     }
 
 }

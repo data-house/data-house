@@ -208,13 +208,129 @@
                                 @endif
                             </div>
                         @empty
-                            <p class="py-4 text-stone-700">{{ __('Reviewers did not provide feedback yet.') }}</p>
+                            <p class="py-4 px-2 bg-white border border-red-200 rounded flex justify-between items-center text-stone-700">{{ __('Reviewers did not provide feedback yet.') }}</p>
                         @endforelse
+
+                        
+                        @if ($current_user_is_coordinator && $review->feedbacks->isNotEmpty())
+                        
+                            <div class="p-4 bg-white rounded shadow-md">
+
+                                <h3 class="text-lg font-bold mb-2">{{ __('Complete the review') }}</h3>
+
+                                <p class="text-sm mb-4 text-stone-700">{{ __('You are the coordinator of the review. You can now complete the review and close it using the evaluations provided by the experts.') }}</p>
+
+                                <form action="{{ route('question-reviews.update', $review) }}" method="post">
+
+                                    @csrf
+                                    @method('PUT')
+                                
+                                    <div class="">
+                                        <x-input-error for="evaluation" class="mt-2" />
+
+                                        <div class="grid grid-cols-3 gap-6">
+
+                                            <label for="evaluation-good" class="flex gap-2 items-start">
+                                                <x-radio id="evaluation-good" class="mt-0.5" name="evaluation" :checked="old('evaluation') == \App\Models\ReviewEvaluationResult::APPROVED->value ? 'checked' : false" value="{{ \App\Models\ReviewEvaluationResult::APPROVED->value }}" />
+                                                
+                                                <div>
+                                                
+                                                    <div class="ml-2 text-stone-900 font-medium flex items-center gap-1">
+                                                    
+                                                        <x-heroicon-o-hand-thumb-up class="w-5 h-5" />
+
+                                                        {{ __('Approve') }}
+
+                                                    </div>
+
+                                                    <p class="mt-1 text-sm text-stone-600 max-w-md">
+                                                        {{ __('The answer is good as is and approved by experts.') }}
+                                                    </p>
+                                                </div>
+                                            </label>
+                                            
+                                            <label for="evaluation-improvable" class="flex gap-2 items-start">
+                                                <x-radio id="evaluation-improvable" class="mt-0.5" name="evaluation" :checked="old('evaluation') == \App\Models\ReviewEvaluationResult::CHANGES_APPLIED->value ? 'checked' : false"  value="{{ \App\Models\ReviewEvaluationResult::CHANGES_APPLIED->value }}" />
+                                                
+                                                <div>
+                                                
+                                                    <div class="ml-2 text-stone-900 font-medium flex items-center gap-1">
+                                                    
+                                                        <x-heroicon-o-hand-raised class="w-5 h-5" />
+
+                                                        {{ __('Changes required') }}
+
+                                                    </div>
+
+                                                    <p class="mt-1 text-sm text-stone-600 max-w-md">
+                                                        {{ __('Changes are required before approval. Experts suggested a new version.') }}
+                                                    </p>
+                                                </div>
+                                            </label>
+                                            
+                                            <label for="evaluation-poor" class="flex gap-2 items-start">
+                                                <x-radio id="evaluation-poor" class="mt-0.5" name="evaluation" :checked="old('evaluation') == \App\Models\ReviewEvaluationResult::REJECTED->value ? 'checked' : false" value="{{ \App\Models\ReviewEvaluationResult::REJECTED->value }}" />
+                                                
+                                                <div>
+                                                
+                                                    <div class="ml-2 text-stone-900 font-medium flex items-center gap-1">
+                                                    
+                                                        <x-heroicon-o-hand-thumb-down class="w-5 h-5" />
+
+                                                        {{ __('Rejected') }}
+
+                                                    </div>
+
+                                                    <p class="mt-1 text-sm text-stone-600 max-w-md">
+                                                        {{ __('The quality of the answer is not sufficient and experts suggests to not use the answer.') }}
+                                                    </p>
+                                                </div>
+                                            </label>
+
+                                        </div>
+
+                                    </div>
+                                    <div class="mt-4">
+                                        <x-label for="updated_answer" value="{{ __('Updated answer') }}" />
+                                        <p class="text-stone-600 text-sm mt-1">{{ __('If changes are required to the answer write here the updated answer.') }}</p>
+                                        <x-input-error for="updated_answer" class="mt-2" />
+                                        <x-textarea id="updated_answer" name="updated_answer" class="mt-1 block w-full" autocomplete="none">{{ old('updated_answer') }}</x-textarea>
+                                    </div>
+                                    <div class="mt-4">
+                                        <x-label for="remark" value="{{ __('Remark') }}" />
+                                        <p class="text-stone-600 text-sm mt-1">{{ __('Add a final comment on the use of this answer. This final remarks are visible by whom requested the review.') }}</p>
+                                        <x-input-error for="remark" class="mt-2" />
+                                        <x-textarea id="remark" name="remark" class="mt-1 block w-full" autocomplete="none">{{ old('remark') }}</x-textarea>
+                                    </div>
+
+                                    <div class="mt-4">
+                                        <x-button type="submit">{{ __('Complete the review') }}</x-button>
+                                    </div>
+
+                                </form>
+
+                            </div>
+                            
+                        @endif
+
+                        @if($review->isComplete())
+                            <div class="py-4 px-2 bg-white border border-stone-200 rounded flex flex-col">
+                                <div class="flex items-center gap-2 mb-4">
+                                    {{ $review->evaluation_result->label() }}
+                                </div>
+
+                                <div class="prose">
+                                    {{ str($review->remarks)->markdown()->toHtmlString() }}
+                                </div>
+
+                            </div>
+                        @endif
                 
 
                         <div class="pl-8">
                             <livewire:note-list :resource="$review" />
                         </div>
+
                         
                     </div>
                 
@@ -226,6 +342,16 @@
 
                     <livewire:question-review.select-question-review-coordinator :review="$review" />
                     
+
+                    <x-section-border />
+                    
+                    <div class="space-y-3">
+                        <h4 class="font-bold text-stone-700">{{ __('Request by') }}</h4>
+                        
+                        <p>
+                            <x-user :user="$review->requestor" />
+                        </p>
+                    </div>
 
                     <x-section-border />
                     

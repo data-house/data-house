@@ -5,6 +5,7 @@ namespace App\Livewire\QuestionReview;
 use App\Data\ReviewSettings;
 use App\Livewire\Concern\InteractWithUser;
 use App\Models\QuestionReview;
+use App\Models\ReviewStatus;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
@@ -73,6 +74,10 @@ class SelectQuestionReviewCoordinator extends Component
 
         $this->selectedCoordinator = $this->user->getKey();
 
+        if($this->review->status === ReviewStatus::SUBMITTED){
+            $this->review->status = ReviewStatus::IN_PROGRESS;
+        }
+
         $this->review->save();
 
         unset($this->review);
@@ -100,6 +105,10 @@ class SelectQuestionReviewCoordinator extends Component
         $this->validate();
 
         $this->review->coordinator_user_id = $this->selectedCoordinator;
+
+        if($this->review->status === ReviewStatus::SUBMITTED){
+            $this->review->status = ReviewStatus::IN_PROGRESS;
+        }
 
         $this->review->save();
 

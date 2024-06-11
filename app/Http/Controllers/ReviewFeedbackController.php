@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\FeedbackVote;
 use App\Models\QuestionReview;
 use App\Models\ReviewFeedback;
+use App\Models\ReviewStatus;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -32,6 +33,11 @@ class ReviewFeedbackController extends Controller
                 'reviewer_user_id' => auth()->user()->getKey(),
                 'vote' => FeedbackVote::from($validated['rating']),
             ]);
+
+            if($questionReview->status === ReviewStatus::SUBMITTED){
+                $questionReview->status = ReviewStatus::IN_PROGRESS;
+                $questionReview->save();
+            }
 
             if(!empty($validated['comment'])){
                 $questionReview->addNote($validated['comment']);
