@@ -42,16 +42,28 @@ class ExtractorServicePdfParserDriver implements Driver
                 ->asJson()
                 ->post(rtrim($this->config['host'], '/') . self::EXTRACT_ENDPOINT, [
                     "mime_type" => $document->mimeType,
-                    "url" => $document->url
+                    "url" => $document->url,
+                    "driver" => $this->config['driver'],
                 ])
                 ->throw();
 
-            $content = collect($response->json()['content'])->mapWithKeys(function($entry){
-                return [$entry['metadata']['page_number'] => $entry['text']];
+        if ($this->config['driver'] === "pdfact") {    
+            $chuncks = collect($response->json()["text"]);
+            $pagedChunck = $chuncks->mapToGroups(function (array $item, int $key) {
+                return [$item['metadata']['page']=> $item['text']];
             });
-
+            $content = $pagedChunck->map(function ($item, $key) {
+                return $item->join(PHP_EOL.PHP_EOL);
+            });
+            return new PaginatedDocumentContent($content->toArray());
+        
+        } else {
+            $content = collect($response->json()['text'])->mapWithKeys(function($entry) {
+                return [$entry['metadata']['page'] => $entry['text']];
+            });
             return new PaginatedDocumentContent($content->toArray());
         }
+         }
         catch(Throwable $ex)
         {
             // TODO: response body can contain error information // {"code":500,"message":"Error while parsing file","type":"Internal Server Error"}
