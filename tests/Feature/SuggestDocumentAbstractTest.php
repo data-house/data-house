@@ -138,10 +138,10 @@ class SuggestDocumentAbstractTest extends TestCase
 
         Http::fake([
             'http://localhost:9000/extract-text' => Http::response([
-                "content" => [
+                "text" => [
                     [
                         "metadata" => [
-                            "page_number" => 1
+                            "page" => 1
                         ],
                         "text" => "Content of the document"
                     ],
@@ -200,40 +200,40 @@ class SuggestDocumentAbstractTest extends TestCase
 
         Http::fake([
             'http://localhost:9000/extract-text' => Http::response([
-                "content" => [
+                "text" => [
                     [
                         "metadata" => [
-                            "page_number" => 1
+                            "page" => 1
                         ],
                         "text" => "-"
                     ],
                     [
                         "metadata" => [
-                            "page_number" => 2
+                            "page" => 2
                         ],
                         "text" => "-"
                     ],
                     [
                         "metadata" => [
-                            "page_number" => 3
+                            "page" => 3
                         ],
                         "text" => "-"
                     ],
                     [
                         "metadata" => [
-                            "page_number" => 4
+                            "page" => 4
                         ],
                         "text" => "SUMMARY Content of the document"
                     ],
                     [
                         "metadata" => [
-                            "page_number" => 5
+                            "page" => 5
                         ],
                         "text" => "ZUSAMMENFASSUNG (and other content)"
                     ],
                     [
                         "metadata" => [
-                            "page_number" => 6
+                            "page" => 6
                         ],
                         "text" => "-"
                     ],
@@ -292,40 +292,40 @@ class SuggestDocumentAbstractTest extends TestCase
 
         Http::fake([
             'http://localhost:9000/extract-text' => Http::response([
-                "content" => [
+                "text" => [
                     [
                         "metadata" => [
-                            "page_number" => 1
+                            "page" => 1
                         ],
                         "text" => "-"
                     ],
                     [
                         "metadata" => [
-                            "page_number" => 2
+                            "page" => 2
                         ],
                         "text" => "-"
                     ],
                     [
                         "metadata" => [
-                            "page_number" => 3
+                            "page" => 3
                         ],
                         "text" => "-"
                     ],
                     [
                         "metadata" => [
-                            "page_number" => 4
+                            "page" => 4
                         ],
                         "text" => "ZUSAMMENFASSUNG Content of the document"
                     ],
                     [
                         "metadata" => [
-                            "page_number" => 5
+                            "page" => 5
                         ],
                         "text" => "SUMMARY"
                     ],
                     [
                         "metadata" => [
-                            "page_number" => 6
+                            "page" => 6
                         ],
                         "text" => "-"
                     ],
@@ -385,40 +385,40 @@ class SuggestDocumentAbstractTest extends TestCase
 
         Http::fake([
             'http://localhost:9000/extract-text' => Http::response([
-                "content" => [
+                "text" => [
                     [
                         "metadata" => [
-                            "page_number" => 1
+                            "page" => 1
                         ],
                         "text" => "-"
                     ],
                     [
                         "metadata" => [
-                            "page_number" => 2
+                            "page" => 2
                         ],
                         "text" => "-"
                     ],
                     [
                         "metadata" => [
-                            "page_number" => 3
+                            "page" => 3
                         ],
                         "text" => "-"
                     ],
                     [
                         "metadata" => [
-                            "page_number" => 4
+                            "page" => 4
                         ],
                         "text" => "SUMMARY Content of the document"
                     ],
                     [
                         "metadata" => [
-                            "page_number" => 5
+                            "page" => 5
                         ],
                         "text" => "ZUSAMMENFASSUNG (and other content)"
                     ],
                     [
                         "metadata" => [
-                            "page_number" => 6
+                            "page" => 6
                         ],
                         "text" => "-"
                     ],
