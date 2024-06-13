@@ -43,7 +43,7 @@ class ExtractorServicePdfParserDriver implements Driver
                 ->post(rtrim($this->config['host'], '/') . self::EXTRACT_ENDPOINT, [
                     "mime_type" => $document->mimeType,
                     "url" => $document->url,
-                    "driver" => $this->config['driver'],
+                    "driver" => $this->config['driver'] ?? 'pymupdf',
                 ])
                 ->throw();
 
