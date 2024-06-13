@@ -58,17 +58,12 @@ class NullEngine extends Engine
         return new CopilotResponse('');
     }
 
-    public function defineTagList(string $name, array $tags)
+    public function classify(string $classifier, $model): Collection
     {
-        
+        return collect();
     }
 
-    public function removeTagList(string $name)
-    {
-        
-    }
-
-    public function tag(string $list, $model): Collection
+    public function classifyText(string $classifier, string $text, string $lang = 'en'): Collection
     {
         return collect();
     }

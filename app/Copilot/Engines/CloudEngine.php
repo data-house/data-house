@@ -336,19 +336,87 @@ class CloudEngine extends Engine
         }
     }
 
-    public function defineTagList(string $name, array $tags)
+    public function classify(string $classifier, $model): Collection
     {
-        throw new RuntimeException(__('Tag feature not available in cloud version'));
+
+        $traits = class_uses_recursive($model);
+    
+        if(!isset($traits[Questionable::class])){
+            throw new CopilotException('Model not questionable');
+        }
+
+        try{
+            logs()->info("Classify model [{$classifier}][{$model->getCopilotKey()}]");
+
+            $response = $this->getHttpClient()
+                ->post("/library/{$this->getLibrary()}/documents/{$model->getCopilotKey()}/classify", [
+                    'classifier' => $classifier,
+                ])
+                ->throw();
+
+            $json = $response->json();
+
+
+            if($json['id'] !== $model->getCopilotKey()){
+                throw new CopilotException("Communication error with the copilot. [{$response->status()}]");
+            }
+
+            $results = $json['results'] ?? null;
+
+            if(blank($results)){
+                throw new CopilotException(__('No classification returned for model.'));
+            }
+
+            return collect($results);
+        }
+        catch(Throwable $ex)
+        {
+            // TODO: response body can contain error information 
+            logs()->error("Error classify model", ['error' => $ex->getMessage(), 'model' => $model->getCopilotKey(), 'classifier' => $classifier]);
+            throw new CopilotException($ex->getMessage(), $ex->getCode(), $ex);
+        }
     }
 
-    public function tag($list, $model): Collection
+    public function classifyText(string $classifier, string $text, string $lang = 'en'): Collection
     {
-        throw new RuntimeException(__('Tag feature not available in cloud version'));
-    }
+        try{
+            $hash = sha1($text);
 
-    public function removeTagList(string $name)
-    {
-        throw new RuntimeException(__('Tag feature not available in cloud version'));
+            logs()->info("Classify text [{$classifier}][{$hash}]");
+
+
+            $response = $this->getHttpClient()
+                ->post("/library/{$this->getLibrary()}/classify", [
+                    'classifier' => $classifier,
+                    'text' => [
+                        'id' => $hash,
+                        'lang' => $lang,
+                        'text' => $text,
+                    ],
+                ])
+                ->throw();
+
+            $json = $response->json();
+
+
+            if($json['id'] !== $hash){
+                throw new CopilotException("Communication error with the copilot, response does not relate to request. [{$response->status()}]");
+            }
+
+            $results = $json['results'] ?? null;
+
+            if(blank($results)){
+                throw new CopilotException(__('No classification returned for text.'));
+            }
+
+            return collect($results);
+        }
+        catch(Throwable $ex)
+        {
+            // TODO: response body can contain error information 
+            logs()->error("Error classify model", ['error' => $ex->getMessage(), 'text_hash' => $hash, 'classifier' => $classifier]);
+            throw new CopilotException($ex->getMessage(), $ex->getCode(), $ex);
+        }
     }
 
     protected function getHttpClient(): PendingRequest

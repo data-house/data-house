@@ -82,27 +82,22 @@ abstract class Engine
     abstract public function summarize(CopilotSummarizeRequest $request): CopilotResponse;
 
     /**
-     * Tag models based on entries in the specified list
+     * Classify models using the specified classifier
      * 
-     * @param string $list
+     * @param string $classifier
      * @param mixed $model
      * @return \Illuminate\Support\Collection
      */
-    abstract public function tag(string $list, $model): Collection;
+    abstract public function classify(string $classifier, $model): Collection;
 
     /**
-     * Define a custom list of tags
+     * Classify text using the specified classifier
      * 
-     * @param string $name
-     * @param array $tags
+     * @param string $classifier
+     * @param mixed $model
+     * @return \Illuminate\Support\Collection
      */
-    abstract public function defineTagList(string $name, array $tags);
+    abstract public function classifyText(string $classifier, string $text): Collection;
 
-    /**
-     * Remove a previously defined list of tags
-     * 
-     * @param string $name
-     */
-    abstract public function removeTagList(string $name);
     
 }
