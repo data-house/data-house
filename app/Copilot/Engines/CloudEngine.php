@@ -20,6 +20,7 @@ use InvalidArgumentException;
 use PrinsFrank\Standards\Language\LanguageAlpha2;
 use RuntimeException;
 use Throwable;
+use \Illuminate\Support\Str;
 
 class CloudEngine extends Engine
 {
@@ -332,6 +333,46 @@ class CloudEngine extends Engine
         {
             // TODO: response body can contain error information 
             logs()->error("Error asking question copilot", ['error' => $ex->getMessage(), 'request' => $request]);
+            throw new CopilotException($ex->getMessage(), $ex->getCode(), $ex);
+        }
+    }
+
+    public function addClassifier(string $classifier, string $url): string
+    {
+        try{
+            logs()->info("Registering classifier [{$classifier}]...");
+
+            $id = Str::slug($classifier);
+
+            $response = $this->getHttpClient()
+                ->post("/library/{$this->getLibrary()}/classifiers", [
+                    "id" => $id,
+                    "name" => $classifier,
+                    "url" => $url,
+                ])
+                ->throw();
+
+            return $id;
+        }
+        catch(Throwable $ex)
+        {
+            logs()->error("Error adding classifier", ['error' => $ex->getMessage(), 'classifier' => $classifier]);
+            throw new CopilotException($ex->getMessage(), $ex->getCode(), $ex);
+        }
+    }
+    
+    public function removeClassifier(string $classifier): void
+    {
+        try{
+            logs()->info("Removing classifier [{$classifier}]...");
+
+            $response = $this->getHttpClient()
+                ->delete("/library/{$this->getLibrary()}/classifiers/{$classifier}")
+                ->throw();
+        }
+        catch(Throwable $ex)
+        {
+            logs()->error("Error removing classifier", ['error' => $ex->getMessage(), 'classifier' => $classifier]);
             throw new CopilotException($ex->getMessage(), $ex->getCode(), $ex);
         }
     }

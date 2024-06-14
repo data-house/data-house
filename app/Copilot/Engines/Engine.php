@@ -81,6 +81,17 @@ abstract class Engine
      */
     abstract public function summarize(CopilotSummarizeRequest $request): CopilotResponse;
 
+
+    /**
+     * Add a text classifier
+     */
+    abstract public function addClassifier(string $classifier, string $url): string;
+    
+    /**
+     * Remove a text classifier
+     */
+    abstract public function removeClassifier(string $classifier): void;
+
     /**
      * Classify models using the specified classifier
      * 

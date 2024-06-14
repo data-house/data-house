@@ -2,11 +2,12 @@
 
 namespace App\Copilot;
 
+use App\Copilot\Console\ClassifyModelsCommand;
 use App\Copilot\Console\FlushCommand;
 use App\Copilot\Console\ImportCommand;
+use App\Copilot\Console\RegisterClassifierCommand;
+use App\Copilot\Console\RemoveClassifierCommand;
 use App\Copilot\Console\SyncLibraryCommand;
-use App\Copilot\Console\TagImportCommand;
-use App\Copilot\Console\TagRemoveCommand;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 
@@ -39,8 +40,9 @@ class CopilotServiceProvider extends ServiceProvider
                 SyncLibraryCommand::class,
                 FlushCommand::class,
                 ImportCommand::class,
-                TagImportCommand::class,
-                TagRemoveCommand::class,
+                ClassifyModelsCommand::class,
+                RegisterClassifierCommand::class,
+                RemoveClassifierCommand::class,
             ]);
 
             $this->publishes([
