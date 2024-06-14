@@ -5,6 +5,7 @@ namespace App\Copilot;
 use App\Copilot\Console\ClassifyModelsCommand;
 use App\Copilot\Console\FlushCommand;
 use App\Copilot\Console\ImportCommand;
+use App\Copilot\Console\RefreshPromptsCommand;
 use App\Copilot\Console\RegisterClassifierCommand;
 use App\Copilot\Console\RemoveClassifierCommand;
 use App\Copilot\Console\SyncLibraryCommand;
@@ -43,6 +44,7 @@ class CopilotServiceProvider extends ServiceProvider
                 ClassifyModelsCommand::class,
                 RegisterClassifierCommand::class,
                 RemoveClassifierCommand::class,
+                RefreshPromptsCommand::class,
             ]);
 
             $this->publishes([

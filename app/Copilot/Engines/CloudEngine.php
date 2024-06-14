@@ -460,6 +460,25 @@ class CloudEngine extends Engine
         }
     }
 
+    public function refreshPrompts(): string
+    {
+        try{
+
+            logs()->info("Refresh prompt on copilot.");
+
+            $response = $this->getHttpClient()
+                ->get("/prompts/update")
+                ->throw();
+
+            return $response->json('message');
+        }
+        catch(Throwable $ex)
+        {
+            logs()->error("Error refreshing prompts", ['error' => $ex->getMessage()]);
+            throw new CopilotException($ex->getMessage(), $ex->getCode(), $ex);
+        }
+    }
+
     protected function getHttpClient(): PendingRequest
     {
         return Http::acceptJson()

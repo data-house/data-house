@@ -110,5 +110,9 @@ abstract class Engine
      */
     abstract public function classifyText(string $classifier, string $text): Collection;
 
-    
+    /**
+     * Refresh the configured prompts in Copilot
+     */
+    abstract public function refreshPrompts(): string;
+
 }

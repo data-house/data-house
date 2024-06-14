@@ -77,5 +77,10 @@ class NullEngine extends Engine
     {
         return collect();
     }
+
+    public function refreshPrompts(): string
+    {
+        return 'ok';
+    }
     
 }
