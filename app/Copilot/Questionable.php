@@ -219,7 +219,7 @@ trait Questionable
      * @param  \Illuminate\Database\Eloquent\Builder  $query
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    protected function addAllToCopilotUsing(EloquentBuilder $query)
+    public function addAllToCopilotUsing(EloquentBuilder $query)
     {
         return $query
             ->where('mime', 'application/pdf')

@@ -12,4 +12,6 @@ enum Disk: string
     case THUMBNAILS = 'thumbnails';
     
     case IMPORTS = 'imports';
+    
+    case DOCUMENT_CLASSIFICATION_RESULTS = 'document-classification';
 }
