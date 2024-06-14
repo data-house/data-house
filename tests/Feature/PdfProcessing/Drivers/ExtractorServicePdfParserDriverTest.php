@@ -43,33 +43,69 @@ class ExtractorServicePdfParserDriverTest extends TestCase
         Http::preventStrayRequests();
 
         Http::fake([
-            'http://localhost:5000/extract-text' => Http::response([
-                "content" => [
-                    [
-                        "metadata" => [
-                            "page_number" => 1
-                        ],
-                        "text" => "This is the header 1 This is a test PDF to be used as input in unit tests This is a heading 1 This is a paragraph below heading 1"
+            'http://localhost:5002/extract-text' => Http::response([
+                "fonts" => [[
+                    "name" => "fira sans",
+                    "id" => "font-300",
+                    "is-bold" => false,
+                    "is-type3" => false,
+                    "is-italic" => false,
                     ],
                 ],
-                "status" => "ok"
+                "text" => [
+                    [
+                        "text" =>"This is the header 1 This is a test PDF to be used as input in unit tests This is a heading 1 This is a paragraph below heading 1",
+                        "metadata" => [
+                            "role" => "header",
+                            "color" => [
+                                "r" => 78,
+                                "b" => 189,
+                                "g" => 128,
+                                "id" => "color-39",
+                            ],
+                            "positions" => [
+                                0 => [
+                                    "minY" => 565.0,
+                                    "minX" => 62.1,
+                                    "maxY" => 577.6,
+                                    "maxX" => 427.2,
+                                ],
+                                ],
+                            "font" => [
+                                "name" => "fira sans",
+                                "id" => "font-300",
+                                "is-bold" => false,
+                                "is-type3" => false,
+                                "is-italic" => false,
+                            ],
+                            "page" => 1
+                        ],
+                    ],
+                ],      
+                "colors" =>  [
+                    [
+                        "r" => 247,
+                        "b" => 70,
+                        "g" => 150,
+                        "id" => "color-40",
+                    ],
+                ],
             ], 200),
         ]);
 
-        $driver = new ExtractorServicePdfParserDriver(['host' => 'http://localhost:5000/']);
+        $driver = new ExtractorServicePdfParserDriver(['host' => 'http://localhost:5002/', 'driver' => 'pdfact']);
 
         $reference = DocumentReference::build('application/pdf')->url('http://document-url');
-
+        
         $content = $driver->text($reference)->pages();
-
         $this->assertEquals("This is the header 1 This is a test PDF to be used as input in unit tests This is a heading 1 This is a paragraph below heading 1", $content[1]);
-
         $this->assertEquals([1], array_keys($content));
 
         Http::assertSent(function (Request $request) {
-            return $request->url() == 'http://localhost:5000/extract-text' &&
+            return $request->url() == 'http://localhost:5002/extract-text' &&
                    $request['mime_type'] == 'application/pdf' &&
-                   $request['url'] == 'http://document-url';
+                   $request['url'] == 'http://document-url' &&
+                   $request['driver'] == 'pdfact';
         });
 
     }
@@ -80,9 +116,7 @@ class ExtractorServicePdfParserDriverTest extends TestCase
 
         Http::fake([
             'http://localhost:5000/extract-text' => Http::response([
-                "code" => 500,
-                "message" => "Error while parsing file",
-                "type" => "Internal Server Error",
+                "detail" => "Error while downloading file [404 Client Error: Not Found for url:"
             ], 500),
         ]);
 

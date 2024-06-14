@@ -44,6 +44,7 @@ return [
         
         PdfDriver::EXTRACTOR_SERVICE->value => [
             'host' => env('PDF_EXTRACTOR_SERVICE_URL'),
+            'driver'=> env('PDF_EXTRACTOR_SERVICE_DRIVER', 'pymupdf'),
         ],
 
     ],
