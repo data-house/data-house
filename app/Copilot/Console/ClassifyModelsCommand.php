@@ -89,7 +89,10 @@ class ClassifyModelsCommand extends Command implements PromptsForMissingInput
                     
                     $classification = $copilot->classify($classifier, $modelInstance);
 
-                    $disk->put("{$modelInstance->ulid}/{$classifier}.json", $classification->toJson());
+                    $disk->put("{$modelInstance->ulid}/{$classifier}.json", [
+                        'model' => $modelInstance->toArray(),
+                        'classification' => $classification,
+                    ]);
 
                 } catch (Throwable $th) {
                     $this->error("[{$modelInstance->getKey()} - {$modelInstance->ulid}] {$th->getMessage()}");
