@@ -2,16 +2,21 @@
 
 namespace App\Models;
 
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Prunable;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Nette\InvalidStateException;
 use Symfony\Component\Mime\MimeTypes;
 use Throwable;
 
 class ImportDocument extends Model
 {
     use HasFactory;
+
+    use Prunable;
 
     
     /**
@@ -82,6 +87,36 @@ class ImportDocument extends Model
     }
 
 
+    /**
+     * Get the prunable model query.
+     */
+    public function prunable(): Builder
+    {
+        return static::whereNull('document_id')
+            ->where('created_at', '<=', now()->subDays((int)config('import.prune_older_than_days', 60)))
+            ->whereNotIn('status', [
+                ImportDocumentStatus::COMPLETED->value,
+                ImportDocumentStatus::PENDING->value,
+                ImportDocumentStatus::IMPORTING->value
+            ]);
+    }
+
+    /**
+     * Prepare the model for pruning.
+     */
+    protected function pruning(): void
+    {
+        if(is_null($this->disk_path) || is_null($this->disk_name)){
+            return;
+        }
+
+        $storage = Storage::disk($this->disk_name);
+
+        if($storage->exists($this->disk_path)){
+            $storage->delete($this->disk_path);
+        }
+    }
+
     public function wipe()
     {
         try {
@@ -102,13 +137,7 @@ class ImportDocument extends Model
             logs()->error('File on source disk not removed', ['error' => $th->getMessage(), 'import_map' => $this->import_map_id, 'source_path' => $this->source_path]);
         }
 
-        $storage = Storage::disk($this->disk_name);
-
-        if($storage->exists($this->disk_path)){
-            $storage->delete($this->disk_path);
-        }
-
-        $this->deleteQuietly();
+        $this->prune();
     }
 
 
@@ -132,8 +161,15 @@ class ImportDocument extends Model
     {        
         $path = basename($this->disk_path);
 
-        Storage::disk(is_string($disk) ? $disk : $disk->value)
-            ->writeStream($path, Storage::disk($this->disk_name)->readStream($this->disk_path));
+        $disk = Storage::disk(is_string($disk) ? $disk : $disk->value);
+
+        $disk->writeStream($path, Storage::disk($this->disk_name)->readStream($this->disk_path));
+
+        if(!$disk->exists($path)){
+            throw new InvalidStateException("File not found in expected position after move");
+        }
+
+        $this->pruning();
 
         return $path;
     }

@@ -27,11 +27,11 @@ class PruneImportDocumentsCommandTest extends TestCase
         $importDocuments = ImportDocument::factory()
             ->count(3)
             ->state(new Sequence(
-                ['status' => ImportDocumentStatus::COMPLETED, 'created_at' => today()->subHours(25)],
+                ['status' => ImportDocumentStatus::COMPLETED, 'created_at' => today()->subDays(61)],
                 ['status' => ImportDocumentStatus::PENDING, 'created_at' => today()->subHours(25)],
-                ['status' => ImportDocumentStatus::SKIPPED_DUPLICATE, 'created_at' => today()->subHours(25)],
+                ['status' => ImportDocumentStatus::SKIPPED_DUPLICATE, 'created_at' => today()->subDays(61)],
             ))
-            ->create();
+            ->create(['disk_path' => 'test.pdf']);
        
         $this->artisan('import:prune-documents')
             ->expectsOutputToContain('Pruned 1 documents')
@@ -39,6 +39,8 @@ class PruneImportDocumentsCommandTest extends TestCase
 
         $this->assertEquals(2, ImportDocument::count());
         $this->assertEquals(0, ImportDocument::whereStatus(ImportDocumentStatus::SKIPPED_DUPLICATE->value)->count());
+
+        $fakeImportDisk->assertMissing('test.pdf');
         
         Queue::assertNothingPushed();
     }
@@ -107,7 +109,7 @@ class PruneImportDocumentsCommandTest extends TestCase
         Queue::assertNothingPushed();
     }
 
-    public function test_prune_command_clear_dangling_imports_when_dry_run(): void
+    public function test_prune_command_handle_dry_run_clause_when_clearing_dangling_imports(): void
     {
         $fakeImportDisk = Storage::fake(Disk::IMPORTS->value);
 
@@ -181,7 +183,7 @@ class PruneImportDocumentsCommandTest extends TestCase
         Queue::assertNothingPushed();
     }
     
-    public function test_prune_command_clear_dangling_imports_aborted(): void
+    public function test_prune_command_clear_dangling_aborted_imports(): void
     {
         $fakeImportDisk = Storage::fake(Disk::IMPORTS->value);
 

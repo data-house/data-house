@@ -20,7 +20,7 @@ class PruneImportDocumentsCommand extends Command
      */
     protected $signature = 'import:prune-documents
                             {--dry-run : Simulate the execution of the command and print the imports that will be cleared.}
-                            {--hours=24 : The number of hours to retain import documents data.}
+                            {--hours= : The number of hours to retain import documents data.}
                             {--dangling : Prune scheduled and currently running documents. Can cause side-effects if run when an import map is being processed.}';
 
     /**
@@ -37,15 +37,23 @@ class PruneImportDocumentsCommand extends Command
      */
     public function handle()
     {
-        $hours = $this->option('hours') ?? 24;
+        $hours = $this->option('hours') ?? null;
 
         $dangling = $this->option('dangling') ?? false;
         
         $dryRun = $this->option('dry-run') ?? false;
 
-        $pruningDate = now()->subHours($hours);
+        $defaultPruneDays = (int)config('import.prune_older_than_days', 60);
 
-        $this->comment("Pruning import documents older than {$hours} hours. [{$pruningDate->toDateTimeString()}]");
+        $pruningDate = $hours ? now()->subHours($hours) : now()->subDays($defaultPruneDays);
+
+        if($hours){
+            $this->comment("Pruning import documents older than {$hours} hours. [{$pruningDate->toDateTimeString()}]");
+        }
+        else {
+            $this->comment("Pruning import documents older than {$defaultPruneDays} days. [{$pruningDate->toDateTimeString()}]");
+        }
+
 
 
         $docsQuery = ImportDocument::query()
@@ -60,7 +68,7 @@ class PruneImportDocumentsCommand extends Command
         if($dryRun){
             $this->comment('dry run results');
 
-            $docsQuery->each(fn($d) => $this->line("[{$d->getKey()}] {$d->status->label()}"));
+            $docsQuery->each(fn($d) => $this->line("[{$d->getKey()}] {$d->status->label()} ({$d->created_at->toDateString()})"));
 
             return self::SUCCESS;
         }
@@ -70,9 +78,15 @@ class PruneImportDocumentsCommand extends Command
             return self::SUCCESS;
         }
 
-        $res = $docsQuery->delete();
+        $pruned = 0;
 
-        $this->line("Pruned {$res} documents.");
+        $docsQuery->each(function($importDocument) use (&$pruned){
+            $importDocument->prune();
+
+            $pruned++;
+        });
+
+        $this->line("Pruned {$pruned} documents.");
         
         return self::SUCCESS;
     }

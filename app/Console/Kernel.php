@@ -18,6 +18,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('activitylog:clean')->daily();
         
         $schedule->job(SendActivitySummaries::class)->hourlyAt(3);
+
+        $schedule->command('model:prune')->daily();
     }
 
     /**
