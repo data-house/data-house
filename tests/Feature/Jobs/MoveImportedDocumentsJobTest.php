@@ -98,6 +98,8 @@ class MoveImportedDocumentsJobTest extends TestCase
         $this->assertTrue($updatedImportDocument->document->is($document));
         $this->assertTrue($document->importDocument->is($updatedImportDocument));
 
+        Storage::disk(Disk::IMPORTS->value)->assertMissing('test.pdf');
+
         Storage::disk(Disk::DOCUMENTS->value)->assertExists($document->disk_path);
 
         $this->assertEquals(ImportStatus::COMPLETED, $importMap->fresh()->status);
@@ -180,6 +182,8 @@ class MoveImportedDocumentsJobTest extends TestCase
         $this->assertTrue($updatedImportDocument->document->is($document));
         $this->assertTrue($document->importDocument->is($updatedImportDocument));
 
+        Storage::disk(Disk::IMPORTS->value)->assertMissing('test.pdf');
+
         Storage::disk(Disk::DOCUMENTS->value)->assertExists($document->disk_path);
 
         $this->assertEquals(ImportStatus::COMPLETED, $importMap->fresh()->status);
@@ -259,6 +263,8 @@ class MoveImportedDocumentsJobTest extends TestCase
         $this->assertTrue($updatedImportDocument->document->is($document));
         $this->assertTrue($document->importDocument->is($updatedImportDocument));
 
+        Storage::disk(Disk::IMPORTS->value)->assertMissing('test.pdf');
+
         Storage::disk(Disk::DOCUMENTS->value)->assertExists($document->disk_path);
 
         $this->assertEquals(ImportStatus::COMPLETED, $importMap->fresh()->status);
@@ -329,16 +335,14 @@ class MoveImportedDocumentsJobTest extends TestCase
     {
         $fakeImportDisk = Storage::fake(Disk::IMPORTS->value);
         
-        $fakeDocumentDisk = Storage::fake(Disk::DOCUMENTS->value);
+        Storage::fake(Disk::DOCUMENTS->value);
 
         $fakeImportDisk->putFileAs('', new File(base_path('tests/fixtures/documents/data-house-test-doc.pdf')), 'test.pdf');
         
-        $fakeDocumentDisk->putFileAs('', new File(base_path('tests/fixtures/documents/data-house-test-doc.pdf')), 'test.pdf');
-
         $user = User::factory()->manager()->withPersonalTeam()->create();
 
         $document = Document::factory()->create([
-            'document_hash' => $fakeDocumentDisk->checksum('test.pdf', ['checksum_algo' => 'sha256']),
+            'document_hash' => $fakeImportDisk->checksum('test.pdf', ['checksum_algo' => 'sha256']),
             'uploaded_by' => $user->getKey(),
             'team_id' => $user->personalTeam()->getKey(),
         ]);
@@ -384,7 +388,12 @@ class MoveImportedDocumentsJobTest extends TestCase
 
         $updatedImportDocument = $importDocument->fresh();
         $this->assertNotNull($updatedImportDocument->processed_at);
+        $this->assertEquals('test.pdf', $updatedImportDocument->disk_path);
         $this->assertEquals(ImportDocumentStatus::SKIPPED_DUPLICATE, $updatedImportDocument->status);
+
+        Storage::disk(Disk::IMPORTS->value)->assertExists('test.pdf');
+        
+        Storage::disk(Disk::DOCUMENTS->value)->assertMissing('test.pdf');
 
         $this->assertEquals(ImportStatus::COMPLETED, $importMap->fresh()->status);
         $this->assertEquals(ImportStatus::COMPLETED, $import->fresh()->status);
