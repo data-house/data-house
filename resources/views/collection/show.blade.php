@@ -3,7 +3,7 @@
         {{ $collection->title }}
     </x-slot>
     <x-slot name="header">
-        <div class="md:flex md:items-center md:justify-between relative">
+        <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between relative">
             <h2 class="font-semibold text-xl text-stone-800 leading-tight space-y-2 sm:space-y-0 sm:flex sm:gap-4 md:items-center">
                 {{ $collection->title }}
 
@@ -54,15 +54,15 @@
                         </div>
                     </div>
                 </div>
-                <div class="grid grid-cols-3 gap-4  pb-12">
-                    <div class="space-y-4 col-span-2">
+                <div class="grid sm:grid-cols-3 gap-4 sm:pb-12">
+                    <div class="space-y-4 sm:col-span-2">
                         @foreach ($notes as $note)
                             <div class="prose">
                                 {{ $note }}
                             </div>
                         @endforeach
                     </div>
-                    <div class="">
+                    <div class="space-y-4 sm:space-y-0">
 
                         <div class="space-y-2">
                             <p class="text-xs uppercase block text-stone-700">{{ __('Documents') }}</p>
