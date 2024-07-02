@@ -3,7 +3,7 @@
         {{ $project->title }}
     </x-slot>
     <x-slot name="header">
-        <div class="md:flex md:items-center md:justify-between relative">
+        <div class="gap-2 flex flex-col md:flex-row md:items-center md:justify-between relative">
             <h2 class="font-semibold text-xl text-stone-800 leading-tight">
                 {{ $project->title }}
             </h2>
@@ -20,7 +20,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
             <div class="" x-show="!expanded" x-collapse>
-                <div class="grow flex items-center  flex-row sm:gap-6 lg:gap-8">
+                <div class="grow flex items-center flex-row gap-2 sm:gap-6 lg:gap-8">
                     
                     @if ($project->status)
                         <a title="{{ __('Explore :value projects', ['value' => $project->status->name]) }}" href="{{ route('projects.index', ['status' => [$project->status->name]])}}" class="inline px-2 py-1 rounded bg-indigo-100 text-indigo-900 hover:bg-indigo-200 focus:bg-indigo-200 hover:text-indigo-800 focus:text-indigo-800">
@@ -33,7 +33,7 @@
                         @php
                             $countries = $project->countries();
 
-                            $countriesPreview = $countries->take(3);
+                            $countriesPreview = $countries->take(2);
                         @endphp
 
                         @foreach ($countriesPreview as $country)
@@ -43,8 +43,8 @@
                             </a>
                         @endforeach
 
-                        @if ($countries->count() - 3 > 0)
-                            <span class="text-stone-600 text-sm">{{ trans_choice('and :count other|and :count others', $countries->count() - 3,  ['count' => $countries->count() - 3]) }}</span>
+                        @if ($countries->count() - 2 > 0)
+                            <span class="text-stone-600 text-sm">{{ trans_choice('and :count other|and :count others', $countries->count() - 3,  ['count' => $countries->count() - 2]) }}</span>
                         @endif
                     </div>
 
@@ -94,13 +94,13 @@
                         <p class="text-xl  max-w-prose">{{ $project->properties['title_en'] }}</p>
                     @endif
                 </div>
-                <div class="grid grid-cols-3 gap-4  pb-12">
-                    <div class="space-y-4 col-span-2">
+                <div class="grid sm:grid-cols-3 gap-4  pb-12">
+                    <div class="space-y-4 sm:col-span-2">
                         <div class="prose">
                             {{ str($project->description)->markdown()->toHtmlString() }}
                         </div>
                     </div>
-                    <div class="">
+                    <div class="space-y-4 sm:space-y-0">
                         @if (config('library.projects.signature'))
                             <div class="prose mb-6">
                                 <code>{{ $project->slug }}</code>
