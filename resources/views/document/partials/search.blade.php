@@ -53,7 +53,7 @@
         @feature(Flag::collections())
         @can('create', \App\Models\Collection::class)
             @if ($searchQuery)
-            <p>
+            <p class="hidden md:block">
                 <x-button class="text-xs">{{ __('Save search as collection') }}&nbsp;
                     <span class="inline-block text-xs normal-case rounded-full px-2 py-0.5 bg-stone-200 text-stone-600">
                         {{ __('coming soon') }}
