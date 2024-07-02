@@ -1,6 +1,6 @@
 @props(['documents', 'empty' => null])
 
-<div {{ $attributes->merge(['class' => 'grid grid-cols-3 gap-4'])}}>
+<div {{ $attributes->merge(['class' => 'grid sm:grid-cols-2 md:grid-cols-3 gap-4'])}}>
     @forelse ($documents as $document)
         <div class="space-y-2 rounded overflow-hidden bg-white p-4 group relative">
             <div class="flex gap-2 justify-start">
