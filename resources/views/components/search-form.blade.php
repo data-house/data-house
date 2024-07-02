@@ -1,7 +1,7 @@
 @props(['action', 'clear', 'searchQuery', 'searchPlaceholder' => __('Search...'), 'appliedFiltersCount' => 0 ])
 
 <div {{ $attributes }}>
-    <form action="{{ $action }}" method="get" x-data="{showFilters: true}" @click.away="showFilters = false" @close.stop="showFilters = false">
+    <form action="{{ $action }}" method="get" x-data="{showFilters: false}" @click.away="showFilters = false" @close.stop="showFilters = false">
         <div class="flex md:space-x-6 items-center">
             @if ($filters ?? false)
                 @unless ($filters->isEmpty())
