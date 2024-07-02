@@ -4,12 +4,14 @@
         <x-secondary-button @click="open = ! open" class="rounded-r-none">
             <span class="hidden sm:inline">{{ __('Sort by') }}</span>
 
-            <span class="font-bold whitespace-nowrap">
+            <div class="inline font-bold whitespace-nowrap">
                 @if ($is_search)
-                    {{ __('Best match')}}&nbsp;+&nbsp;
+                    {{ __('Best match')}}
+                    <span class="hidden sm:inline">&nbsp;+&nbsp;{{ trans("sorting.{$current->name}") }}</span>
+                @else
+                    {{ trans("sorting.{$current->name}") }}
                 @endif
-                {{ trans("sorting.{$current->name}") }}
-            </span>
+            </div>
             
             <x-heroicon-o-chevron-down class="w-5 h-5 transition-transform"  ::class="{'transform rotate-180': open }" />
         </x-secondary-button>
