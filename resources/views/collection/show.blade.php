@@ -159,10 +159,10 @@
             @endfeature
             @endquestion
 
-            <div class="flex space-x-4 mt-3 divide-x divide-stone-200 items-center justify-end">
+            <div class="flex space-x-4 mt-3 divide-x divide-stone-200 items-center justify-stretch sm:justify-end">
 
                 @if ($documents->isNotEmpty())
-                    <div class="text-sm py-2 text-right">{{ trans_choice(':total document in the collection|:total documents in the collection', $total_documents, ['total' => $total_documents]) }}</div>
+                    <div class="text-sm py-2 sm:text-right truncate">{{ trans_choice(':total document in the collection|:total documents in the collection', $total_documents, ['total' => $total_documents]) }}</div>
                 @endif
 
                 <x-visualization-style-switcher :user="auth()->user()" class="pl-4" />

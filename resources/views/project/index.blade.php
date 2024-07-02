@@ -109,15 +109,17 @@
 
             </x-search-form>
 
-            <div class="flex space-x-4 mt-3 divide-x divide-stone-200 items-center justify-end">
+            <div class="flex space-x-4 mt-3 divide-x divide-stone-200 items-center justify-stretch sm:justify-end">
 
-                @if ($is_search && $projects->isNotEmpty())
-                    <div class="text-sm py-2 text-right">{{ trans_choice(':total project found|:total projects found', $projects->total(), ['total' => $projects->total()]) }}</div>
-                @endif
+                <div class="text-sm py-2 sm:text-right truncate">
+                    @if ($is_search && $projects->isNotEmpty())
+                        {{ trans_choice(':total project found|:total projects found', $projects->total(), ['total' => $projects->total()]) }}
+                    @endif
 
-                @if (!$is_search && $projects->isNotEmpty())
-                    <div class="text-sm py-2 text-right">{{ trans_choice(':total project|:total projects', $projects->total(), ['total' => $projects->total()]) }}</div>
-                @endif
+                    @if (!$is_search && $projects->isNotEmpty())
+                        {{ trans_choice(':total project|:total projects', $projects->total(), ['total' => $projects->total()]) }}
+                    @endif
+                </div>
 
                 <div class="pl-4">
                     <x-sorting-dropdown model="\App\Models\Project" />

@@ -211,14 +211,16 @@
 
             </x-search-form>
 
-            <div class="flex space-x-4 mt-3 divide-x divide-stone-200 items-center justify-end">
-                @if ($is_search)
-                    <div class="text-sm py-2 text-right">{{ trans_choice(':total document found|:total documents found', $documents->total(), ['total' => $documents->total()]) }}</div>
-                @endif
-    
-                @if (!$is_search)
-                    <div class="text-sm py-2 text-right">{{ trans_choice(':total document in the project|:total documents in the project', $documents->total(), ['total' => $documents->total()]) }}</div>
-                @endif
+            <div class="flex space-x-4 mt-3 divide-x divide-stone-200 items-center justify-stretch sm:justify-end">
+                <div class="text-sm py-2 sm:text-right truncate">
+                    @if ($is_search)
+                        {{ trans_choice(':total document found|:total documents found', $documents->total(), ['total' => $documents->total()]) }}
+                    @endif
+        
+                    @if (!$is_search)
+                        {{ trans_choice(':total document in the project|:total documents in the project', $documents->total(), ['total' => $documents->total()]) }}
+                    @endif
+                </div>
 
                 <div class="pl-4">
                     <x-sorting-dropdown model="\App\Models\Document" />

@@ -25,14 +25,16 @@
 
             </x-search-form>
 
-            <div class="flex space-x-4 mt-3 divide-x divide-stone-200 items-center justify-end">
-                @if ($is_search)
-                    <div class="text-sm py-2 text-right">{{ trans_choice(':total star found|:total stars found', $stars->total(), ['total' => $stars->total()]) }}</div>
-                @endif
-    
-                @if (!$is_search)
-                    <div class="text-sm py-2 text-right">{{ trans_choice(':total star|:total stars', $stars->total(), ['total' => $stars->total()]) }}</div>
-                @endif
+            <div class="flex space-x-4 mt-3 divide-x divide-stone-200 items-center justify-stretch sm:justify-end">
+                <div class="text-sm py-2 sm:text-right truncate">
+                    @if ($is_search)
+                        {{ trans_choice(':total star found|:total stars found', $stars->total(), ['total' => $stars->total()]) }}
+                    @endif
+        
+                    @if (!$is_search)
+                        {{ trans_choice(':total star|:total stars', $stars->total(), ['total' => $stars->total()]) }}
+                    @endif
+                </div>
 
                 <x-visualization-style-switcher :user="auth()->user()" class="pl-4" />
             </div>
