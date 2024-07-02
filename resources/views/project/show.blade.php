@@ -17,7 +17,7 @@
     <div class="bg-white/80 py-3 shadow"  x-data="{ expanded: false }">
         {{-- Project expandable details --}}
 
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
             <div class="" x-show="!expanded" x-collapse>
                 <div class="grow flex items-center  flex-row sm:gap-6 lg:gap-8">
@@ -190,7 +190,7 @@
     </div>
 
     <div class="pt-8 pb-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
 
             

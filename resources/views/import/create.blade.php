@@ -14,7 +14,7 @@
     </x-slot>
 
     <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">                
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">                
             <div class="md:grid md:grid-cols-3 md:gap-6">
                 <x-section-title>
                     <x-slot name="title">{{ __('Import from external source') }}</x-slot>
