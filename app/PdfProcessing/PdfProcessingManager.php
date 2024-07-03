@@ -2,28 +2,13 @@
 
 namespace App\PdfProcessing;
 
-use App\PdfProcessing\Drivers\CopilotPdfParserDriver;
-use App\PdfProcessing\Drivers\ExtractorServicePdfParserDriver;
-use App\PdfProcessing\Drivers\SmalotPdfParserDriver;
-use App\PdfProcessing\Drivers\XpdfDriver;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Manager;
-use Illuminate\Support\Str;
 use InvalidArgumentException;
+use Illuminate\Support\Manager;
+use App\PdfProcessing\Drivers\SmalotPdfParserDriver;
+use App\PdfProcessing\Drivers\ExtractorServicePdfParserDriver;
 
 class PdfProcessingManager extends Manager
 {
-
-    /**
-     * Create an instance of the specified driver.
-     *
-     * @return \App\PdfProcessing\Contracts\Driver
-     */
-    protected function createXpdfDriver()
-    {
-        return new XpdfDriver();
-    }
-
     /**
      * Create an instance of the specified driver.
      *
@@ -32,18 +17,6 @@ class PdfProcessingManager extends Manager
     protected function createSmalotDriver()
     {
         return new SmalotPdfParserDriver();
-    }
-    
-    /**
-     * Create an instance of the specified driver.
-     *
-     * @return \App\PdfProcessing\Contracts\Driver
-     */
-    protected function createCopilotDriver()
-    {
-        $config = $this->getConfig('copilot');
-
-        return new ExtractorServicePdfParserDriver($config);
     }
     
     /**

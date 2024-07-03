@@ -28,12 +28,13 @@ class PdfProcessingManagerTest extends TestCase
     
     public function test_default_driver_respect_configuration(): void
     {
-
-        config(['pdf.default' => PdfDriver::XPDF->value]);
+        config([
+            'pdf.default' => PdfDriver::EXTRACTOR_SERVICE->value,
+        ]);
 
         $driver = app()->make(PdfProcessingManager::class)->getDefaultDriver();
 
-        $this->assertEquals('xpdf', $driver);
+        $this->assertEquals('extractor', $driver);
     }
     
     public function test_smalot_driver_can_be_created(): void
@@ -41,24 +42,6 @@ class PdfProcessingManagerTest extends TestCase
         $driver = Pdf::driver('smalot');
 
         $this->assertInstanceOf(SmalotPdfParserDriver::class, $driver);
-    }
-    
-    public function test_xpdf_driver_can_be_created(): void
-    {
-        $driver = Pdf::driver('xpdf');
-
-        $this->assertInstanceOf(XpdfDriver::class, $driver);
-    }
-    
-    public function test_copilot_driver_can_be_created(): void
-    {
-        config(['pdf.processors.copilot' => [
-            'host' => 'http://localhost:5000',
-        ]]);
-
-        $driver = Pdf::driver('copilot');
-
-        $this->assertInstanceOf(ExtractorServicePdfParserDriver::class, $driver);
     }
     
     public function test_extractor_driver_can_be_created(): void

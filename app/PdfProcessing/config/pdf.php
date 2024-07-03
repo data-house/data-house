@@ -25,21 +25,13 @@ return [
     | Defaults have been set up for each driver as an example
     | of the required values.
     |
-    | Supported Drivers: "smalot", "xpdf", "copilot"
+    | Supported Drivers: "smalot", "extractor" (https://github.com/data-house/pdf-text-extractor)
     |
     */
 
     'processors' => [
 
         PdfDriver::SMALOT_PDF->value => [
-        ],
-
-        PdfDriver::XPDF->value => [
-
-        ],
-
-        PdfDriver::COPILOT->value => [
-            'host' => env('PDF_PROCESSOR_COPILOT_URL'),
         ],
         
         PdfDriver::EXTRACTOR_SERVICE->value => [

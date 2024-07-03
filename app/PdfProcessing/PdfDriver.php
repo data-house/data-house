@@ -15,15 +15,10 @@ enum PdfDriver: string
 
     /**
      * The local driver implemented using XPDF command line
+     *
+     * @deprecated XPDF driver will be removed in a future version
      */
     case XPDF = 'xpdf';
-
-    /**
-     * The remote experimental driver
-     * 
-     * @deprecated use @see PdfDriver::EXTRACTOR_SERVICE
-     */
-    case COPILOT = 'copilot';
 
     /**
      * The PDF Text Extractor service driver
