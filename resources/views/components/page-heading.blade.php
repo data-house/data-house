@@ -12,7 +12,7 @@
     </div>
     
     @if (isset($slot) && $slot->isNotEmpty())    
-        <div class="mt-3 flex gap-3 text-sm font-semibold leading-6 grow sm:leading-7">
+        <div class="mt-3 flex gap-3 md:gap-4 text-sm font-semibold leading-6 grow sm:leading-7">
             {{ $slot ?? null}}
         </div>
     @endif
