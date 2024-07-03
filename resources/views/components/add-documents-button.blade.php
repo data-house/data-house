@@ -2,7 +2,7 @@
 
     <x-dropdown align="right">
         <x-slot name="trigger">
-            <x-button type="button" class="justify-self-end inline-flex gap-1 items-center">
+            <x-button type="button" class="justify-self-end inline-flex gap-1 items-center whitespace-nowrap">
                 {{ __('Manage documents') }}
             </x-button>
         </x-slot>

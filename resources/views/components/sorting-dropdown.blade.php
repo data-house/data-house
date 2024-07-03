@@ -2,14 +2,16 @@
     
     <div class="relative" x-data="{ open: false }" x-trap="open" @click.away="open = false" @close.stop="open = false" @keydown.escape="open = false">
         <x-secondary-button @click="open = ! open" class="rounded-r-none">
-            <span>{{ __('Sort by') }}</span>
+            <span class="hidden sm:inline">{{ __('Sort by') }}</span>
 
-            <span class="font-bold">
+            <div class="inline font-bold whitespace-nowrap">
                 @if ($is_search)
-                    {{ __('Best match')}}&nbsp;+&nbsp;
+                    {{ __('Best match')}}
+                    <span class="hidden sm:inline">&nbsp;+&nbsp;{{ trans("sorting.{$current->name}") }}</span>
+                @else
+                    {{ trans("sorting.{$current->name}") }}
                 @endif
-                {{ trans("sorting.{$current->name}") }}
-            </span>
+            </div>
             
             <x-heroicon-o-chevron-down class="w-5 h-5 transition-transform"  ::class="{'transform rotate-180': open }" />
         </x-secondary-button>
@@ -40,7 +42,7 @@
     <div>
         <a title="{{ __('Current direction: :direction. Click to invert.', ['direction' => trans("sorting.direction.{$current_direction}")])}}"
            href="{{ $url($current->invertDirection()) }}"
-           class="inline-flex items-center gap-1 px-4 py-2 bg-white border-r border-y border-stone-300 rounded-md font-semibold text-xs text-stone-700  shadow hover:bg-stone-50 focus:outline-none focus:ring-2 focus:ring-lime-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150 rounded-l-none">
+           class="inline-flex items-center gap-1 px-3 py-2 bg-white border-r border-y border-stone-300 rounded-md font-semibold text-xs text-stone-700  shadow hover:bg-stone-50 focus:outline-none focus:ring-2 focus:ring-lime-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150 rounded-l-none">
            
             @if ($current_direction === 'desc')
                 <x-heroicon-o-bars-arrow-down class="w-5 h-5" />

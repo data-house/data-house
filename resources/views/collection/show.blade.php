@@ -3,7 +3,7 @@
         {{ $collection->title }}
     </x-slot>
     <x-slot name="header">
-        <div class="md:flex md:items-center md:justify-between relative">
+        <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between relative">
             <h2 class="font-semibold text-xl text-stone-800 leading-tight space-y-2 sm:space-y-0 sm:flex sm:gap-4 md:items-center">
                 {{ $collection->title }}
 
@@ -29,7 +29,7 @@
     <div class="bg-white/80 py-3 shadow"  x-data="{ expanded: false }">
         {{-- Collection expandable details --}}
 
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
             <div class="" x-show="!expanded" x-collapse>
                 <div class="flex items-center gap-8">
@@ -54,15 +54,15 @@
                         </div>
                     </div>
                 </div>
-                <div class="grid grid-cols-3 gap-4  pb-12">
-                    <div class="space-y-4 col-span-2">
+                <div class="grid sm:grid-cols-3 gap-4 sm:pb-12">
+                    <div class="space-y-4 sm:col-span-2">
                         @foreach ($notes as $note)
                             <div class="prose">
                                 {{ $note }}
                             </div>
                         @endforeach
                     </div>
-                    <div class="">
+                    <div class="space-y-4 sm:space-y-0">
 
                         <div class="space-y-2">
                             <p class="text-xs uppercase block text-stone-700">{{ __('Documents') }}</p>
@@ -120,7 +120,7 @@
     </div>
 
     <div class="pt-8 pb-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             
             @question()
             @feature(Flag::questionWithAI())
@@ -159,10 +159,10 @@
             @endfeature
             @endquestion
 
-            <div class="flex space-x-4 mt-3 divide-x divide-stone-200 items-center justify-end">
+            <div class="flex space-x-4 mt-3 divide-x divide-stone-200 items-center justify-stretch sm:justify-end">
 
                 @if ($documents->isNotEmpty())
-                    <div class="text-sm py-2 text-right">{{ trans_choice(':total document in the collection|:total documents in the collection', $total_documents, ['total' => $total_documents]) }}</div>
+                    <div class="text-sm py-2 sm:text-right truncate">{{ trans_choice(':total document in the collection|:total documents in the collection', $total_documents, ['total' => $total_documents]) }}</div>
                 @endif
 
                 <x-visualization-style-switcher :user="auth()->user()" class="pl-4" />
@@ -185,7 +185,7 @@
 
     @can('viewAny', \App\Models\Question::class)
         <div class="py-12">
-            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 {{-- TODO: shows questions related to this collection --}}
 
                 {{-- <x-collection-chat :collection="$collection" /> --}}

@@ -25,7 +25,7 @@
                             <p class="inline-flex gap-1 items-center"><x-heroicon-m-user class="w-4 h-4 text-stone-500" />{{ $summary->user?->name }}</p>
                         @endif
                         <p class="inline-flex gap-1 items-center">
-                            <x-heroicon-m-calendar class="w-4 h-4 text-stone-500" /><x-date :value="$summary->created_at" />
+                            <x-heroicon-m-calendar class="w-4 h-4 text-stone-500" /><x-date :class="$summary->updated_at->notEqualTo($summary->created_at) ? 'hidden sm:inline' : ''" :value="$summary->created_at" />
                             @if ($summary->updated_at->notEqualTo($summary->created_at))
                                 ({{ __('last updated on :date', ['date' => $summary->updated_at->toDateString()]) }})
                             @endif

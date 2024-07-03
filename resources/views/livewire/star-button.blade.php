@@ -2,7 +2,7 @@
     <button
         type="button"
         wire:click="toggle"
-        class="font-semibold text-xs px-3 py-1 border-r border-stone-300  flex gap-1 items-center rounded-l-md hover:bg-yellow-50 " >
+        class="font-semibold text-xs px-3 py-1 {{ $this->starCount > 0 ? 'border-r border-stone-300' : ''}}  flex gap-1 items-center rounded-l-md hover:bg-yellow-50 " >
     
         @if (!is_null($this->userStar))
             <x-heroicon-s-star class="w-5 h-5 text-yellow-500 group-hover/star:text-yellow-600 transition-all" wire:loading.class="scale-125"  /> {{ __('Starred') }}

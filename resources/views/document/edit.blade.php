@@ -3,68 +3,66 @@
         {{ __('Edit :document', ['document' => $document->title]) }}
     </x-slot>
     <x-slot name="header">
-        <div class="md:flex md:items-center md:justify-between relative">
-            <h2 class="font-semibold text-xl text-stone-800 leading-tight">
+        <div class="space-y-2 md:space-y-0 flex flex-col md:flex-row md:justify-between gap-2 relative">
+            <h2 class="font-semibold text-xl text-stone-800 leading-tight flex flex-col gap-2 sm:flex-row">
                 <a href="{{ route('documents.show', $document) }}" class="px-1 py-0.5 bg-blue-50 rounded text-base inline-flex items-center text-blue-700 underline hover:text-blue-800" title="{{ __('Back to :entry', ['entry' => $document->title]) }}">
                     <x-heroicon-m-arrow-left class="w-4 h-4" />
                     {{ $document->title }}
                 </a>
                 {{ __('Edit') }}
             </h2>
-            <div class="flex gap-2">
+            <div class="md:flex gap-2 hidden ml-3 relative">
 
-                <div class="ml-3 relative">
-                    @can('delete', $document)
-                        <x-dropdown align="right" width="min-w-[448px] w-[100vw] md:w-[448px]" contentClasses="bg-white">
-                            <x-slot name="trigger">
-                                <x-danger-button type="button">
-                                    {{ __('Delete document') }}
-                                </x-danger-button>
-                            </x-slot>
+                @can('delete', $document)
+                    <x-dropdown align="right" width="min-w-[448px] w-[100vw] md:w-[448px]" contentClasses="bg-white">
+                        <x-slot name="trigger">
+                            <x-danger-button type="button">
+                                {{ __('Delete document') }}
+                            </x-danger-button>
+                        </x-slot>
 
-                            <x-slot name="content">
+                        <x-slot name="content">
 
-                                <div class="">
-                                    <form action="{{ route('documents.destroy', $document) }}" method="post" class="">
-                                        @csrf
-                                        @method('DELETE')
-        
-                                        <div class="py-4 text-center sm:mt-0 sm:ml-4 sm:text-left px-4">
-                                            <h3 class="text-lg font-medium text-stone-900">
-                                                {{ __('Delete document') }}
-                                            </h3>
+                            <div class="">
+                                <form action="{{ route('documents.destroy', $document) }}" method="post" class="">
+                                    @csrf
+                                    @method('DELETE')
+    
+                                    <div class="py-4 text-center sm:mt-0 sm:ml-4 sm:text-left px-4">
+                                        <h3 class="text-lg font-medium text-stone-900">
+                                            {{ __('Delete document') }}
+                                        </h3>
+                        
+                                        <div class="mt-4 text-sm text-stone-600 ">
+                                            <p class="break-all">{{ __('Delete ":document" from the digital library?', ['document' => $document->title]) }}</p>
+                                            <p>{{ __('This will remove also the document in the document management system.') }}</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex flex-row justify-end px-4 py-2 bg-stone-100 text-right rounded-b-md">
+                                        <x-secondary-button type="button" @click="open = ! open">
+                                            {{ __('Cancel') }}
+                                        </x-secondary-button>
                             
-                                            <div class="mt-4 text-sm text-stone-600 ">
-                                                <p class="break-all">{{ __('Delete ":document" from the digital library?', ['document' => $document->title]) }}</p>
-                                                <p>{{ __('This will remove also the document in the document management system.') }}</p>
-                                            </div>
-                                        </div>
-
-                                        <div class="flex flex-row justify-end px-4 py-2 bg-stone-100 text-right rounded-b-md">
-                                            <x-secondary-button type="button" @click="open = ! open">
-                                                {{ __('Cancel') }}
-                                            </x-secondary-button>
-                                
-                                            <x-danger-button  type="submit" class="ml-3">
-                                                {{ __('Delete') }}
-                                            </x-danger-button>
-                                        </div>
-        
-                                    </form>
+                                        <x-danger-button  type="submit" class="ml-3">
+                                            {{ __('Delete') }}
+                                        </x-danger-button>
+                                    </div>
+    
+                                </form>
 
 
-                                </div>
+                            </div>
 
-                            </x-slot>
-                        </x-dropdown>
-                    @endcan
-
+                        </x-slot>
+                    </x-dropdown>
+                @endcan
             </div>
         </div>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+    <div class="">
+        <div class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8 space-y-4 sm:space-y-0">
 
             <x-section submit="{{ route('documents.update', $document) }}">
 
@@ -111,6 +109,55 @@
 
                 </div>
             </x-section-no-form>
+
+
+            <div class="md:hidden">
+                @can('delete', $document)
+                <x-section-border />
+                    <x-dropdown align="right" width="min-w-[448px] w-[100vw] md:w-[448px]" contentClasses="bg-white">
+                        <x-slot name="trigger">
+                            <x-danger-button type="button">
+                                {{ __('Delete document') }}
+                            </x-danger-button>
+                        </x-slot>
+
+                        <x-slot name="content">
+
+                            <div class="">
+                                <form action="{{ route('documents.destroy', $document) }}" method="post" class="">
+                                    @csrf
+                                    @method('DELETE')
+    
+                                    <div class="py-4 text-center sm:mt-0 sm:ml-4 sm:text-left px-4">
+                                        <h3 class="text-lg font-medium text-stone-900">
+                                            {{ __('Delete document') }}
+                                        </h3>
+                        
+                                        <div class="mt-4 text-sm text-stone-600 ">
+                                            <p class="break-all">{{ __('Delete ":document" from the digital library?', ['document' => $document->title]) }}</p>
+                                            <p>{{ __('This will remove also the document in the document management system.') }}</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex flex-row justify-end px-4 py-2 bg-stone-100 text-right rounded-b-md">
+                                        <x-secondary-button type="button" @click="open = ! open">
+                                            {{ __('Cancel') }}
+                                        </x-secondary-button>
+                            
+                                        <x-danger-button  type="submit" class="ml-3">
+                                            {{ __('Delete') }}
+                                        </x-danger-button>
+                                    </div>
+    
+                                </form>
+
+
+                            </div>
+
+                        </x-slot>
+                    </x-dropdown>
+                @endcan
+            </div>
 
         </div>
     </div>
