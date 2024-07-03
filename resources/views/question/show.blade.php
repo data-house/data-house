@@ -13,11 +13,11 @@
         </x-page-heading>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">   
+    <div class="">
+        <div class="max-w-7xl py-10 mx-auto px-4 sm:px-6 lg:px-8">   
             
-            <div class="grid grid-cols-3 gap-4">
-                <div class=" col-span-2 space-y-2">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="sm:col-span-2 space-y-2">
 
                     <div class="bg-white">
                         <livewire:question :question="$question" :poll="$question?->isPending() ?? false" />
@@ -44,8 +44,8 @@
 
                         <div class="p-2 shadow bg-white flex flex-col gap-1">
                             {{-- Document card if directly connected to document --}}
-                            <div class="">
-                                <x-codicon-file-pdf class="text-gray-400 h-10 w-h-10" />
+                            <div class="shrink-0">
+                                <x-dynamic-component :component="$question->questionable->format->icon" class="text-gray-400 h-10 w-10 shrink-0" />
                             </div>
 
                             <h2 class="font-semibold text-xl text-stone-800 leading-tight break-all">

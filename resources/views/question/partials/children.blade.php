@@ -2,7 +2,7 @@
 
     <div class="bg-white max-w-4xl"  x-data="{collapsed: true}">
         <div class=" px-3 md:py-4 py-2.5 text-lg font-semibold text-stone-700 flex gap-2 items-center">
-            <x-codicon-file-pdf class="text-gray-400 h-5 w-h-5" />
+            <x-dynamic-component :component="$child->questionable->format->icon" class="text-gray-400 h-5 w-5 shrink-0" />
             <a href="{{ route('documents.show', $child->questionable) }}" target="_blank">{{ $child->questionable->title }}</a>
 
             <div class="grow"></div>

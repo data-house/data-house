@@ -13,8 +13,8 @@
         </x-page-heading>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">                
+    <div class="">
+        <div class="max-w-7xl py-10 mx-auto px-4 sm:px-6 lg:px-8">                
             <div>
                 <form action="" method="get">
                     <x-input type="text" :value="$searchQuery ?? null" name="s" id="s" class="min-w-full" placeholder="{{ __('Search the question library...') }}" />
@@ -28,7 +28,7 @@
                 @endif
             </div>
 
-            <div class="mt-6 grid grid-cols-3 gap-4">
+            <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                 @forelse ($questions as $question)
                     <x-question-card :question="$question" />
                 @empty
