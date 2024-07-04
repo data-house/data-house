@@ -150,7 +150,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="grid grid-cols-3 gap-2">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
                     @foreach ($questions as $question)
                         <x-question-card :question="$question" />
                     @endforeach
@@ -175,11 +175,6 @@
             <x-dynamic-component :component="$visualizationStyle" class="mt-3" :documents="$documents" empty="{{ __('Collection is empty') }}" />
             
             
-            <div class="mb-4">
-                @if ($collection->draft)
-                    <span class="inline-block text-sm px-2 py-1 rounded-xl bg-gray-200 text-gray-900">{{ __('pending review') }}</span>
-                @endif
-            </div>
         </div>
     </div>
 
