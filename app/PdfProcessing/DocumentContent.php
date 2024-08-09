@@ -2,6 +2,7 @@
 
 namespace App\PdfProcessing;
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use JsonSerializable;
 
@@ -46,6 +47,15 @@ class DocumentContent implements JsonSerializable
     public function isNotEmpty(): bool
     {
         return !$this->isEmpty();
+    }
+
+    public function pages(): array
+    {
+        if(!is_array($this->raw)){
+            return [1 => $this->raw];
+        }
+
+        return $this->raw;
     }
 
     /**

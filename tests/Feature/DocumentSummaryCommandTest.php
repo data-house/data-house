@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Document;
 use App\Models\DocumentSummary;
+use App\PdfProcessing\DocumentContent;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\Client\Request;
@@ -42,17 +43,7 @@ class DocumentSummaryCommandTest extends TestCase
         Http::preventStrayRequests();
 
         Http::fake([
-            'http://localhost:9000/extract-text' => Http::response([
-                "content" => [
-                    [
-                        "metadata" => [
-                            "page_number" => 1
-                        ],
-                        "text" => "Content of the document"
-                    ],
-                ],
-                "status" => "ok"
-            ], 200),
+            'http://localhost:9000/extract-text' => Http::response((new DocumentContent("Content of the document"))->asStructured(), 200),
             'http://localhost:5000/library/library-id/summary' => Http::response([
                 "id" => $document->ulid,
                 "lang" => "en",
@@ -103,17 +94,7 @@ class DocumentSummaryCommandTest extends TestCase
         Http::preventStrayRequests();
 
         Http::fake([
-            'http://localhost:9000/extract-text' => Http::response([
-                "content" => [
-                    [
-                        "metadata" => [
-                            "page_number" => 1
-                        ],
-                        "text" => "Content of the document"
-                    ],
-                ],
-                "status" => "ok"
-            ], 200),
+            'http://localhost:9000/extract-text' => Http::response((new DocumentContent("Content of the document"))->asStructured(), 200),
             'http://localhost:5000/library/library-id/summary' => Http::response([
                 "id" => $document->ulid,
                 "lang" => "en",
@@ -173,17 +154,7 @@ class DocumentSummaryCommandTest extends TestCase
         Http::preventStrayRequests();
 
         Http::fake([
-            'http://localhost:9000/extract-text' => Http::response([
-                "content" => [
-                    [
-                        "metadata" => [
-                            "page_number" => 1
-                        ],
-                        "text" => "Content of the document"
-                    ],
-                ],
-                "status" => "ok"
-            ], 200),
+            'http://localhost:9000/extract-text' => Http::response((new DocumentContent("Content of the document"))->asStructured(), 200),
             'http://localhost:5000/library/library-id/summary' => Http::response([
                 "id" => $document->ulid,
                 "lang" => "en",
@@ -241,17 +212,7 @@ class DocumentSummaryCommandTest extends TestCase
         Http::preventStrayRequests();
 
         Http::fake([
-            'http://localhost:9000/extract-text' => Http::response([
-                "content" => [
-                    [
-                        "metadata" => [
-                            "page_number" => 1
-                        ],
-                        "text" => "Content of the document"
-                    ],
-                ],
-                "status" => "ok"
-            ], 200),
+            'http://localhost:9000/extract-text' => Http::response((new DocumentContent("Content of the document"))->asStructured(), 200),
             'http://localhost:5000/library/library-id/summary' => Http::response([
                 "id" => $document->ulid,
                 "lang" => "en",
