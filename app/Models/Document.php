@@ -385,7 +385,7 @@ class Document extends Model implements Convertible
             'mime' => $this->mime,
             'format' => $this->format->name,
             'type' => $this->type?->name,
-            'content' => $content->all(),
+            'content' => $content?->all(),
             'draft' => $this->draft,
             'published' => $this->published_at !== null,
             'published_at' => $this->published_at,
