@@ -17,7 +17,11 @@ class StructuredDocumentContent extends PaginatedDocumentContent
             return true;
         }
 
-        return collect($this->pages())->filter()->isEmpty();
+        $firstFivePages = collect($this->raw['content'])->map(function($page){
+            return trim(collect($page['content'])->pluck('text')->join(''));
+        })->filter();
+
+        return $firstFivePages->isEmpty();
     }
 
     /**
