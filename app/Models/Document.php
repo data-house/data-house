@@ -385,7 +385,7 @@ class Document extends Model implements Convertible
             'mime' => $this->mime,
             'format' => $this->format->name,
             'type' => $this->type?->name,
-            'content' => $content,
+            'content' => $content->all(),
             'draft' => $this->draft,
             'published' => $this->published_at !== null,
             'published_at' => $this->published_at,
@@ -461,20 +461,7 @@ class Document extends Model implements Convertible
         return [
             'id' => $this->getCopilotKey(),
             'lang' => $this->language?->value ?? LanguageAlpha2::English->value,
-            'data' => $content->collect()->map(function($pageContent, $pageNumber){
-                if(blank($pageContent)){
-                    return null;
-                }
-                // TODO: maybe this transformation should be driver specific
-                // TODO: prepend info coming from the project
-                return [
-                    "metadata" => [
-                        "page_number" => $pageNumber
-                    ],
-                    "text" => $pageContent,
-                    "title" => $this->title,
-                ];
-            })->filter()->values()->toArray(),
+            'data' => $content->asStructured(),
         ];
     }
 

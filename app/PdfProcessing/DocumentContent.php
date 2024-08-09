@@ -54,10 +54,31 @@ class DocumentContent implements JsonSerializable
      * @return array
      */
     #[\ReturnTypeWillChange]
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
         return [
             'raw' => $this->raw,
+        ];
+    }
+
+    public function asStructured(): array
+    {
+        return [
+            "type" => "doc",
+            "content" => [[
+                "category" => "page",
+                "attributes" => [
+                    "page" => 1
+                ],
+                "content" => [
+                    [
+                        "role" => "body",
+                        "text" => $this->raw,
+                        "marks" => [],
+                        "attributes" => [],
+                    ]
+                ]
+            ]],
         ];
     }
 

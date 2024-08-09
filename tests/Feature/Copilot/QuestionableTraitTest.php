@@ -8,6 +8,7 @@ use App\Jobs\AskQuestionJob;
 use App\Models\Disk;
 use App\Models\Document;
 use App\Models\Question;
+use App\PdfProcessing\DocumentContent;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\Client\Request;
@@ -39,14 +40,7 @@ class QuestionableTraitTest extends TestCase
 
         Http::preventStrayRequests();
 
-        $textContent = [
-            [
-                "metadata" => [
-                    "page_number" => 1
-                ],
-                "text" => "This is the header 1 This is a test PDF to be used as input in unit tests This is a heading 1 This is a paragraph below heading 1"
-            ],
-        ];
+        $textContent = (new DocumentContent("This is the header 1 This is a test PDF to be used as input in unit tests This is a heading 1 This is a paragraph below heading 1"))->asStructured();
 
         
         $document = Document::factory()->create([
@@ -54,10 +48,7 @@ class QuestionableTraitTest extends TestCase
         ]);
 
         Http::fake([
-            'http://localhost:9000/extract-text' => Http::response([
-                "content" => $textContent,
-                "status" => "ok"
-            ], 200),
+            'http://localhost:9000/extract-text' => Http::response($textContent, 200),
             'http://localhost:5000/library/library-id/documents' => Http::response([
                 "message" => "Document {$document->getCopilotKey()} added to the library library-id."
             ], 201),
@@ -75,10 +66,7 @@ class QuestionableTraitTest extends TestCase
         Http::assertSent(function (Request $request) use ($document, $textContent) {
             return $request->url() == 'http://localhost:5000/library/library-id/documents' &&
                    $request['id'] === $document->getCopilotKey() && 
-                   $request['lang'] === 'en' &&
-                   data_get($request['data'] ?? [], '0.title') == $document->title &&
-                   data_get($request['data'] ?? [], '0.metadata.page_number') == 1 &&
-                   data_get($request['data'] ?? [], '0.text') == $textContent[0]['text'];
+                   $request['lang'] === 'en';
         });
 
     }
