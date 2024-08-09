@@ -9,9 +9,11 @@ use App\DocumentConversion\ConversionRequest;
 use App\Http\Requests\RetrievalRequest;
 use App\PdfProcessing\DocumentContent;
 use App\PdfProcessing\DocumentReference;
+use App\PdfProcessing\Exceptions\PdfParsingException;
 use App\PdfProcessing\Facades\Pdf;
 use App\PdfProcessing\PaginatedDocumentContent;
 use App\PdfProcessing\PdfDriver;
+use App\PdfProcessing\StructuredDocumentContent;
 use App\Pipelines\Concerns\HasPipelines;
 use Carbon\Carbon;
 use Exception;
@@ -440,7 +442,7 @@ class Document extends Model implements Convertible
         logs()->info("Making document [{$this->id} - {$this->ulid}] questionable");
 
         /**
-         * @var \App\PdfProcessing\PaginatedDocumentContent
+         * @var \App\PdfProcessing\StructuredDocumentContent
          */
         $content = null;
 
@@ -448,14 +450,18 @@ class Document extends Model implements Convertible
             $reference = $this->asReference();
             $content = Pdf::driver(PdfDriver::EXTRACTOR_SERVICE->value)->text($reference);
 
-            if(!$content instanceof PaginatedDocumentContent){
-                throw new Exception("Expecting paginated content from PDF processing. Copilot requires extracted text to be paginated.");
+            if(!$content instanceof StructuredDocumentContent){
+                throw new Exception("Expecting structured content from PDF processing. Copilot requires extracted text to be structured.");
             }
         }
         catch(Exception $ex)
         {
             logs()->error("Error extracting text from document [{$this->id}]", ['error' => $ex->getMessage()]);
             throw $ex;
+        }
+
+        if(is_null($content)){
+            throw new Exception("Document without textual content. AI interaction requires a document that contains text.");
         }
 
         return [

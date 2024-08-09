@@ -13,7 +13,11 @@ class StructuredDocumentContent extends PaginatedDocumentContent
             return true;
         }
 
-        return empty($this->raw['content']);
+        if(empty($this->raw['content'])){
+            return true;
+        }
+
+        return collect($this->pages())->filter()->isEmpty();
     }
 
     /**
