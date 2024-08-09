@@ -12,6 +12,7 @@ use App\PdfProcessing\DocumentReference;
 use App\PdfProcessing\DocumentProperties;
 use App\PdfProcessing\PaginatedDocumentContent;
 use App\PdfProcessing\Exceptions\PdfParsingException;
+use App\PdfProcessing\StructuredDocumentContent;
 
 class ExtractorServicePdfParserDriver implements Driver
 {
@@ -30,7 +31,7 @@ class ExtractorServicePdfParserDriver implements Driver
     }
 
 
-    public function text(DocumentReference $document): PaginatedDocumentContent
+    public function text(DocumentReference $document): StructuredDocumentContent
     {
         if(empty($document->url)){
             throw new InvalidArgumentException(__('The PDF driver is able to deal only with remote downloadable files'));
@@ -46,23 +47,13 @@ class ExtractorServicePdfParserDriver implements Driver
                 ])
                 ->throw();
 
-        $chunks = collect($response->json()['text'] ?? $response->json()['content']);
+            $documentContent = $response->json();
 
-            if ($this->config['driver'] === "pdfact") {    
-                $pagedChunk = $chunks->mapToGroups(function (array $item, int $key) {
-                    return [$item['metadata']['page']=> $item['text']];
-                });
-                $content = $pagedChunk->map(function ($item, $key) {
-                    return $item->join(PHP_EOL.PHP_EOL);
-                });
-
-                return new PaginatedDocumentContent($content->toArray());
+            if(is_null($documentContent['type'] ?? null)){
+                throw new PdfParsingException('Empty response from PDF service');
             }
-
-            $content = $chunks->mapWithKeys(function($entry) {
-                return [$entry['metadata']['page'] ?? $entry['metadata']['page_number'] => $entry['text']];
-            });
-            return new PaginatedDocumentContent($content->toArray());
+            
+            return new StructuredDocumentContent($documentContent);
         
         }
         catch(Throwable $ex)

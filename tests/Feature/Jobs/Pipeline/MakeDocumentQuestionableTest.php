@@ -4,6 +4,7 @@ namespace Tests\Feature\Jobs\Pipeline;
 
 use App\Jobs\Pipeline\Document\MakeDocumentQuestionable;
 use App\Models\Document;
+use App\PdfProcessing\DocumentContent;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Http;
@@ -45,17 +46,7 @@ class MakeDocumentQuestionableTest extends TestCase
         Http::preventStrayRequests();
 
         Http::fake([
-            'http://localhost:9000/extract-text' => Http::response([
-                "content" => [
-                    [
-                        "metadata" => [
-                            "page_number" => 1
-                        ],
-                        "text" => "Content of the document"
-                    ],
-                ],
-                "status" => "ok"
-            ], 200),
+            'http://localhost:9000/extract-text' => Http::response((new DocumentContent("Content of the document"))->asStructured(), 200),
             'http://localhost:5000/library/library-id/*' => Http::response([
                 "message" => "Document `{$model->getCopilotKey()}` removed from the library `library-id`."
             ], 200),

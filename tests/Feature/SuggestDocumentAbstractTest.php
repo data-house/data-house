@@ -4,6 +4,8 @@ namespace Tests\Feature;
 
 use App\Actions\SuggestDocumentAbstract;
 use App\Models\Document;
+use App\PdfProcessing\DocumentContent;
+use App\PdfProcessing\PaginatedDocumentContent;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\Client\Request;
@@ -137,17 +139,7 @@ class SuggestDocumentAbstractTest extends TestCase
         Http::preventStrayRequests();
 
         Http::fake([
-            'http://localhost:9000/extract-text' => Http::response([
-                "text" => [
-                    [
-                        "metadata" => [
-                            "page" => 1
-                        ],
-                        "text" => "Content of the document"
-                    ],
-                ],
-                "status" => "ok"
-            ], 200),
+            'http://localhost:9000/extract-text' => Http::response((new DocumentContent("Content of the document"))->asStructured(), 200),
             'http://localhost:5000/library/library-id/summary' => Http::response([
                 "id" => $document->getCopilotKey(),
                 "lang" => "en",
@@ -198,48 +190,17 @@ class SuggestDocumentAbstractTest extends TestCase
 
         Http::preventStrayRequests();
 
+        $pages = new PaginatedDocumentContent([
+            1 => "-",
+            2 => "-",
+            3 => "-",
+            4 => "SUMMARY Content of the document",
+            5 => "ZUSAMMENFASSUNG (and other content)",
+            6 => "-",
+        ]);
+
         Http::fake([
-            'http://localhost:9000/extract-text' => Http::response([
-                "text" => [
-                    [
-                        "metadata" => [
-                            "page" => 1
-                        ],
-                        "text" => "-"
-                    ],
-                    [
-                        "metadata" => [
-                            "page" => 2
-                        ],
-                        "text" => "-"
-                    ],
-                    [
-                        "metadata" => [
-                            "page" => 3
-                        ],
-                        "text" => "-"
-                    ],
-                    [
-                        "metadata" => [
-                            "page" => 4
-                        ],
-                        "text" => "SUMMARY Content of the document"
-                    ],
-                    [
-                        "metadata" => [
-                            "page" => 5
-                        ],
-                        "text" => "ZUSAMMENFASSUNG (and other content)"
-                    ],
-                    [
-                        "metadata" => [
-                            "page" => 6
-                        ],
-                        "text" => "-"
-                    ],
-                ],
-                "status" => "ok"
-            ], 200),
+            'http://localhost:9000/extract-text' => Http::response($pages->asStructured(), 200),
             'http://localhost:5000/library/library-id/summary' => Http::response([
                 "id" => $document->getCopilotKey(),
                 "lang" => "en",
@@ -290,48 +251,17 @@ class SuggestDocumentAbstractTest extends TestCase
 
         Http::preventStrayRequests();
 
+        $pages = new PaginatedDocumentContent([
+            1 => "-",
+            2 => "-",
+            3 => "-",
+            4 => "ZUSAMMENFASSUNG Content of the document",
+            5 => "SUMMARY",
+            6 => "-",
+        ]);
+
         Http::fake([
-            'http://localhost:9000/extract-text' => Http::response([
-                "text" => [
-                    [
-                        "metadata" => [
-                            "page" => 1
-                        ],
-                        "text" => "-"
-                    ],
-                    [
-                        "metadata" => [
-                            "page" => 2
-                        ],
-                        "text" => "-"
-                    ],
-                    [
-                        "metadata" => [
-                            "page" => 3
-                        ],
-                        "text" => "-"
-                    ],
-                    [
-                        "metadata" => [
-                            "page" => 4
-                        ],
-                        "text" => "ZUSAMMENFASSUNG Content of the document"
-                    ],
-                    [
-                        "metadata" => [
-                            "page" => 5
-                        ],
-                        "text" => "SUMMARY"
-                    ],
-                    [
-                        "metadata" => [
-                            "page" => 6
-                        ],
-                        "text" => "-"
-                    ],
-                ],
-                "status" => "ok"
-            ], 200),
+            'http://localhost:9000/extract-text' => Http::response($pages->asStructured(), 200),
             'http://localhost:5000/library/library-id/summary' => Http::response([
                 "id" => $document->getCopilotKey(),
                 "lang" => "en",
@@ -383,48 +313,17 @@ class SuggestDocumentAbstractTest extends TestCase
 
         Http::preventStrayRequests();
 
+        $pages = new PaginatedDocumentContent([
+            1 => "-",
+            2 => "-",
+            3 => "-",
+            4 => "SUMMARY Content of the document",
+            5 => "ZUSAMMENFASSUNG (and other content)",
+            6 => "-",
+        ]);
+
         Http::fake([
-            'http://localhost:9000/extract-text' => Http::response([
-                "text" => [
-                    [
-                        "metadata" => [
-                            "page" => 1
-                        ],
-                        "text" => "-"
-                    ],
-                    [
-                        "metadata" => [
-                            "page" => 2
-                        ],
-                        "text" => "-"
-                    ],
-                    [
-                        "metadata" => [
-                            "page" => 3
-                        ],
-                        "text" => "-"
-                    ],
-                    [
-                        "metadata" => [
-                            "page" => 4
-                        ],
-                        "text" => "SUMMARY Content of the document"
-                    ],
-                    [
-                        "metadata" => [
-                            "page" => 5
-                        ],
-                        "text" => "ZUSAMMENFASSUNG (and other content)"
-                    ],
-                    [
-                        "metadata" => [
-                            "page" => 6
-                        ],
-                        "text" => "-"
-                    ],
-                ],
-                "status" => "ok"
-            ], 200),
+            'http://localhost:9000/extract-text' => Http::response($pages->asStructured(), 200),
             'http://localhost:5000/library/library-id/summary' => Http::response([
                 "id" => $document->getCopilotKey(),
                 "lang" => "en",

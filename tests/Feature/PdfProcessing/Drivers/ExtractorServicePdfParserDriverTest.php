@@ -8,6 +8,7 @@ use App\PdfProcessing\DocumentReference;
 use App\PdfProcessing\Drivers\ExtractorServicePdfParserDriver;
 use App\PdfProcessing\Drivers\SmalotPdfParserDriver;
 use App\PdfProcessing\Exceptions\PdfParsingException;
+use App\PdfProcessing\StructuredDocumentContent;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\Client\Request;
@@ -42,64 +43,103 @@ class ExtractorServicePdfParserDriverTest extends TestCase
     {
         Http::preventStrayRequests();
 
-        Http::fake([
-            'http://localhost:5002/extract-text' => Http::response([
-                "fonts" => [[
-                    "name" => "fira sans",
-                    "id" => "font-300",
-                    "is-bold" => false,
-                    "is-type3" => false,
-                    "is-italic" => false,
+        $extractedContent = [
+
+            "type" => "doc",
+            "content" => [
+                [
+                    "category" => "page",
+                    "attributes" => [
+                        "page" => 1
                     ],
-                ],
-                "text" => [
-                    [
-                        "text" =>"This is the header 1 This is a test PDF to be used as input in unit tests This is a heading 1 This is a paragraph below heading 1",
-                        "metadata" => [
-                            "role" => "header",
-                            "color" => [
-                                "r" => 78,
-                                "b" => 189,
-                                "g" => 128,
-                                "id" => "color-39",
+                    "content" => [
+                        [
+                            "role" => "heading",
+                            "text" => "Heading Text",
+                            "marks" => [
+                                [
+                                    "category" => "textStyle",
+                                    "color" => [
+                                        "r" => 78,
+                                        "b" => 189,
+                                        "g" => 128,
+                                        "id" => "color-1"
+                                    ],
+                                    "font" => [
+                                        "name" => "fira sans",
+                                        "id" => "font-300",
+                                        "size" => 18
+                                    ]
+                                ]
                             ],
-                            "positions" => [
-                                0 => [
-                                    "minY" => 565.0,
-                                    "minX" => 62.1,
-                                    "maxY" => 577.6,
-                                    "maxX" => 427.2,
-                                ],
-                                ],
-                            "font" => [
-                                "name" => "fira sans",
-                                "id" => "font-300",
-                                "is-bold" => false,
-                                "is-type3" => false,
-                                "is-italic" => false,
-                            ],
-                            "page" => 1
+                            "attributes" => [
+                                "bounding_box" => [
+                                    [
+                                        "min_x" => 62.1,
+                                        "min_y" => 493.0,
+                                        "max_x" => 427.2,
+                                        "max_y" => 505.6,
+                                        "page" => 1
+                                    ]
+                                ]
+                            ]
                         ],
-                    ],
-                ],      
-                "colors" =>  [
-                    [
-                        "r" => 247,
-                        "b" => 70,
-                        "g" => 150,
-                        "id" => "color-40",
-                    ],
-                ],
-            ], 200),
+                        [
+                            "role" => "body",
+                            "text" => "A paragraph on the first page",
+                            "marks" => [
+                                [
+                                    "category" => "textStyle",
+                                    "color" => [
+                                        "r" => 0,
+                                        "b" => 0,
+                                        "g" => 0,
+                                        "id" => "color-0"
+                                    ],
+                                    "font" => [
+                                        "name" => "fira sans",
+                                        "id" => "font-300",
+                                        "size" => 16
+                                    ]
+                                ]
+                            ],
+                            "attributes" => [
+                                "bounding_box" => [
+                                    [
+                                        "min_x" => 62.1,
+                                        "min_y" => 460.1,
+                                        "max_x" => 118.5,
+                                        "max_y" => 482.7,
+                                        "page" => 1
+                                    ]
+                                ]
+                            ]
+                        ],
+                    ]
+                ]
+            ]
+        ];
+
+        Http::fake([
+            'http://localhost:5002/extract-text' => Http::response($extractedContent, 200),
         ]);
 
         $driver = new ExtractorServicePdfParserDriver(['host' => 'http://localhost:5002/', 'driver' => 'pdfact']);
 
         $reference = DocumentReference::build('application/pdf')->url('http://document-url');
+
+        $output = $driver->text($reference);
+
+        $this->assertInstanceOf(StructuredDocumentContent::class, $output);
+
+        $this->assertEquals("Heading Text A paragraph on the first page", $output->all());
         
-        $content = $driver->text($reference)->pages();
-        $this->assertEquals("This is the header 1 This is a test PDF to be used as input in unit tests This is a heading 1 This is a paragraph below heading 1", $content[1]);
-        $this->assertEquals([1], array_keys($content));
+        $pages = $output->pages();
+        
+        $this->assertEquals("Heading Text A paragraph on the first page", $pages[1]);
+        $this->assertEquals([1], array_keys($pages));
+
+        $this->assertEquals($extractedContent, $output->asStructured());
 
         Http::assertSent(function (Request $request) {
             return $request->url() == 'http://localhost:5002/extract-text' &&

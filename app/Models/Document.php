@@ -9,9 +9,11 @@ use App\DocumentConversion\ConversionRequest;
 use App\Http\Requests\RetrievalRequest;
 use App\PdfProcessing\DocumentContent;
 use App\PdfProcessing\DocumentReference;
+use App\PdfProcessing\Exceptions\PdfParsingException;
 use App\PdfProcessing\Facades\Pdf;
 use App\PdfProcessing\PaginatedDocumentContent;
 use App\PdfProcessing\PdfDriver;
+use App\PdfProcessing\StructuredDocumentContent;
 use App\Pipelines\Concerns\HasPipelines;
 use Carbon\Carbon;
 use Exception;
@@ -385,7 +387,7 @@ class Document extends Model implements Convertible
             'mime' => $this->mime,
             'format' => $this->format->name,
             'type' => $this->type?->name,
-            'content' => $content,
+            'content' => $content?->all(),
             'draft' => $this->draft,
             'published' => $this->published_at !== null,
             'published_at' => $this->published_at,
@@ -440,7 +442,7 @@ class Document extends Model implements Convertible
         logs()->info("Making document [{$this->id} - {$this->ulid}] questionable");
 
         /**
-         * @var \App\PdfProcessing\PaginatedDocumentContent
+         * @var \App\PdfProcessing\StructuredDocumentContent
          */
         $content = null;
 
@@ -448,8 +450,8 @@ class Document extends Model implements Convertible
             $reference = $this->asReference();
             $content = Pdf::driver(PdfDriver::EXTRACTOR_SERVICE->value)->text($reference);
 
-            if(!$content instanceof PaginatedDocumentContent){
-                throw new Exception("Expecting paginated content from PDF processing. Copilot requires extracted text to be paginated.");
+            if(!$content instanceof StructuredDocumentContent){
+                throw new Exception("Expecting structured content from PDF processing. Copilot requires extracted text to be structured.");
             }
         }
         catch(Exception $ex)
@@ -458,23 +460,14 @@ class Document extends Model implements Convertible
             throw $ex;
         }
 
+        if(is_null($content)){
+            throw new Exception("Document without textual content. AI interaction requires a document that contains text.");
+        }
+
         return [
             'id' => $this->getCopilotKey(),
             'lang' => $this->language?->value ?? LanguageAlpha2::English->value,
-            'data' => $content->collect()->map(function($pageContent, $pageNumber){
-                if(blank($pageContent)){
-                    return null;
-                }
-                // TODO: maybe this transformation should be driver specific
-                // TODO: prepend info coming from the project
-                return [
-                    "metadata" => [
-                        "page_number" => $pageNumber
-                    ],
-                    "text" => $pageContent,
-                    "title" => $this->title,
-                ];
-            })->filter()->values()->toArray(),
+            'data' => $content->asStructured(),
         ];
     }
 
