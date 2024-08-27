@@ -246,6 +246,8 @@ class CloudEngineTest extends TestCase
                     [
                         "id" => "1",
                         "page_number" => 2,
+                        "score" => 0.47,
+                        "bounding_box" => null,
                     ],
                     [
                         "id" => "1",
@@ -278,6 +280,8 @@ class CloudEngineTest extends TestCase
                 [
                     "id" => "1",
                     "page_number" => 2,
+                    "score" => 0.47,
+                    "bounding_box" => null,
                 ],
                 [
                     "id" => "1",
