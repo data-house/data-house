@@ -17,6 +17,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Benchmark;
+use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Laravel\Scout\Searchable;
@@ -533,6 +534,14 @@ class Question extends Model implements Htmlable
     public function formattedText()
     {
         return $this->type ? str($this->type->formatQuestion($this->question))->markdown() : str($this->question)->markdown();
+    }
+
+    public function references(): SupportCollection
+    {
+        return collect($this->answer['references'] ?? [])
+            ->sortBy('page_number', SORT_NATURAL)
+            ->sortByDesc('score')
+            ->values();
     }
 
     
