@@ -5,7 +5,7 @@
     "keywords": ["knowledge-management", "pilot", "km"],
     "license": "MIT",
     "require": {
-        "php": "^8.1",
+        "php": "^8.2",
         "blade-ui-kit/blade-heroicons": "^2.1",
         "blade-ui-kit/blade-icons": "^1.5",
         "cloudmeshdev/livewire-slideover": "^1.0",
@@ -15,7 +15,7 @@
         "laravel/framework": "^10.0",
         "laravel/jetstream": "^4.0",
         "laravel/pennant": "^1.5",
-        "laravel/pulse": "^1.0@beta",
+        "laravel/pulse": "^1.0",
         "laravel/sanctum": "^3.2",
         "laravel/scout": "^10.1",
         "laravel/tinker": "^2.8",
