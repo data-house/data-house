@@ -8,7 +8,6 @@ use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
 use App\PdfProcessing\DocumentReference;
 use App\PdfProcessing\DocumentProperties;
-use App\PdfProcessing\StructuredDocumentContent;
 use App\PdfProcessing\Drivers\ParsePdfParserDriver;
 use App\PdfProcessing\Exceptions\PdfParsingException;
 use OneOffTech\Parse\Client\Requests\ExtractTextRequest;
@@ -55,8 +54,6 @@ class ParsePdfParserDriverTest extends TestCase
         $output = $driver->text($reference);
 
         $this->assertInstanceOf(DocumentContent::class, $output);
-
-        $this->assertNotInstanceOf(StructuredDocumentContent::class, $output);
 
         $this->assertStringContainsString("This is the title of the document", $output->all());
         

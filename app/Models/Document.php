@@ -11,9 +11,7 @@ use App\PdfProcessing\DocumentContent;
 use App\PdfProcessing\DocumentReference;
 use App\PdfProcessing\Exceptions\PdfParsingException;
 use App\PdfProcessing\Facades\Pdf;
-use App\PdfProcessing\PaginatedDocumentContent;
 use App\PdfProcessing\PdfDriver;
-use App\PdfProcessing\StructuredDocumentContent;
 use App\Pipelines\Concerns\HasPipelines;
 use Carbon\Carbon;
 use Exception;
@@ -442,17 +440,13 @@ class Document extends Model implements Convertible
         logs()->info("Making document [{$this->id} - {$this->ulid}] questionable");
 
         /**
-         * @var \App\PdfProcessing\StructuredDocumentContent
+         * @var \App\PdfProcessing\DocumentContent
          */
         $content = null;
 
         try{
             $reference = $this->asReference();
-            $content = Pdf::driver(PdfDriver::PARSE)->text($reference);
-
-            if(!$content instanceof StructuredDocumentContent){
-                throw new Exception("Expecting structured content from PDF processing. Copilot requires extracted text to be structured.");
-            }
+            $content = Pdf::text($reference);
         }
         catch(Exception $ex)
         {
