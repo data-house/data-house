@@ -2,33 +2,56 @@
 
 namespace App\PdfProcessing;
 
+use App\PdfProcessing\Contracts\Driver;
 use InvalidArgumentException;
 use Illuminate\Support\Manager;
 use App\PdfProcessing\Drivers\SmalotPdfParserDriver;
-use App\PdfProcessing\Drivers\ExtractorServicePdfParserDriver;
+use App\PdfProcessing\Drivers\ParsePdfParserDriver;
+use BackedEnum;
 
 class PdfProcessingManager extends Manager
 {
+
+
     /**
-     * Create an instance of the specified driver.
+     * Get a driver instance.
+     *
+     * @param  \BackedEnum|string|null  $driver
+     * @return mixed
+     *
+     * @throws \InvalidArgumentException
+     */
+    public function driver($driver = null)
+    {
+        if($driver instanceof BackedEnum && is_string($driver->value)){
+            return parent::driver($driver->value);
+        }
+        
+
+        return parent::driver($driver);
+    }
+
+
+    /**
+     * Create an instance of the Smalot driver.
      *
      * @return \App\PdfProcessing\Contracts\Driver
      */
-    protected function createSmalotDriver()
+    protected function createSmalotDriver(): Driver
     {
         return new SmalotPdfParserDriver();
     }
     
     /**
-     * Create an instance of the specified driver.
+     * Create an instance of the Parse driver.
      *
      * @return \App\PdfProcessing\Contracts\Driver
      */
-    protected function createExtractorDriver()
+    protected function createParseDriver(): Driver
     {
-        $config = $this->getConfig('extractor') ?? $this->getConfig('copilot');
+        $config = $this->getConfig('parse');
 
-        return new ExtractorServicePdfParserDriver($config);
+        return new ParsePdfParserDriver($config);
     }
 
     /**
@@ -37,7 +60,7 @@ class PdfProcessingManager extends Manager
      * @param  string  $name
      * @return array
      */
-    protected function getConfig($name)
+    protected function getConfig($name): array
     {
         return $this->config["pdf.processors.{$name}"] ?: [];
     }
@@ -47,7 +70,7 @@ class PdfProcessingManager extends Manager
      *
      * @return $this
      */
-    public function forgetDrivers()
+    public function forgetDrivers(): self
     {
         $this->drivers = [];
 
@@ -60,7 +83,7 @@ class PdfProcessingManager extends Manager
      * @param  \Illuminate\Contracts\Container\Container  $container
      * @return $this
      */
-    public function setContainer($container)
+    public function setContainer($container): self
     {
         $this->container = $container;
 
@@ -69,13 +92,9 @@ class PdfProcessingManager extends Manager
 
     /**
      * Get the default driver name.
-     *
-     * @return string
-     *
-     * @throws \InvalidArgumentException
      */
-    public function getDefaultDriver()
+    public function getDefaultDriver(): string
     {
-        return $this->config['pdf.default'] ?? PdfDriver::SMALOT_PDF->value;
+        return $this->config['pdf.default'] ?? PdfDriver::SMALOT->value;
     }
 }

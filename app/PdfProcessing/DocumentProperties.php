@@ -28,7 +28,7 @@ class DocumentProperties implements JsonSerializable
      * @return array
      */
     #[\ReturnTypeWillChange]
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
         return [
             'title' => $this->title,

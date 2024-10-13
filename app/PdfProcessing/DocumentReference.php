@@ -45,14 +45,29 @@ class DocumentReference implements JsonSerializable
         return $this;
     }
 
+    /**
+     * Check if the reference points to a path in a local filesystem
+     */
+    public function isLocal(): bool
+    {
+        return filled($this->path ?? null);
+    }
+    
+    /**
+     * Check if the reference points to a remote url
+     */
+    public function isRemote(): bool
+    {
+        return filled($this->url ?? null);
+    }
+
 
     /**
-     * Get the JSON serializable representation of the object.
+     * Get the JSON representation of the object.
      *
-     * @return array
      */
     #[\ReturnTypeWillChange]
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
         return [
             'mime_type' => $this->mimeType,

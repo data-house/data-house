@@ -4,6 +4,9 @@ namespace App\PdfProcessing;
 
 use Illuminate\Support\Arr;
 
+/**
+ * @deprecated
+ */
 class PaginatedDocumentContent extends DocumentContent
 {
 

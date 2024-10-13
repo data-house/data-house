@@ -2,17 +2,64 @@
 
 namespace App\PdfProcessing;
 
-use Illuminate\Support\Arr;
-use Illuminate\Support\Collection;
+use Countable;
 use JsonSerializable;
+use Illuminate\Support\Collection;
+use OneOffTech\Parse\Client\DocumentFormat\DocumentNode;
 
-class DocumentContent implements JsonSerializable
+class DocumentContent implements JsonSerializable, Countable
 {
-    public function __construct(
-        public readonly string|array $raw,
 
-        )
+    public readonly DocumentNode $raw;
+
+    public function __construct(DocumentNode|string $raw)
     {
+        $this->raw = $raw instanceof DocumentNode ? $raw : $this->stringToDocumentNode($raw);
+    }
+
+    protected function stringToDocumentNode(string $value): DocumentNode
+    {
+        return DocumentNode::fromArray([
+            "category" => "doc",
+            "content" => [[
+                "category" => "page",
+                "attributes" => [
+                    "page" => 1
+                ],
+                "content" => [
+                    [
+                        "role" => "body",
+                        "text" => $value,
+                        "marks" => [],
+                        "attributes" => [],
+                    ]
+                ]
+            ]],
+        ]);
+    }
+
+    /**
+     * @return \OneOffTech\Parse\Client\DocumentFormat\PageNode[]
+     */
+    public function pages(): array
+    {
+        return $this->raw->pages();
+    }
+
+    /**
+     * The number of pages in this document
+     */
+    public function count(): int
+    {
+        return $this->raw->count();
+    }
+
+    /**
+     * Get the underlying document node
+     */
+    public function document(): DocumentNode
+    {
+        return $this->raw;
     }
 
     /**
@@ -20,15 +67,12 @@ class DocumentContent implements JsonSerializable
      */
     public function all(): string
     {
-        if(is_array($this->raw)){
-            return collect($this->raw)->join('\f');
-        }
-        return $this->raw;
+        return $this->raw->text();
     }
 
     public function collect(): Collection
     {
-        return collect($this->raw);
+        return collect($this->pages());
     }
 
     /**
@@ -37,25 +81,12 @@ class DocumentContent implements JsonSerializable
      */
     public function isEmpty(): bool
     {
-        if(is_array($this->raw)){
-            return collect($this->raw)->filter()->isEmpty();
-        }
-        
-        return str($this->raw)->trim()->isEmpty();
+        return $this->raw->isEmpty();
     }
     
     public function isNotEmpty(): bool
     {
         return !$this->isEmpty();
-    }
-
-    public function pages(): array
-    {
-        if(!is_array($this->raw)){
-            return [1 => $this->raw];
-        }
-
-        return $this->raw;
     }
 
     /**
@@ -74,21 +105,9 @@ class DocumentContent implements JsonSerializable
     public function asStructured(): array
     {
         return [
-            "type" => "doc",
-            "content" => [[
-                "category" => "page",
-                "attributes" => [
-                    "page" => 1
-                ],
-                "content" => [
-                    [
-                        "role" => "body",
-                        "text" => $this->raw,
-                        "marks" => [],
-                        "attributes" => [],
-                    ]
-                ]
-            ]],
+            "category" => "doc",
+            "attributes" => null,
+            "content" => $this->raw->content,
         ];
     }
 

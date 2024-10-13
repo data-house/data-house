@@ -66,7 +66,7 @@ services:
             timeout: 5s
     
     parse:
-        image: "ghcr.io/data-house/pdf-text-extractor:v0.2.1"
+        image: "ghcr.io/data-house/pdf-text-extractor:v0.2.2"
         networks:
             - sail
         # environment:
@@ -81,16 +81,16 @@ services:
     #     networks:
     #         - sail
 
-    imaginary:
-        ## Thumbnail generation service
-        image: nextcloud/aio-imaginary:20240215_092413-latest
-        networks:
-            - sail
-        environment:
-            - PORT=9000
-        ports:
-            - '${FORWARD_IMAGINARY_PORT:-9000}:9000'
-        command: -concurrency 50 -enable-url-source -log-level debug
+    # imaginary:
+    #     ## Thumbnail generation service
+    #     image: nextcloud/aio-imaginary:20240215_092413-latest
+    #     networks:
+    #         - sail
+    #     environment:
+    #         - PORT=9000
+    #     ports:
+    #         - '${FORWARD_IMAGINARY_PORT:-9000}:9000'
+    #     command: -concurrency 50 -enable-url-source -log-level debug
 
 networks:
     sail:

@@ -2,15 +2,11 @@
 
 namespace Tests\Feature\PdfProcessing\Drivers;
 
-use App\Models\Disk;
+use Tests\TestCase;
 use App\PdfProcessing\DocumentContent;
 use App\PdfProcessing\DocumentProperties;
 use App\PdfProcessing\DocumentReference;
 use App\PdfProcessing\Drivers\SmalotPdfParserDriver;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Support\Facades\Storage;
-use Tests\TestCase;
 
 class SmalotPdfParserDriverTest extends TestCase
 {
@@ -55,7 +51,8 @@ class SmalotPdfParserDriverTest extends TestCase
         $structuredFormat = $documentContent->asStructured();
 
         $this->assertEquals([
-            "type" => "doc",
+            "category" => "doc",
+            "attributes" => null,
             "content" => [[
               "category" => "page",
               "attributes" => [

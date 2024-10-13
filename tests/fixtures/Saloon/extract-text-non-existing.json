@@ -1,0 +1,7 @@
+{
+    "statusCode": 422,
+    "headers": {
+        "content-type": "application\/json"
+    },
+    "data": "{\"detail\":\"File not found at given url.\"}"
+}

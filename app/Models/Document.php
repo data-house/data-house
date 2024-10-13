@@ -448,7 +448,7 @@ class Document extends Model implements Convertible
 
         try{
             $reference = $this->asReference();
-            $content = Pdf::driver(PdfDriver::EXTRACTOR_SERVICE->value)->text($reference);
+            $content = Pdf::driver(PdfDriver::PARSE)->text($reference);
 
             if(!$content instanceof StructuredDocumentContent){
                 throw new Exception("Expecting structured content from PDF processing. Copilot requires extracted text to be structured.");
