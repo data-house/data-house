@@ -13,11 +13,4 @@ class DocumentContentTest extends TestCase
 
         $this->assertTrue($content->isEmpty());
     }
-    
-    public function test_empty_paginated_document(): void
-    {
-        $content = new DocumentContent(['', '', '']);
-
-        $this->assertTrue($content->isEmpty());
-    }
 }

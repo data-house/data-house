@@ -5,7 +5,8 @@ namespace Tests\Feature;
 use App\Actions\SuggestDocumentAbstract;
 use App\Models\Document;
 use App\PdfProcessing\DocumentContent;
-use App\PdfProcessing\PaginatedDocumentContent;
+use App\PdfProcessing\Facades\Pdf;
+use App\PdfProcessing\Support\Testing\Fakes\FakeDocumentContent;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\Client\Request;
@@ -23,9 +24,6 @@ class SuggestDocumentAbstractTest extends TestCase
     public function test_page_range_with_last_page_below_start_page(): void
     {
         config([
-            'pdf.processors.extractor' => [
-                'host' => 'http://localhost:9000',
-            ],
             'copilot.driver' => 'cloud',
             'copilot.queue' => false,
             'copilot.engines.cloud' => [
@@ -36,7 +34,11 @@ class SuggestDocumentAbstractTest extends TestCase
 
         Storage::fake('local');
 
-        $document = Document::factory()->create([
+        $pdfDriver = Pdf::fake('parse', [
+            new DocumentContent("Content of the document")
+        ]);
+
+        $document = Document::factory()->createQuietly([
             'properties' => [
                 'pages' => 20,
             ]
@@ -50,14 +52,13 @@ class SuggestDocumentAbstractTest extends TestCase
         $this->expectExceptionMessage('End page must be greater or equal to start page [10]. Given [5].');
 
         $abstract = $action($document, LanguageAlpha2::English, [10, 5]);
+
+        $pdfDriver->assertNoParsingRequests();
     }
     
     public function test_total_pages_metadata_required(): void
     {
         config([
-            'pdf.processors.extractor' => [
-                'host' => 'http://localhost:9000',
-            ],
             'copilot.driver' => 'cloud',
             'copilot.queue' => false,
             'copilot.engines.cloud' => [
@@ -68,7 +69,11 @@ class SuggestDocumentAbstractTest extends TestCase
 
         Storage::fake('local');
 
-        $document = Document::factory()->create();
+        $pdfDriver = Pdf::fake('parse', [
+            new DocumentContent("Content of the document")
+        ]);
+
+        $document = Document::factory()->createQuietly();
 
         Http::preventStrayRequests();
 
@@ -78,14 +83,13 @@ class SuggestDocumentAbstractTest extends TestCase
         $this->expectExceptionMessage('Could not determine the number of pages in the document');
 
         $abstract = $action($document, LanguageAlpha2::English, [1, 5]);
+
+        $pdfDriver->assertNoParsingRequests();
     }
     
     public function test_ending_range_must_be_within_document_pages(): void
     {
         config([
-            'pdf.processors.extractor' => [
-                'host' => 'http://localhost:9000',
-            ],
             'copilot.driver' => 'cloud',
             'copilot.queue' => false,
             'copilot.engines.cloud' => [
@@ -96,7 +100,11 @@ class SuggestDocumentAbstractTest extends TestCase
 
         Storage::fake('local');
 
-        $document = Document::factory()->create([
+        $pdfDriver = Pdf::fake('parse', [
+            new DocumentContent("Content of the document")
+        ]);
+
+        $document = Document::factory()->createQuietly([
             'properties' => [
                 'pages' => 20,
             ]
@@ -115,9 +123,6 @@ class SuggestDocumentAbstractTest extends TestCase
     public function test_abstract_suggested(): void
     {
         config([
-            'pdf.processors.extractor' => [
-                'host' => 'http://localhost:9000',
-            ],
             'copilot.driver' => 'cloud',
             'copilot.queue' => false,
             'copilot.engines.cloud' => [
@@ -128,9 +133,13 @@ class SuggestDocumentAbstractTest extends TestCase
 
         Storage::fake('local');
 
+        $pdfDriver = Pdf::fake('parse', [
+            new DocumentContent("Content of the document")
+        ]);
+
         Storage::disk('local')->putFileAs('', new File(base_path('tests/fixtures/documents/data-house-test-doc.pdf')), 'test.pdf');
 
-        $document = Document::factory()->create([
+        $document = Document::factory()->createQuietly([
             'properties' => [
                 'pages' => 10,
             ]
@@ -139,7 +148,6 @@ class SuggestDocumentAbstractTest extends TestCase
         Http::preventStrayRequests();
 
         Http::fake([
-            'http://localhost:9000/extract-text' => Http::response((new DocumentContent("Content of the document"))->asStructured(), 200),
             'http://localhost:5000/library/library-id/summary' => Http::response([
                 "id" => $document->getCopilotKey(),
                 "lang" => "en",
@@ -161,14 +169,13 @@ class SuggestDocumentAbstractTest extends TestCase
                    $request['text'] == 'Content of the document' &&
                    $request['lang'] == 'en';
         });
+
+        $pdfDriver->assertCount(1);
     }
     
     public function test_abstract_for_report_suggested_in_english(): void
     {
         config([
-            'pdf.processors.extractor' => [
-                'host' => 'http://localhost:9000',
-            ],
             'copilot.driver' => 'cloud',
             'copilot.queue' => false,
             'copilot.engines.cloud' => [
@@ -179,9 +186,20 @@ class SuggestDocumentAbstractTest extends TestCase
 
         Storage::fake('local');
 
+        $pdfDriver = Pdf::fake('parse', [
+            FakeDocumentContent::fromPages([
+                1 => "-",
+                2 => "-",
+                3 => "-",
+                4 => "SUMMARY Content of the document",
+                5 => "ZUSAMMENFASSUNG (and other content)",
+                6 => "-",
+            ])
+        ]);
+
         Storage::disk('local')->putFileAs('', new File(base_path('tests/fixtures/documents/data-house-test-doc.pdf')), 'test.pdf');
 
-        $document = Document::factory()->create([
+        $document = Document::factory()->createQuietly([
             'title' => 'test_Evaluierungsbericht_.pdf',
             'properties' => [
                 'pages' => 10,
@@ -190,17 +208,7 @@ class SuggestDocumentAbstractTest extends TestCase
 
         Http::preventStrayRequests();
 
-        $pages = new PaginatedDocumentContent([
-            1 => "-",
-            2 => "-",
-            3 => "-",
-            4 => "SUMMARY Content of the document",
-            5 => "ZUSAMMENFASSUNG (and other content)",
-            6 => "-",
-        ]);
-
         Http::fake([
-            'http://localhost:9000/extract-text' => Http::response($pages->asStructured(), 200),
             'http://localhost:5000/library/library-id/summary' => Http::response([
                 "id" => $document->getCopilotKey(),
                 "lang" => "en",
@@ -222,14 +230,13 @@ class SuggestDocumentAbstractTest extends TestCase
                    $request['text'] == '-' . PHP_EOL . '-' . PHP_EOL . '-' . PHP_EOL . 'SUMMARY Content of the document' . PHP_EOL . 'ZUSAMMENFASSUNG (and other content)' . PHP_EOL . '-' &&
                    $request['lang'] == 'en';
         });
+
+        $pdfDriver->assertCount(1);
     }
 
     public function test_abstract_for_report_suggested_in_german(): void
     {
         config([
-            'pdf.processors.extractor' => [
-                'host' => 'http://localhost:9000',
-            ],
             'copilot.driver' => 'cloud',
             'copilot.queue' => false,
             'copilot.engines.cloud' => [
@@ -240,9 +247,20 @@ class SuggestDocumentAbstractTest extends TestCase
 
         Storage::fake('local');
 
+        $pdfDriver = Pdf::fake('parse', [
+            FakeDocumentContent::fromPages([
+                1 => "-",
+                2 => "-",
+                3 => "-",
+                4 => "ZUSAMMENFASSUNG Content of the document",
+                5 => "SUMMARY",
+                6 => "-",
+            ])
+        ]);
+
         Storage::disk('local')->putFileAs('', new File(base_path('tests/fixtures/documents/data-house-test-doc.pdf')), 'test.pdf');
 
-        $document = Document::factory()->create([
+        $document = Document::factory()->createQuietly([
             'title' => 'test_Evaluierungsbericht_.pdf',
             'properties' => [
                 'pages' => 10,
@@ -251,17 +269,7 @@ class SuggestDocumentAbstractTest extends TestCase
 
         Http::preventStrayRequests();
 
-        $pages = new PaginatedDocumentContent([
-            1 => "-",
-            2 => "-",
-            3 => "-",
-            4 => "ZUSAMMENFASSUNG Content of the document",
-            5 => "SUMMARY",
-            6 => "-",
-        ]);
-
         Http::fake([
-            'http://localhost:9000/extract-text' => Http::response($pages->asStructured(), 200),
             'http://localhost:5000/library/library-id/summary' => Http::response([
                 "id" => $document->getCopilotKey(),
                 "lang" => "en",
@@ -283,15 +291,14 @@ class SuggestDocumentAbstractTest extends TestCase
                    $request['text'] == '-' . PHP_EOL . '-' . PHP_EOL . '-' . PHP_EOL . 'ZUSAMMENFASSUNG Content of the document' . PHP_EOL . 'SUMMARY' . PHP_EOL . '-' &&
                    $request['lang'] == 'de';
         });
+
+        $pdfDriver->assertCount(1);
     }
 
     
     public function test_page_range_respected(): void
     {
         config([
-            'pdf.processors.extractor' => [
-                'host' => 'http://localhost:9000',
-            ],
             'copilot.driver' => 'cloud',
             'copilot.queue' => false,
             'copilot.engines.cloud' => [
@@ -302,9 +309,20 @@ class SuggestDocumentAbstractTest extends TestCase
 
         Storage::fake('local');
 
+        $pdfDriver = Pdf::fake('parse', [
+            FakeDocumentContent::fromPages([
+                1 => "-",
+                2 => "-",
+                3 => "-",
+                4 => "SUMMARY Content of the document",
+                5 => "ZUSAMMENFASSUNG (and other content)",
+                6 => "-",
+            ])
+        ]);
+
         Storage::disk('local')->putFileAs('', new File(base_path('tests/fixtures/documents/data-house-test-doc.pdf')), 'test.pdf');
 
-        $document = Document::factory()->create([
+        $document = Document::factory()->createQuietly([
             'title' => 'test_Evaluierungsbericht_.pdf',
             'properties' => [
                 'pages' => 10,
@@ -313,17 +331,7 @@ class SuggestDocumentAbstractTest extends TestCase
 
         Http::preventStrayRequests();
 
-        $pages = new PaginatedDocumentContent([
-            1 => "-",
-            2 => "-",
-            3 => "-",
-            4 => "SUMMARY Content of the document",
-            5 => "ZUSAMMENFASSUNG (and other content)",
-            6 => "-",
-        ]);
-
         Http::fake([
-            'http://localhost:9000/extract-text' => Http::response($pages->asStructured(), 200),
             'http://localhost:5000/library/library-id/summary' => Http::response([
                 "id" => $document->getCopilotKey(),
                 "lang" => "en",
@@ -345,5 +353,7 @@ class SuggestDocumentAbstractTest extends TestCase
                    $request['text'] == 'SUMMARY Content of the document' &&
                    $request['lang'] == 'en';
         });
+
+        $pdfDriver->assertCount(1);
     }
 }

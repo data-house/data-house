@@ -5,6 +5,7 @@ namespace Tests\Feature\Jobs\Pipeline;
 use App\Jobs\Pipeline\Document\MakeDocumentQuestionable;
 use App\Models\Document;
 use App\PdfProcessing\DocumentContent;
+use App\PdfProcessing\Facades\Pdf;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Http;
@@ -18,9 +19,6 @@ class MakeDocumentQuestionableTest extends TestCase
     public function test_document_questionable(): void
     {
         config([
-            'pdf.processors.extractor' => [
-                'host' => 'http://localhost:9000',
-            ],
             'copilot.driver' => 'cloud',
             'copilot.queue' => false,
             'copilot.features.summary' => false,
@@ -34,9 +32,13 @@ class MakeDocumentQuestionableTest extends TestCase
 
         Storage::fake('local');
 
+        $pdfDriver = Pdf::fake('parse', [
+            new DocumentContent("Content of the document")
+        ]);
+
         $model = Document::factory()
             ->hasPipelineRuns(1)
-            ->create([
+            ->createQuietly([
                 'properties' => [
                     'pages' => 20,
                     'has_textual_content' => true,
@@ -46,7 +48,6 @@ class MakeDocumentQuestionableTest extends TestCase
         Http::preventStrayRequests();
 
         Http::fake([
-            'http://localhost:9000/extract-text' => Http::response((new DocumentContent("Content of the document"))->asStructured(), 200),
             'http://localhost:5000/library/library-id/*' => Http::response([
                 "message" => "Document `{$model->getCopilotKey()}` removed from the library `library-id`."
             ], 200),
@@ -56,7 +57,9 @@ class MakeDocumentQuestionableTest extends TestCase
 
         $job->handle();
 
-        Http::assertSentCount(2);
+        Http::assertSentCount(1);
+
+        $pdfDriver->assertCount(1);
     }
     
     public function test_job_skipped_when_copilot_features_not_enabled(): void
@@ -78,9 +81,13 @@ class MakeDocumentQuestionableTest extends TestCase
 
         Storage::fake('local');
 
+        $pdfDriver = Pdf::fake('parse', [
+            new DocumentContent("Content of the document")
+        ]);
+
         $model = Document::factory()
             ->hasPipelineRuns(1)
-            ->create([
+            ->createQuietly([
                 'properties' => [
                     'pages' => 20,
                 ],
@@ -89,17 +96,6 @@ class MakeDocumentQuestionableTest extends TestCase
         Http::preventStrayRequests();
 
         Http::fake([
-            'http://localhost:9000/extract-text' => Http::response([
-                "content" => [
-                    [
-                        "metadata" => [
-                            "page_number" => 1
-                        ],
-                        "text" => "Content of the document"
-                    ],
-                ],
-                "status" => "ok"
-            ], 200),
             'http://localhost:5000/library/library-id/*' => Http::response([
                 "message" => "Document `{$model->getCopilotKey()}` removed from the library `library-id`."
             ], 200),
@@ -110,6 +106,8 @@ class MakeDocumentQuestionableTest extends TestCase
         $job->handle();
 
         Http::assertSentCount(0);
+
+        $pdfDriver->assertNoParsingRequests();
     }
     
     

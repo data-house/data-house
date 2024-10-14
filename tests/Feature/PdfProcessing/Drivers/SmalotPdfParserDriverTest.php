@@ -48,8 +48,6 @@ class SmalotPdfParserDriverTest extends TestCase
         $this->assertStringContainsString("This is a heading 1", $text);
         $this->assertStringContainsString("This is a paragraph below heading 1", $text);
 
-        $structuredFormat = $documentContent->asStructured();
-
         $this->assertEquals([
             "category" => "doc",
             "attributes" => null,
@@ -60,14 +58,14 @@ class SmalotPdfParserDriverTest extends TestCase
               ],
               "content" => [
                 [
-                  "role" => "body",
-                  "text" => "This is the header \n \n1 \n \nThis is a test PDF to be used as input in unit \ntests \n \nThis is a heading 1 \nThis is a paragraph below heading 1",
+                  "category" => "body",
+                  "content" => "This is the header \n \n1 \n \nThis is a test PDF to be used as input in unit \ntests \n \nThis is a heading 1 \nThis is a paragraph below heading 1",
                   "marks" => [],
                   "attributes" => [],
                 ]
               ]
             ]]
-          ], $structuredFormat);
+          ], $documentContent->asArray());
 
     }
 }

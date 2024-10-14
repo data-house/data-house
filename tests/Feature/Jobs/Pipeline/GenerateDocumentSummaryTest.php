@@ -8,6 +8,7 @@ use App\Jobs\Pipeline\Document\GenerateDocumentSummary;
 use App\Models\Document;
 use App\Models\DocumentSummary;
 use App\PdfProcessing\DocumentContent;
+use App\PdfProcessing\Facades\Pdf;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Http;
@@ -35,9 +36,13 @@ class GenerateDocumentSummaryTest extends TestCase
 
         Storage::fake('local');
 
+        $pdfDriver = Pdf::fake('parse', [
+            new DocumentContent("Content of the document")
+        ]);
+
         $model = Document::factory()
             ->hasPipelineRuns(1)
-            ->create([
+            ->createQuietly([
                 'properties' => [
                     'pages' => 20,
                 ],
@@ -46,7 +51,6 @@ class GenerateDocumentSummaryTest extends TestCase
         Http::preventStrayRequests();
 
         Http::fake([
-            'http://localhost:9000/extract-text' => Http::response((new DocumentContent("Content of the document"))->asStructured(), 200),
             'http://localhost:5000/library/library-id/summary' => Http::response([
                 "id" => $model->ulid,
                 "lang" => "en",
@@ -67,6 +71,8 @@ class GenerateDocumentSummaryTest extends TestCase
         $this->assertEquals(LanguageAlpha2::English, $summary->language);
         $this->assertTrue($summary->ai_generated);
         $this->assertNull($document->description);
+
+        $pdfDriver->assertCount(1);
     }
     
     public function test_two_abstracts_generated_for_non_english_documents(): void
@@ -85,9 +91,13 @@ class GenerateDocumentSummaryTest extends TestCase
 
         Storage::fake('local');
 
+        $pdfDriver = Pdf::fake('parse', [
+            new DocumentContent("Content of the document")
+        ]);
+
         $model = Document::factory()
             ->hasPipelineRuns(1)
-            ->create([
+            ->createQuietly([
                 'properties' => [
                     'pages' => 20,
                 ],
@@ -97,7 +107,6 @@ class GenerateDocumentSummaryTest extends TestCase
         Http::preventStrayRequests();
 
         Http::fake([
-            'http://localhost:9000/extract-text' => Http::response((new DocumentContent("Content of the document"))->asStructured(), 200),
             'http://localhost:5000/library/library-id/summary' => Http::response([
                 "id" => $model->ulid,
                 "lang" => "en",
@@ -120,6 +129,7 @@ class GenerateDocumentSummaryTest extends TestCase
         $this->assertEquals(LanguageAlpha2::Spanish_Castilian, $summary->language);
         $this->assertTrue($summary->ai_generated);
         $this->assertNull($document->description);
+        $pdfDriver->assertCount(2);
     }
     
     public function test_only_english_abstract_generated_for_unsupported_languages(): void
@@ -138,9 +148,13 @@ class GenerateDocumentSummaryTest extends TestCase
 
         Storage::fake('local');
 
+        $pdfDriver = Pdf::fake('parse', [
+            new DocumentContent("Content of the document")
+        ]);
+
         $model = Document::factory()
             ->hasPipelineRuns(1)
-            ->create([
+            ->createQuietly([
                 'properties' => [
                     'pages' => 20,
                 ],
@@ -150,7 +164,6 @@ class GenerateDocumentSummaryTest extends TestCase
         Http::preventStrayRequests();
 
         Http::fake([
-            'http://localhost:9000/extract-text' => Http::response((new DocumentContent("Content of the document"))->asStructured(), 200),
             'http://localhost:5000/library/library-id/summary' => Http::response([
                 "id" => $model->ulid,
                 "lang" => "en",
@@ -173,5 +186,6 @@ class GenerateDocumentSummaryTest extends TestCase
         $this->assertEquals(LanguageAlpha2::English, $summary->language);
         $this->assertTrue($summary->ai_generated);
         $this->assertNull($document->description);
+        $pdfDriver->assertCount(1);
     }
 }

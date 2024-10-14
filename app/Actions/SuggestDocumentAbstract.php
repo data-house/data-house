@@ -64,6 +64,7 @@ class SuggestDocumentAbstract
             list($startPage, $endPage) = $range;
 
             return collect($content->pages())
+                ->map->text()
                 ->skip($startPage - 1)
                 ->take(max(1, $endPage-$startPage));
         }

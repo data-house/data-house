@@ -4,8 +4,6 @@ namespace Tests\Feature\PdfProcessing\Drivers;
 
 use App\PdfProcessing\DocumentContent;
 use Tests\TestCase;
-use Illuminate\Http\Client\Request;
-use Illuminate\Support\Facades\Http;
 use App\PdfProcessing\DocumentReference;
 use App\PdfProcessing\DocumentProperties;
 use App\PdfProcessing\Drivers\ParsePdfParserDriver;
@@ -63,7 +61,7 @@ class ParsePdfParserDriverTest extends TestCase
 
         $expectedStructuredContent = json_decode(file_get_contents('./tests/Fixtures/Saloon/extract-text.json'), true);
 
-        $this->assertEquals(json_decode($expectedStructuredContent['data'], true), $output->asStructured());
+        $this->assertEquals(json_decode($expectedStructuredContent['data'], true), $output->asArray());
 
     }
 

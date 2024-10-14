@@ -14,28 +14,7 @@ class DocumentContent implements JsonSerializable, Countable
 
     public function __construct(DocumentNode|string $raw)
     {
-        $this->raw = $raw instanceof DocumentNode ? $raw : $this->stringToDocumentNode($raw);
-    }
-
-    protected function stringToDocumentNode(string $value): DocumentNode
-    {
-        return DocumentNode::fromArray([
-            "category" => "doc",
-            "content" => [[
-                "category" => "page",
-                "attributes" => [
-                    "page" => 1
-                ],
-                "content" => [
-                    [
-                        "role" => "body",
-                        "text" => $value,
-                        "marks" => [],
-                        "attributes" => [],
-                    ]
-                ]
-            ]],
-        ]);
+        $this->raw = $raw instanceof DocumentNode ? $raw : DocumentNode::fromString($raw);
     }
 
     /**
@@ -97,18 +76,12 @@ class DocumentContent implements JsonSerializable, Countable
     #[\ReturnTypeWillChange]
     public function jsonSerialize(): mixed
     {
-        return [
-            'raw' => $this->raw,
-        ];
+        return $this->raw->toArray();
     }
-
-    public function asStructured(): array
+    
+    public function asArray(): array
     {
-        return [
-            "category" => "doc",
-            "attributes" => null,
-            "content" => $this->raw->content,
-        ];
+        return $this->raw->toArray();
     }
 
 }

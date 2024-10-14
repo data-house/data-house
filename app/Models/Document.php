@@ -446,7 +446,7 @@ class Document extends Model implements Convertible
 
         try{
             $reference = $this->asReference();
-            $content = Pdf::text($reference);
+            $content = Pdf::driver(PdfDriver::PARSE)->text($reference);
         }
         catch(Exception $ex)
         {
@@ -461,7 +461,7 @@ class Document extends Model implements Convertible
         return [
             'id' => $this->getCopilotKey(),
             'lang' => $this->language?->value ?? LanguageAlpha2::English->value,
-            'data' => $content->asStructured(),
+            'data' => $content,
         ];
     }
 
