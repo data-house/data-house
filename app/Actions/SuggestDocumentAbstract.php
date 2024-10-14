@@ -59,11 +59,12 @@ class SuggestDocumentAbstract
         try{
             $reference = $document->asReference();
 
-            $content = Pdf::driver(PdfDriver::EXTRACTOR_SERVICE->value)->text($reference);
+            $content = Pdf::driver(PdfDriver::PARSE)->text($reference);
 
             list($startPage, $endPage) = $range;
 
             return collect($content->pages())
+                ->map->text()
                 ->skip($startPage - 1)
                 ->take(max(1, $endPage-$startPage));
         }

@@ -2,18 +2,17 @@
 
 namespace Tests\Feature\Copilot;
 
-use App\Copilot\CopilotResponse;
 use App\Copilot\Engines\cloudEngine;
 use App\Jobs\AskQuestionJob;
 use App\Models\Disk;
 use App\Models\Document;
 use App\Models\Question;
 use App\PdfProcessing\DocumentContent;
+use App\PdfProcessing\Facades\Pdf;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\Client\Request;
 use Illuminate\Http\File;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
@@ -27,9 +26,6 @@ class QuestionableTraitTest extends TestCase
     public function test_model_can_be_made_synchronously_questionable(): void
     {
         config([
-            'pdf.processors.extractor' => [
-                'host' => 'http://localhost:9000',
-            ],
             'copilot.driver' => 'cloud',
             'copilot.queue' => false,
             'copilot.engines.cloud' => [
@@ -40,15 +36,16 @@ class QuestionableTraitTest extends TestCase
 
         Http::preventStrayRequests();
 
-        $textContent = (new DocumentContent("This is the header 1 This is a test PDF to be used as input in unit tests This is a heading 1 This is a paragraph below heading 1"))->asStructured();
+        $pdfDriver = Pdf::fake('parse', [
+            new DocumentContent("This is the header 1 This is a test PDF to be used as input in unit tests This is a heading 1 This is a paragraph below heading 1")
+        ]);
 
         
-        $document = Document::factory()->create([
+        $document = Document::factory()->createQuietly([
             'disk_path' => 'test.pdf',
         ]);
 
         Http::fake([
-            'http://localhost:9000/extract-text' => Http::response($textContent, 200),
             'http://localhost:5000/library/library-id/documents' => Http::response([
                 "message" => "Document {$document->getCopilotKey()} added to the library library-id."
             ], 201),
@@ -63,20 +60,19 @@ class QuestionableTraitTest extends TestCase
         
         $document->questionable();
 
-        Http::assertSent(function (Request $request) use ($document, $textContent) {
+        Http::assertSent(function (Request $request) use ($document) {
             return $request->url() == 'http://localhost:5000/library/library-id/documents' &&
                    $request['id'] === $document->getCopilotKey() && 
                    $request['lang'] === 'en';
         });
+
+        $pdfDriver->assertCount(1);
 
     }
 
     public function test_model_can_be_removed_synchronously_from_questionable(): void
     {
         config([
-            'pdf.processors.extractor' => [
-                'host' => 'http://localhost:9000',
-            ],
             'copilot.driver' => 'cloud',
             'copilot.queue' => false,
             'copilot.engines.cloud' => [
@@ -87,17 +83,9 @@ class QuestionableTraitTest extends TestCase
 
         Http::preventStrayRequests();
 
-        $textContent = [
-            [
-                "metadata" => [
-                    "page_number" => 1
-                ],
-                "text" => "This is the header 1 This is a test PDF to be used as input in unit tests This is a heading 1 This is a paragraph below heading 1"
-            ],
-        ];
-
+        $pdfDriver = Pdf::fake('parse', []);
         
-        $document = Document::factory()->create([
+        $document = Document::factory()->createQuietly([
             'disk_path' => 'test.pdf',
         ]);
 
@@ -116,10 +104,12 @@ class QuestionableTraitTest extends TestCase
         
         $document->unquestionable();
 
-        Http::assertSent(function (Request $request) use ($document, $textContent) {
+        Http::assertSent(function (Request $request) use ($document) {
             return $request->url() == 'http://localhost:5000/library/library-id/documents/' . $document->getCopilotKey() &&
                 $request->method() === 'DELETE';
         });
+
+        $pdfDriver->assertNoParsingRequests();
 
     }
 
@@ -135,7 +125,7 @@ class QuestionableTraitTest extends TestCase
             ],
         ]);
 
-        $document = Document::factory()->create();
+        $document = Document::factory()->createQuietly();
 
         $driver = $document->questionableUsing();
 
@@ -154,7 +144,7 @@ class QuestionableTraitTest extends TestCase
             ],
         ]);
 
-        $document = Document::factory()->create();
+        $document = Document::factory()->createQuietly();
 
         $this->assertTrue($document->shouldBeQuestionable());
     }
@@ -174,7 +164,7 @@ class QuestionableTraitTest extends TestCase
 
         Queue::fake();
         
-        $document = Document::factory()->create();
+        $document = Document::factory()->createQuietly();
 
         /**
          * @var \App\Models\Question

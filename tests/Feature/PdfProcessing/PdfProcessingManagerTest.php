@@ -2,19 +2,12 @@
 
 namespace Tests\Feature\PdfProcessing;
 
-use App\Models\Disk;
-use App\PdfProcessing\DocumentProperties;
-use App\PdfProcessing\Drivers\CopilotPdfParserDriver;
-use App\PdfProcessing\Drivers\ExtractorServicePdfParserDriver;
-use App\PdfProcessing\Drivers\SmalotPdfParserDriver;
-use App\PdfProcessing\Drivers\XpdfDriver;
-use App\PdfProcessing\Facades\Pdf;
-use App\PdfProcessing\PdfDriver;
-use App\PdfProcessing\PdfProcessingManager;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
+use App\PdfProcessing\PdfDriver;
+use App\PdfProcessing\Facades\Pdf;
+use App\PdfProcessing\PdfProcessingManager;
+use App\PdfProcessing\Drivers\ParsePdfParserDriver;
+use App\PdfProcessing\Drivers\SmalotPdfParserDriver;
 
 class PdfProcessingManagerTest extends TestCase
 {
@@ -29,29 +22,29 @@ class PdfProcessingManagerTest extends TestCase
     public function test_default_driver_respect_configuration(): void
     {
         config([
-            'pdf.default' => PdfDriver::EXTRACTOR_SERVICE->value,
+            'pdf.default' => PdfDriver::PARSE->value,
         ]);
 
         $driver = app()->make(PdfProcessingManager::class)->getDefaultDriver();
 
-        $this->assertEquals('extractor', $driver);
+        $this->assertEquals('parse', $driver);
     }
     
     public function test_smalot_driver_can_be_created(): void
     {
-        $driver = Pdf::driver('smalot');
+        $driver = Pdf::driver(PdfDriver::SMALOT);
 
         $this->assertInstanceOf(SmalotPdfParserDriver::class, $driver);
     }
     
-    public function test_extractor_driver_can_be_created(): void
+    public function test_parse_driver_can_be_created(): void
     {
-        config(['pdf.processors.extractor' => [
+        config(['pdf.processors.parse' => [
             'host' => 'http://localhost:5000',
         ]]);
 
-        $driver = Pdf::driver('extractor');
+        $driver = Pdf::driver(PdfDriver::PARSE);
 
-        $this->assertInstanceOf(ExtractorServicePdfParserDriver::class, $driver);
+        $this->assertInstanceOf(ParsePdfParserDriver::class, $driver);
     }
 }

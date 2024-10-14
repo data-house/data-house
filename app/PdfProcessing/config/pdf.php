@@ -14,7 +14,7 @@ return [
     |
     */
 
-    'default' => env('PDF_PROCESSOR', PdfDriver::SMALOT_PDF->value),
+    'default' => env('PDF_PROCESSOR', PdfDriver::SMALOT->value),
 
     /*
     |--------------------------------------------------------------------------
@@ -25,18 +25,19 @@ return [
     | Defaults have been set up for each driver as an example
     | of the required values.
     |
-    | Supported Drivers: "smalot", "extractor" (https://github.com/data-house/pdf-text-extractor)
+    | Supported Drivers: "smalot", "parse" (https://github.com/data-house/pdf-text-extractor)
     |
     */
 
     'processors' => [
 
-        PdfDriver::SMALOT_PDF->value => [
+        PdfDriver::SMALOT->value => [
         ],
         
-        PdfDriver::EXTRACTOR_SERVICE->value => [
-            'host' => env('PDF_EXTRACTOR_SERVICE_URL'),
-            'driver'=> env('PDF_EXTRACTOR_SERVICE_DRIVER', 'pymupdf'),
+        PdfDriver::PARSE->value => [
+            'host' => env('PARSE_URL', env('PDF_EXTRACTOR_SERVICE_URL')),
+            'token' => env('PARSE_TOKEN'),
+            'processor'=> env('PARSE_PROCESSOR', env('PDF_EXTRACTOR_SERVICE_DRIVER', 'pymupdf')),
         ],
 
     ],

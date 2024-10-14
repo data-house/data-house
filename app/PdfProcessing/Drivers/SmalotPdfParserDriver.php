@@ -37,8 +37,8 @@ class SmalotPdfParserDriver implements Driver
 
     public function text(DocumentReference $document): DocumentContent
     {
-        if(empty($document->path)){
-            throw new InvalidArgumentException(__('The PDF driver is able to deal only with local files'));
+        if(!$document->isLocal()){
+            throw new InvalidArgumentException(__('Expected local document. Remote file given.'));
         }
 
         try{
@@ -61,7 +61,7 @@ class SmalotPdfParserDriver implements Driver
 
     public function properties(DocumentReference $document): DocumentProperties
     {
-        if(empty($document->path)){
+        if(!$document->isLocal()){
             throw new InvalidArgumentException(__('The PDF driver is able to deal only with local files'));
         }
 

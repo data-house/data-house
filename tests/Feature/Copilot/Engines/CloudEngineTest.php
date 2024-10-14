@@ -10,6 +10,7 @@ use App\Copilot\CopilotSummarizeRequest;
 use App\Models\Disk;
 use App\Models\Document;
 use App\PdfProcessing\DocumentContent;
+use App\PdfProcessing\Facades\Pdf;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\File;
@@ -136,11 +137,7 @@ class CloudEngineTest extends TestCase
     
     public function test_document_can_be_added(): void
     {
-
         config([
-            'pdf.processors.extractor' => [
-                'host' => 'http://localhost:9000',
-            ],
             'copilot.engines.cloud' => [
                 'host' => 'http://localhost:5000/',
                 'library' => 'library-id'
@@ -153,16 +150,17 @@ class CloudEngineTest extends TestCase
 
         Storage::putFileAs('', new File(base_path('tests/fixtures/documents/data-house-test-doc.pdf')), 'test.pdf');
 
-        $document = Document::factory()->create([
+        $document = Document::factory()->createQuietly([
             'disk_path' => 'test.pdf',
         ]);
 
         Http::preventStrayRequests();
 
-        $textContent = new DocumentContent("This is the header 1 This is a test PDF to be used as input in unit tests This is a heading 1 This is a paragraph below heading 1");
+        $pdfDriver = Pdf::fake('parse', [
+            new DocumentContent("This is the header 1 This is a test PDF to be used as input in unit tests This is a heading 1 This is a paragraph below heading 1")
+        ]);
 
         Http::fake([
-            'http://localhost:9000/extract-text' => Http::response($textContent->asStructured(), 200),
             'http://localhost:5000/library/library-id/documents' => Http::response([
                 "message" => "Document {$document->getCopilotKey()} added to the library library-id."
             ], 201),
@@ -175,11 +173,13 @@ class CloudEngineTest extends TestCase
 
         $engine->update(Document::all());
 
-        Http::assertSent(function (Request $request) use ($document, $textContent) {
+        Http::assertSent(function (Request $request) use ($document) {
             return $request->url() == 'http://localhost:5000/library/library-id/documents' &&
                    $request['id'] == $document->getCopilotKey() &&
                    $request['lang'] == 'en';
         });
+
+        $pdfDriver->assertCount(1);
 
     }
     
