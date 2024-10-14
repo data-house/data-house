@@ -4815,12 +4815,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/OneOffTech/parse-client.git",
-                "reference": "d7e8250c0d89ddbf7d275a02f1d90def0175165e"
+                "reference": "767f1c4279a491e0a7a7514101bcaae3a3282508"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/OneOffTech/parse-client/zipball/d7e8250c0d89ddbf7d275a02f1d90def0175165e",
-                "reference": "d7e8250c0d89ddbf7d275a02f1d90def0175165e",
+                "url": "https://api.github.com/repos/OneOffTech/parse-client/zipball/767f1c4279a491e0a7a7514101bcaae3a3282508",
+                "reference": "767f1c4279a491e0a7a7514101bcaae3a3282508",
                 "shasum": ""
             },
             "require": {
@@ -4861,7 +4861,7 @@
             "support": {
                 "source": "https://github.com/OneOffTech/parse-client/tree/main"
             },
-            "time": "2024-10-13T10:12:59+00:00"
+            "time": "2024-10-14T08:47:45+00:00"
         },
         {
             "name": "paragonie/constant_time_encoding",
