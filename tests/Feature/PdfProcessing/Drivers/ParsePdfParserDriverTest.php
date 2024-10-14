@@ -12,12 +12,17 @@ use OneOffTech\Parse\Client\Requests\ExtractTextRequest;
 use Saloon\Config as SaloonConfig;
 use Saloon\Http\Faking\MockClient;
 use Saloon\Http\Faking\MockResponse;
+use Saloon\MockConfig;
 
 class ParsePdfParserDriverTest extends TestCase
 {
 
     public function test_driver_return_file_info(): void
     {
+        SaloonConfig::preventStrayRequests();
+        MockClient::destroyGlobal();
+        MockConfig::setFixturePath('tests/fixtures/Saloon');
+
         $driver = new ParsePdfParserDriver(['host' => 'http://localhost:5000/']);
 
         $reference = DocumentReference::build('application/pdf')->path(base_path('tests/fixtures/documents/data-house-test-doc.pdf'));
@@ -40,6 +45,7 @@ class ParsePdfParserDriverTest extends TestCase
     {
         SaloonConfig::preventStrayRequests();
         MockClient::destroyGlobal();
+        MockConfig::setFixturePath('tests/fixtures/Saloon');
         
         $mockClient = MockClient::global([
             ExtractTextRequest::class => MockResponse::fixture('extract-text'),
@@ -59,7 +65,7 @@ class ParsePdfParserDriverTest extends TestCase
         
         $this->assertEquals('1 First chapter'.PHP_EOL.'This is an example text.', $pages[1]->text());
 
-        $expectedStructuredContent = json_decode(file_get_contents('./tests/Fixtures/Saloon/extract-text.json'), true);
+        $expectedStructuredContent = json_decode(file_get_contents('./tests/fixtures/Saloon/extract-text.json'), true);
 
         $this->assertEquals(json_decode($expectedStructuredContent['data'], true), $output->asArray());
 
@@ -69,6 +75,7 @@ class ParsePdfParserDriverTest extends TestCase
     {
         SaloonConfig::preventStrayRequests();
         MockClient::destroyGlobal();
+        MockConfig::setFixturePath('tests/fixtures/Saloon');
         
         $mockClient = MockClient::global([
             ExtractTextRequest::class => MockResponse::fixture('extract-text-non-existing'),
