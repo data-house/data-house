@@ -17,16 +17,29 @@ class DocumentSummary extends Model implements Htmlable
         'text',
         'ai_generated',
         'user_id',
+        'all_document',
     ];
 
     protected $casts = [
         'language' => LanguageAlpha2::class,
         'ai_generated' => 'boolean',
+        'all_document' => 'boolean',
     ];
     
     protected $attributes = [
         'ai_generated' => false,
     ];
+
+
+    public function scopeWholeDocument($query)
+    {
+        $query->where('all_document', true);
+    }
+
+    public function scopePartDocument($query)
+    {
+        $query->where('all_document', false);
+    }
 
     public function document()
     {
@@ -37,10 +50,20 @@ class DocumentSummary extends Model implements Htmlable
     {
         return $this->belongsTo(User::class);
     }
+    
+    public function section()
+    {
+        return $this->belongsTo(DocumentSection::class);
+    }
 
     public function isAiGenerated(): bool
     {
         return $this->ai_generated;
+    }
+
+    public function isWholeDocument(): bool
+    {
+        return $this->all_document;
     }
 
     /**

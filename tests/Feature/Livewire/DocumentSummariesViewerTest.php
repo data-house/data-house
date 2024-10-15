@@ -9,6 +9,7 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Sequence;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\DB;
 use Livewire\Livewire;
 use PrinsFrank\Standards\Language\LanguageAlpha2;
 use Tests\TestCase;
@@ -16,6 +17,8 @@ use Tests\TestCase;
 class DocumentSummariesViewerTest extends TestCase
 {
     use RefreshDatabase;
+
+    // TODO: test it shows only whole document summaries
     
     public function test_single_summary_rendered()
     {
@@ -27,17 +30,34 @@ class DocumentSummariesViewerTest extends TestCase
         $document = Document::factory()
             ->recycle($user)
             ->recycle($user->currentTeam)
-            ->has(DocumentSummary::factory()->state([
-                'text' => 'Existing summary',
-                'language' => LanguageAlpha2::English,
-            ]), 'summaries')
+            ->has(
+                DocumentSummary::factory()->count(2)->sequence(
+                    [
+                        'all_document' => true,
+                        'text' => 'Existing summary',
+                        'language' => LanguageAlpha2::English,
+                    ],
+                    [
+                        'all_document' => false,
+                        'text' => 'Section summary',
+                        'language' => LanguageAlpha2::English,
+                    ]
+                )
+            , 'summaries')
             ->create([
                 'languages' => collect(LanguageAlpha2::English)
             ]);
 
+        DB::listen(function($query){
+            dump($query->sql);
+        });
+
+        dump($document->fresh()->latestSummary?->toArray());
+
         Livewire::test(DocumentSummariesViewer::class, ['document' => $document])
             ->assertStatus(200)
-            ->assertSee('Existing summary');
+            ->assertSee('Existing summary')
+            ->assertDontSee('Section summary');
     }
     
     public function test_latest_summary_rendered_for_each_language()

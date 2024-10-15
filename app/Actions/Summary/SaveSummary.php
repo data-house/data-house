@@ -14,13 +14,14 @@ class SaveSummary
      *
      * @param  \App\Models\Document  $document
      */
-    public function __invoke(Document $document, string $text, ?LanguageAlpha2 $language = null, User $user = null): DocumentSummary
+    public function __invoke(Document $document, string $text, ?LanguageAlpha2 $language = null, User $user = null, bool $wholeDocument = true): DocumentSummary
     {
         return $document->summaries()->create([
             'text' => $text,
             'ai_generated' => is_null($user),
             'language' => $language,
-            'user_id' => $user?->getKey()
+            'user_id' => $user?->getKey(),
+            'all_document' => $wholeDocument,
         ]);
     }
 

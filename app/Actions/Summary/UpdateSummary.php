@@ -22,7 +22,7 @@ class UpdateSummary
         }
 
         if($summary->isAiGenerated() || $summary->user_id !== $user?->getKey()){
-            return (new SaveSummary())($summary->document, $text, $language, $user);
+            return (new SaveSummary())($summary->document, $text, $language, $user, $summary->all_document);
         }
 
         $summary->text = $text;

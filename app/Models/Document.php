@@ -208,12 +208,18 @@ class Document extends Model implements Convertible
 
     public function summaries(): HasMany
     {
-        return $this->hasMany(DocumentSummary::class)->orderBy('created_at', 'DESC');
+        return $this->hasMany(DocumentSummary::class)->orderBy('created_at', 'DESC')->where('document_summaries.all_document', true); // ->wholeDocument()
+
     }
 
     public function latestSummary(): HasOne
     {
-        return $this->hasOne(DocumentSummary::class)->latestOfMany();
+        return $this->summaries()->one()->latestOfMany();
+    }
+
+    public function sections(): HasMany
+    {
+        return $this->hasMany(DocumentSection::class)->sortedByOrder();
     }
     
     /**

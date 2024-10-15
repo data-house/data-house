@@ -185,6 +185,7 @@ class DocumentSummaryCommandTest extends TestCase
         $this->assertInstanceOf(DocumentSummary::class, $generatedSummary);
         $this->assertEquals('Summary.', $generatedSummary->text);
         $this->assertTrue($generatedSummary->ai_generated);
+        $this->assertTrue($generatedSummary->all_document);
 
         $pdfDriver->assertCount(1);
     }

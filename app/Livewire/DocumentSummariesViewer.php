@@ -54,7 +54,6 @@ class DocumentSummariesViewer extends Component
     public function languages()
     {
         return $this->document->summaries()->select('language')->distinct()->get()->pluck('language');
-        ;
     }
 
     #[Computed()]
