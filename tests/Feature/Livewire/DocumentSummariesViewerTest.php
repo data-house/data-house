@@ -17,8 +17,6 @@ use Tests\TestCase;
 class DocumentSummariesViewerTest extends TestCase
 {
     use RefreshDatabase;
-
-    // TODO: test it shows only whole document summaries
     
     public function test_single_summary_rendered()
     {
@@ -36,6 +34,7 @@ class DocumentSummariesViewerTest extends TestCase
                         'all_document' => true,
                         'text' => 'Existing summary',
                         'language' => LanguageAlpha2::English,
+                        'created_at' => now()->subMinute(),
                     ],
                     [
                         'all_document' => false,
@@ -44,15 +43,9 @@ class DocumentSummariesViewerTest extends TestCase
                     ]
                 )
             , 'summaries')
-            ->create([
+            ->createQuietly([
                 'languages' => collect(LanguageAlpha2::English)
             ]);
-
-        DB::listen(function($query){
-            dump($query->sql);
-        });
-
-        dump($document->fresh()->latestSummary?->toArray());
 
         Livewire::test(DocumentSummariesViewer::class, ['document' => $document])
             ->assertStatus(200)
@@ -71,19 +64,27 @@ class DocumentSummariesViewerTest extends TestCase
             ->recycle($user)
             ->recycle($user->currentTeam)
             ->has(DocumentSummary::factory()
-                ->count(3)
+                ->count(4)
                 ->state(new Sequence(
                     [
+                        'all_document' => true,
                         'text' => 'First summary',
                         'language' => LanguageAlpha2::English,
                         'created_at' => now()->subDays(5),
                     ],
                     [
+                        'all_document' => true,
                         'text' => 'Second summary',
                         'language' => LanguageAlpha2::English,
                     ],
                     [
+                        'all_document' => true,
                         'text' => 'Spanish summary',
+                        'language' => LanguageAlpha2::Spanish_Castilian,
+                    ],
+                    [
+                        'all_document' => false,
+                        'text' => 'Partial summary',
                         'language' => LanguageAlpha2::Spanish_Castilian,
                     ]
                 ))

@@ -214,7 +214,9 @@ class Document extends Model implements Convertible
 
     public function latestSummary(): HasOne
     {
-        return $this->summaries()->one()->latestOfMany();
+        return $this->hasOne(DocumentSummary::class)->ofMany(['id' => 'MAX'], function($query){
+            return $query->where('document_summaries.all_document', true);
+        });
     }
 
     public function sections(): HasMany
