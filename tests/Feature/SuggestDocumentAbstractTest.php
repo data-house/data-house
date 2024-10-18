@@ -165,9 +165,9 @@ class SuggestDocumentAbstractTest extends TestCase
         Http::assertSent(function (Request $request) use ($document) {
             return $request->url() == 'http://localhost:5000/library/library-id/summary' &&
                    $request->method() === 'POST' &&
-                   $request['id'] == $document->getCopilotKey() &&
-                   $request['text'] == 'Content of the document' &&
-                   $request['lang'] == 'en';
+                   $request['text']['id'] == $document->getCopilotKey() &&
+                   $request['text']['text'] == 'Content of the document' &&
+                   $request['text']['lang'] == 'en';
         });
 
         $pdfDriver->assertCount(1);
@@ -226,9 +226,9 @@ class SuggestDocumentAbstractTest extends TestCase
         Http::assertSent(function (Request $request) use ($document) {
             return $request->url() == 'http://localhost:5000/library/library-id/summary' &&
                    $request->method() === 'POST' &&
-                   $request['id'] == $document->getCopilotKey() &&
-                   $request['text'] == '-' . PHP_EOL . '-' . PHP_EOL . '-' . PHP_EOL . 'SUMMARY Content of the document' . PHP_EOL . 'ZUSAMMENFASSUNG (and other content)' . PHP_EOL . '-' &&
-                   $request['lang'] == 'en';
+                   $request['text']['id'] == $document->getCopilotKey() &&
+                   $request['text']['text'] == '-' . PHP_EOL . '-' . PHP_EOL . '-' . PHP_EOL . 'SUMMARY Content of the document' . PHP_EOL . 'ZUSAMMENFASSUNG (and other content)' . PHP_EOL . '-' &&
+                   $request['text']['lang'] == 'en';
         });
 
         $pdfDriver->assertCount(1);
@@ -287,9 +287,9 @@ class SuggestDocumentAbstractTest extends TestCase
         Http::assertSent(function (Request $request) use ($document) {
             return $request->url() == 'http://localhost:5000/library/library-id/summary' &&
                    $request->method() === 'POST' &&
-                   $request['id'] == $document->getCopilotKey() &&
-                   $request['text'] == '-' . PHP_EOL . '-' . PHP_EOL . '-' . PHP_EOL . 'ZUSAMMENFASSUNG Content of the document' . PHP_EOL . 'SUMMARY' . PHP_EOL . '-' &&
-                   $request['lang'] == 'de';
+                   $request['text']['id'] == $document->getCopilotKey() &&
+                   $request['text']['text'] == '-' . PHP_EOL . '-' . PHP_EOL . '-' . PHP_EOL . 'ZUSAMMENFASSUNG Content of the document' . PHP_EOL . 'SUMMARY' . PHP_EOL . '-' &&
+                   $request['text']['lang'] == 'de';
         });
 
         $pdfDriver->assertCount(1);
@@ -349,9 +349,9 @@ class SuggestDocumentAbstractTest extends TestCase
         Http::assertSent(function (Request $request) use ($document) {
             return $request->url() == 'http://localhost:5000/library/library-id/summary' &&
                    $request->method() === 'POST' &&
-                   $request['id'] == $document->getCopilotKey() &&
-                   $request['text'] == 'SUMMARY Content of the document' &&
-                   $request['lang'] == 'en';
+                   $request['text']['id'] == $document->getCopilotKey() &&
+                   $request['text']['text'] == 'SUMMARY Content of the document' &&
+                   $request['text']['lang'] == 'en';
         });
 
         $pdfDriver->assertCount(1);

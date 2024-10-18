@@ -73,6 +73,7 @@ class DocumentSummaryButtonTest extends TestCase
             ->recycle($user)
             ->recycle($user->currentTeam)
             ->has(DocumentSummary::factory()->state([
+                'all_document' => true,
                 'text' => 'Existing summary',
             ]), 'summaries')
             ->create([

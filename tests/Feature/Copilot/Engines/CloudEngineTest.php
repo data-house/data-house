@@ -608,9 +608,9 @@ class CloudEngineTest extends TestCase
         Http::assertSent(function (Request $request) use ($id) {
             return $request->url() == 'http://localhost:5000/library/library-id/summary' &&
                    $request->method() === 'POST' &&
-                   $request['id'] == $id &&
-                   $request['text'] == 'The text to summarize' &&
-                   $request['lang'] == 'en';
+                   $request['text']['id'] == $id &&
+                   $request['text']['text'] == 'The text to summarize' &&
+                   $request['text']['lang'] == 'en';
         });
     }
 

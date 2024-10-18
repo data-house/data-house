@@ -128,6 +128,7 @@ class GenerateDocumentSummaryTest extends TestCase
         $this->assertEquals('Summary.', $summary->text);
         $this->assertEquals(LanguageAlpha2::Spanish_Castilian, $summary->language);
         $this->assertTrue($summary->ai_generated);
+        $this->assertTrue($summary->all_document);
         $this->assertNull($document->description);
         $pdfDriver->assertCount(2);
     }
