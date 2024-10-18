@@ -285,7 +285,8 @@ class CloudEngine extends Engine
             $summary = $json['text'] ?? null;
 
             if(blank($summary)){
-                throw new CopilotException("Summary not generated.");
+                $details = $json['details'] ?? null;
+                throw new CopilotException("Summary not generated. [$details]");
             }
 
             return new CopilotResponse($summary);
