@@ -31,4 +31,7 @@ changelog.md
 .env.example
 *.md
 docker-compose.yml
+docker-compose.override.yml
 bootstrap/cache/*.php
+*.sql
+public/hot

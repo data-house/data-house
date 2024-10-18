@@ -124,7 +124,7 @@ class DocumentSummaryCommandTest extends TestCase
         Http::assertSent(function (Request $request) {
             return $request->url() == 'http://localhost:5000/library/library-id/summary' &&
                    $request->method() === 'POST' &&
-                   $request['lang'] == 'de';
+                   $request['text']['lang'] == 'de';
         });
 
         $pdfDriver->assertCount(1);
