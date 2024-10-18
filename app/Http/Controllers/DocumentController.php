@@ -80,6 +80,10 @@ class DocumentController extends Controller
             'team',
             'project',
             'latestSummary',
+            'sections' => function($query){
+                $query->whereNull('level')->orWhere('level', '<=', 2);
+            },
+            'sections.latestSummary'
         ]);
 
         return view('document.show', [

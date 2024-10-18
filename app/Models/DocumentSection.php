@@ -23,6 +23,7 @@ class DocumentSection extends Model
     protected $casts = [
         'order' => 'integer',
         'level' => 'boolean',
+        'reference' => 'array',
     ];
 
     public function document(): BelongsTo
@@ -49,5 +50,11 @@ class DocumentSection extends Model
     public function scopeSortedByOrder($query, $direction = 'ASC')
     {
         return $query->orderBy('order', $direction);
+    }
+
+
+    public function page(): int
+    {
+        return $this->reference['bounding_box']['page'] ?? 1;
     }
 }

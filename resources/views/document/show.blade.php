@@ -45,9 +45,9 @@
     </x-slot>
 
     <div class="">
-        <div class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
-            @if ($hasActivePipelines)
-                <div class="mb-4 bg-yellow-100 text-yellow-900 flex items-center gap-2 px-3 py-2">
+
+        @if ($hasActivePipelines)
+                <div class="max-w-7xl mx-auto my-2 py-2 bg-yellow-100 text-yellow-900 flex items-center gap-2 px-4 sm:px-6 lg:px-8">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5 shrink-0">
                         <path fill-rule="evenodd" d="M15.312 11.424a5.5 5.5 0 01-9.201 2.466l-.312-.311h2.433a.75.75 0 000-1.5H3.989a.75.75 0 00-.75.75v4.242a.75.75 0 001.5 0v-2.43l.31.31a7 7 0 0011.712-3.138.75.75 0 00-1.449-.39zm1.23-3.723a.75.75 0 00.219-.53V2.929a.75.75 0 00-1.5 0V5.36l-.31-.31A7 7 0 003.239 8.188a.75.75 0 101.448.389A5.5 5.5 0 0113.89 6.11l.311.31h-2.432a.75.75 0 000 1.5h4.243a.75.75 0 00.53-.219z" clip-rule="evenodd" />
                       </svg>
@@ -56,11 +56,35 @@
                 </div>
             @endif
 
+
+        <div class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
+            
+
             <div class="flex flex-col md:flex-row">
 
                 <div class="col-span-2 md:basis-3/5 shrink-0 mb-12">
 
                     <livewire:document-summaries-viewer :show-create="true" :document="$document" />
+
+                    @if ($document->sections->isNotEmpty())
+                        
+                        <h4 class="mt-8 font-bold mb-2 text-stone-700">
+                            {{ __('Content preview') }}
+                        </h4>
+
+                        <ul class="pr-4">
+                            @foreach ($document->sections as $section)
+                            <li class="mb-2">
+                                <a href="{{ $document->viewerUrl($section->page())}}" class="text-sm flex items-center gap-2 group hover:text-blue-800" target="_blank">
+                                    {{ $section->title }}
+
+                                    <span class="grow h-px bg-stone-200 group-hover:bg-stone-300"></span>
+                                    <span>{{ $section->page() }}</span>
+                                </a>
+                            </li>
+                            @endforeach
+                        </ul>
+                    @endif
                     
                 </div>
 
