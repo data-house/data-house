@@ -94,7 +94,8 @@ class DocumentController extends Controller
         $sdg_stats = null;
 
         if($disk->exists("{$document->ulid}/sdg.json")){
-            $fullClassification = collect($disk->json("{$document->ulid}/sdg.json"))->sortByDesc('score');
+            $json = $disk->json("{$document->ulid}/sdg.json");
+            $fullClassification = collect($json['classification'] ?? $json['result'] ?? $json)->sortByDesc('score');
 
             $classification = $fullClassification->take(5);
 
