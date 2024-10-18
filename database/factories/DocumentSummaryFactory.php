@@ -23,6 +23,7 @@ class DocumentSummaryFactory extends Factory
             'ai_generated' => false,
             'text' => fake()->paragraph(),
             'language' => 'en',
+            'all_document' => true,
         ];
     }
 
