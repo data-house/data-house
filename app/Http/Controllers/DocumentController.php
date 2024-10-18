@@ -9,6 +9,7 @@ use App\Models\Visibility;
 use App\Pipelines\PipelineTrigger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Number;
 use Illuminate\Validation\Rules\File;
 
 class DocumentController extends Controller
@@ -86,10 +87,46 @@ class DocumentController extends Controller
             'sections.latestSummary'
         ]);
 
+
+        $disk = Storage::disk(Disk::DOCUMENT_CLASSIFICATION_RESULTS->value);
+
+        $sdg = null;
+        $sdg_stats = null;
+
+        if($disk->exists("{$document->ulid}/sdg.json")){
+            $fullClassification = collect($disk->json("{$document->ulid}/sdg.json"))->sortByDesc('score');
+
+            $classification = $fullClassification->take(5);
+
+            $sdg = $classification->where('score', $classification->max('score'))->first();
+
+            $others = $fullClassification->skip(5)->sum('score');
+
+
+            $sdg_stats = $classification->sortBy('name', SORT_NATURAL)->map(function($entry){
+
+                return [
+                    'goal' => 'Goal ' . trans("sdg.{$entry['name']}.goal"),
+                    'title' => trans("sdg.{$entry['name']}.label"),
+                    'color' => trans("sdg.{$entry['name']}.color"),
+                    'percentage' => Number::percentage($entry['score'] * 100),
+                    'score' => $entry['score'],
+                ];
+            })->add([
+                    'goal' => 'Others',
+                    'title' => 'Other goals',
+                    'color' => '#d6d3d1',
+                    'percentage' => Number::percentage($others * 100),
+                    'score' => $others,
+                ]);
+        }
+
         return view('document.show', [
             'document' => $document,
             'hasActivePipelines' => $document->hasActivePipelines(),
             'importDocument' => null,
+            'sdg_stats' => $sdg_stats,
+            'sdg' => $sdg,
         ]);
     }
 
