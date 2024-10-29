@@ -36,7 +36,7 @@ class ParsePdfParserDriver implements Driver
     }
 
 
-    public function text(DocumentReference $document): DocumentContent
+    public function text(DocumentReference $document, array $options = []): DocumentContent
     {
         if(!$document->isRemote()){
             throw new InvalidArgumentException(__('Expected remote document. Local file given.'));
@@ -46,7 +46,7 @@ class ParsePdfParserDriver implements Driver
             $parsedDocument = $this->client->parse(
                 url: $document->url,
                 mimeType: $document->mimeType,
-                options: new ParseOption($this->defaultProcessor)
+                options: new ParseOption(($options['processor'] ?? null) ? DocumentProcessor::from($options['processor']) : $this->defaultProcessor)
             );
             
             return new DocumentContent($parsedDocument->document());

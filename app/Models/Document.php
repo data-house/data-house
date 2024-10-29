@@ -31,6 +31,7 @@ use App\Starrable;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Number;
 use MeiliSearch\Exceptions\JsonEncodingException;
 use Oneofftech\LaravelLanguageRecognizer\Support\Facades\LanguageRecognizer;
@@ -454,7 +455,9 @@ class Document extends Model implements Convertible
 
         try{
             $reference = $this->asReference();
-            $content = Pdf::driver(PdfDriver::PARSE)->text($reference);
+            $content = Cache::rememberForever("pdf-extraction-parse-default-{$this->getKey()}", function() use ($reference) {
+                return Pdf::driver(PdfDriver::PARSE)->text($reference);
+            });
         }
         catch(Exception $ex)
         {
