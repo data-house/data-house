@@ -110,8 +110,8 @@ return [
                 ],
                 'text-processing' => [
                     'n_context_chunk' => env('COPILOT_CLOUD_TEXT_CONTEXT_CHUNKS', 10),
-                    'chunk_length' => env('COPILOT_CLOUD_LIBRARY_CHUNK_LENGTH', 490),
-                    'chunk_overlap' => env('COPILOT_CLOUD_LIBRARY_CHUNK_OVERLAP', 10),
+                    'chunk_length' => env('COPILOT_CLOUD_LIBRARY_CHUNK_LENGTH', 8000),
+                    'chunk_overlap' => env('COPILOT_CLOUD_LIBRARY_CHUNK_OVERLAP', 50),
                 ]
             ],
         ],
