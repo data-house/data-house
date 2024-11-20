@@ -9,6 +9,7 @@ use App\PdfProcessing\PdfDriver;
 use Exception;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
+use OneOffTech\Parse\Client\DocumentProcessor;
 use PrinsFrank\Standards\Language\LanguageAlpha2;
 
 class ExtractDocumentSections
@@ -23,8 +24,8 @@ class ExtractDocumentSections
         try{
             $reference = $document->asReference();
 
-            $content = Cache::rememberForever("pdf-extraction-parse-{$document->getKey()}", function() use ($reference) {
-                return Pdf::driver(PdfDriver::PARSE)->text($reference);
+            $content = Cache::rememberForever("pdf-extraction-parse-pdfact-{$document->getKey()}", function() use ($reference) {
+                return Pdf::driver(PdfDriver::PARSE)->text($reference, ['processor' => DocumentProcessor::PDFACT->value]);
             });
 
             $headings = collect($content->pages())

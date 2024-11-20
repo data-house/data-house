@@ -14,7 +14,7 @@ interface Driver
      * @param \App\PdfProcessing\DocumentReference $document The reference to the document. Could be either an absolute path or a url.
      * @return 
      */
-    public function text(DocumentReference $document): DocumentContent;
+    public function text(DocumentReference $document, array $options = []): DocumentContent;
 
     /**
      * Get PDF document properties

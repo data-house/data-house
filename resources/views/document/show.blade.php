@@ -99,6 +99,51 @@
                         <x-section-border />
                     @endfeature
 
+                    @if ($sdg)
+                        <div class="space-y-3">
+                            <h4 class="font-bold text-stone-700">{{ __('Sustainable Development Goals') }}</h4>
+                            
+                            
+
+                            <div class="grid grid-cols-1 grid-rows-1 bg-white p-2 rounded">
+                                <span class="opacity-60 text-4xl font-black col-start-1 row-start-1" style="color: {{trans("sdg.{$sdg['name']}.color")}}">{{ trans("sdg.{$sdg['name']}.goal") }}</span>
+                                <p class="col-start-1 row-start-1 p-3 z-10">
+                                    <span class="block font-medium">{{ trans("sdg.{$sdg['name']}.label") }}</span>
+                                    <span class="text-xs text-stone-700">{{ trans("sdg.{$sdg['name']}.title") }}</span>
+                                </p>
+                            </div>
+                            
+                            <div class="relative h-2 rounded-md flex overflow-hidden gap-0.5">
+                                @foreach ($sdg_stats as $classification)
+                                    <div class="h-2 grow-0 opacity-80"
+                                        style="background: {{ $classification['color'] }};width:{{ $classification['score']*100 }}%"
+                                        x-data x-tooltip.raw="{{ $classification['goal'] . ' - ' . $classification['percentage'] }}"
+                                        >
+                                    </div>
+                                @endforeach
+                            </div>
+                        
+                            <div class="flex gap-4 flex-wrap">
+                                @foreach ($sdg_stats as $classification)
+                                    <span class="text-xs inline-flex items-center gap-1" x-data x-tooltip.raw="{{ $classification['title'] }}">
+                                        <span class="rounded-full w-3 h-3" style="background: {{ $classification['color'] }}"></span>
+                                        <span class="font-medium text-stone-800">{{ $classification['goal'] }}</span>
+                                        <span class="text-stone-600">{{ $classification['percentage'] }}</span>
+                                    </span>
+                                @endforeach
+                            </div>
+
+                            <p class="text-xs text-stone-700 flex items-center gap-1">
+                                <x-heroicon-s-sparkles class="text-stone-500 h-4 w-4 line-clamp-2" />
+                                {{ __('The SDG classification is automatically generated.') }}
+                            </p>
+                        </div>
+
+                        <x-section-border />
+                        
+                    @endif
+
+
                     <div class="space-y-3">
                         <h4 class="font-bold text-stone-700">{{ __('Project') }}</h4>
                         

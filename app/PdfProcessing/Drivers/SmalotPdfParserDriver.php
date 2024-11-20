@@ -35,7 +35,7 @@ class SmalotPdfParserDriver implements Driver
         $this->parser = $parser;
     }
 
-    public function text(DocumentReference $document): DocumentContent
+    public function text(DocumentReference $document, array $options = []): DocumentContent
     {
         if(!$document->isLocal()){
             throw new InvalidArgumentException(__('Expected local document. Remote file given.'));
