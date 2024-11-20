@@ -32,7 +32,7 @@ class FakeParserDriver implements Driver
     }
 
 
-    public function text(DocumentReference $document): DocumentContent
+    public function text(DocumentReference $document, array $options = []): DocumentContent
     {
         $this->pdfRequests->add($document);
 
