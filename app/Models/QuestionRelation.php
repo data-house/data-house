@@ -23,9 +23,14 @@ enum QuestionRelation: int
     case CHILDREN = 15;
     
     /**
-     * The target entity is a revision of source
+     * The target entity is a new version of source
      */
     case REVISION = 20;
+    
+    /**
+     * The target is a re-execution of source
+     */
+    case RETRY = 21;
     
     /**
      * The target entity is a revision of source

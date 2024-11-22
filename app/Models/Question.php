@@ -215,6 +215,23 @@ class Question extends Model implements Htmlable
         ]);
     }
     
+    /**
+     * Filter by questions asked by a user or the users' current team
+     */
+    public function scopeBelongingToUserOrTeam(Builder $query, User $user): void
+    {
+        $query->where(function($query) use ($user){
+            $query
+                ->where('team_id', $user->current_team_id)
+                ->orWhere('user_id', $user->getKey());
+        });
+    }
+
+    public function scopeAskedTo(Builder $query, Model $model): void
+    {
+        $query->where('questionable_id', $model->getKey()); // whereMorph? https://laravel.com/docs/10.x/eloquent-relationships#querying-morph-to-relationships
+    }
+
     public function scopeAskedBy(Builder $query, User $user): void
     {
         $query->where('user_id', $user->getKey());

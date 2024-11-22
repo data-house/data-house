@@ -4,16 +4,13 @@ namespace App\Copilot;
 
 use App\Jobs\AskQuestionJob;
 use App\Models\Question;
-use App\Models\QuestionStatus;
-use Exception;
+use App\Models\QuestionRelation;
 use \Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Benchmark;
 use Illuminate\Support\Collection as BaseCollection;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\LazyCollection;
 use Nette\InvalidStateException;
 
@@ -114,12 +111,16 @@ trait Questionable
 
         $request = new CopilotRequest($uuid, trim($query), [''.$this->getCopilotKey()], $language);
 
-        $previouslyExecutedQuestion = Question::hash($request->hash())->first();
+        /**
+         * @var Question|null
+         */
+        $previouslyExecutedQuestion = null;
 
-        // TODO: decide if duplicate the question for the current user
-
-        if($previouslyExecutedQuestion){
-            return $previouslyExecutedQuestion;
+        if(auth()->check()){
+            $previouslyExecutedQuestion = $this->questions()
+                ->hash($request->hash())
+                ->belongingToUserOrTeam(auth()->user())
+                ->first();
         }
 
         if(!CopilotManager::hasRemainingQuestions(auth()->user())){
@@ -130,16 +131,31 @@ trait Questionable
 
         // Save question and response as part of user's history
 
-        $question = $this->questions()->create([
+        /**
+         * @var \App\Models\User|null
+         */
+        $user = auth()->user();
+
+        $questionData = [
             'uuid' => $uuid,
             'question' => $request->question,
             'hash' => $request->hash(),
-            'user_id' => auth()->user()?->getKey(),
-            'team_id' => auth()->user()?->currentTeam?->getKey(),
+            'user_id' => $user?->getKey(),
+            'team_id' => $user?->currentTeam?->getKey(),
             'language' => $language,
-        ]);
+        ];
 
-        CopilotManager::trackQuestionHitFor(auth()->user());
+        $question = DB::transaction(function() use ($questionData, $previouslyExecutedQuestion) {
+            $question = $this->questions()->create($questionData);
+    
+            if($previouslyExecutedQuestion){
+                $question->related()->attach($previouslyExecutedQuestion, ['type' => QuestionRelation::RETRY]);
+            }
+
+            return $question;
+        });
+
+        CopilotManager::trackQuestionHitFor($user);
 
         AskQuestionJob::dispatch($question);
 
