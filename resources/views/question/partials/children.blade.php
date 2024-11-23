@@ -54,11 +54,13 @@
                         <x-copy-clipboard-button :value="$child->toText()" title="{{ __('Copy answer') }}">
                             {{ __('Copy') }}
                         </x-copy-clipboard-button>
+
+                        @if (auth()->user()->hasRole('admin'))
+                            <x-copy-clipboard-button :value="$child->uuid" title="{{ __('Copy question identifier') }}">
+                                {{ __('Copy identifier') }}
+                            </x-copy-clipboard-button>
+                        @endif
     
-                        <x-copy-clipboard-button :value="$child->url()" title="{{ __('Copy link to question') }}">
-                            <x-slot:icon><x-heroicon-m-link class="w-5 h-5" /></x-slot>
-                            {{ __('Link') }}
-                        </x-copy-clipboard-button>
                     </div>
     
                     <livewire:question-feedback :wire:key="$child->uuid" :question="$child" />
