@@ -20,6 +20,7 @@ use Illuminate\Support\Benchmark;
 use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\HtmlString;
 use Laravel\Scout\Searchable;
 use Illuminate\Support\Str;
 use Oneofftech\LaravelLanguageRecognizer\Support\Facades\LanguageRecognizer;
@@ -171,6 +172,14 @@ class Question extends Model implements Htmlable
         return $this->belongsToMany(Question::class, 'question_relationship', 'source', 'target')
             ->using(QuestionRelationship::class)
             ->withPivot(['type']);
+    }
+
+    /**
+     * Get the previous try of the same question
+     */
+    public function retryOf(): BelongsToMany
+    {
+        return $this->related()->wherePivot('type', QuestionRelation::RETRY);
     }
 
     /**
@@ -538,9 +547,12 @@ class Question extends Model implements Htmlable
     /**
      * Get the html representation of this response
      */
-    public function toHtml()
+    public function toHtml(): HtmlString
     {
-        return Str::markdown($this->answer['text'] ?? $this->generateProgressReports());
+        return str($this->answer['text'] ?? $this->generateProgressReports())->markdown([
+            'html_input' => 'strip',
+            'allow_unsafe_links' => false,
+        ])->toHtmlString();
     }
     
     public function toText()
@@ -548,9 +560,15 @@ class Question extends Model implements Htmlable
         return $this->answer['text'] ?? '';
     }
 
-    public function formattedText()
+    public function formattedText(): HtmlString
     {
-        return $this->type ? str($this->type->formatQuestion($this->question))->markdown() : str($this->question)->markdown();
+        return $this->type ? str($this->type->formatQuestion($this->question))->markdown([
+            'html_input' => 'strip',
+            'allow_unsafe_links' => false,
+        ])->toHtmlString() : str($this->question)->markdown([
+            'html_input' => 'strip',
+            'allow_unsafe_links' => false,
+        ])->toHtmlString();
     }
 
     public function references(): SupportCollection

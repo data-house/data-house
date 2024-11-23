@@ -37,7 +37,7 @@ if($question->status === \App\Models\QuestionStatus::ERROR){
             <div class="w-full min-w-0 text-sm sm:text-base">
                 
                 <div class="prose prose-stone prose-sm sm:prose-base prose-pre:rounded-md prose-p:whitespace-pre-wrap prose-p:m-0 prose-p:break-words w-full flex-1 leading-6 prose-p:leading-7 prose-pre:bg-[#282c34] max-w-full relative">
-                    {!! $question->formattedText() !!}
+                    {{ $question->formattedText() }}
                 </div>
             </div>
 
@@ -88,7 +88,7 @@ if($question->status === \App\Models\QuestionStatus::ERROR){
             </div>
             <div class="w-full min-w-0 text-sm sm:text-base">
                 <div class="prose prose-stone prose-sm sm:prose-base prose-pre:rounded-md prose-p:whitespace-pre-wrap prose-p:break-words w-full flex-1 leading-6 prose-p:leading-7 prose-pre:bg-[#282c34] max-w-full">
-                    {!! $question->toHtml() !!}
+                    {{ $question->toHtml() }}
                 </div>
                 <div class="prose prose-stone prose-sm sm:prose-base prose-pre:rounded-md prose-p:whitespace-pre-wrap prose-p:break-words w-full flex-1 leading-6 prose-p:leading-7 prose-pre:bg-[#282c34] max-w-full space-x-2">
                     @if ($question->isSingle())
