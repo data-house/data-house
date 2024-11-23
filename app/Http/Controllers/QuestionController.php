@@ -78,6 +78,7 @@ class QuestionController extends Controller
             'team',
             'children.questionable',
             'ancestors.questionable',
+            'retryOf'
         ]);
 
         return view('question.show', [

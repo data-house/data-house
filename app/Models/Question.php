@@ -191,12 +191,13 @@ class Question extends Model implements Htmlable
     }
     
     /**
-     * Children of this question
+     * Parent questions
      */
     public function ancestors(): BelongsToMany
     {
         return $this->belongsToMany(Question::class, 'question_relationship', 'target', 'source')
             ->using(QuestionRelationship::class)
+            ->wherePivot('type', QuestionRelation::CHILDREN)
             ->withPivot(['type']);
     }
 
