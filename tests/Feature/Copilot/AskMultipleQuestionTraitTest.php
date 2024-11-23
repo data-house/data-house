@@ -6,6 +6,7 @@ use App\Jobs\AskMultipleQuestionJob;
 use App\Models\Collection;
 use App\Models\Document;
 use App\Models\Question;
+use App\Models\QuestionRelation;
 use App\Models\QuestionTarget;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -87,5 +88,164 @@ class AskMultipleQuestionTraitTest extends TestCase
         $this->assertEquals($expectedQuestionHash, $savedQuestion->hash);
         $this->assertEquals('Do you really reply to my question?', $savedQuestion->question);
 
+    }
+
+    public function test_same_question_can_be_asked_and_is_considered_a_retry(): void
+    {
+        config([
+            'copilot.driver' => 'cloud',
+            'copilot.queue' => false,
+            'copilot.engines.cloud' => [
+                'host' => 'http://localhost:5000/',
+                'library' => 'library-id',
+            ],
+        ]);
+
+        Http::preventStrayRequests();
+
+        Queue::fake();
+        
+        $user = User::factory()->manager()->withPersonalTeam()->create();
+
+        $collection = Collection::factory()
+            ->for($user)
+            ->hasAttached(
+                Document::factory()->count(3),
+            )
+            ->create();
+
+        $existingQuestion = Question::factory()
+            ->multiple($collection)
+            ->recycle($user)
+            ->recycle($user->currentTeam)
+            ->create([
+                'question' => 'Do you really reply to my question?'
+            ]);
+
+        $documents = $collection->documents;
+
+        /**
+         * @var \App\Models\Question
+         */
+        $question = null;
+
+        $questionUuid = null;
+
+        $expectedQuestionHash = hash('sha512', 'Do you really reply to my question?-' . $documents->map->getCopilotKey()->join('-'));
+
+        $this->actingAs($user);
+
+        Str::freezeUuids(function($uuid) use ($collection, &$question, &$questionUuid){
+
+            $question = $collection->question('Do you really reply to my question?');
+
+            $questionUuid = $uuid;
+        });
+
+        Queue::assertPushed(AskMultipleQuestionJob::class, function($job) use ($question) {
+            return $job->question->is($question);
+        });
+
+        Http::assertNothingSent();
+
+        $this->assertNotNull($questionUuid);
+
+        $this->assertInstanceOf(Question::class, $question);
+
+        $savedQuestion = Question::whereUuid($questionUuid)->first();
+
+        $this->assertNotNull($savedQuestion);
+
+        $this->assertTrue($savedQuestion->user->is($user));
+        $this->assertTrue($savedQuestion->team->is($user->currentTeam));
+        $this->assertNull($savedQuestion->language);
+        $this->assertNull($savedQuestion->execution_time);
+        $this->assertNull($savedQuestion->answer);
+        $this->assertEquals(QuestionTarget::MULTIPLE, $savedQuestion->target);
+
+        $this->assertTrue($savedQuestion->questionable->is($collection));
+
+        $this->assertEquals($expectedQuestionHash, $savedQuestion->hash);
+        $this->assertEquals('Do you really reply to my question?', $savedQuestion->question);
+
+        $this->assertTrue($savedQuestion->related()->wherePivot('type', QuestionRelation::RETRY)->first()->is($existingQuestion));
+    }
+
+    public function test_same_question_can_be_asked_and_is_not_considered_a_retry(): void
+    {
+        config([
+            'copilot.driver' => 'cloud',
+            'copilot.queue' => false,
+            'copilot.engines.cloud' => [
+                'host' => 'http://localhost:5000/',
+                'library' => 'library-id',
+            ],
+        ]);
+
+        Http::preventStrayRequests();
+
+        Queue::fake();
+        
+        $user = User::factory()->manager()->withPersonalTeam()->create();
+
+        $collection = Collection::factory()
+            ->for($user)
+            ->hasAttached(
+                Document::factory()->count(3),
+            )
+            ->create();
+
+        Question::factory()
+            ->multiple($collection)
+            ->create([
+                'question' => 'Do you really reply to my question?'
+            ]);
+
+        $documents = $collection->documents;
+
+        /**
+         * @var \App\Models\Question
+         */
+        $question = null;
+
+        $questionUuid = null;
+
+        $expectedQuestionHash = hash('sha512', 'Do you really reply to my question?-' . $documents->map->getCopilotKey()->join('-'));
+
+        $this->actingAs($user);
+
+        Str::freezeUuids(function($uuid) use ($collection, &$question, &$questionUuid){
+            $question = $collection->question('Do you really reply to my question?');
+
+            $questionUuid = $uuid;
+        });
+
+        Queue::assertPushed(AskMultipleQuestionJob::class, function($job) use ($question) {
+            return $job->question->is($question);
+        });
+
+        Http::assertNothingSent();
+
+        $this->assertNotNull($questionUuid);
+
+        $this->assertInstanceOf(Question::class, $question);
+
+        $savedQuestion = Question::whereUuid($questionUuid)->first();
+
+        $this->assertNotNull($savedQuestion);
+
+        $this->assertTrue($savedQuestion->user->is($user));
+        $this->assertTrue($savedQuestion->team->is($user->currentTeam));
+        $this->assertNull($savedQuestion->language);
+        $this->assertNull($savedQuestion->execution_time);
+        $this->assertNull($savedQuestion->answer);
+        $this->assertEquals(QuestionTarget::MULTIPLE, $savedQuestion->target);
+
+        $this->assertTrue($savedQuestion->questionable->is($collection));
+
+        $this->assertEquals($expectedQuestionHash, $savedQuestion->hash);
+        $this->assertEquals('Do you really reply to my question?', $savedQuestion->question);
+
+        $this->assertNull($savedQuestion->related()->wherePivot('type', QuestionRelation::RETRY)->first());
     }
 }

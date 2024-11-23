@@ -74,11 +74,11 @@ class QuestionFactory extends Factory
         });
     }
     
-    public function multiple()
+    public function multiple(?Collection $collection = null)
     {
-        return $this->state(function (array $attributes) {
+        return $this->state(function (array $attributes) use ($collection) {
             return [
-                'questionable_id' => Collection::factory(),
+                'questionable_id' => $collection?->getKey() ?? Collection::factory(),
                 'hash' => function (array $attributes){
                     $collection = Collection::find($attributes['questionable_id']);
 

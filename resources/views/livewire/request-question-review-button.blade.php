@@ -13,8 +13,7 @@
 @endphp
 
 <button type="button"
-    x-data
-    x-on.review-requested.window="$refresh"
+    x-on:review-requested.window="$refresh"
     
     @if ($this->isUnderReview)
     x-tooltip.raw="{{ __('An expert review is in progress. Click to see the status. You\'ll receive a notification once the review is completed.') }}"
@@ -28,7 +27,7 @@
     x-tooltip.raw="{{ __('Request an expert review of the answer.') . '&nbsp;' . __(':team members will be notified.', ['team' => $this->reviewerTeamNames->take(3)->join(', ')]) }}"
     @endif
 
-    wire:click="$dispatch(
+    x-on:click="Livewire.dispatch(
         'openSlideover', { 
             component: 'question-review.question-review-slideover', 
             arguments: { 

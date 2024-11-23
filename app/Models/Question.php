@@ -20,6 +20,7 @@ use Illuminate\Support\Benchmark;
 use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\HtmlString;
 use Laravel\Scout\Searchable;
 use Illuminate\Support\Str;
 use Oneofftech\LaravelLanguageRecognizer\Support\Facades\LanguageRecognizer;
@@ -174,6 +175,14 @@ class Question extends Model implements Htmlable
     }
 
     /**
+     * Get the previous try of the same question
+     */
+    public function retryOf(): BelongsToMany
+    {
+        return $this->related()->wherePivot('type', QuestionRelation::RETRY);
+    }
+
+    /**
      * Children of this question
      */
     public function children(): BelongsToMany
@@ -182,12 +191,13 @@ class Question extends Model implements Htmlable
     }
     
     /**
-     * Children of this question
+     * Parent questions
      */
     public function ancestors(): BelongsToMany
     {
         return $this->belongsToMany(Question::class, 'question_relationship', 'target', 'source')
             ->using(QuestionRelationship::class)
+            ->wherePivot('type', QuestionRelation::CHILDREN)
             ->withPivot(['type']);
     }
 
@@ -215,6 +225,23 @@ class Question extends Model implements Htmlable
         ]);
     }
     
+    /**
+     * Filter by questions asked by a user or the users' current team
+     */
+    public function scopeBelongingToUserOrTeam(Builder $query, User $user): void
+    {
+        $query->where(function($query) use ($user){
+            $query
+                ->where('team_id', $user->current_team_id)
+                ->orWhere('user_id', $user->getKey());
+        });
+    }
+
+    public function scopeAskedTo(Builder $query, Model $model): void
+    {
+        $query->where('questionable_id', $model->getKey()); // whereMorph? https://laravel.com/docs/10.x/eloquent-relationships#querying-morph-to-relationships
+    }
+
     public function scopeAskedBy(Builder $query, User $user): void
     {
         $query->where('user_id', $user->getKey());
@@ -521,9 +548,12 @@ class Question extends Model implements Htmlable
     /**
      * Get the html representation of this response
      */
-    public function toHtml()
+    public function toHtml(): HtmlString
     {
-        return Str::markdown($this->answer['text'] ?? $this->generateProgressReports());
+        return str($this->answer['text'] ?? $this->generateProgressReports())->markdown([
+            'html_input' => 'strip',
+            'allow_unsafe_links' => false,
+        ])->toHtmlString();
     }
     
     public function toText()
@@ -531,9 +561,15 @@ class Question extends Model implements Htmlable
         return $this->answer['text'] ?? '';
     }
 
-    public function formattedText()
+    public function formattedText(): HtmlString
     {
-        return $this->type ? str($this->type->formatQuestion($this->question))->markdown() : str($this->question)->markdown();
+        return $this->type ? str($this->type->formatQuestion($this->question))->markdown([
+            'html_input' => 'strip',
+            'allow_unsafe_links' => false,
+        ])->toHtmlString() : str($this->question)->markdown([
+            'html_input' => 'strip',
+            'allow_unsafe_links' => false,
+        ])->toHtmlString();
     }
 
     public function references(): SupportCollection

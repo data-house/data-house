@@ -1,6 +1,6 @@
 @foreach ($question->children as $child)
 
-    <div class="bg-white max-w-4xl"  x-data="{collapsed: true}">
+    <div class="bg-white max-w-4xl" wire:key="q-{{ $child->uuid }}"  x-data="{collapsed: true}">
         <div class=" px-3 md:py-4 py-2.5 text-lg font-semibold text-stone-700 flex gap-2 items-center">
             <x-dynamic-component :component="$child->questionable->format->icon" class="text-gray-400 h-5 w-5 shrink-0" />
             <a href="{{ route('documents.show', $child->questionable) }}" target="_blank">{{ $child->questionable->title }}</a>
@@ -38,7 +38,7 @@
                 </div>
                 <div class="w-full min-w-0 text-sm sm:text-base">
                     <div class="prose prose-stone prose-sm sm:prose-base prose-pre:rounded-md prose-p:whitespace-pre-wrap prose-p:break-words w-full flex-1 leading-6 prose-p:leading-7 prose-pre:bg-[#282c34] max-w-full">
-                        {!! $child->toHtml() !!}
+                        {{ $child->toHtml() }}
                     </div>
                     <div class="prose prose-stone prose-sm sm:prose-base prose-pre:rounded-md prose-p:whitespace-pre-wrap prose-p:break-words w-full flex-1 leading-6 prose-p:leading-7 prose-pre:bg-[#282c34] max-w-full space-x-2">
                         @foreach (($child->answer['references'] ?? []) as $item)
@@ -50,9 +50,18 @@
             @unless ($child?->isPending() || $child?->hasError())
                 <div class="flex justify-between items-center max-w-4xl mx-auto space-x-3">
     
-                    <x-copy-clipboard-button :value="$child->toText()" title="{{ __('Copy answer') }}">
-                        {{ __('Copy') }}
-                    </x-copy-clipboard-button>
+                    <div class="flex items-center gap-2">
+                        <x-copy-clipboard-button :value="$child->toText()" title="{{ __('Copy answer') }}">
+                            {{ __('Copy') }}
+                        </x-copy-clipboard-button>
+
+                        @if (auth()->user()->hasRole('admin'))
+                            <x-copy-clipboard-button :value="$child->uuid" title="{{ __('Copy question identifier') }}">
+                                {{ __('Copy identifier') }}
+                            </x-copy-clipboard-button>
+                        @endif
+    
+                    </div>
     
                     <livewire:question-feedback :wire:key="$child->uuid" :question="$child" />
                 </div>

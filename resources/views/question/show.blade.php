@@ -74,6 +74,27 @@
 
                     @endif
 
+                    @if ($question->retryOf->isNotEmpty())
+                        
+                        <div>
+                            {{-- Original question that the current one is a retry of --}}
+
+                            <p class="text-xs uppercase tracking-wider text-stone-700">{{ __('Retry of') }}</p>
+
+                            @foreach ($question->retryOf as $linkedQuestion)
+                                <div class="flex flex-col gap-1">
+
+                                    <a class="underline" href="{{ route('questions.show', $linkedQuestion) }}">{{ $linkedQuestion->question }}</a>
+
+                                    <x-date class="text-sm text-stone-700" :value="$linkedQuestion->created_at" />
+                                    
+                                </div>
+                                
+                            @endforeach
+
+                        </div>
+                    @endif
+
                     @if ($question->ancestors->isNotEmpty())
                         
                         <div>
