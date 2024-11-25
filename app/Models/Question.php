@@ -646,6 +646,8 @@ class Question extends Model implements Htmlable
         return [
             'id' => $this->id,
             'question' => $this->question,
+            'questionable_id' => $this->questionable_id,
+            'questionable_type' => $this->questionable_type,
             'answer' => $this->answer['text'] ?? null,
             'created_at' => $this->created_at,
             'user_id' => $this->user?->getKey(),

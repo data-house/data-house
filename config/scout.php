@@ -201,6 +201,8 @@ return [
                     'team_id',
                     'team_name',
                     'visibility',
+                    'questionable_id',
+                    'questionable_type',
                 ],
             ],
             Star::class => [
