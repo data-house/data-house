@@ -15,6 +15,19 @@
             <x-textarea wire:model.live="question" @keydown.ctrl.enter="$refs.js_multiple_question_form.submit()" name="question" id="question" class="mb-1 min-w-full min-h-20" rows="3" placeholder="{{ __('Ask a question...') }}">
                 {{ $questionQuery ?? null }}
             </x-textarea>
+            <ul class="flex flex-col gap-2">
+                @foreach ($this->similarQuestions as $item)
+                    <li class="flex gap-2 items-center">
+                        <a class="contents underline" href="{{ route('questions.show', ['question' => $item->uuid]) }}" target="_blank">
+                            <x-heroicon-s-arrow-top-right-on-square class="w-4 h-4 text-stone-600" />
+                            <span>{{ str($item->search_match['question'] ?? $item->question)->inlineMarkdown()->toHtmlString() }}</span>
+                        </a>
+                        <x-copy-clipboard-button :value="$item->question" title="{{ __('Copy question text') }}" class="">
+                            {{ __('Copy question') }}
+                        </x-copy-clipboard-button>
+                    </li>
+                @endforeach
+            </ul>
         @endif
         <div class="">
             @if ($guided)
