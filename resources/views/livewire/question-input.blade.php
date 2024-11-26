@@ -5,6 +5,20 @@
             
         </x-textarea>
         
+        <ul class="flex flex-col gap-2">
+            @foreach ($this->similarQuestions as $item)
+                <li class="flex gap-2 items-center">
+                    <a class="contents underline" href="{{ route('questions.show', ['question' => $item->uuid]) }}" target="_blank">
+                        <x-heroicon-s-arrow-top-right-on-square class="w-4 h-4 text-stone-600" />
+                        <span>{{ str($item->search_match['question'] ?? $item->question)->inlineMarkdown()->toHtmlString() }}</span>
+                    </a>
+                    <x-copy-clipboard-button :value="$item->question" title="{{ __('Copy question text') }}" class="">
+                        {{ __('Copy question') }}
+                    </x-copy-clipboard-button>
+                </li>
+            @endforeach
+        </ul>
+
         <div class="flex items-center justify-between">
             <div class="inline-flex gap-2 divide-x divide-stone-300">
                 <p class="text-sm {{ $exceededMaximumLength ? 'text-red-600 font-bold' : 'text-stone-600' }}">{{ $length }} / {{ config('copilot.limits.question_length') }} {{ trans_choice('character|characters', $length) }}</p>
