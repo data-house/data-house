@@ -81,7 +81,7 @@ class DocumentController extends Controller
             'team',
             'project',
             'latestSummary',
-            'sections' => function($query){
+            'sections' => function($query): void{
                 $query->whereNull('level')->orWhere('level', '<=', 2);
             },
             'sections.latestSummary'

@@ -13,13 +13,15 @@ class UserPreference extends Model
         'setting', 'value',
     ];
 
-    protected $casts = [
-        'setting' => Preference::class,
-    ];
-
 
     public function hasValue(mixed $value): bool
     {
         return $this->value === $value;
+    }
+    protected function casts(): array
+    {
+        return [
+            'setting' => Preference::class,
+        ];
     }
 }

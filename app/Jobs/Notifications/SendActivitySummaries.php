@@ -35,7 +35,7 @@ class SendActivitySummaries implements ShouldQueue, ShouldBeUnique
         User::query()
             ->whereNull('notification_settings->activitySummary')
             ->orWhere('notification_settings->activitySummary->enable', 'true')
-            ->each(function($user) use ($currentDate) {
+            ->each(function($user) use ($currentDate): void {
 
                 /**
                  * @var \App\Data\Notifications\ActivitySummaryNotificationData

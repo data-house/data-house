@@ -29,7 +29,7 @@ class SendActivitySummariesJobTest extends TestCase
             ]
         ]);
 
-        $this->travelTo(Carbon::parse('2024-05-27 15:00'), function(){
+        $this->travelTo(Carbon::parse('2024-05-27 15:00'), function(): void{
             app()->make(SendActivitySummaries::class)->handle();
         });
 
@@ -58,7 +58,7 @@ class SendActivitySummariesJobTest extends TestCase
             ],
         ]);
         
-        $this->travelTo(now()->setHour(15)->setMinute(15), function(){
+        $this->travelTo(now()->setHour(15)->setMinute(15), function(): void{
             app()->make(SendActivitySummaries::class)->handle();
         });
 
@@ -86,7 +86,7 @@ class SendActivitySummariesJobTest extends TestCase
             ],
         ]);
         
-        $this->travelTo(now()->setHour(14)->setMinute(15), function(){
+        $this->travelTo(now()->setHour(14)->setMinute(15), function(): void{
             app()->make(SendActivitySummaries::class)->handle();
         });
 
@@ -112,7 +112,7 @@ class SendActivitySummariesJobTest extends TestCase
             ],
         ]);
         
-        $this->travelTo(Carbon::parse('2024-05-06 15:00'), function(){
+        $this->travelTo(Carbon::parse('2024-05-06 15:00'), function(): void{
             app()->make(SendActivitySummaries::class)->handle();
         });
 
@@ -161,7 +161,7 @@ class SendActivitySummariesJobTest extends TestCase
             ],
         ]);
         
-        $this->travelTo(Carbon::parse('2024-05-06 15:00'), function(){
+        $this->travelTo(Carbon::parse('2024-05-06 15:00'), function(): void{
             app()->make(SendActivitySummaries::class)->handle();
         });
 
@@ -187,7 +187,7 @@ class SendActivitySummariesJobTest extends TestCase
             ],
         ]);
         
-        $this->travelTo(Carbon::parse('2024-05-06 15:00'), function(){
+        $this->travelTo(Carbon::parse('2024-05-06 15:00'), function(): void{
             app()->make(SendActivitySummaries::class)->handle();
         });
 

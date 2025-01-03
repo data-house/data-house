@@ -41,12 +41,6 @@ class Import extends Model
         'created_by',
     ];
 
-    protected $casts = [
-        'source' => ImportSource::class,
-        'status' => ImportStatus::class,
-        'configuration' => 'encrypted:json',
-    ];
-
 
     
     /**
@@ -137,8 +131,8 @@ class Import extends Model
             return ;
         }
            
-        Cache::lock($this->lockKey())->block(30, function() {
-            DB::transaction(function () {
+        Cache::lock($this->lockKey())->block(30, function(): void {
+            DB::transaction(function (): void {
                 $this->status = ImportStatus::CANCELLED;
                 $this->save();
             
@@ -171,6 +165,14 @@ class Import extends Model
     public function label(): string
     {
         return $this->name ?? __('Import from :source', ['source' => Str::domain($this->configuration['url'])]);
+    }
+    protected function casts(): array
+    {
+        return [
+            'source' => ImportSource::class,
+            'status' => ImportStatus::class,
+            'configuration' => 'encrypted:json',
+        ];
     }
 
 }

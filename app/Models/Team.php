@@ -17,16 +17,6 @@ class Team extends JetstreamTeam
     use HasFactory;
 
     /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
-    protected $casts = [
-        'personal_team' => 'boolean',
-        'settings' => TeamSettings::class . ':default',
-    ];
-
-    /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
@@ -77,5 +67,17 @@ class Team extends JetstreamTeam
     public function canReviewQuestions(): bool
     {
         return $this->settings->review?->questionReview ?? false;
+    }
+    /**
+     * The attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'personal_team' => 'boolean',
+            'settings' => TeamSettings::class . ':default',
+        ];
     }
 }

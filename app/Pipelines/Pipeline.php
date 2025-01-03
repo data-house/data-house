@@ -39,7 +39,7 @@ class Pipeline
     {
         $key = class_basename($model);
 
-        return tap(new PipelineConfiguration($key, $trigger, $steps), function ($pipe) use ($key, $trigger) {
+        return tap(new PipelineConfiguration($key, $trigger, $steps), function ($pipe) use ($key, $trigger): void {
 
             if(!isset(static::$pipelines[$key])){
                 static::$pipelines[$key] = [$trigger->value => $pipe];

@@ -61,7 +61,7 @@ class CopilotRequest implements JsonSerializable
      */
     public function hash(): string
     {
-        return hash('sha512', $this->question . '-' . join('-', $this->documents));
+        return hash('sha512', $this->question . '-' . implode('-', $this->documents));
     }
 
 }

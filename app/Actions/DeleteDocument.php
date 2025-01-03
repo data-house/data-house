@@ -15,7 +15,7 @@ class DeleteDocument
      */
     public function __invoke(Document $document): void
     {
-        DB::transaction(function() use ($document){
+        DB::transaction(function() use ($document): void{
             $document->importDocument?->wipe();
 
             ImportDocument::whereDocumentHash($document->document_hash)->whereNull('document_id')->get()->each->wipe();

@@ -41,17 +41,6 @@ class ImportMap extends Model
         'last_session_started_at',
         'last_session_completed_at',
     ];
-
-    protected $casts = [
-        'recursive' => 'boolean',
-        'filters' => 'json',
-        'status' => ImportStatus::class,
-        'visibility' => Visibility::class,
-        'schedule' => ImportScheduleSettings::class . ':default',
-        'last_executed_at' => 'datetime',
-        'last_session_started_at' => 'datetime',
-        'last_session_completed_at' => 'datetime',
-    ];
     
     /**
      * Get the columns that should receive a unique identifier.
@@ -209,5 +198,18 @@ class ImportMap extends Model
             ->performedOn($this)
             ->event('import-map-completed')
             ->log('activity.import-map-completed');
+    }
+    protected function casts(): array
+    {
+        return [
+            'recursive' => 'boolean',
+            'filters' => 'json',
+            'status' => ImportStatus::class,
+            'visibility' => Visibility::class,
+            'schedule' => ImportScheduleSettings::class . ':default',
+            'last_executed_at' => 'datetime',
+            'last_session_started_at' => 'datetime',
+            'last_session_completed_at' => 'datetime',
+        ];
     }
 }

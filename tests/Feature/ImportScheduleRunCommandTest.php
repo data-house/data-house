@@ -45,7 +45,7 @@ class ImportScheduleRunCommandTest extends TestCase
 
         $map = $import->maps()->first();
 
-        $this->travelTo('2024-03-05 17:00', function() use ($map){
+        $this->travelTo('2024-03-05 17:00', function() use ($map): void{
 
             $this->artisan('import:schedule-run')
                 ->expectsOutputToContain('No import maps to run.')
@@ -67,7 +67,7 @@ class ImportScheduleRunCommandTest extends TestCase
 
         $map = $import->maps()->first();
 
-        $this->travelTo('2024-03-05 18:00', function() use ($map){
+        $this->travelTo('2024-03-05 18:00', function() use ($map): void{
 
             
 
@@ -96,7 +96,7 @@ class ImportScheduleRunCommandTest extends TestCase
 
         $map = $import->maps()->first();
 
-        $this->travelTo('2024-03-05 18:00', function() use ($map){
+        $this->travelTo('2024-03-05 18:00', function() use ($map): void{
 
             
 
@@ -125,7 +125,7 @@ class ImportScheduleRunCommandTest extends TestCase
 
         $map = $import->maps()->first();
 
-        $this->travelTo('2024-03-05 18:00', function() use ($map){
+        $this->travelTo('2024-03-05 18:00', function() use ($map): void{
 
             
 
@@ -154,7 +154,7 @@ class ImportScheduleRunCommandTest extends TestCase
 
         $map = $import->maps()->first();
 
-        $this->travelTo('2024-03-05 18:00', function() use ($map){
+        $this->travelTo('2024-03-05 18:00', function() use ($map): void{
 
             
 
@@ -184,7 +184,7 @@ class ImportScheduleRunCommandTest extends TestCase
             ->has(ImportMap::factory(['status' => ImportStatus::COMPLETED])->scheduled(ImportSchedule::EVERY_SIX_HOURS), 'maps')
             ->create();
 
-        $this->travelTo('2024-03-05 18:00', function(){
+        $this->travelTo('2024-03-05 18:00', function(): void{
 
             $this->artisan('import:schedule-run')
                 ->expectsOutputToContain('2 import map to run')

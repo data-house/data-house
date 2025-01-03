@@ -31,40 +31,40 @@ class QuestionableScope implements Scope
      */
     public function extend(EloquentBuilder $builder)
     {
-        $builder->macro('questionable', function (EloquentBuilder $builder, $chunk = null) {
+        $builder->macro('questionable', function (EloquentBuilder $builder, $chunk = null): void {
 
             $keyName = $builder->getModel()->getKeyName();
 
-            $builder->chunkById($chunk ?: max(2, config('copilot.chunk.questionable', 50)), function ($models) {
+            $builder->chunkById($chunk ?: max(2, config('copilot.chunk.questionable', 50)), function ($models): void {
                 $models->filter->shouldBeQuestionable()->questionable();
 
                 event(new ModelsQuestionable($models));
             }, $builder->qualifyColumn($keyName), $keyName);
         });
 
-        $builder->macro('unquestionable', function (EloquentBuilder $builder, $chunk = null) {
+        $builder->macro('unquestionable', function (EloquentBuilder $builder, $chunk = null): void {
 
             $keyName = $builder->getModel()->getKeyName();
 
-            $builder->chunkById($chunk ?: max(2, config('copilot.chunk.unquestionable', 50)), function ($models) {
+            $builder->chunkById($chunk ?: max(2, config('copilot.chunk.unquestionable', 50)), function ($models): void {
                 $models->unquestionable();
 
                 event(new ModelsUnquestionable($models));
             }, $builder->qualifyColumn($keyName), $keyName);
         });
 
-        HasManyThrough::macro('questionable', function ($chunk = null) {
+        HasManyThrough::macro('questionable', function ($chunk = null): void {
             /** @var HasManyThrough $this */
-            $this->chunkById($chunk ?: max(2, config('copilot.chunk.questionable', 50)), function ($models) {
+            $this->chunkById($chunk ?: max(2, config('copilot.chunk.questionable', 50)), function ($models): void {
                 $models->filter->shouldBeQuestionable()->questionable();
 
                 event(new ModelsQuestionable($models));
             });
         });
 
-        HasManyThrough::macro('unquestionable', function ($chunk = null) {
+        HasManyThrough::macro('unquestionable', function ($chunk = null): void {
             /** @var HasManyThrough $this */
-            $this->chunkById($chunk ?: max(2, config('copilot.chunk.unquestionable', 50)), function ($models) {
+            $this->chunkById($chunk ?: max(2, config('copilot.chunk.unquestionable', 50)), function ($models): void {
                 $models->unquestionable();
 
                 event(new ModelsUnquestionable($models));

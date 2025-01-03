@@ -43,7 +43,7 @@ class CurrentQuestion extends Component
     {
         $this->question = $this->question ?? $this->document->questions()
             ->askedBy(auth()->user())
-            ->where(function($query){
+            ->where(function($query): void{
                 $query->pending()->orWhere->recentlyAsked();
             })
             ->first();

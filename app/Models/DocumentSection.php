@@ -20,12 +20,6 @@ class DocumentSection extends Model
         'user_id',
     ];
 
-    protected $casts = [
-        'order' => 'integer',
-        'level' => 'boolean',
-        'reference' => 'array',
-    ];
-
     public function document(): BelongsTo
     {
         return $this->belongsTo(Document::class);
@@ -56,5 +50,13 @@ class DocumentSection extends Model
     public function page(): int
     {
         return $this->reference['bounding_box']['page'] ?? 1;
+    }
+    protected function casts(): array
+    {
+        return [
+            'order' => 'integer',
+            'level' => 'boolean',
+            'reference' => 'array',
+        ];
     }
 }

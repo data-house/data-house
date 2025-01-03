@@ -45,7 +45,7 @@ return new class extends OneTimeOperation
 
         $documents = Document::query()->get()->modelKeys();
 
-        DB::transaction(function() use ($documents) {
+        DB::transaction(function() use ($documents): void {
 
             $collection = Collection::create([
                 'title' => 'All Documents',

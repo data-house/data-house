@@ -51,7 +51,7 @@ trait Searchable
         })
         ->when($sorting, function($builder, $requestedSorts){
 
-            collect($requestedSorts)->each(function($sort) use ($builder){
+            collect($requestedSorts)->each(function($sort) use ($builder): void{
                 $builder->orderBy($sort->field, $sort->direction);
             });
 

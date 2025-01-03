@@ -43,7 +43,7 @@ Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
     'verified'
-])->group(function () {
+])->group(function (): void {
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
@@ -90,7 +90,7 @@ Route::middleware([
 ])
 ->name('admin.')
 ->prefix('admin')
-->group(function () {
+->group(function (): void {
     Route::get('/', InstanceOverviewController::class)->name('dashboard');
     
     Route::resource('/users', AdminUserController::class)->only(['index']);

@@ -40,13 +40,6 @@ class ImportDocument extends Model
         'processed_at',
     ];
 
-    protected $casts = [
-        'retrieved_at' => 'datetime',
-        'processed_at' => 'datetime',
-        'document_date' => 'datetime',
-        'status' => ImportDocumentStatus::class,
-    ];
-
     /**
      * The model's default values for attributes.
      *
@@ -185,5 +178,14 @@ class ImportDocument extends Model
             ) || 
             $user->getKey() === $this->uploaded_by
             ;
+    }
+    protected function casts(): array
+    {
+        return [
+            'retrieved_at' => 'datetime',
+            'processed_at' => 'datetime',
+            'document_date' => 'datetime',
+            'status' => ImportDocumentStatus::class,
+        ];
     }
 }

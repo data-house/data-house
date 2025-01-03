@@ -57,7 +57,7 @@ class ImportFileDataJob extends ImportJobBase
             ->whereNull('retrieved_at')
             ->take(10)
             ->lazyById(5)
-            ->each(function($importDocument) use ($processed, $lastProcessed, $disk) {
+            ->each(function($importDocument) use ($processed, $lastProcessed, $disk): void {
 
                 $importDocument->status = ImportDocumentStatus::IMPORTING;
 

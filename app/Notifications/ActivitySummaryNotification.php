@@ -56,7 +56,7 @@ class ActivitySummaryNotification extends Notification
                 'start' => $this->period->getStartDate()->toDateString(),
                 'end' => $this->period->getEndDate()->toDateString(),
                 ]))
-            ->when($this->total_documents_added > 0, function($message){
+            ->when($this->total_documents_added > 0, function($message): void{
                 $message->line(Lang::choice('{0} **Documents added**|{1} **:num Document added**|[2,*] **:num Documents added**', $this->total_documents_added, [
                     'num' => $this->total_documents_added,
                 ]));

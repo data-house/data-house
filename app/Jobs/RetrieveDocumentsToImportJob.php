@@ -91,18 +91,18 @@ class RetrieveDocumentsToImportJob extends ImportJobBase
 
         try {
             // Wait 180 seconds to try and acquire the lock
-            Cache::lock($this->importMap->import->lockKey())->block(180, function () use ($rows, &$processed) {
+            Cache::lock($this->importMap->import->lockKey())->block(180, function () use ($rows, &$processed): void {
                 // If the Import has been cancelled, we don't want to insert anything
                 if ($this->hasBeenCancelled()) {
                     return ;
                 }
 
-                DB::transaction(function() use ($rows, &$processed) {
+                DB::transaction(function() use ($rows, &$processed): void {
                     $chunks = $rows->chunk(100);
 
                     // TODO: a check is required since we don't have paginated entries from the filesystem and so, in case the job is retried we might insert again the same data
             
-                    $chunks->each(function($chunk) use(&$processed) {
+                    $chunks->each(function($chunk) use(&$processed): void {
                         $this->importMap->documents()->createMany($chunk->toArray());
                         $processed+=$chunk->count();
                     });

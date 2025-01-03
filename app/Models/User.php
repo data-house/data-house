@@ -48,17 +48,6 @@ class User extends Authenticatable
         'two_factor_secret',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-        'role' => Role::class,
-        'notification_settings' => NotificationSettingsData::class . ':default',
-    ];
-
     protected $with = [
         'userPreferences',
     ];
@@ -81,5 +70,18 @@ class User extends Authenticatable
     public function questions()
     {
         return $this->hasMany(Question::class);
+    }
+    /**
+     * The attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'email_verified_at' => 'datetime',
+            'role' => Role::class,
+            'notification_settings' => NotificationSettingsData::class . ':default',
+        ];
     }
 }

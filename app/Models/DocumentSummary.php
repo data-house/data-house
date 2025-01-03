@@ -19,12 +19,6 @@ class DocumentSummary extends Model implements Htmlable
         'user_id',
         'all_document',
     ];
-
-    protected $casts = [
-        'language' => LanguageAlpha2::class,
-        'ai_generated' => 'boolean',
-        'all_document' => 'boolean',
-    ];
     
     protected $attributes = [
         'ai_generated' => false,
@@ -74,5 +68,13 @@ class DocumentSummary extends Model implements Htmlable
     public function toHtml()
     {
         return Str::markdown($this->text);
+    }
+    protected function casts(): array
+    {
+        return [
+            'language' => LanguageAlpha2::class,
+            'ai_generated' => 'boolean',
+            'all_document' => 'boolean',
+        ];
     }
 }

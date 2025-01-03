@@ -29,7 +29,7 @@ return new class extends OneTimeOperation
         $recognize = app()->make(ClassifyDocumentType::class);
 
         Document::whereNull('type')
-            ->each(function(Document $document) use ($recognize) {
+            ->each(function(Document $document) use ($recognize): void {
                 $document->type = $recognize($document);
 
                 $document->saveQuietly();

@@ -26,7 +26,7 @@ return new class extends OneTimeOperation
     public function process(): void
     {
         Document::query()
-            ->each(function(Document $document) {
+            ->each(function(Document $document): void {
                 $document->properties =  ($document->properties?->collect() ?? collect())
                     ->merge(['has_textual_content' => $document->hasTextualContent()]);
 

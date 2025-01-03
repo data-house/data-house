@@ -27,11 +27,6 @@ class QuestionReview extends Model
         'remarks',
     ];
 
-    protected $casts = [
-        'status' => ReviewStatus::class,
-        'evaluation_result' => ReviewEvaluationResult::class,
-    ];
-
     protected $attributes = [
         'status' => ReviewStatus::SUBMITTED,
     ];
@@ -156,5 +151,12 @@ class QuestionReview extends Model
     public function isCompleteAndApproved(): bool
     {
         return $this->isComplete() && $this->evaluation_result !== ReviewEvaluationResult::REJECTED;
+    }
+    protected function casts(): array
+    {
+        return [
+            'status' => ReviewStatus::class,
+            'evaluation_result' => ReviewEvaluationResult::class,
+        ];
     }
 }

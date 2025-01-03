@@ -98,8 +98,8 @@ abstract class ImportJobBase implements ShouldQueue
             return ;
         }
         
-        Cache::lock($this->importMap->import->lockKey())->block(30, function() {
-            DB::transaction(function () {
+        Cache::lock($this->importMap->import->lockKey())->block(30, function(): void {
+            DB::transaction(function (): void {
 
                 $this->importMap->markAsFailed(class_basename($this));
 
@@ -111,7 +111,7 @@ abstract class ImportJobBase implements ShouldQueue
                     $import->status = ImportStatus::FAILED;
                     $import->save();
                 }
-            
+
                 // $import->wipeData(); // Not sure in case of a failed import if we need to clean-it up
             });
         });
@@ -119,8 +119,8 @@ abstract class ImportJobBase implements ShouldQueue
 
     protected function markAsComplete()
     {
-        Cache::lock($this->importMap->import->lockKey())->block(30, function() {
-            DB::transaction(function () {
+        Cache::lock($this->importMap->import->lockKey())->block(30, function(): void {
+            DB::transaction(function (): void {
                 $this->importMap->markAsCompleted();
 
                 if(! $this->importMap->import->maps()->where('status', ImportStatus::RUNNING->value)->exists()){

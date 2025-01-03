@@ -50,7 +50,7 @@ class ImportCommand extends Command
         $bar->start();
 
         $class::getAllQuestionableLazily()
-            ->each(function ($modelInstance) use ($bar) {
+            ->each(function ($modelInstance) use ($bar): void {
                 $bar->setMessage("Adding [{$modelInstance->getKey()} - {$modelInstance->ulid}]");
                 $bar->advance();
 

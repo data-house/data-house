@@ -81,7 +81,7 @@ class AggregateMultipleQuestionAnswersJobTest extends TestCase
                 'language' => 'en',
             ]);
 
-        $subQuestions->each(function($q) use ($question) {
+        $subQuestions->each(function($q) use ($question): void {
             $question->related()->attach($q->getKey(), ['type' => QuestionRelation::CHILDREN]);
         });
         
@@ -224,7 +224,7 @@ class AggregateMultipleQuestionAnswersJobTest extends TestCase
                 'language' => 'en',
             ]);
 
-        $subQuestions->each(function($q) use ($question) {
+        $subQuestions->each(function($q) use ($question): void {
             $question->related()->attach($q->getKey(), ['type' => QuestionRelation::CHILDREN]);
         });
         
@@ -366,7 +366,7 @@ class AggregateMultipleQuestionAnswersJobTest extends TestCase
                 'language' => 'en',
             ]);
 
-        $subQuestions->each(function($q) use ($question) {
+        $subQuestions->each(function($q) use ($question): void {
             $question->related()->attach($q->getKey(), ['type' => QuestionRelation::CHILDREN]);
         });
         
@@ -500,7 +500,7 @@ class AggregateMultipleQuestionAnswersJobTest extends TestCase
                 'language' => 'en',
             ]);
 
-        $subQuestions->each(function($q) use ($question) {
+        $subQuestions->each(function($q) use ($question): void {
             $question->related()->attach($q->getKey(), ['type' => QuestionRelation::CHILDREN]);
         });
         
@@ -570,7 +570,7 @@ class AggregateMultipleQuestionAnswersJobTest extends TestCase
                 'language' => 'en',
             ]);
 
-        $subQuestions->each(function($q) use ($question) {
+        $subQuestions->each(function($q) use ($question): void {
             $question->related()->attach($q->getKey(), ['type' => QuestionRelation::CHILDREN]);
         });
         

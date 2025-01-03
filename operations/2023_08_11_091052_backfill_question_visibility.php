@@ -27,7 +27,7 @@ return new class extends OneTimeOperation
     public function process(): void
     {
         Question::whereNull('visibility')
-            ->each(function(Question $question) {
+            ->each(function(Question $question): void {
                 $question->visibility = Visibility::TEAM;
 
                 $question->saveQuietly();

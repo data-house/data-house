@@ -56,19 +56,6 @@ class Project extends Model
         'links',
     ];
 
-    protected $casts = [
-        'countries' => AsEnumCollection::class.':'. CountryAlpha3::class,
-        'starts_at' => 'datetime',
-        'ends_at' => 'datetime',
-        'links' => AsArrayObject::class,
-        'organizations' => AsCollection::class,
-        'properties' => AsArrayObject::class,
-        'topics' => AsCollection::class,
-        'type' => ProjectType::class,
-        'status' => ProjectStatus::class,
-        'funding' => AsArrayObject::class,
-    ];
-
 
     
     /**
@@ -162,6 +149,21 @@ class Project extends Model
             'organizations' => $this->organizations,
             'type' => $this->type?->name,
             'status' => $this->status?->name,
+        ];
+    }
+    protected function casts(): array
+    {
+        return [
+            'countries' => AsEnumCollection::class.':'. CountryAlpha3::class,
+            'starts_at' => 'datetime',
+            'ends_at' => 'datetime',
+            'links' => AsArrayObject::class,
+            'organizations' => AsCollection::class,
+            'properties' => AsArrayObject::class,
+            'topics' => AsCollection::class,
+            'type' => ProjectType::class,
+            'status' => ProjectStatus::class,
+            'funding' => AsArrayObject::class,
         ];
     }
 }
