@@ -49,7 +49,7 @@ class DocumentLanguageCommand extends Command
         $action = new RecognizeLanguage();
 
         $documents
-            ->each(function($document) use ($action){
+            ->each(function($document) use ($action): void{
                 $languages = $action($document);
                 
                 $document->languages = $languages;

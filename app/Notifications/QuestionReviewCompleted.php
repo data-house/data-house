@@ -47,13 +47,13 @@ class QuestionReviewCompleted extends Notification
                 ->greeting(Lang::get('Review of question completed :resource', ['resource' => $resourceTitle]))
                 ->line(Lang::get('**:team** reviewed the question and answer asked to :resource:', ['team' => $this->review->team->name, 'resource' => $resourceTitle]))
                 ->line($this->review->question->question)
-                ->when($this->review->isAssigned($notifiable), function($notification){
+                ->when($this->review->isAssigned($notifiable), function($notification): void{
                     $notification->action('See the review', route('question-reviews.show', $this->review));
                 })
-                ->when($this->review->isCoordinator($notifiable), function($notification){
+                ->when($this->review->isCoordinator($notifiable), function($notification): void{
                     $notification->action('See the review', route('question-reviews.show', $this->review));
                 })
-                ->when($this->review->isRequestor($notifiable), function($notification){
+                ->when($this->review->isRequestor($notifiable), function($notification): void{
                     $notification->action('View the question', route('questions.show', $this->review->question));
                 })
                 ;

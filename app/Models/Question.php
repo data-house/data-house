@@ -68,16 +68,6 @@ class Question extends Model implements Htmlable
         'visibility',
     ];
 
-    protected $casts = [
-        // 'language' => LanguageAlpha2::class,
-        'status' => QuestionStatus::class,
-        'answer' => AsArrayObject::class,
-        'execution_time' => 'float',
-        'target' => QuestionTarget::class,
-        'type' => QuestionType::class,
-        'visibility' => Visibility::class,
-    ];
-
     /**
      * The relationship counts that should be eager loaded on every query.
      *
@@ -230,7 +220,7 @@ class Question extends Model implements Htmlable
      */
     public function scopeBelongingToUserOrTeam(Builder $query, User $user): void
     {
-        $query->where(function($query) use ($user){
+        $query->where(function($query) use ($user): void{
             $query
                 ->where('team_id', $user->current_team_id)
                 ->orWhere('user_id', $user->getKey());
@@ -249,7 +239,7 @@ class Question extends Model implements Htmlable
     
     public function scopeNotAskedBy(Builder $query, User $user): void
     {
-        $query->where(function($query) use ($user){
+        $query->where(function($query) use ($user): void{
             $query->whereNull('user_id')->orWhere('user_id', '!=', $user->getKey());
         });
     }
@@ -307,7 +297,7 @@ class Question extends Model implements Htmlable
 
         $language = $this->language ?? $this->recognizeLanguage();
 
-        Cache::lock($this->lockKey())->block(30, function() use($language) {
+        Cache::lock($this->lockKey())->block(30, function() use($language): void {
         
             $this->fill([
                 'language' => $language ?? 'en',
@@ -337,7 +327,7 @@ class Question extends Model implements Htmlable
 
         $this->disableLogging();
 
-        Cache::lock($this->lockKey())->block(30, function() use($request, $response) {
+        Cache::lock($this->lockKey())->block(30, function() use($request, $response): void {
         
             $this->fill([
                 'language' => $request->language,
@@ -367,7 +357,7 @@ class Question extends Model implements Htmlable
 
         $language = $this->language ?? $this->recognizeLanguage();
 
-        Cache::lock($this->lockKey())->block(30, function() use($language) {
+        Cache::lock($this->lockKey())->block(30, function() use($language): void {
         
             $this->fill([
                 'language' => $language,
@@ -401,7 +391,7 @@ class Question extends Model implements Htmlable
 
         $questions = null;
 
-        Cache::lock($this->lockKey())->block(45, function() use($response, &$questions) {
+        Cache::lock($this->lockKey())->block(45, function() use($response, &$questions): void {
             $questions = DB::transaction(function() use($response) {
 
                 $questions = $this->questionable->documents->map(function($document) use ($response) {
@@ -462,7 +452,7 @@ class Question extends Model implements Htmlable
 
         $this->disableLogging();
 
-        Cache::lock($this->lockKey())->block(30, function() use($request, $response, $subQuestions) {
+        Cache::lock($this->lockKey())->block(30, function() use($request, $response, $subQuestions): void {
         
             $this->fill([
                 'language' => $request->language,
@@ -492,7 +482,7 @@ class Question extends Model implements Htmlable
 
         // TODO: benchmarking should be at driver level
 
-        $timing = Benchmark::measure(function() use ($request, &$response) {
+        $timing = Benchmark::measure(function() use ($request, &$response): void {
             $response = $this->questionable->questionableUsing()->question($request);
         });
 
@@ -510,7 +500,7 @@ class Question extends Model implements Htmlable
 
         // TODO: benchmarking should be at driver level
 
-        $timing = Benchmark::measure(function() use ($request, &$response) {
+        $timing = Benchmark::measure(function() use ($request, &$response): void {
             $response = $this->questionable->questionableUsing()->aggregate($request);
         });
 
@@ -670,6 +660,18 @@ class Question extends Model implements Htmlable
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
         // Chain fluent methods for configuration options
+    }
+    protected function casts(): array
+    {
+        return [
+            // 'language' => LanguageAlpha2::class,
+            'status' => QuestionStatus::class,
+            'answer' => AsArrayObject::class,
+            'execution_time' => 'float',
+            'target' => QuestionTarget::class,
+            'type' => QuestionType::class,
+            'visibility' => Visibility::class,
+        ];
     }
 
 }

@@ -80,7 +80,7 @@ class PruneImportDocumentsCommand extends Command
 
         $pruned = 0;
 
-        $docsQuery->each(function($importDocument) use (&$pruned){
+        $docsQuery->each(function($importDocument) use (&$pruned): void{
             $importDocument->prune();
 
             $pruned++;

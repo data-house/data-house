@@ -47,16 +47,16 @@ class MoveImportedDocumentsJob extends ImportJobBase
 
         try {
             // Wait 180 seconds to try and acquire the lock
-            Cache::lock($this->importMap->import->lockKey())->block(180, function () use ($rows, &$processed) {
+            Cache::lock($this->importMap->import->lockKey())->block(180, function () use ($rows, &$processed): void {
                 // If the Import has been cancelled, we don't want to insert anything
                 if ($this->hasBeenCancelled()) {
                     return ;
                 }
 
-                DB::transaction(function() use ($rows, &$processed) {
+                DB::transaction(function() use ($rows, &$processed): void {
                     $chunks = $rows->lazyById(20);
 
-                    $chunks->each(function($chunk) use(&$processed) {
+                    $chunks->each(function($chunk) use(&$processed): void {
                         
                         // Create Document entry
                         $this->insertDocuments($chunk);

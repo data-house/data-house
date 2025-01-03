@@ -125,7 +125,7 @@ class PdfViewerControllerTest extends TestCase
 
         $response->assertViewHas('document', $document);
         $response->assertViewHas('page', 1);
-        $response->assertSee('initialBookmark = "page=1"', false);
+        $response->assertSeeHtml('initialBookmark = "page=1"');
     }
 
     

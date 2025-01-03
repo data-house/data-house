@@ -57,7 +57,7 @@ class ProjectImportCommand extends Command
         }
 
         collect($content)
-            ->each(function($p) use ($insert) {
+            ->each(function($p) use ($insert): void {
 
                 $cleanedTopics = ($p['topics'][0]['name'] ?? false) ? collect($p['topics'])->pluck('name')->values()->toArray() : $p['topics'];
 
@@ -84,7 +84,7 @@ class ProjectImportCommand extends Command
 
                     $documents = Collection::wrap($p['documents'] ?? []);
 
-                    $documents->each(function($doc) use ($project){
+                    $documents->each(function($doc) use ($project): void{
                         try {
                             $d = Document::whereTitle($doc)->firstOrFail();
                             $d->project()->associate($project);

@@ -15,7 +15,10 @@ class QuestionRelationship extends MorphPivot
     public $incrementing = true;
 
     
-    protected $casts = [
-        'type' => QuestionRelation::class,
-    ];
+    protected function casts(): array
+    {
+        return [
+            'type' => QuestionRelation::class,
+        ];
+    }
 }

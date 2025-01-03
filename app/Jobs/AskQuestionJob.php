@@ -54,11 +54,11 @@ class AskQuestionJob implements ShouldQueue
         if(Copilot::disabled() ){
             return;
         }
-        
+
         if ($this->hasBeenCancelled()) {
             return;
         }
-        
+
         $this->question->ask(); // sinchronous method
 
     }
@@ -69,7 +69,7 @@ class AskQuestionJob implements ShouldQueue
             return ;
         }
         
-        Cache::lock($this->question->lockKey())->block(30, function() {
+        Cache::lock($this->question->lockKey())->block(30, function(): void {
             $this->question->status = QuestionStatus::ERROR;
             $this->question->save();
         });

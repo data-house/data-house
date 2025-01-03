@@ -38,7 +38,7 @@ class FlushCommand extends Command
 
         $model = new $class;
 
-        $events->listen(ModelsUnquestionable::class, function ($event) use ($class) {
+        $events->listen(ModelsUnquestionable::class, function ($event) use ($class): void {
             $key = $event->models->last()->getKey();
 
             $this->line('<comment>Removed ['.$class.'] models up to ID:</comment> '.$key);

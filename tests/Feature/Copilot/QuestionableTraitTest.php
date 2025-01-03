@@ -177,7 +177,7 @@ class QuestionableTraitTest extends TestCase
 
         $expectedQuestionHash = hash('sha512', 'Do you really reply to my question?-' . $document->getCopilotKey());
 
-        Str::freezeUuids(function($uuid) use ($document, &$answer, &$questionUuid){
+        Str::freezeUuids(function($uuid) use ($document, &$answer, &$questionUuid): void{
 
             $answer = $document->question('Do you really reply to my question?');
 
@@ -251,7 +251,7 @@ class QuestionableTraitTest extends TestCase
 
         $this->actingAs($user);
 
-        Str::freezeUuids(function($uuid) use ($document, &$answer, &$questionUuid){
+        Str::freezeUuids(function($uuid) use ($document, &$answer, &$questionUuid): void{
 
             $answer = $document->question('Do you really reply to my question?');
 
@@ -324,7 +324,7 @@ class QuestionableTraitTest extends TestCase
 
         $this->actingAs($user);
 
-        Str::freezeUuids(function($uuid) use ($document, &$answer, &$questionUuid){
+        Str::freezeUuids(function($uuid) use ($document, &$answer, &$questionUuid): void{
 
             $answer = $document->question('Do you really reply to my question?');
 

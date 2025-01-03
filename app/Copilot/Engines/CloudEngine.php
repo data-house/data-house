@@ -171,7 +171,7 @@ class CloudEngine extends Engine
 
         try{
 
-            $keys->each(function($key){
+            $keys->each(function($key): void{
 
                 $response = $this->getHttpClient()
                     ->delete('/library/'.$this->getLibrary().'/documents/' . $key)

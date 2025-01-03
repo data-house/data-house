@@ -53,7 +53,7 @@ class DocumentThumbnailCommand extends Command
             ->get();
 
         $documents
-            ->each(function($document) {
+            ->each(function($document): void {
                 try {
                     /**
                     * @var \App\DocumentThumbnail\FileThumbnail

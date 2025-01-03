@@ -94,16 +94,6 @@ class Document extends Model implements Convertible
         'visibility',
     ];
 
-    protected $casts = [
-        'draft' => 'boolean',
-        'languages' => AsEnumCollection::class.':'. LanguageAlpha2::class,
-        'published_at' => 'datetime',
-        'properties' => AsArrayObject::class,
-        'type' => DocumentType::class,
-        'document_date' => 'datetime',
-        'visibility' => Visibility::class,
-    ];
-
     protected $with = [
         'project',
     ];
@@ -170,7 +160,7 @@ class Document extends Model implements Convertible
     {
         return $query
             ->where(fn($q) => $q->whereIn('visibility', [Visibility::PUBLIC, Visibility::PROTECTED]))
-            ->when($user->currentTeam, function ($query, Team $team) {
+            ->when($user->currentTeam, function ($query, Team $team): void {
                 $query->orWhere(fn($q) => $q->where('visibility', Visibility::TEAM)->where('team_id', $team->getKey()));
             })
             ->orWhere(fn($q) => $q->where('visibility', Visibility::PERSONAL)->where('uploaded_by', $user->getKey()));
@@ -233,7 +223,7 @@ class Document extends Model implements Convertible
      */
     protected function makeAllSearchableUsing($query)
     {
-        return $query->with(['team', 'project', 'collections' => function($query){
+        return $query->with(['team', 'project', 'collections' => function($query): void{
             $query->library();
         }]);
     }
@@ -555,7 +545,7 @@ class Document extends Model implements Convertible
             return static::tenantSearch($request->searchQuery(), $filters->toArray(), $request->user(), $project)
                 ->when($sorts, function($builder, $requestedSorts){
 
-                    $requestedSorts->each(function($sort) use ($builder){
+                    $requestedSorts->each(function($sort) use ($builder): void{
                         $builder->orderBy($sort->field, $sort->direction);
                     });
 
@@ -572,5 +562,17 @@ class Document extends Model implements Convertible
             ->visibleBy($request->user())
             ->when($project, fn($builder) => $builder->inProject($project))
             ;
+    }
+    protected function casts(): array
+    {
+        return [
+            'draft' => 'boolean',
+            'languages' => AsEnumCollection::class.':'. LanguageAlpha2::class,
+            'published_at' => 'datetime',
+            'properties' => AsArrayObject::class,
+            'type' => DocumentType::class,
+            'document_date' => 'datetime',
+            'visibility' => Visibility::class,
+        ];
     }
 }

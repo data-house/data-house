@@ -41,7 +41,7 @@ class AttachDocumentToLibraryCollection extends PipelineJob
 
         $collections = $possibleCollections->filter(fn($c) => !$alreadyAttachedCollections->contains($c->getKey()));
 
-        Document::withoutEvents(function() use ($collections){
+        Document::withoutEvents(function() use ($collections): void{
             $collections->each(fn($collection) => $collection->documents()->attach($this->model->getKey()));
         });
     }

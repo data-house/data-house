@@ -48,13 +48,6 @@ class Collection extends Model
         'topic_group',
     ];
 
-    protected $casts = [
-        'type' => CollectionType::class,
-        'visibility' => Visibility::class,
-        'strategy' => CollectionStrategy::class,
-        'draft' => 'boolean',
-    ];
-
     /**
      * The model's default values for attributes.
      *
@@ -130,7 +123,7 @@ class Collection extends Model
     {
         return $query
             ->where(fn($q) => $q->whereIn('visibility', [Visibility::PUBLIC, Visibility::PROTECTED]))
-            ->when($user->currentTeam, function ($query, Team $team) {
+            ->when($user->currentTeam, function ($query, Team $team): void {
                 $query->orWhere(fn($q) => $q->where('visibility', Visibility::TEAM)->where('team_id', $team->getKey()));
             })
             ->orWhere(fn($q) => $q->where('visibility', Visibility::PERSONAL)->where('user_id', $user->getKey()))
@@ -195,6 +188,15 @@ class Collection extends Model
             'notes' => $this->notes->map(function($note){
                 return $note->user?->name . ' - ' . $note->created_at->toDateString() . ' - ' . $note->content;
             })->toArray(),
+        ];
+    }
+    protected function casts(): array
+    {
+        return [
+            'type' => CollectionType::class,
+            'visibility' => Visibility::class,
+            'strategy' => CollectionStrategy::class,
+            'draft' => 'boolean',
         ];
     }
 

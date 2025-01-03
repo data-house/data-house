@@ -28,7 +28,7 @@ class ReviewFeedbackController extends Controller
             'comment' => 'nullable|string|max:4000',
         ]);
 
-        DB::transaction(function() use ($questionReview, $validated) {
+        DB::transaction(function() use ($questionReview, $validated): void {
             $questionReview->feedbacks()->create([
                 'reviewer_user_id' => auth()->user()->getKey(),
                 'vote' => FeedbackVote::from($validated['rating']),

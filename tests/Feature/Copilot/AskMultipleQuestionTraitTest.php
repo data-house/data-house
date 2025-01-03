@@ -55,7 +55,7 @@ class AskMultipleQuestionTraitTest extends TestCase
 
         $expectedQuestionHash = hash('sha512', 'Do you really reply to my question?-' . $documents->map->getCopilotKey()->join('-'));
 
-        Str::freezeUuids(function($uuid) use ($collection, &$question, &$questionUuid){
+        Str::freezeUuids(function($uuid) use ($collection, &$question, &$questionUuid): void{
 
             $question = $collection->question('Do you really reply to my question?');
 
@@ -135,7 +135,7 @@ class AskMultipleQuestionTraitTest extends TestCase
 
         $this->actingAs($user);
 
-        Str::freezeUuids(function($uuid) use ($collection, &$question, &$questionUuid){
+        Str::freezeUuids(function($uuid) use ($collection, &$question, &$questionUuid): void{
 
             $question = $collection->question('Do you really reply to my question?');
 
@@ -214,7 +214,7 @@ class AskMultipleQuestionTraitTest extends TestCase
 
         $this->actingAs($user);
 
-        Str::freezeUuids(function($uuid) use ($collection, &$question, &$questionUuid){
+        Str::freezeUuids(function($uuid) use ($collection, &$question, &$questionUuid): void{
             $question = $collection->question('Do you really reply to my question?');
 
             $questionUuid = $uuid;

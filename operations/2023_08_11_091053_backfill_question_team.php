@@ -36,7 +36,7 @@ return new class extends OneTimeOperation
             ->whereNull('team_id')
             ->doesntHave('ancestors')
             ->with(['user', 'user.currentTeam'])
-            ->each(function(Question $question) {
+            ->each(function(Question $question): void {
                 $question->team_id = $question->user?->currentTeam?->getKey();
 
                 $question->saveQuietly();

@@ -24,11 +24,6 @@ class PipelineRun extends Model
 
     use InteractWithRunStatus;
 
-    protected $casts = [
-        'status' => PipelineState::class,
-        'trigger' => PipelineTrigger::class,
-    ];
-
     /**
      * Get the input pipeable model for this run.
      */
@@ -69,6 +64,13 @@ class PipelineRun extends Model
     public function getRouteKeyName()
     {
         return 'ulid';
+    }
+    protected function casts(): array
+    {
+        return [
+            'status' => PipelineState::class,
+            'trigger' => PipelineTrigger::class,
+        ];
     }
 
 }

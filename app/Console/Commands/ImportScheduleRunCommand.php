@@ -53,7 +53,7 @@ class ImportScheduleRunCommand extends Command
 
         $this->line("{$schedulesMaps->count()} import map to run.");
 
-        $mapsPerImport->each(function($maps, $importUlid){
+        $mapsPerImport->each(function($maps, $importUlid): void{
 
             $import = $maps->first()->import;
 

@@ -59,7 +59,7 @@ class StartImportJob implements ShouldQueue, ShouldBeUnique
         // TODO: check if connection to service can be established
         $this->import->maps()
             ->where('status', ImportStatus::CREATED)
-            ->each(function($map){
+            ->each(function($map): void{
 
                 $map->markAsRunning();
 

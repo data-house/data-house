@@ -29,7 +29,7 @@ class Pdf extends Facade
 
         $driver = $driver ?: static::$app['config']->get('pdf.default');
 
-        $fakeManager = tap(new PdfManagerFake(static::getFacadeApplication(), $extractions, $actualPdfManager), function ($fake) {
+        $fakeManager = tap(new PdfManagerFake(static::getFacadeApplication(), $extractions, $actualPdfManager), function ($fake): void {
             static::swap($fake);
         });
 

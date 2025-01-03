@@ -52,7 +52,7 @@ class DocumentSummaryCommand extends Command
         $saveSummary = new SaveSummary();
 
         $documents
-            ->each(function($document) use ($action, $saveSummary, $language){
+            ->each(function($document) use ($action, $saveSummary, $language): void{
 
                 $language = $language ?? $document->language ?? LanguageAlpha2::English;
 

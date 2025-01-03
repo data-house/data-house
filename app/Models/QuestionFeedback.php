@@ -25,11 +25,6 @@ class QuestionFeedback extends Model
         'note',
     ];
 
-    protected $casts = [
-        'vote' => FeedbackVote::class,
-        'reason' => FeedbackReason::class,
-    ];
-
     
     /**
      * Get the questioned model.
@@ -64,6 +59,13 @@ class QuestionFeedback extends Model
     public function scopeAuthor(Builder $query, User $user): void
     {
         $query->where('user_id', $user->getKey());
+    }
+    protected function casts(): array
+    {
+        return [
+            'vote' => FeedbackVote::class,
+            'reason' => FeedbackReason::class,
+        ];
     }
 
 }

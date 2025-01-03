@@ -23,7 +23,7 @@ class UserPreferenceController extends Controller
         $validator = $this->getValidationFactory()->make(
             $request->all(),
             [
-                'preference' => ['required', function (string $attribute, mixed $value, Closure $fail) use ($cases) {
+                'preference' => ['required', function (string $attribute, mixed $value, Closure $fail) use ($cases): void {
                     if(!$cases->has($value)){
                         $fail("Invalid preference.");
                     }
@@ -32,7 +32,7 @@ class UserPreferenceController extends Controller
                 'value' => ['required'],
             ]
         )
-        ->after(function($validator) use ($cases){
+        ->after(function($validator) use ($cases): void{
 
             $validated = $validator->validated();
 

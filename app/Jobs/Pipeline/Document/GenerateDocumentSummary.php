@@ -42,7 +42,7 @@ class GenerateDocumentSummary extends PipelineJob
             ? [$documentLanguage, LanguageAlpha2::English]
             : [LanguageAlpha2::English];
 
-        collect($summaryLanguages)->each(function($language) use ($suggestAbstract, $saveSummary){
+        collect($summaryLanguages)->each(function($language) use ($suggestAbstract, $saveSummary): void{
 
             $abstract = $suggestAbstract($this->model, $language);
 

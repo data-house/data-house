@@ -41,7 +41,7 @@ class DocumentSectionsCommand extends Command
         $action = new ExtractDocumentSections();
 
         $documents
-            ->each(function($document) use ($action){
+            ->each(function($document) use ($action): void{
 
                 try {
                     $sections = $action($document);

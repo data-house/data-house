@@ -109,7 +109,7 @@ class BackfillQuestionTeamTest extends TestCase
                 'language' => 'en',
             ]);
 
-        $subQuestions->each(function($q) use ($question) {
+        $subQuestions->each(function($q) use ($question): void {
             $question->related()->attach($q->getKey(), ['type' => QuestionRelation::CHILDREN]);
         });
 
@@ -124,7 +124,7 @@ class BackfillQuestionTeamTest extends TestCase
         $this->assertTrue($updatedQuestion->team->is($user->currentTeam));
 
 
-        $subQuestions->map->fresh()->each(function($q) {
+        $subQuestions->map->fresh()->each(function($q): void {
             $this->assertNull($q->team_id);
             $this->assertNull($q->user_id);
         });

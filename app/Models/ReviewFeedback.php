@@ -20,10 +20,6 @@ class ReviewFeedback extends Model
         'vote',
     ];
 
-    protected $casts = [
-        'vote' => FeedbackVote::class,
-    ];
-
 
     public function user()
     {
@@ -33,5 +29,11 @@ class ReviewFeedback extends Model
     public function review()
     {
         return $this->belongsTo(QuestionReview::class, 'question_review_id');
+    }
+    protected function casts(): array
+    {
+        return [
+            'vote' => FeedbackVote::class,
+        ];
     }
 }

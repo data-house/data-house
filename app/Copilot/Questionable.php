@@ -37,11 +37,11 @@ trait Questionable
     {
         $self = $this;
 
-        BaseCollection::macro('questionable', function () use ($self) {
+        BaseCollection::macro('questionable', function () use ($self): void {
             $self->queueMakeQuestionable($this);
         });
 
-        BaseCollection::macro('unquestionable', function () use ($self) {
+        BaseCollection::macro('unquestionable', function () use ($self): void {
             $self->queueRemoveFromQuestionable($this);
         });
     }
@@ -169,7 +169,7 @@ trait Questionable
          */
         $response = null;
 
-        $timing = Benchmark::measure(function() use ($request, &$response) {
+        $timing = Benchmark::measure(function() use ($request, &$response): void {
             $response = $this->questionableUsing()->question($request);
         });
 
@@ -189,7 +189,7 @@ trait Questionable
         $self = new static;
 
         $self->newQuery()
-            ->when(true, function ($query) use ($self) {
+            ->when(true, function ($query) use ($self): void {
                 $self->addAllToCopilotUsing($query);
             })
             ->orderBy(
@@ -203,7 +203,7 @@ trait Questionable
         $self = new static;
 
         return $self->newQuery()
-            ->when(true, function ($query) use ($self) {
+            ->when(true, function ($query) use ($self): void {
                 $self->addAllToCopilotUsing($query);
             })
             ->lazyById();
@@ -220,7 +220,7 @@ trait Questionable
         $self = new static;
 
         $self->newQuery()
-            ->when(true, function ($query) use ($self) {
+            ->when(true, function ($query) use ($self): void {
                 $self->addAllToCopilotUsing($query);
             })
             ->orderBy(

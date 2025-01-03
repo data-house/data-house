@@ -106,7 +106,7 @@ class AskMultipleQuestionJobTest extends TestCase
         $this->assertEquals(Visibility::TEAM, $related->visibility);
         $this->assertNull($related->execution_time);
 
-        $relatedQuestions->each(function($q){
+        $relatedQuestions->each(function($q): void{
             Queue::assertPushed(AskQuestionJob::class, function($job) use ($q) {
                 return $job->question->is($q);
             });
@@ -199,7 +199,7 @@ class AskMultipleQuestionJobTest extends TestCase
         $this->assertEquals('en', $related->language);
         $this->assertNull($related->execution_time);
 
-        $relatedQuestions->each(function($q){
+        $relatedQuestions->each(function($q): void{
             Queue::assertPushed(AskQuestionJob::class, function($job) use ($q) {
                 return $job->question->is($q);
             });

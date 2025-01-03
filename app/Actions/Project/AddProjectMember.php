@@ -59,7 +59,7 @@ class AddProjectMember
      */
     protected function ensureProjectIsNotAlreadyOnTeam(Team $team, Project $project): Closure
     {
-        return function ($validator) use ($team, $project) {
+        return function ($validator) use ($team, $project): void {
             $validator->errors()->addIf(
                 $project->belongsToTeam($team),
                 'team',

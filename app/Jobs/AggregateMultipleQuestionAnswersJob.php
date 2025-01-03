@@ -77,7 +77,7 @@ class AggregateMultipleQuestionAnswersJob implements ShouldQueue
             return ;
         }
         
-        Cache::lock($this->question->lockKey())->block(30, function() {
+        Cache::lock($this->question->lockKey())->block(30, function(): void {
             $this->question->status = QuestionStatus::ERROR;
             $this->question->save();
         });

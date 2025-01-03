@@ -77,7 +77,7 @@ class ClassifyModelsCommand extends Command implements PromptsForMissingInput
         $disk = Storage::disk(Disk::DOCUMENT_CLASSIFICATION_RESULTS->value);
 
         $this->getModels($class, $ids)
-            ->each(function ($modelInstance) use ($bar, $copilot, $disk, $classifier, $force) {
+            ->each(function ($modelInstance) use ($bar, $copilot, $disk, $classifier, $force): void {
                 $bar->setMessage("Classifying [{$modelInstance->getKey()} - {$modelInstance->ulid}]");
                 $bar->advance();
                 
@@ -116,7 +116,7 @@ class ClassifyModelsCommand extends Command implements PromptsForMissingInput
         $self = new $class;
 
         return $self->newQuery()
-            ->when(true, function ($query) use ($self) {
+            ->when(true, function ($query) use ($self): void {
                 $query->where(fn($query) => $self->addAllToCopilotUsing($query));
             })
             ->whereIn($self->getCopilotKeyName(), $ids)
