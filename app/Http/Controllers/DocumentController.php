@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Actions\DeleteDocument;
 use App\Models\Disk;
 use App\Models\Document;
+use App\Models\SkosConcept;
 use App\Models\Visibility;
 use App\Pipelines\PipelineTrigger;
 use Illuminate\Http\Request;
@@ -84,7 +85,11 @@ class DocumentController extends Controller
             'sections' => function($query): void{
                 $query->whereNull('level')->orWhere('level', '<=', 2);
             },
-            'sections.latestSummary'
+            'sections.latestSummary',
+            'concepts' =>  function($query): void{
+                $query->whereRelation('conceptScheme', 'uri', '!=', 'https://vocabulary.oneofftech.xyz/sdg/SDG');
+            },
+            'concepts.conceptScheme',
         ]);
 
 
@@ -92,6 +97,8 @@ class DocumentController extends Controller
 
         $sdg = null;
         $sdg_stats = null;
+
+        $sdgConcepts = null;
 
         if($disk->exists("{$document->ulid}/sdg.json")){
             $json = $disk->json("{$document->ulid}/sdg.json");
@@ -107,6 +114,7 @@ class DocumentController extends Controller
             $sdg_stats = $classification->sortBy('name', SORT_NATURAL)->map(function($entry){
 
                 return [
+                    'name' => $entry['name'],
                     'goal' => 'Goal ' . trans("sdg.{$entry['name']}.goal"),
                     'title' => trans("sdg.{$entry['name']}.label"),
                     'color' => trans("sdg.{$entry['name']}.color"),
@@ -120,7 +128,17 @@ class DocumentController extends Controller
                     'percentage' => Number::percentage($others * 100),
                     'score' => $others,
                 ]);
+
+            $sdgConcepts = SkosConcept::whereIn('notation', $classification->pluck('name'))->get()->keyBy('notation');
+
+            
         }
+
+        $allConcepts = $document->concepts
+            ->sortBy([
+                ['top_concept', 'desc'],
+                ['pref_label', 'asc'],
+            ]);
 
         return view('document.show', [
             'document' => $document,
@@ -128,6 +146,10 @@ class DocumentController extends Controller
             'importDocument' => null,
             'sdg_stats' => $sdg_stats,
             'sdg' => $sdg,
+            'sdgConcepts' => $sdgConcepts,
+            'sdgConcept' => $sdgConcepts[$sdg['name']] ?? null,
+            'concepts' => $allConcepts->take(6),
+            'remaining_concepts' => $allConcepts->skip(6),
         ]);
     }
 

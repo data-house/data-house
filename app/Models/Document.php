@@ -202,6 +202,13 @@ class Document extends Model implements Convertible
         return $this->hasMany(DocumentSummary::class)->orderBy('created_at', 'DESC')->where('document_summaries.all_document', true); // ->wholeDocument()
 
     }
+    
+    public function concepts(): BelongsToMany
+    {
+        return $this->belongsToMany(SkosConcept::class)
+            ->withTimestamps()
+            ;
+    }
 
     public function latestSummary(): HasOne
     {
@@ -223,7 +230,7 @@ class Document extends Model implements Convertible
      */
     protected function makeAllSearchableUsing($query)
     {
-        return $query->with(['team', 'project', 'collections' => function($query): void{
+        return $query->with(['team', 'project', 'concepts', 'collections' => function($query): void{
             $query->library();
         }]);
     }
@@ -401,6 +408,14 @@ class Document extends Model implements Convertible
             'visibility' => $this->visibility?->value,
             'stars' => $this->stars()->get(['user_id'])->pluck('user_id')->values(),
             'library_collections' => $this->collections->modelKeys(),
+            'concepts' => $this->concepts->map(function($concept){
+                
+                return [
+                    $concept->pref_label,
+                    $concept->alt_labels,
+                    $concept->ancestorsOfConcept()->get()->map->pref_label,
+                ];
+            })->flatten()->all(),
         ];
     }
     

@@ -5,6 +5,7 @@ use App\Models\Document;
 use App\Models\Note;
 use App\Models\Project;
 use App\Models\Question;
+use App\Models\SkosConcept;
 use App\Models\Star;
 
 return [
@@ -160,6 +161,7 @@ return [
                     'project_topics',
                     'library_collections',
                     'stars',
+                    'concepts',
                 ],
                 'sortableAttributes' => [
                     'title',
@@ -237,6 +239,19 @@ return [
                     'created_at',
                     'updated_at',
                     'topic_group',
+                ],
+            ],
+            SkosConcept::class => [
+                'filterableAttributes'=> [
+                    'id',
+                    'scheme_id',
+                    'top_concept',
+                ],
+                'sortableAttributes' => [
+                    'pref_label',
+                    'notation',
+                    'scheme_pref_label',
+                    'top_concept',
                 ],
             ],
         ],

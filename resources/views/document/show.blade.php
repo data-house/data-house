@@ -58,6 +58,9 @@
 
 
         <div class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
+
+            
+
             
 
             <div class="flex flex-col md:flex-row">
@@ -99,12 +102,51 @@
                         <x-section-border />
                     @endfeature
 
+                    @if ($concepts->isNotEmpty())
+
+                        <div class="space-y-3" x-data>
+                            <h4 class="font-bold text-stone-700">{{ __('Linked concepts') }}</h4>
+
+                            <ul class="flex flex-wrap gap-2">
+                                @foreach ($concepts ?? [] as $concept)
+                                    <li><a class="text-sm inline-flex gap-2 py-0.5 px-2 items-center rounded-md bg-stone-50 ring-stone-300 hover:bg-indigo-200 ring-1 hover:ring-indigo-500"
+                                    x-on:click.prevent="Livewire.dispatch('openSlideover', {component: 'concept-viewer-slideover', arguments: { concept: '{{ $concept->id }}'}})"
+                                    href="{{route('vocabulary-concepts.show', $concept->id) }}" 
+                                    >{{ $concept->pref_label }}</a></li>                    
+                                @endforeach
+                            </ul>
+
+                            @if ($remaining_concepts?->isNotEmpty() ?? false)
+
+                                <div class="space-y-2" x-data="{expand: false}">
+
+                                    <x-small-button  @click="expand = !expand">
+
+                                        <x-heroicon-o-ellipsis-horizontal class="size-4 text-stone-600" />
+                                     {{ trans_choice(':value other concept|:value other concepts', $remaining_concepts->count(), ['value' => $remaining_concepts->count()]) }}
+                                    </x-small-button>
+
+                                
+                                    <ul x-cloak x-show="expand" class="flex flex-wrap gap-2">
+                                        @foreach ($remaining_concepts as $concept)
+                                        <li><a class="text-sm inline-flex gap-2 py-0.5 px-2 items-center rounded-md bg-stone-50 ring-stone-300 hover:bg-indigo-200 ring-1 hover:ring-indigo-500"
+                                            x-on:click.prevent="Livewire.dispatch('openSlideover', {component: 'concept-viewer-slideover', arguments: { concept: '{{ $concept->id }}'}})"
+                                            href="{{route('vocabulary-concepts.show', $concept->id) }}" 
+                                            >{{ $concept->pref_label }}</a></li>                    
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            @endif
+                        </div>
+
+                        <x-section-border />
+
+                    @endif
+
                     @if ($sdg)
-                        <div class="space-y-3">
+                        <div class="space-y-3" x-data>
                             <h4 class="font-bold text-stone-700">{{ __('Sustainable Development Goals') }}</h4>
                             
-                            
-
                             <div class="grid grid-cols-1 grid-rows-1 bg-white p-2 rounded">
                                 <div class="col-start-1 row-start-1 p-3 z-10">
                                     <p>
@@ -113,6 +155,10 @@
                                     </p>
                                     <p class="text-xs text-stone-700">{{ trans("sdg.{$sdg['name']}.title") }}</p>
                                 </div>
+                                <a class="col-start-1 row-start-1 z-20 block w-full h-full"
+                                    x-on:click.prevent="Livewire.dispatch('openSlideover', {component: 'concept-viewer-slideover', arguments: { concept: '{{ $sdgConcept->id }}'}})"
+                                    href="{{route('vocabulary-concepts.show', $sdgConcept->id) }}" 
+                                    title="See in vocabulary">&nbsp;</a>
                             </div>
                             
                             <div class="relative h-2 rounded-md flex overflow-hidden gap-0.5">
@@ -129,7 +175,16 @@
                                 @foreach ($sdg_stats as $classification)
                                     <span class="text-xs inline-flex items-center gap-1" x-data x-tooltip.raw="{{ $classification['title'] }}">
                                         <span class="rounded-full w-3 h-3" style="background: {{ $classification['color'] }}"></span>
-                                        <span class="font-medium text-stone-800">{{ $classification['goal'] }}</span>
+                                        @if (($classification['name'] ?? false) && ($sdgConcepts[$classification['name']] ?? false))
+                                            @php
+                                                $currentConcept = $sdgConcepts[$classification['name']];
+                                            @endphp
+                                            <a class="font-medium text-stone-800 underline"
+                                                x-on:click.prevent="Livewire.dispatch('openSlideover', {component: 'concept-viewer-slideover', arguments: { concept: '{{ $currentConcept->id }}'}})"
+                                                href="{{ route('vocabulary-concepts.show', $currentConcept->id) }}">{{ $classification['goal'] }}</a>
+                                        @else
+                                            <span class="font-medium text-stone-800">{{ $classification['goal'] }}</span>
+                                        @endif
                                         <span class="text-stone-600">{{ $classification['percentage'] }}</span>
                                     </span>
                                 @endforeach

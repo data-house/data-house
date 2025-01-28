@@ -78,7 +78,13 @@ return [
             'driver' => 'scoped',
             'disk' => env('IMPORT_FILESYSTEM_DISK', 'local'),
             'prefix' => 'imports',
-        ]
+        ],
+
+        'vocabularies' => [
+            'driver' => 'scoped',
+            'disk' => env('VOCABULARIES_FILESYSTEM_DISK', 'local'),
+            'prefix' => 'vocabularies',
+        ],
 
     ],
 

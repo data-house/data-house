@@ -8,6 +8,8 @@
             <x-slot name="title">{{ $title }}</x-slot>
             <x-slot name="description">{{ $description }}</x-slot>
             <x-slot name="aside">
+
+                {{ $aside ?? null }}
                 
                 <x-small-button type="button" wire:click="$dispatch('closeSlideover')">
                     {{ __('Close')}}
