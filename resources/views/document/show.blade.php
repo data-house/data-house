@@ -106,11 +106,13 @@
                             
 
                             <div class="grid grid-cols-1 grid-rows-1 bg-white p-2 rounded">
-                                <span class="opacity-60 text-4xl font-black col-start-1 row-start-1" style="color: {{trans("sdg.{$sdg['name']}.color")}}">{{ trans("sdg.{$sdg['name']}.goal") }}</span>
-                                <p class="col-start-1 row-start-1 p-3 z-10">
-                                    <span class="block font-medium">{{ trans("sdg.{$sdg['name']}.label") }}</span>
-                                    <span class="text-xs text-stone-700">{{ trans("sdg.{$sdg['name']}.title") }}</span>
-                                </p>
+                                <div class="col-start-1 row-start-1 p-3 z-10">
+                                    <p>
+                                        <span style="color: {{trans("sdg.{$sdg['name']}.color")}}">{{ __('Goal :value', ['value' => trans("sdg.{$sdg['name']}.goal")]) }}</span>
+                                        <span class="font-medium">{{ trans("sdg.{$sdg['name']}.label") }}</span>
+                                    </p>
+                                    <p class="text-xs text-stone-700">{{ trans("sdg.{$sdg['name']}.title") }}</p>
+                                </div>
                             </div>
                             
                             <div class="relative h-2 rounded-md flex overflow-hidden gap-0.5">
