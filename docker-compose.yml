@@ -66,7 +66,7 @@ services:
             timeout: 5s
     
     parse:
-        image: "ghcr.io/data-house/pdf-text-extractor:v0.3.0"
+        image: "ghcr.io/oneofftech/parxy:v0.5.0"
         networks:
             - sail
         # environment:
