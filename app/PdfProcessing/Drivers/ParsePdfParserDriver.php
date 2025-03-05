@@ -45,7 +45,6 @@ class ParsePdfParserDriver implements Driver
         try{
             $parsedDocument = $this->client->parse(
                 url: $document->url,
-                mimeType: $document->mimeType,
                 options: new ParseOption(($options['processor'] ?? null) ? DocumentProcessor::from($options['processor']) : $this->defaultProcessor)
             );
             
