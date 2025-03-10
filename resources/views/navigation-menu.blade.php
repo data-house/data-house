@@ -1,31 +1,26 @@
 <nav x-data="{ open: false }" class="bg-white border-b border-stone-100">
     <!-- Primary Navigation Menu -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
             <div class="flex">
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
-                    @feature(Flag::dashboard())
-                        <a href="{{ route('dashboard') }}">
-                            <x-application-mark class="block h-9 w-auto" />
-                        </a>
-                    @else
-                        <a href="{{ route('documents.library') }}">
-                            <x-application-mark class="block h-9 w-auto" />
-                        </a>
-                    @endfeature
+                    <a href="{{ route('dashboard') }}">
+                        <x-application-mark class="block h-9 w-auto" />
+                    </a>
                 </div>
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
-                    @feature(Flag::dashboard())
-                        <x-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')">
-                            {{ __('Dashboard') }}
-                        </x-nav-link>
-                    @endfeature
-                    <x-nav-link href="{{ route('documents.library') }}" :active="request()->routeIs('documents.*') || request()->routeIs('imports.*') || request()->routeIs('mappings.*') || request()->routeIs('questions.*') || request()->routeIs('question-reviews.*') || request()->routeIs('collections.*')">
-                        {{ __('Digital Library') }}
+                    <x-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')">
+                        {{ __('Dashboard') }}
                     </x-nav-link>
+                    <x-nav-link href="{{ route('documents.library') }}" :active="request()->routeIs('documents.*') || request()->routeIs('imports.*') || request()->routeIs('mappings.*') || request()->routeIs('questions.*') || request()->routeIs('question-reviews.*') || request()->routeIs('collections.*')">
+                        {{ __('Documents') }}
+                    </x-nav-link>
+                    @can('viewAny', \App\Models\Question::class)
+                        <x-nav-link href="{{ route('questions.index') }}" :active="request()->routeIs('questions.*')">{{ __('Questions') }}</x-nav-link>
+                    @endcan
                     <x-nav-link href="{{ route('projects.index') }}" :active="request()->routeIs('projects.*')">
                         {{ __('Projects') }}
                     </x-nav-link>
@@ -240,14 +235,15 @@
     <!-- Responsive Navigation Menu -->
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
-            @feature(Flag::dashboard())
-                <x-responsive-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')">
-                    {{ __('Dashboard') }}
-                </x-responsive-nav-link>
-            @endfeature
-            <x-responsive-nav-link href="{{ route('documents.library') }}" :active="request()->routeIs('documents.*') || request()->routeIs('imports.*') || request()->routeIs('mappings.*') || request()->routeIs('questions.*') || request()->routeIs('collections.*')">
-                {{ __('Digital Library') }}
+            <x-responsive-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')">
+                {{ __('Dashboard') }}
             </x-responsive-nav-link>
+            <x-responsive-nav-link href="{{ route('documents.library') }}" :active="request()->routeIs('documents.*') || request()->routeIs('imports.*') || request()->routeIs('mappings.*') || request()->routeIs('questions.*') || request()->routeIs('collections.*')">
+                {{ __('Documents') }}
+            </x-responsive-nav-link>
+            @can('viewAny', \App\Models\Question::class)
+                <x-responsive-nav-link href="{{ route('questions.index') }}" :active="request()->routeIs('questions.*')">{{ __('Questions') }}</x-responsive-nav-link>
+            @endcan
             <x-responsive-nav-link href="{{ route('projects.index') }}" :active="request()->routeIs('projects.*')">
                 {{ __('Projects') }}
             </x-responsive-nav-link>
