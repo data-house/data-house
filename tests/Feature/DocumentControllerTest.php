@@ -18,6 +18,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Laravel\Pennant\Feature;
 use Laravel\Sanctum\TransientToken;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class DocumentControllerTest extends TestCase
 {
@@ -277,9 +278,7 @@ class DocumentControllerTest extends TestCase
         ];
     }
     
-    /**
-     * @dataProvider generateInvalidTitles
-     */
+    #[DataProvider('generateInvalidTitles')]
     public function test_document_update_validates_title($title)
     {
         $user = User::factory()->withPersonalTeam()->manager()->create();
