@@ -11,11 +11,11 @@
                 </div>
 
                 <!-- Navigation Links -->
-                <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
-                    <x-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')">
+                <div class="hidden sm:-my-px sm:ml-6 sm:flex sm:gap-6 lg:ml-8 lg:gap-8">
+                    <x-nav-link class="hidden md:inline-flex" href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
-                    <x-nav-link href="{{ route('documents.library') }}" :active="request()->routeIs('documents.*') || request()->routeIs('imports.*') || request()->routeIs('mappings.*') || request()->routeIs('questions.*') || request()->routeIs('question-reviews.*') || request()->routeIs('collections.*')">
+                    <x-nav-link href="{{ route('documents.library') }}" :active="request()->routeIs('documents.*') || request()->routeIs('imports.*') || request()->routeIs('mappings.*') || request()->routeIs('collections.*')">
                         {{ __('Documents') }}
                     </x-nav-link>
                     @can('viewAny', \App\Models\Question::class)
@@ -30,7 +30,7 @@
             <div class="hidden sm:flex sm:items-center sm:ml-6">
                 <!-- Teams Dropdown -->
                 @if (Laravel\Jetstream\Jetstream::hasTeamFeatures() && Auth::user()->allTeams()->isNotEmpty())
-                    <div class="ml-3 relative">
+                    <div class="hidden md:block ml-3 relative">
                         <x-dropdown align="right" width="60">
                             <x-slot name="trigger">
                                 <span class="inline-flex rounded-md">
@@ -238,7 +238,7 @@
             <x-responsive-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
-            <x-responsive-nav-link href="{{ route('documents.library') }}" :active="request()->routeIs('documents.*') || request()->routeIs('imports.*') || request()->routeIs('mappings.*') || request()->routeIs('questions.*') || request()->routeIs('collections.*')">
+            <x-responsive-nav-link href="{{ route('documents.library') }}" :active="request()->routeIs('documents.*') || request()->routeIs('imports.*') || request()->routeIs('mappings.*') || request()->routeIs('collections.*')">
                 {{ __('Documents') }}
             </x-responsive-nav-link>
             @can('viewAny', \App\Models\Question::class)
