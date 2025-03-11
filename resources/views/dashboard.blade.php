@@ -1,7 +1,7 @@
 <x-app-layout>
     
 
-    <div class="py-12 px-4 sm:px-6 lg:px-8 space-y-12">
+    <div class="p-4 sm:p-6 lg:py-10 lg:px-8 space-y-10">
         
         <div class="space-y-3">
 
@@ -10,7 +10,11 @@
             <div class="flex items-center justify-between">
 
                 <div>
-                    {{ __('Recently modified') }}
+                    <div class="block inline-flex p-1 rounded-lg bg-zinc-800/5 dark:bg-white/10 h-8 py-[3px] px-[3px] -my-px h-[calc(2rem+2px)]" data-flux-tabs="" role="tablist">
+                        <a href="{{ route('dashboard') }}" class="flex whitespace-nowrap flex-1 justify-center items-center gap-2 rounded-md shadow-xs text-sm font-medium  hover:text-zinc-800 text-zinc-800 bg-white px-3" data-flux-tab="data-flux-tab" data-selected="" data-active="" tabindex="0" aria-selected="true" role="tab">
+                            {{ __('Recently modified') }}
+                        </a>
+                    </div>
                 </div>
 
                 <x-visualization-style-switcher :user="auth()->user()" class="pl-4" />
@@ -39,7 +43,11 @@
             <div class="flex items-center justify-between">
 
                 <div>
-                    {{ __('Recently asked') }}
+                    <div class="block inline-flex p-1 rounded-lg bg-zinc-800/5 dark:bg-white/10 h-8 py-[3px] px-[3px] -my-px h-[calc(2rem+2px)]" data-flux-tabs="" role="tablist">
+                        <a href="{{ route('dashboard') }}" class="flex whitespace-nowrap flex-1 justify-center items-center gap-2 rounded-md shadow-xs text-sm font-medium  hover:text-zinc-800 text-zinc-800 bg-white px-3" data-flux-tab="data-flux-tab" data-selected="" data-active="" tabindex="0" aria-selected="true" role="tab">
+                            {{ __('Recently asked') }}
+                        </a>
+                    </div>
                 </div>
 
             </div>
