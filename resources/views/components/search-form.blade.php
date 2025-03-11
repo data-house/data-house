@@ -3,6 +3,10 @@
 <div {{ $attributes }}>
     <form action="{{ $action }}" method="get" x-data="{showFilters: false}" @click.away="showFilters = false" @close.stop="showFilters = false">
         <div class="flex md:space-x-6 items-center">
+            <div class="flex-grow">
+                <x-input type="text" :value="$searchQuery ?? null" name="s" id="s" class="min-w-full" placeholder="{{ $searchPlaceholder }}" />
+            </div>
+
             @if ($filters ?? false)
                 @unless ($filters->isEmpty())
                     <div class="pr-6">
@@ -18,9 +22,6 @@
                     </div>
                 @endunless
             @endif
-            <div class="flex-grow">
-                <x-input type="text" :value="$searchQuery ?? null" name="s" id="s" class="min-w-full" placeholder="{{ $searchPlaceholder }}" />
-            </div>
         </div>
 
 
