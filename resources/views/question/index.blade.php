@@ -13,8 +13,8 @@
         </x-page-heading>
     </x-slot>
 
-    <div class="">
-        <div class="max-w-7xl py-10 mx-auto px-4 sm:px-6 lg:px-8">                
+    <div class="pt-8 pb-12">
+        <div class="px-4 sm:px-6 lg:px-8">
             <div>
                 <form action="" method="get">
                     <x-input type="text" :value="$searchQuery ?? null" name="s" id="s" class="min-w-full" placeholder="{{ __('Search the question library...') }}" />

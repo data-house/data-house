@@ -13,8 +13,8 @@
         </x-page-heading>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="pt-8 pb-12">
+        <div class="px-4 sm:px-6 lg:px-8">
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-8">
                 <div class="flex flex-col overflow-hidden justify-between rounded-lg border border-stone-600/40 bg-white shadow" >
