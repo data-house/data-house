@@ -199,6 +199,7 @@ class SearchableTest extends TestCase
                     "project_topics",
                     "library_collections",
                     "stars",
+                    "concepts",
                 ],
                 'hitsPerPage' => $hitsPerPage,
                 'page' => $page,
