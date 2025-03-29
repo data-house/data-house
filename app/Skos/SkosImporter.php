@@ -72,7 +72,7 @@ class SkosImporter
                 'uri' => $resource->getUri(),
                 'skos_concept_scheme_id' => $insertedScheme->getKey(),
                 'pref_label' => $resource->getLiteral(property: 'skos:prefLabel', lang: 'en'),
-                'alt_labels' => collect($resource->all('skos:altLabel'))->map->getValue()->merge([$resource->getLiteral(property: 'skos:prefLabel', lang: 'de')?->getValue()])->flatten(),
+                'alt_labels' => collect($resource->all('skos:altLabel'))->map->getValue()->merge([$resource->getLiteral(property: 'skos:prefLabel', lang: 'de')?->getValue()])->flatten()->filter(),
                 'hidden_labels' => collect($resource->all('skos:hiddenLabel'))->map->getValue(),
                 'notation' => $resource->getLiteral('skos:notation') ?? $resource->getLiteral('dc:identifier'),
                 'definition' => $resource->get('skos:definition'),

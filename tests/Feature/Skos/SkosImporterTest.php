@@ -101,12 +101,12 @@ class SkosImporterTest extends TestCase
         
         $schemeTwoConceptSecond = SkosConcept::whereUri('https://two.scheme/second')->sole();
 
-        $this->assertTrue($schemeTwoConceptFirst->exactMatches()->first()->is($schemeOneConceptTwo));
+        $this->assertTrue($schemeTwoConceptFirst->mappedConcepts()->first()->is($schemeOneConceptTwo));
 
-        $this->assertTrue($schemeTwoConceptSecond->narrowMatches()->first()->is($schemeOneConceptOne));
+        $this->assertTrue($schemeTwoConceptSecond->mappedConcepts()->first()->is($schemeOneConceptOne));
         
-        $this->assertTrue($schemeOneConceptTwo->exactMatches()->first()->is($schemeTwoConceptFirst));
+        $this->assertTrue($schemeOneConceptTwo->mappedConcepts()->first()->is($schemeTwoConceptFirst));
 
-        $this->assertTrue($schemeOneConceptOne->broadMatches()->first()->is($schemeTwoConceptSecond));
+        $this->assertTrue($schemeOneConceptOne->mappedConcepts()->first()->is($schemeTwoConceptSecond));
     }
 }

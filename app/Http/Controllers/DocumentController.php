@@ -147,7 +147,7 @@ class DocumentController extends Controller
             'sdg_stats' => $sdg_stats,
             'sdg' => $sdg,
             'sdgConcepts' => $sdgConcepts,
-            'sdgConcept' => $sdgConcepts[$sdg['name']] ?? null,
+            'sdgConcept' => filled($sdg['name'] ?? null) ? ($sdgConcepts[$sdg['name']] ?? null) : null,
             'concepts' => $allConcepts->take(6),
             'remaining_concepts' => $allConcepts->skip(6),
         ]);
