@@ -28,6 +28,7 @@ class ExtractDocumentPropertiesJobTest extends TestCase
             ->create([
                 'disk_name' => 'local',
                 'disk_path' => 'test.pdf',
+                'title' => 'Test document',
             ]);
 
         $job = new ExtractDocumentProperties($model, $model->latestPipelineRun);
