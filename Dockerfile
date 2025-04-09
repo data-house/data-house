@@ -9,6 +9,7 @@ RUN \
     mkdir -p "storage/framework/sessions" &&\
     mkdir -p "storage/framework/views" &&\
     mkdir -p "storage/logs" &&\
+    mkdir -p "tests" &&\
     composer install --no-dev --prefer-dist --optimize-autoloader && \
     php artisan language-recognizer:install-local-driver && \
     chmod +x ./bin/language-recognizer
@@ -72,7 +73,7 @@ RUN apt-get update -yqq && \
     && apt-get clean \
     && rm -rf /var/cache/apt/ /var/lib/apt/lists/* /var/log/* /tmp/* /var/tmp/* /usr/share/doc /usr/share/doc-base /usr/share/groff/* /usr/share/info/* /usr/share/linda/* /usr/share/lintian/overrides/* /usr/share/locale/* /usr/share/man/* /usr/share/locale/* /usr/share/gnome/help/*/* /usr/share/doc/kde/HTML/*/* /usr/share/omf/*/*-*.emf
 
-## Forces the locale to UTF-8, suggestion from Marco Zanoni
+## Forces the locale to UTF-8
 RUN locale-gen "en_US.UTF-8" \
     && DEBIAN_FRONTEND=noninteractive dpkg-reconfigure locales \
     && locale-gen "C.UTF-8" \
@@ -111,6 +112,7 @@ RUN echo '* * * * * su www-data -s /bin/bash -c "cd /var/www/ && /usr/local/bin/
 
 ## Copy NGINX default configuration
 COPY docker/nginx-default.conf /etc/nginx/conf.d/default.conf
+COPY docker/nginx/server-opts.d/*.conf /etc/nginx/conf.d/server-opts.d/
 
 ## Copy additional PHP configuration files
 COPY docker/php-ini/*.ini /usr/local/etc/php/conf.d/

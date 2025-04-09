@@ -18,6 +18,7 @@ contributing.md
 .dockerignore
 Dockerfile
 storage/
+tests/
 docs/
 bin/
 php-cs-fixer.phar
