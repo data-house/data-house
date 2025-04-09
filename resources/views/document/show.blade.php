@@ -143,7 +143,7 @@
 
                     @endif
 
-                    @if ($sdg)
+                    @if ($sdg && $sdgConcept)
                         <div class="space-y-3" x-data>
                             <h4 class="font-bold text-stone-700">{{ __('Sustainable Development Goals') }}</h4>
                             
