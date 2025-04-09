@@ -24,6 +24,9 @@
                     <x-nav-link href="{{ route('projects.index') }}" :active="request()->routeIs('projects.*')">
                         {{ __('Projects') }}
                     </x-nav-link>
+                    <x-nav-link href="{{ route('vocabularies.index') }}" :active="request()->routeIs('vocabularies.*') || request()->routeIs('vocabulary-concepts.*')">
+                        {{ __('Vocabularies') }}
+                    </x-nav-link>
                 </div>
             </div>
 

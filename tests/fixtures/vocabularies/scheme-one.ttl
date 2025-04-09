@@ -1,0 +1,33 @@
+@prefix : <https://one.scheme/> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix sdg: <http://metadata.un.org/sdg/> .
+@prefix sdgeu: <http://data.europa.eu/sdg/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+:1 a skos:Concept ;
+    dc:identifier "sdg1" ;
+    skos:altLabel "End poverty in all its forms everywhere"@en,
+        "Goal 1"@en ;
+    skos:definition "Goal 1 calls for an end to poverty in all its manifestations, including extreme poverty, over the next 15 years. All people everywhere, including the poorest and most vulnerable, should enjoy a basic standard of living and social protection benefits."@en ;
+    skos:exactMatch sdgeu:1,
+        sdg:1 ;
+    skos:inScheme :SDG ;
+    skos:prefLabel "Goal 1: No poverty"@en ;
+    skos:topConceptOf :SDG .
+
+:2 a skos:Concept ;
+    dc:identifier "sdg2" ;
+    skos:altLabel "End hunger, achieve food security and improved nutrition and promote sustainable agriculture"@en,
+        "Goal 2"@en ;
+    skos:definition "Goal 2 seeks to end hunger and all forms of malnutrition and to achieve sustainable food production by 2030. It is premised on the idea that everyone should have access to sufficient nutritious food, which will require widespread promotion of sustainable agriculture, a doubling of agricultural productivity, increased investments and properly functioning food markets."@en ;
+    skos:exactMatch sdgeu:2,
+        sdg:2 ;
+    skos:inScheme :SDG ;
+    skos:prefLabel "Goal 2: Zero hunger"@en ;
+    skos:topConceptOf :SDG .
+
+:SDG a skos:ConceptScheme ;
+    skos:hasTopConcept :1, :2 ;
+    skos:prefLabel "Sustainable Development Goals"@en .
+

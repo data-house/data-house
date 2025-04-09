@@ -22,6 +22,8 @@ use App\Http\Controllers\ReviewFeedbackController;
 use App\Http\Controllers\StarController;
 use App\Http\Controllers\StartImportController;
 use App\Http\Controllers\UserPreferenceController;
+use App\Http\Controllers\VocabularyConceptController;
+use App\Http\Controllers\VocabularyController;
 use App\Http\Middleware\ValidateSignature;
 use Illuminate\Support\Facades\Route;
 
@@ -77,6 +79,9 @@ Route::middleware([
     Route::get('user-preferences', UserPreferenceController::class)->name('user-preferences');
 
     Route::resource('stars', StarController::class)->only(['index']);
+
+    Route::resource('vocabularies', VocabularyController::class)->only(['index', 'show']);
+    Route::resource('vocabulary-concepts', VocabularyConceptController::class)->only(['show']);
 });
 
 Route::middleware([

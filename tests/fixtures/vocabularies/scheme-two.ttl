@@ -1,0 +1,25 @@
+@prefix : <https://two.scheme/> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix one: <https://one.scheme/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+
+:TwoScheme a skos:ConceptScheme ;
+    skos:hasTopConcept :first, :second ;
+    skos:prefLabel "Two Scheme"@en .
+
+:first a skos:Concept ;
+    skos:definition "The definition of the first concept."@en ;
+    skos:exactMatch one:2;
+    skos:inScheme :TwoScheme ;
+    skos:prefLabel "First concept"@en ;
+    skos:topConceptOf :TwoScheme .
+
+:second a skos:Concept ;
+    skos:definition "The definition of the second concept."@en ;
+    skos:narrowMatch one:1;
+    skos:inScheme :TwoScheme ;
+    skos:prefLabel "Second concept"@en ;
+    skos:topConceptOf :TwoScheme .
+
