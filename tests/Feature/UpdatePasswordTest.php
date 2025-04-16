@@ -3,12 +3,12 @@
 namespace Tests\Feature;
 
 use App\Events\Auth\PasswordChanged;
+use App\Livewire\UpdatePasswordForm;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
-use Laravel\Jetstream\Http\Livewire\UpdatePasswordForm;
 use Livewire\Livewire;
 use Tests\TestCase;
 
