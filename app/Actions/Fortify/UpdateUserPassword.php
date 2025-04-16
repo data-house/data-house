@@ -28,6 +28,7 @@ class UpdateUserPassword implements UpdatesUserPasswords
 
         $user->forceFill([
             'password' => Hash::make($input['password']),
+            'password_updated_at' => now(),
         ])->save();
 
         event(new PasswordChanged($user));

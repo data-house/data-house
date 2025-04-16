@@ -17,9 +17,12 @@
     </head>
     <body class="font-sans antialiased">
         <x-banner />
+        
 
         <div class="min-h-screen bg-stone-100">
             @livewire('navigation-menu')
+
+            <x-update-expired-password-banner />
 
             <!-- Page Heading -->
             @if (isset($header))

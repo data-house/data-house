@@ -27,6 +27,7 @@ class AddUserCommandTest extends TestCase
 
         $this->assertNotNull($user);
         $this->assertEquals('guest', $user->role->value);
+        $this->assertNotNull($user->password_updated_at);
     }
 
     public function test_new_users_can_register_with_role()

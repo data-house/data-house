@@ -15,6 +15,7 @@ use App\Jobs\Pipeline\Document\LinkDocumentWithAProject;
 use App\Jobs\Pipeline\Document\MakeDocumentQuestionable;
 use App\Jobs\Pipeline\Document\MakeDocumentSearchable;
 use App\Jobs\Pipeline\Document\RecognizeLanguage;
+use App\Livewire\UpdatePasswordForm;
 use App\Models\Flag;
 use App\Models\Project;
 use App\Models\Role;
@@ -27,6 +28,7 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rules\Password;
 use Laravel\Pennant\Feature;
 use App\Rules\PasswordDoesNotContainEmail;
+use Livewire\Livewire;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -82,6 +84,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(RetrievalRequest::class, function ($app) {
             return RetrievalRequest::fromRequest($app['request']);
         });
+
+        Livewire::component('profile.update-password-form', UpdatePasswordForm::class);
 
         Password::defaults(function () {
             // Set default rules for password validation

@@ -61,6 +61,18 @@ class User extends Authenticatable
         'profile_photo_url',
     ];
 
+    /**
+     * The "booted" method of the model.
+     */
+    protected static function booted(): void
+    {
+        static::creating(function (User $user) {
+            if(blank($user->password_updated_at)){
+                $user->password_updated_at = now();
+            }
+        });
+    }
+
 
     public function imports()
     {
@@ -80,6 +92,7 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
+            'password_updated_at' => 'datetime',
             'role' => Role::class,
             'notification_settings' => NotificationSettingsData::class . ':default',
         ];

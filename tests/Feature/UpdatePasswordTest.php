@@ -20,7 +20,9 @@ class UpdatePasswordTest extends TestCase
     {
         Event::fake();
 
-        $this->actingAs($user = User::factory()->create());
+        $lastPasswordUpdate = now()->subMinute();
+
+        $this->actingAs($user = User::factory()->create(['password_updated_at' => $lastPasswordUpdate]));
 
         $p = Str::password();
 
@@ -33,6 +35,8 @@ class UpdatePasswordTest extends TestCase
                 ->call('updatePassword');
 
         $this->assertTrue(Hash::check($p, $user->fresh()->password));
+        
+        $this->assertNotEquals($lastPasswordUpdate->toDateTimeString(), $user->fresh()->password_updated_at->toDateTimeString());
 
         Event::assertDispatched(PasswordChanged::class, function($evt) use ($user) {
             return $user->is($evt->user);
