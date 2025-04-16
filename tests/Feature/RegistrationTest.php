@@ -7,6 +7,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Fortify\Features;
 use Laravel\Jetstream\Jetstream;
 use Tests\TestCase;
+use Illuminate\Support\Str;
 
 class RegistrationTest extends TestCase
 {
@@ -46,6 +47,30 @@ class RegistrationTest extends TestCase
             return;
         }
 
+        $p = Str::password();
+
+        $response = $this->post('/register', [
+            'name' => 'Test User',
+            'email' => 'test@example.com',
+            'password' => $p,
+            'password_confirmation' => $p,
+            'terms' => Jetstream::hasTermsAndPrivacyPolicyFeature(),
+        ]);
+
+        $this->assertAuthenticated();
+        $response->assertRedirect(RouteServiceProvider::HOME);
+    }
+
+    public function test_new_users_cannot_register_if_password_does_not_respect_requirements(): void
+    {
+        if (! Features::enabled(Features::registration())) {
+            $this->markTestSkipped('Registration support is not enabled.');
+
+            return;
+        }
+
+        $p = Str::password();
+
         $response = $this->post('/register', [
             'name' => 'Test User',
             'email' => 'test@example.com',
@@ -54,7 +79,7 @@ class RegistrationTest extends TestCase
             'terms' => Jetstream::hasTermsAndPrivacyPolicyFeature(),
         ]);
 
-        $this->assertAuthenticated();
-        $response->assertRedirect(RouteServiceProvider::HOME);
+        $this->assertGuest();
+        $response->assertSessionHasErrors('password');
     }
 }

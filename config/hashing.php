@@ -31,6 +31,7 @@ return [
     'bcrypt' => [
         'rounds' => env('BCRYPT_ROUNDS', 12),
         'verify' => true,
+        'limit' => env('BCRYPT_LIMIT', 72),
     ],
 
     /*

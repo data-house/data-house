@@ -21,9 +21,12 @@ use App\Models\Role;
 use App\Models\Team;
 use App\Models\User;
 use App\Pipelines\PipelineTrigger;
+use App\Rules\PasswordMaximumLength;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Validation\Rules\Password;
 use Laravel\Pennant\Feature;
+use App\Rules\PasswordDoesNotContainEmail;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -78,6 +81,16 @@ class AppServiceProvider extends ServiceProvider
 
         $this->app->bind(RetrievalRequest::class, function ($app) {
             return RetrievalRequest::fromRequest($app['request']);
+        });
+
+        Password::defaults(function () {
+            // Set default rules for password validation
+            return Password::min(config('auth.password_validation.minimum_length', 12))
+                ->letters()
+                ->numbers()
+                ->symbols()
+                ->mixedCase()
+                ->rules(new PasswordMaximumLength, new PasswordDoesNotContainEmail(auth()->user()->email ?? request()->input('email')));
         });
     }
 

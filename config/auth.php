@@ -112,4 +112,8 @@ return [
 
     'password_timeout' => 10800,
 
+    'password_validation' => [
+        'minimum_length' => env('PASSWORD_RULE_MIN_LENGTH', 12),
+    ]
+
 ];

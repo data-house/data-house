@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Str;
 use Laravel\Fortify\Features;
 use Tests\TestCase;
 
@@ -87,6 +88,39 @@ class PasswordResetTest extends TestCase
         ]);
 
         Notification::assertSentTo($user, ResetPassword::class, function (object $notification) use ($user) {
+
+            $p = Str::password(16);
+
+            $response = $this->post('/reset-password', [
+                'token' => $notification->token,
+                'email' => $user->email,
+                'password' => $p,
+                'password_confirmation' => $p,
+            ]);
+
+            $response->assertSessionHasNoErrors();
+
+            return true;
+        });
+    }
+
+    public function test_password_is_validates_using_sensible_defaults(): void
+    {
+        if (! Features::enabled(Features::resetPasswords())) {
+            $this->markTestSkipped('Password updates are not enabled.');
+
+            return;
+        }
+
+        Notification::fake();
+
+        $user = User::factory()->create();
+
+        $response = $this->post('/forgot-password', [
+            'email' => $user->email,
+        ]);
+
+        Notification::assertSentTo($user, ResetPassword::class, function (object $notification) use ($user) {
             $response = $this->post('/reset-password', [
                 'token' => $notification->token,
                 'email' => $user->email,
@@ -94,7 +128,7 @@ class PasswordResetTest extends TestCase
                 'password_confirmation' => 'password',
             ]);
 
-            $response->assertSessionHasNoErrors();
+            $response->assertSessionHasErrors('password');
 
             return true;
         });

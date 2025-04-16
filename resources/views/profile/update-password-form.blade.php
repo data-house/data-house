@@ -16,6 +16,11 @@
 
         <div class="col-span-6 sm:col-span-4">
             <x-label for="password" value="{{ __('New Password') }}" />
+            <ul class="text-sm text-gray-600">
+                <li>{{ __('Your password must be at least :min_length characters long.', ['min_length' => config('auth.password_validation.minimum_length', 12)]) }}</li>
+                <li>{{ __('Your password must include a mix of uppercase, lowercase, numbers, and special characters (e.g. ! # ?).') }}</li>
+                <li>{{ __('Avoid using your email address or any part of it in your password.') }}</li>
+            </ul>
             <x-input id="password" type="password" class="mt-1 block w-full" wire:model="state.password" autocomplete="new-password" />
             <x-input-error for="password" class="mt-2" />
         </div>
