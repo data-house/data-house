@@ -7,6 +7,7 @@ use App\HasPreferences;
 use App\HasRole;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
@@ -83,6 +84,18 @@ class User extends Authenticatable
     {
         return $this->hasMany(Question::class);
     }
+
+    /**
+     * The last used passwords of the user.
+     * 
+     * Use to provide the password compliance check that the user is not reusing
+     * older passwords, up to the amount defined in auth.password_validation.historical_password_amount
+     */
+    public function passwords(): HasMany
+    {
+        return $this->hasMany(Password::class);
+    }
+
     /**
      * The attributes that should be cast.
      *

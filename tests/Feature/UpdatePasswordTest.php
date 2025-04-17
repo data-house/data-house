@@ -20,6 +20,8 @@ class UpdatePasswordTest extends TestCase
     {
         Event::fake();
 
+        config(['auth.password_validation.historical_password_amount' => 2]);
+
         $lastPasswordUpdate = now()->subMinute();
 
         $this->actingAs($user = User::factory()->create(['password_updated_at' => $lastPasswordUpdate]));
@@ -37,6 +39,8 @@ class UpdatePasswordTest extends TestCase
         $this->assertTrue(Hash::check($p, $user->fresh()->password));
         
         $this->assertNotEquals($lastPasswordUpdate->toDateTimeString(), $user->fresh()->password_updated_at->toDateTimeString());
+        
+        $this->assertTrue(Hash::check('password', $user->fresh()->passwords->first()->password));
 
         Event::assertDispatched(PasswordChanged::class, function($evt) use ($user) {
             return $user->is($evt->user);
@@ -73,5 +77,19 @@ class UpdatePasswordTest extends TestCase
                 ->assertHasErrors(['password']);
 
         $this->assertTrue(Hash::check('password', $user->fresh()->password));
+    }
+
+    public function test_new_password_must_differ_from_current(): void
+    {
+        $this->actingAs($user = User::factory()->create());
+
+        Livewire::test(UpdatePasswordForm::class)
+                ->set('state', [
+                    'current_password' => 'password',
+                    'password' => 'password',
+                    'password_confirmation' => 'password',
+                ])
+                ->call('updatePassword')
+                ->assertHasErrors(['password']);
     }
 }
