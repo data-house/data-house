@@ -81,6 +81,8 @@ class PasswordResetTest extends TestCase
             return;
         }
 
+        config(['auth.password_validation.historical_password_amount' => 2]);
+
         Notification::fake();
 
         $user = User::factory()->create();
@@ -103,6 +105,43 @@ class PasswordResetTest extends TestCase
             $response->assertSessionHasNoErrors();
 
             $this->assertEquals($user->password, $user->passwords()->first()->password);
+
+            return true;
+        });
+    }
+    
+    public function test_password_can_be_reset_with_valid_token_without_tracking(): void
+    {
+        if (! Features::enabled(Features::resetPasswords())) {
+            $this->markTestSkipped('Password updates are not enabled.');
+
+            return;
+        }
+
+        config(['auth.password_validation.historical_password_amount' => null]);
+
+        Notification::fake();
+
+        $user = User::factory()->create();
+
+        $response = $this->post('/forgot-password', [
+            'email' => $user->email,
+        ]);
+
+        Notification::assertSentTo($user, ResetPassword::class, function (object $notification) use ($user) {
+
+            $p = Str::password(16);
+
+            $response = $this->post('/reset-password', [
+                'token' => $notification->token,
+                'email' => $user->email,
+                'password' => $p,
+                'password_confirmation' => $p,
+            ]);
+
+            $response->assertSessionHasNoErrors();
+
+            $this->assertNull($user->passwords()->first());
 
             return true;
         });

@@ -33,18 +33,29 @@ trait PasswordValidationRules
             return true;
         }
 
+        if(!$this->isHistoricalPasswordTrackingEnabled()){
+            return false;
+        }
+
+        $historicalAmount = abs((int) config('auth.password_validation.historical_password_amount'));
+
+        return $user
+            ->passwords()
+            ->latest()
+            ->limit($historicalAmount)
+            ->pluck('password')
+            ->filter(fn($pass) => $hasher->check($value, $pass))
+            ->isNotEmpty();
+    }
+
+    protected function isHistoricalPasswordTrackingEnabled(): bool
+    {
         $historicalAmount = config('auth.password_validation.historical_password_amount');
 
         if(blank($historicalAmount)){
             return false;
         }
 
-        return $user
-            ->passwords()
-            ->latest()
-            ->limit(abs((int) $historicalAmount))
-            ->pluck('password')
-            ->filter(fn($pass) => $hasher->check($value, $pass))
-            ->isNotEmpty();
+        return (int) $historicalAmount > 0;
     }
 }
