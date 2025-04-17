@@ -27,7 +27,7 @@ class AddDocumentsButton extends Component
     )
     {
         $this->currentTeam = auth()->user()->currentTeam;
-        $this->project = $project->exists ? $project : $this->currentTeam?->managedProjects()->first();
+        $this->project = $project?->exists ? $project : $this->currentTeam?->managedProjects()->first();
     }
 
     /**
