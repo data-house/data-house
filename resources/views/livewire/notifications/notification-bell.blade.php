@@ -1,8 +1,9 @@
 <button
     wire:poll.10s.visible="pollingBeat"
     class="
-        relative flex items-center border-2 p-1 border-transparent rounded-full focus:outline-none focus:border-stone-300 transition
-        @if ($this->hasUnreadNotifications)  px-2 py-1 bg-orange-50 text-orange-800 ring-orange-600/20 ring-1 ring-inset @endif
+        relative focus:border-stone-300 
+        h-9 inline-flex items-center px-2 py-2 border border-transparent text-sm leading-4 font-medium rounded-md  hover:text-stone-800 hover:bg-stone-200 focus:outline-none focus:bg-stone-200 active:bg-stone-200 transition duration-150 ease-in-out
+        @if ($this->hasUnreadNotifications)  bg-orange-50 text-orange-800 ring-orange-600/20 ring-1 ring-inset @else text-stone-600 @endif
     "
     x-tooltip.raw="{{ $this->hasUnreadNotifications ? __('You have unread notifications') : ($this->snoozed ? __('Notification are snoozed') : __('Notifications')) }}"
     >

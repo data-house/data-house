@@ -7,10 +7,10 @@
 
         <title>{{ isset($title) && !empty($title) ? $title .' - ' : ''}}{{ config('app.name', 'Data House') }}</title>
 
-        <!-- Scripts -->
+        {{-- Scripts --}}
         @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-        <!-- Styles -->
+        {{-- Styles --}}
         @livewireStyles
 
         <x-analytics::tracking-code />
@@ -24,7 +24,7 @@
 
             <x-update-expired-password-banner />
 
-            <!-- Page Heading -->
+            {{-- Page Heading --}}
             @if (isset($header))
                 <header class="bg-white shadow">
                     <div class="py-6 px-4 sm:px-6 lg:px-8">
@@ -33,7 +33,7 @@
                 </header>
             @endif
 
-            <!-- Page Content -->
+            {{-- Page Content --}}
             <main>
                 {{ $slot }}
             </main>
