@@ -46,6 +46,37 @@ class UpdatePasswordTest extends TestCase
             return $user->is($evt->user);
         });
     }
+    
+    public function test_password_history_tracked_only_when_enabled(): void
+    {
+        Event::fake();
+
+        config(['auth.password_validation.historical_password_amount' => -1]);
+
+        $lastPasswordUpdate = now()->subMinute();
+
+        $this->actingAs($user = User::factory()->create(['password_updated_at' => $lastPasswordUpdate]));
+
+        $p = Str::password();
+
+        Livewire::test(UpdatePasswordForm::class)
+                ->set('state', [
+                    'current_password' => 'password',
+                    'password' => $p,
+                    'password_confirmation' => $p,
+                ])
+                ->call('updatePassword');
+
+        $this->assertTrue(Hash::check($p, $user->fresh()->password));
+        
+        $this->assertNotEquals($lastPasswordUpdate->toDateTimeString(), $user->fresh()->password_updated_at->toDateTimeString());
+        
+        $this->assertNull($user->fresh()->passwords->first());
+
+        Event::assertDispatched(PasswordChanged::class, function($evt) use ($user) {
+            return $user->is($evt->user);
+        });
+    }
 
     public function test_current_password_must_be_correct(): void
     {

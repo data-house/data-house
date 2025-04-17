@@ -31,7 +31,9 @@ class ResetUserPassword implements ResetsUserPasswords
         })->validate();
        
         DB::transaction(function() use ($user, $input){
-            $user->passwords()->create(['password' => $user->password]);
+            if($this->isHistoricalPasswordTrackingEnabled()){
+                $user->passwords()->create(['password' => $user->password]);
+            }
             
             $user->forceFill([
                 'password' => Hash::make($input['password']),
