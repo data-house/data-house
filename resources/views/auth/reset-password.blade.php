@@ -13,11 +13,16 @@
 
             <div class="block">
                 <x-label for="email" value="{{ __('Email') }}" />
-                <x-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email', $request->email)" required autofocus autocomplete="username" />
+                <x-input id="email" readonly class="block mt-1 w-full" type="email" name="email" :value="old('email', $request->email)" required autofocus autocomplete="username" />
             </div>
 
             <div class="mt-4">
                 <x-label for="password" value="{{ __('Password') }}" />
+                <ul class="text-sm text-gray-600">
+                    <li>{{ __('Your password must be at least :min_length characters long.', ['min_length' => config('auth.password_validation.minimum_length', 12)]) }}</li>
+                    <li>{{ __('Your password must include a mix of uppercase, lowercase, numbers, and special characters (e.g. ! # ?).') }}</li>
+                    <li>{{ __('Avoid using your email address or any part of it in your password.') }}</li>                
+                </ul>
                 <x-input id="password" class="block mt-1 w-full" type="password" name="password" required autocomplete="new-password" />
             </div>
 

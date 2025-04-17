@@ -112,4 +112,22 @@ return [
 
     'password_timeout' => 10800,
 
+    /*
+    |--------------------------------------------------------------------------
+    | Password Validation rules
+    |--------------------------------------------------------------------------
+    |
+    | Here are configured the default values for the minimimum password length
+    | and the expiration, i.e. how many days can pass before an update
+    | is required (use null to not expire), and how many historical passwords
+    | can be evaluated
+    |
+    */
+
+    'password_validation' => [
+        'minimum_length' => env('PASSWORD_RULE_MIN_LENGTH', 12),
+        'expire_after_days' => env('PASSWORD_RULE_EXPIRE_AFTER_DAYS', null),
+        'historical_password_amount' => env('PASSWORD_RULE_HISTORICAL_PASSWORD_AMOUNT', null),
+    ]
+
 ];

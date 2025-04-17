@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Console\Command;
 use App\Actions\Fortify\CreateNewUser;
 use App\Models\Role;
+use Illuminate\Support\Arr;
 use Illuminate\Validation\ValidationException;
 use Laravel\Jetstream\Jetstream;
 
@@ -39,10 +40,21 @@ class AddUserCommand extends Command
         $email = $this->option('email');
         $name = $this->option('name') ?? $this->getUsernameFrom($email);
         $password = $this->option('password');
-        $role = $this->option('role') ?? Role::GUEST->value;
+        $role = $this->option('role');
+            
+        if (empty($email) && $this->input->isInteractive()) {
+            $email = $this->ask("Please enter the email address for the new user");
+        }
+
+        if (empty($role) && $this->input->isInteractive()) {
+            $role = $this->choice("Select the user role", Arr::map(Role::cases(), fn($c) => $c->value), Role::GUEST->value );
+        }
+        else if(empty($role) && $this->input->isInteractive()){
+            $role = Role::GUEST->value;
+        }
             
         if (empty($password) && $this->input->isInteractive()) {
-            $password = $this->secret("Please specify an 8 character password for the administrator");
+            $password = $this->secret(__('Please specify a password (your password must be at least :min_length characters long and include a mix of uppercase, lowercase, numbers, and special characters)', ['min_length' => config('auth.password_validation.minimum_length', 12)]));
         }
 
         $createUserAction = new CreateNewUser();
