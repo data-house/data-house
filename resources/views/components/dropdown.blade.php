@@ -1,37 +1,24 @@
 @props(['align' => 'right', 'width' => '48', 'contentClasses' => 'py-1 bg-white', 'dropdownClasses' => '', 'state' => '{ open: false }'])
 
 @php
-switch ($align) {
-    case 'left':
-        $alignmentClasses = 'origin-top-left left-0';
-        break;
-    case 'top':
-        $alignmentClasses = 'origin-top';
-        break;
-    case 'none':
-    case 'false':
-        $alignmentClasses = '';
-        break;
-    case 'right':
-    default:
-        $alignmentClasses = 'sm:origin-top-right sm:right-0';
-        break;
-}
+$alignmentClasses = match ($align) {
+    'left' => 'ltr:origin-top-left rtl:origin-top-right start-0',
+    'top' => 'origin-top',
+    'none', 'false' => '',
+    default => 'ltr:origin-top-right rtl:origin-top-left start-0 sm:end-0 sm:start-auto',
+};
 
-switch ($width) {
-    case '48':
-        $width = 'w-48';
-        break;
-    case 'half':
-        $width = 'w-[100vw] md:w-[50vw]';
-        break;
-    case 'third':
-        $width = 'w-[100vw] md:w-[30vw]';
-        break;
-}
+$width = match ($width) {
+    '48' => 'w-full sm:w-48',
+    '60' => 'w-full sm:w-60',
+    '80' => 'w-full sm:w-80',
+    'half' => 'w-full md:w-[50vw]',
+    'third' => 'w-full md:w-[30vw]',
+    default => 'w-full sm:w-48',
+};
 @endphp
 
-<div class="relative" x-data="{{ $state }}" x-trap="open" x-on:closedropdown.window="open = false" @click.away="open = false" @close.stop="open = false" @keydown.escape="open = false">
+<div class="md:relative" x-data="{{ $state }}" x-trap="open" x-on:closedropdown.window="open = false" @click.away="open = false" @close.stop="open = false" @keydown.escape="open = false">
     <div @click="open = ! open">
         {{ $trigger }}
     </div>

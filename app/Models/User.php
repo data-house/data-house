@@ -110,4 +110,11 @@ class User extends Authenticatable
             'notification_settings' => NotificationSettingsData::class . ':default',
         ];
     }
+
+    protected function defaultProfilePhotoUrl()
+    {
+        $name = str($this->name)->trim()->transliterate()->substr(0, 1)->toString();
+
+        return route('avatar', ['avatar' => urlencode($name)]);
+    }
 }
