@@ -1,6 +1,6 @@
 <div class="space-y-2">
     <div>
-        <x-dropdown align="right" width="w-96">
+        <x-dropdown align="left" width="96">
             <x-slot name="trigger">
                 <x-small-button>
                     <x-heroicon-m-plus class="w-4 h-4" />

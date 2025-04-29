@@ -12,6 +12,7 @@ $width = match ($width) {
     '48' => 'w-full sm:w-48',
     '60' => 'w-full sm:w-60',
     '80' => 'w-full sm:w-80',
+    '96' => 'w-full sm:w-96',
     'half' => 'w-full md:w-[50vw]',
     'third' => 'w-full md:w-[30vw]',
     default => 'w-full sm:w-48',
