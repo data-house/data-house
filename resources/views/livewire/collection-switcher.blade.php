@@ -1,4 +1,4 @@
-<x-dropdown align="right" width="w-96">
+<x-dropdown align="right" width="96">
     <x-slot name="trigger">
         <x-button class="justify-self-end inline-flex gap-1 items-center">
             <x-heroicon-m-rectangle-stack class="w-4 h-4" />
