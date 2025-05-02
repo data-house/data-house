@@ -23,8 +23,6 @@ trait Questionable
      */
     public static function bootQuestionable()
     {
-        static::addGlobalScope(new QuestionableScope);
-
         (new static)->registerQuestionableMacros();
     }
 
@@ -178,26 +176,6 @@ trait Questionable
         return $response;
     }
 
-    /**
-     * Add all instances of the model to Copilot and making them questionable.
-     *
-     * @param  int  $chunk
-     * @return void
-     */
-    public static function addAllToCopilot($chunk = null)
-    {
-        $self = new static;
-
-        $self->newQuery()
-            ->when(true, function ($query) use ($self): void {
-                $self->addAllToCopilotUsing($query);
-            })
-            ->orderBy(
-                $self->qualifyColumn($self->getKeyName())
-            )
-            ->questionable($chunk);
-    }
-
     public static function getAllQuestionableLazily(): LazyCollection
     {
         $self = new static;
@@ -207,26 +185,6 @@ trait Questionable
                 $self->addAllToCopilotUsing($query);
             })
             ->lazyById();
-    }
-    
-    /**
-     * Remove all instances of the model from Copilot.
-     *
-     * @param  int  $chunk
-     * @return void
-     */
-    public static function removeAllFromCopilot($chunk = null)
-    {
-        $self = new static;
-
-        $self->newQuery()
-            ->when(true, function ($query) use ($self): void {
-                $self->addAllToCopilotUsing($query);
-            })
-            ->orderBy(
-                $self->qualifyColumn($self->getKeyName())
-            )
-            ->unquestionable($chunk);
     }
 
     /**

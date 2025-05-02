@@ -6,6 +6,7 @@ use App\Copilot\Events\ModelsUnquestionable;
 use App\Models\Document;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Events\Dispatcher;
+use Throwable;
 
 class FlushCommand extends Command
 {
@@ -38,15 +39,27 @@ class FlushCommand extends Command
 
         $model = new $class;
 
-        $events->listen(ModelsUnquestionable::class, function ($event) use ($class): void {
-            $key = $event->models->last()->getKey();
+        $bar = $this->output->createProgressBar();
 
-            $this->line('<comment>Removed ['.$class.'] models up to ID:</comment> '.$key);
-        });
+        $bar->setFormat(' [%current%] %message% %elapsed:16s%');
 
-        $model::removeAllFromCopilot($this->option('chunk'));
+        $bar->start();
 
-        $events->forget(ModelsUnquestionable::class);
+        $model::getAllQuestionableLazily()
+            ->each(function ($modelInstance) use ($bar): void {
+                $bar->setMessage("Removing [{$modelInstance->getKey()} - {$modelInstance->ulid}]");
+                $bar->advance();
+
+                try {
+                    $modelInstance->unquestionable();
+                } catch (Throwable $th) {
+                    $this->error("[{$modelInstance->getKey()} - {$modelInstance->ulid}] {$th->getMessage()}");
+                }
+            });
+
+        $bar->finish();
+
+        $this->newLine();
 
         $this->info('All ['.$class.'] records have been removed.');
     }
