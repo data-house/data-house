@@ -12,15 +12,21 @@ use App\Copilot\Exceptions\ModelNotFoundException;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Client\PendingRequest;
-use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Http;
 use InvalidArgumentException;
 use PrinsFrank\Standards\Language\LanguageAlpha2;
-use RuntimeException;
 use Throwable;
 use \Illuminate\Support\Str;
+use OneOffTech\LibrarianClient\Connectors\LibrarianConnector;
+use OneOffTech\LibrarianClient\Dto\Classifier;
+use OneOffTech\LibrarianClient\Dto\Document;
+use OneOffTech\LibrarianClient\Dto\Library;
+use OneOffTech\LibrarianClient\Dto\LibraryConfiguration;
+use OneOffTech\LibrarianClient\Dto\Text;
+use Saloon\Exceptions\Request\ClientException;
+use Saloon\Exceptions\Request\Statuses\NotFoundException;
 
 class CloudEngine extends Engine
 {
@@ -31,45 +37,54 @@ class CloudEngine extends Engine
         LanguageAlpha2::Spanish_Castilian,
     ];
 
+    protected LibrarianConnector $connnector;
+
     public function __construct(array $config = [])
     {
-        if(!isset($config['host'])){
+        if(blank($config['host'] ?? null)){
             throw new InvalidArgumentException('Missing host in configuration');
         }
+        
+        if(blank($config['key'] ?? null)){
+            throw new InvalidArgumentException('Missing key in configuration');
+        }
+
+        $this->connnector = new LibrarianConnector($config['key'], rtrim($config['host'], '/'));
 
         parent::__construct($config);
     }
 
-    protected function getLibrarySettings(): array
+    protected function getLibrarySettings(): LibraryConfiguration
     {
-        return [
-            "database" => [
+        return new LibraryConfiguration(
+            database: [
                 "index_fields" => $this->config['library-settings']['indexed-fields'] ?? ['resource_id']
             ],
-            "text" => $this->config['library-settings']['text-processing'] ?? [
+            text: $this->config['library-settings']['text-processing'] ?? [
                 "n_context_chunk" => 10,
                 "chunk_length" => 490,
                 "chunk_overlap" => 10
-            ],
-        ];
+            ]
+        );
     }
 
-
+    /**
+     * Create or update the library on Copilot based on the current settings
+     */
     public function syncLibrarySettings()
     {
-        $libConfig = $this->httpGetLibrary($this->getLibrary());
+        try {
+            $library = $this->connnector->libraries()->get($this->getLibrary());
 
-        if(is_null($libConfig) || empty($libConfig)){
-            $this->httpCreateLibrary([
-                "id" => $this->getLibrary(),
-                "name" => $this->getLibraryName(),
-                "config" => $this->getLibrarySettings(),
-            ]);
+            $this->connnector->libraries()->update($this->getLibrary(), $this->getLibrarySettings());
 
-            return;
+        } catch (NotFoundException $th) {
+            $this->connnector->libraries()->create(new Library(
+                id: $this->getLibrary(),
+                name: $this->getLibraryName(),
+                configuration: $this->getLibrarySettings(),
+            ));
         }
-
-        $this->httpUpdateLibrary($this->getLibrary(), $this->getLibrarySettings());
     }
     
     /**
@@ -84,15 +99,15 @@ class CloudEngine extends Engine
             return;
         }
 
-        $objects = $models->map(function ($model) {
+        $documentConnector = $this->connnector->documents($this->getLibrary());
+
+        $objects = $models->map(function ($model) use ($documentConnector) {
 
             $traits = class_uses_recursive($model);
 
             if(!isset($traits[Questionable::class])){
                 return;
             }
-
-            // TODO: Maybe we could check if document is already in copilot to not waste time
 
             if (empty($questionableData = $model->toQuestionableArray())) {
                 return;
@@ -121,18 +136,21 @@ class CloudEngine extends Engine
             // Currently the Copilot service is not able to handle more than one request
             // at a time, therefore we process all operations sequentially
 
-            $objects->each(function($object){
+            $objects->each(function($object) use ($documentConnector) {
 
                 try {   
 
-                    $response = $this->getHttpClient()
-                        ->post('/library/'.$this->getLibrary().'/documents', $object)
-                        ->throw();
+                    $response = $documentConnector->create(
+                        new Document(
+                            id: $object['id'],
+                            language: $object['lang'],
+                            data: $object['data']->toArray()
+                        ));
 
                     return $response->json();
                     
-                } catch (RequestException $th) {
-                    if($th->getCode() !== 409){
+                } catch (ClientException $th) {
+                    if($th->getStatus() !== 409){
                         logs()->error("Failed to add document to copilot", ['id' => $object['id'], 'error' => $th]);
                         throw $th;
                     }
@@ -171,24 +189,23 @@ class CloudEngine extends Engine
 
         try{
 
-            $keys->each(function($key): void{
+            $documentConnector = $this->connnector->documents($this->getLibrary());
 
-                $response = $this->getHttpClient()
-                    ->delete('/library/'.$this->getLibrary().'/documents/' . $key)
-                    ->throw();
-
+            $keys->each(function($key) use ($documentConnector) : void {
+                try{
+                    $documentConnector->delete($key);
+                }
+                catch(NotFoundException $nex)
+                {
+                    logs()->warning("Copilot: removing not found document", ['key' => $key]);
+                }
             });
-
 
         }
         catch(Throwable $ex)
         {
             // TODO: response body can contain error information
             logs()->error("Error removing documents from copilot", ['error' => $ex->getMessage()]);
-
-            if($ex->getCode() === 404){
-                return;
-            }
 
             throw new CopilotException($ex->getMessage(), $ex->getCode(), $ex);
         }
@@ -203,38 +220,38 @@ class CloudEngine extends Engine
     public function question(CopilotRequest $question): CopilotResponse
     {
         try{
-
-            $endpoint = $question->multipleQuestionRequest() ? 'library/{library_id}/questions/transform' : 'library/{library_id}/documents/{document_id}/questions';
-
-            // TODO: check if document is available in copilot before proceeding
-
-            $queryParams = [
-                'library_id' => $this->getLibrary(),
-                'document_id' => collect($question->documents)->first(),
-            ];
-
-            $data = $question->jsonSerialize();
-
-            logs()->info("Asking question [{$question->id}]", array_merge($queryParams, $data));
-
-            $response = $this->getHttpClient()
-                ->withUrlParameters($queryParams)
-                ->post($endpoint, $data)
-                ->throw();
-
-            $json = $response->json();
-
-            logs()->info("Response to question [{$question->id}]", [
-                'answer' => $json,
-            ]);
             
-            if($json['id'] !== $question->id){
-                // In case of a question decomposition request the original question id is not present
-                throw new CopilotException("Communication error with the copilot. [{$response->status()}]");
+            $library = $this->getLibrary();
+
+            $librarianQuestion = $question->getLibrarianQuestion();
+
+            logs()->info("Asking question [{$question->id}] to library [{$library}]", ['document' => collect($question->documents)->first()]);
+
+            if($question->multipleQuestionRequest()){
+
+                $librarianTransformation = $question->getLibrarianQuestionTransformation();
+
+                $transformedQuestion = $this->connnector->questions($library)->transform($librarianQuestion, $librarianTransformation);
+
+                if($transformedQuestion->id !== $question->id){
+                    // In case of a question decomposition request the original question id is not present
+                    throw new CopilotException("Communication error with copilot. [419]");
+                }
+
+                return new CopilotResponse($transformedQuestion->text, []);
             }
 
-            $answerText = $json['text'] ?? null;
-            $answerReferences = $json['refs'] ?? [];
+            $answer = $this->connnector->documents($library)->ask(collect($question->documents)->first(), $librarianQuestion);
+
+            logs()->info("Response obtained to to question [{$question->id}]");
+            
+            if($answer->id !== $question->id){
+                // In case of a question decomposition request the original question id is not present
+                throw new CopilotException("Communication error with the copilot. [419]");
+            }
+
+            $answerText = $answer->text ?? null;
+            $answerReferences = $answer->refs ?? [];
 
             if(blank($answerText)){
                 throw new CopilotException(__('There was a problem while obtaining the answer. Please report it.'));
@@ -242,11 +259,11 @@ class CloudEngine extends Engine
 
             return new CopilotResponse($answerText, $answerReferences);
         }
-        catch(RequestException $ex)
+        catch(ClientException $ex)
         {
             logs()->error("Error asking question copilot", ['error' => $ex->getMessage(), 'request' => $question]);
 
-            if($ex->response->notFound()){
+            if($ex->getResponse()->status() === 404){
                 throw new ModelNotFoundException($ex->getMessage(), $ex->getCode(), $ex);    
             }
             
@@ -255,6 +272,42 @@ class CloudEngine extends Engine
         catch(Throwable $ex)
         {
             logs()->error("Error asking question copilot", ['error' => $ex->getMessage(), 'request' => $question]);
+            throw new CopilotException($ex->getMessage(), $ex->getCode(), $ex);
+        }
+    }
+
+    public function aggregate(AnswerAggregationCopilotRequest $request): CopilotResponse
+    {
+        try{
+            logs()->info("Aggregating answers for question [{$request->id}]");
+
+            // $response = $this->getHttpClient()
+            //     ->post("/library/{$this->getLibrary()}/questions/aggregate", $request->jsonSerialize())
+            //     ->throw();
+    
+            $aggregatedAnswer = $this->connnector->questions($this->getLibrary())->aggregate(
+                $request->getLibrarianQuestion(),
+                $request->getAnswerCollection(),
+                $request->getLibrarianQuestionTransformation()
+            );
+
+            logs()->info("Answer aggregation complete for question [{$request->id}]");
+
+            if($aggregatedAnswer->id !== $request->id){
+                // In case of a question decomposition request the original question id is not present
+                throw new CopilotException("Communication error with the copilot. [{$aggregatedAnswer->getResponse()->status()}]");
+            }
+
+            if(blank($aggregatedAnswer->text)){
+                throw new CopilotException(__('There was a problem while obtaining the answer. Please report it.'));
+            }
+
+            return new CopilotResponse($aggregatedAnswer->text, $aggregatedAnswer->refs);
+        }
+        catch(Throwable $ex)
+        {
+            // TODO: response body can contain error information 
+            logs()->error("Error asking question copilot", ['error' => $ex->getMessage(), 'request' => $request]);
             throw new CopilotException($ex->getMessage(), $ex->getCode(), $ex);
         }
     }
@@ -271,25 +324,19 @@ class CloudEngine extends Engine
 
         try{
 
-            $response = $this->getHttpClient()
-                ->post("/library/{$this->getLibrary()}/summary", $request->jsonSerialize())
-                ->throwIfServerError();
+            $summary = $this->connnector->summaries($this->getLibrary())->generate(new Text(
+                id: $request->id,
+                content: $request->text,
+                language: $request->language?->value,
+            ));
 
-            $json = $response->json();
+            logs()->info("Summarize text request"); // TODO: use Laravel Contexts to retain relevant data from the original request that triggered this call
 
-            logs()->info("Summarize text", [
-                'request' => $request->jsonSerialize(),
-                'response' => $json,
-            ]);
-
-            $summary = $json['text'] ?? null;
-
-            if(blank($summary)){
-                $details = $json['details'] ?? null;
-                throw new CopilotException("Summary not generated. [$details]");
+            if(blank($summary->content)){
+                throw new CopilotException("Summary not generated.");
             }
 
-            return new CopilotResponse($summary);
+            return new CopilotResponse($summary->content);
         }
         catch(Throwable $ex)
         {
@@ -300,43 +347,7 @@ class CloudEngine extends Engine
         }
     }
     
-    public function aggregate(AnswerAggregationCopilotRequest $request): CopilotResponse
-    {
-        try{
-            logs()->info("Aggregating answers for question [{$request->id}]");
-
-            $response = $this->getHttpClient()
-                ->post("/library/{$this->getLibrary()}/questions/aggregate", $request->jsonSerialize())
-                ->throw();
-
-            $json = $response->json();
-
-            logs()->info("Answer aggregation complete for question [{$request->id}]", [
-                'request' => $request->jsonSerialize(),
-                'answer' => $json,
-            ]);
-
-            if($json['id'] !== $request->id){
-                // In case of a question decomposition request the original question id is not present
-                throw new CopilotException("Communication error with the copilot. [{$response->status()}]");
-            }
-
-            $answerText = $json['text'] ?? null;
-            $answerReferences = $json['refs'] ?? [];
-
-            if(blank($answerText)){
-                throw new CopilotException(__('There was a problem while obtaining the answer. Please report it.'));
-            }
-
-            return new CopilotResponse($answerText, $answerReferences);
-        }
-        catch(Throwable $ex)
-        {
-            // TODO: response body can contain error information 
-            logs()->error("Error asking question copilot", ['error' => $ex->getMessage(), 'request' => $request]);
-            throw new CopilotException($ex->getMessage(), $ex->getCode(), $ex);
-        }
-    }
+    
 
     public function addClassifier(string $classifier, string $url): string
     {
@@ -345,13 +356,9 @@ class CloudEngine extends Engine
 
             $id = Str::slug($classifier);
 
-            $response = $this->getHttpClient()
-                ->post("/library/{$this->getLibrary()}/classifiers", [
-                    "id" => $id,
-                    "name" => $classifier,
-                    "url" => $url,
-                ])
-                ->throw();
+            $data = new Classifier($id, $url, $classifier);
+
+            $response = $this->connnector->classifiers($this->getLibrary())->create($data);
 
             return $id;
         }
@@ -367,9 +374,7 @@ class CloudEngine extends Engine
         try{
             logs()->info("Removing classifier [{$classifier}]...");
 
-            $response = $this->getHttpClient()
-                ->delete("/library/{$this->getLibrary()}/classifiers/{$classifier}")
-                ->throw();
+            $response = $this->connnector->classifiers($this->getLibrary())->delete($classifier);
         }
         catch(Throwable $ex)
         {
@@ -390,26 +395,17 @@ class CloudEngine extends Engine
         try{
             logs()->info("Classify model [{$classifier}][{$model->getCopilotKey()}]");
 
-            $response = $this->getHttpClient()
-                ->post("/library/{$this->getLibrary()}/documents/{$model->getCopilotKey()}/classify", [
-                    'classifier' => $classifier,
-                ])
-                ->throw();
+            $classification = $this->connnector->documents($this->getLibrary())->classify($classifier, $model->getCopilotKey());
 
-            $json = $response->json();
-
-
-            if($json['id'] !== $model->getCopilotKey()){
-                throw new CopilotException("Communication error with the copilot. [{$response->status()}]");
+            if($classification->id !== $model->getCopilotKey()){
+                throw new CopilotException("Communication error with the copilot, response does not relate to request. [{$classification->getResponse()->status()}]");
             }
 
-            $results = $json['results'] ?? null;
-
-            if(blank($results)){
-                throw new CopilotException(__('No classification returned for model.'));
+            if(blank($classification->results)){
+                throw new CopilotException(__('No classification returned for text.'));
             }
 
-            return collect($results);
+            return collect($classification->results);
         }
         catch(Throwable $ex)
         {
@@ -426,32 +422,17 @@ class CloudEngine extends Engine
 
             logs()->info("Classify text [{$classifier}][{$hash}]");
 
+            $classification = $this->connnector->classifiers($this->getLibrary())->classify($classifier, new Text($hash, $lang, $text));
 
-            $response = $this->getHttpClient()
-                ->post("/library/{$this->getLibrary()}/classify", [
-                    'classifier' => $classifier,
-                    'text' => [
-                        'id' => $hash,
-                        'lang' => $lang,
-                        'text' => $text,
-                    ],
-                ])
-                ->throw();
-
-            $json = $response->json();
-
-
-            if($json['id'] !== $hash){
-                throw new CopilotException("Communication error with the copilot, response does not relate to request. [{$response->status()}]");
+            if($classification->id !== $hash){
+                throw new CopilotException("Communication error with the copilot, response does not relate to request. [{$classification->getResponse()->status()}]");
             }
 
-            $results = $json['results'] ?? null;
-
-            if(blank($results)){
+            if(blank($classification->results)){
                 throw new CopilotException(__('No classification returned for text.'));
             }
 
-            return collect($results);
+            return collect($classification->results);
         }
         catch(Throwable $ex)
         {
@@ -465,11 +446,9 @@ class CloudEngine extends Engine
     {
         try{
 
-            logs()->info("Refresh prompt on copilot.");
+            logs()->info("Refresh prompts on copilot.");
 
-            $response = $this->getHttpClient()
-                ->get("/prompts/update")
-                ->throw();
+            $response = $this->connnector->prompts()->sync();
 
             return $response->json('message');
         }
@@ -480,44 +459,6 @@ class CloudEngine extends Engine
         }
     }
 
-    protected function getHttpClient(): PendingRequest
-    {
-        return Http::acceptJson()
-                ->timeout($this->getRequestTimeout())
-                ->asJson()
-                ->baseUrl(rtrim($this->config['host'], '/'));
-    }
 
-
-    // Client specific methods that should be separate in a reusable package
-
-    protected function httpGetLibrary(string $id): array|null
-    {
-        $response = $this->getHttpClient()->get('/libraries/' . $id);
-
-        if($response->notFound()){
-            return null;
-        }
-
-        return $response->json();
-    }
-    
-    protected function httpUpdateLibrary(string $id, array $settings)
-    {
-        $response = $this->getHttpClient()->put('/libraries/' . $id, $settings)
-            ->throwIfServerError()
-            ->throwIfClientError();
-
-        return $response->json();
-    }
-    
-    protected function httpCreateLibrary(array $request)
-    {
-        $response = $this->getHttpClient()->post('/libraries', $request)
-            ->throwIfServerError()
-            ->throwIfClientError();
-
-        return $response->json();
-    }
 
 }

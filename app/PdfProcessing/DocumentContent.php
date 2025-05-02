@@ -83,5 +83,10 @@ class DocumentContent implements JsonSerializable, Countable
     {
         return $this->raw->toArray();
     }
+    
+    public function toArray(): array
+    {
+        return $this->raw->toArray();
+    }
 
 }

@@ -3,6 +3,9 @@
 namespace Tests;
 
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
+use Saloon\Config;
+use Saloon\Http\Faking\MockClient;
+use Saloon\MockConfig;
 
 abstract class TestCase extends BaseTestCase
 {
@@ -13,5 +16,9 @@ abstract class TestCase extends BaseTestCase
         parent::setUp();
  
         $this->withoutVite();
+
+        Config::preventStrayRequests();
+        MockClient::destroyGlobal();
+        MockConfig::throwOnMissingFixtures();
     }
 }
