@@ -54,20 +54,6 @@ class CloudEngine extends Engine
         parent::__construct($config);
     }
 
-    protected function getLibrarySettings(): LibraryConfiguration
-    {
-        return new LibraryConfiguration(
-            database: [
-                "index_fields" => $this->config['library-settings']['indexed-fields'] ?? ['resource_id']
-            ],
-            text: $this->config['library-settings']['text-processing'] ?? [
-                "n_context_chunk" => 10,
-                "chunk_length" => 490,
-                "chunk_overlap" => 10
-            ]
-        );
-    }
-
     /**
      * Create or update the library on Copilot based on the current settings
      */

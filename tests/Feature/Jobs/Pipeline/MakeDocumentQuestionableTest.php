@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Jobs\Pipeline;
 
+use App\Copilot\Facades\Copilot;
 use App\Jobs\Pipeline\Document\MakeDocumentQuestionable;
 use App\Models\Document;
 use App\PdfProcessing\DocumentContent;
@@ -19,16 +20,12 @@ class MakeDocumentQuestionableTest extends TestCase
     public function test_document_questionable(): void
     {
         config([
-            'copilot.driver' => 'cloud',
-            'copilot.queue' => false,
             'copilot.features.summary' => false,
             'copilot.features.question' => true,
             'copilot.features.tagging' => false,
-            'copilot.engines.cloud' => [
-                'host' => 'http://localhost:5000/',
-                'library' => 'library-id'
-            ],
         ]);
+
+        $copilot = Copilot::fake();
 
         Storage::fake('local');
 
@@ -45,39 +42,24 @@ class MakeDocumentQuestionableTest extends TestCase
                 ],
             ]);
 
-        Http::preventStrayRequests();
-
-        Http::fake([
-            'http://localhost:5000/library/library-id/*' => Http::response([
-                "message" => "Document `{$model->getCopilotKey()}` removed from the library `library-id`."
-            ], 200),
-        ]);
-
         $job = new MakeDocumentQuestionable($model, $model->latestPipelineRun);
 
         $job->handle();
 
-        Http::assertSentCount(1);
-
         $pdfDriver->assertCount(1);
+
+        $copilot->assertDocumentsPushed(1);
     }
     
     public function test_job_skipped_when_copilot_features_not_enabled(): void
     {
         config([
-            'pdf.processors.extractor' => [
-                'host' => 'http://localhost:9000',
-            ],
-            'copilot.driver' => 'cloud',
-            'copilot.queue' => false,
             'copilot.features.summary' => true,
             'copilot.features.question' => false,
             'copilot.features.tagging' => false,
-            'copilot.engines.cloud' => [
-                'host' => 'http://localhost:5000/',
-                'library' => 'library-id'
-            ],
         ]);
+
+        $copilot = Copilot::fake();
 
         Storage::fake('local');
 
@@ -93,19 +75,11 @@ class MakeDocumentQuestionableTest extends TestCase
                 ],
             ]);
 
-        Http::preventStrayRequests();
-
-        Http::fake([
-            'http://localhost:5000/library/library-id/*' => Http::response([
-                "message" => "Document `{$model->getCopilotKey()}` removed from the library `library-id`."
-            ], 200),
-        ]);
-
         $job = new MakeDocumentQuestionable($model, $model->latestPipelineRun);
 
         $job->handle();
 
-        Http::assertSentCount(0);
+        $copilot->assertNoCopilotInteractions();
 
         $pdfDriver->assertNoParsingRequests();
     }

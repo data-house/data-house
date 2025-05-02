@@ -8,6 +8,7 @@ use App\Copilot\CopilotResponse;
 use App\Copilot\CopilotSummarizeRequest;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
+use OneOffTech\LibrarianClient\Dto\LibraryConfiguration;
 
 abstract class Engine
 {
@@ -42,6 +43,20 @@ abstract class Engine
     public function getLibraryName(): string
     {
         return config('app.name', 'Data House');
+    }
+
+    protected function getLibrarySettings(): LibraryConfiguration
+    {
+        return new LibraryConfiguration(
+            database: [
+                "index_fields" => $this->config['library-settings']['indexed-fields'] ?? ['resource_id']
+            ],
+            text: $this->config['library-settings']['text-processing'] ?? [
+                "n_context_chunk" => 10,
+                "chunk_length" => 490,
+                "chunk_overlap" => 10
+            ]
+        );
     }
 
 
