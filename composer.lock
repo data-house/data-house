@@ -5083,12 +5083,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/OneOffTech/librarian-client.git",
-                "reference": "bf66aa74def6d69ed6fad7fe50d0ed6822e09fb6"
+                "reference": "260b7848bd2457e840c77db8ae81adee5bc2e75e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/OneOffTech/librarian-client/zipball/bf66aa74def6d69ed6fad7fe50d0ed6822e09fb6",
-                "reference": "bf66aa74def6d69ed6fad7fe50d0ed6822e09fb6",
+                "url": "https://api.github.com/repos/OneOffTech/librarian-client/zipball/260b7848bd2457e840c77db8ae81adee5bc2e75e",
+                "reference": "260b7848bd2457e840c77db8ae81adee5bc2e75e",
                 "shasum": ""
             },
             "require": {
@@ -5122,7 +5122,7 @@
                     "role": "Developer"
                 }
             ],
-            "description": "This is my package librarian-client",
+            "description": "OneOffTech Librarian AI service client.",
             "homepage": "https://github.com/oneofftech/librarian-client",
             "keywords": [
                 "librarian-client",
@@ -5137,7 +5137,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-04-23T10:45:28+00:00"
+            "time": "2025-05-02T12:43:35+00:00"
         },
         {
             "name": "oneofftech/parse-client",
