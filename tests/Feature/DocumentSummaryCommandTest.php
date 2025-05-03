@@ -2,14 +2,15 @@
 
 namespace Tests\Feature;
 
+use App\Copilot\CopilotResponse;
+use App\Copilot\CopilotSummarizeRequest;
+use App\Copilot\Facades\Copilot;
 use App\Models\Document;
 use App\Models\DocumentSummary;
 use App\PdfProcessing\DocumentContent;
 use App\PdfProcessing\Facades\Pdf;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Http\Client\Request;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use PrinsFrank\Standards\Language\LanguageAlpha2;
 use Tests\TestCase;
@@ -20,14 +21,8 @@ class DocumentSummaryCommandTest extends TestCase
     
     public function test_command_generates_abstract_for_document(): void
     {
-        config([
-            'copilot.driver' => 'cloud',
-            'copilot.queue' => false,
-            'copilot.engines.cloud' => [
-                'host' => 'http://localhost:5000/',
-                'library' => 'library-id'
-            ],
-        ]);
+        $copilot = Copilot::fake()
+            ->withSummary(new CopilotResponse("Summary."));
 
         $pdfDriver = Pdf::fake('parse', [
             new DocumentContent("Content of the document")
@@ -40,16 +35,6 @@ class DocumentSummaryCommandTest extends TestCase
                 'pages' => 20,
             ],
             'description' => null,
-        ]);
-
-        Http::preventStrayRequests();
-
-        Http::fake([
-            'http://localhost:5000/library/library-id/summary' => Http::response([
-                "id" => $document->ulid,
-                "lang" => "en",
-                "text" => "Summary."
-            ], 200),
         ]);
 
         $this->artisan('document:summary', [
@@ -68,19 +53,17 @@ class DocumentSummaryCommandTest extends TestCase
         $this->assertNull($updatedDocument->description);
 
         $pdfDriver->assertCount(1);
+
+        $copilot->assertSummariesGenerated(1);
+
+        $copilot->assertSummaryFor(new CopilotSummarizeRequest($document->ulid, 'Content of the document', LanguageAlpha2::English));
     }
     
     
     public function test_abstract_generated_in_requested_language(): void
     {
-        config([
-            'copilot.driver' => 'cloud',
-            'copilot.queue' => false,
-            'copilot.engines.cloud' => [
-                'host' => 'http://localhost:5000/',
-                'library' => 'library-id'
-            ],
-        ]);
+        $copilot = Copilot::fake()
+            ->withSummary(new CopilotResponse("Summary."));
 
         Storage::fake('local');
 
@@ -93,16 +76,6 @@ class DocumentSummaryCommandTest extends TestCase
                 'pages' => 20,
             ],
             'description' => null,
-        ]);
-
-        Http::preventStrayRequests();
-
-        Http::fake([
-            'http://localhost:5000/library/library-id/summary' => Http::response([
-                "id" => $document->ulid,
-                "lang" => "en",
-                "text" => "Summary."
-            ], 200),
         ]);
 
         $this->artisan('document:summary', [
@@ -121,25 +94,15 @@ class DocumentSummaryCommandTest extends TestCase
         $this->assertTrue($summary->ai_generated);
         $this->assertNull($updatedDocument->description);
 
-        Http::assertSent(function (Request $request) {
-            return $request->url() == 'http://localhost:5000/library/library-id/summary' &&
-                   $request->method() === 'POST' &&
-                   $request['text']['lang'] == 'de';
-        });
-
         $pdfDriver->assertCount(1);
+
+        $copilot->assertSummaryFor(new CopilotSummarizeRequest($document->ulid, 'Content of the document', LanguageAlpha2::German));
     }
     
     public function test_abstract_not_overwritten_if_present(): void
     {
-        config([
-            'copilot.driver' => 'cloud',
-            'copilot.queue' => false,
-            'copilot.engines.cloud' => [
-                'host' => 'http://localhost:5000/',
-                'library' => 'library-id'
-            ],
-        ]);
+        $copilot = Copilot::fake()
+            ->withSummary(new CopilotResponse("Summary."));
 
         Storage::fake('local');
 
@@ -156,16 +119,6 @@ class DocumentSummaryCommandTest extends TestCase
                     'pages' => 20,
                 ],
             ]);
-
-        Http::preventStrayRequests();
-
-        Http::fake([
-            'http://localhost:5000/library/library-id/summary' => Http::response([
-                "id" => $document->ulid,
-                "lang" => "en",
-                "text" => "Summary."
-            ], 200),
-        ]);
 
         $this->artisan('document:summary', [
             'documents' => [$document->ulid],
@@ -192,14 +145,8 @@ class DocumentSummaryCommandTest extends TestCase
     
     public function test_multiple_ai_generate_abstracts_cohexists(): void
     {
-        config([
-            'copilot.driver' => 'cloud',
-            'copilot.queue' => false,
-            'copilot.engines.cloud' => [
-                'host' => 'http://localhost:5000/',
-                'library' => 'library-id'
-            ],
-        ]);
+        $copilot = Copilot::fake()
+            ->withSummary(new CopilotResponse("Summary."));
 
         Storage::fake('local');
 
@@ -217,16 +164,6 @@ class DocumentSummaryCommandTest extends TestCase
                     'pages' => 20,
                 ],
             ]);
-
-        Http::preventStrayRequests();
-
-        Http::fake([
-            'http://localhost:5000/library/library-id/summary' => Http::response([
-                "id" => $document->ulid,
-                "lang" => "en",
-                "text" => "Summary."
-            ], 200),
-        ]);
 
         $this->artisan('document:summary', [
             'documents' => [$document->ulid],
