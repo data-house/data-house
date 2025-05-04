@@ -4,6 +4,7 @@ namespace App\Copilot\Facades;
 
 use App\Copilot\CopilotManager;
 use App\Copilot\Support\Testing\Fakes\CopilotManagerFake;
+use App\Copilot\Support\Testing\Fakes\FakeEngine;
 use Illuminate\Support\Facades\Facade;
 
 /**
@@ -17,7 +18,7 @@ class Copilot extends Facade
      *
      * @return App\Copilot\Support\Testing\Fakes\FakeEngine
      */
-    public static function fake(?string $driver = null)
+    public static function fake(?string $driver = null): FakeEngine
     {
         $driver = $driver ?: static::$app['config']->get('copilot.driver');
 

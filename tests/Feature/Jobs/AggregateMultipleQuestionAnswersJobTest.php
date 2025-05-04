@@ -2,8 +2,10 @@
 
 namespace Tests\Feature\Jobs;
 
+use App\Copilot\AnswerAggregationCopilotRequest;
 use App\Copilot\CopilotResponse;
 use App\Copilot\Exceptions\CopilotException;
+use App\Copilot\Facades\Copilot;
 use App\Jobs\AggregateMultipleQuestionAnswersJob;
 use App\Jobs\AskMultipleQuestionJob;
 use App\Jobs\AskQuestionJob;
@@ -30,16 +32,7 @@ class AggregateMultipleQuestionAnswersJobTest extends TestCase
 
     public function test_answer_to_multiple_question_aggregated(): void
     {
-        config([
-            'copilot.driver' => 'cloud',
-            'copilot.queue' => false,
-            'copilot.engines.cloud' => [
-                'host' => 'http://localhost:5000/',
-                'library' => 'library-id',
-            ],
-        ]);
-
-        Http::preventStrayRequests();
+        $copilot = Copilot::fake();
 
         Queue::fake();
 
@@ -53,6 +46,18 @@ class AggregateMultipleQuestionAnswersJobTest extends TestCase
             ->create();
 
         $documents = $collection->documents;
+
+        
+        $copilot->withAggregation(new CopilotResponse("Aggregated answer.", [
+                [
+                    "id" => $documents->first()->getCopilotKey(),
+                    "page_number" => 2,
+                ],
+                [
+                    "id" => $documents->last()->getCopilotKey(),
+                    "page_number" => 4,
+                ]
+            ]));
         
         $question = Question::factory()
             ->multiple()
@@ -85,48 +90,17 @@ class AggregateMultipleQuestionAnswersJobTest extends TestCase
             $question->related()->attach($q->getKey(), ['type' => QuestionRelation::CHILDREN]);
         });
         
-        Http::fake([
-            'http://localhost:5000/library/library-id/questions/aggregate' => Http::response([
-                "id" => $question->uuid,
-                "lang" => 'en',
-                "text" => "Aggregated answer.",
-                "refs" => [
-                    [
-                        "id" => $documents->first()->getCopilotKey(),
-                        "page_number" => 2,
-                    ],
-                    [
-                        "id" => $documents->last()->getCopilotKey(),
-                        "page_number" => 4,
-                    ]
-                ],
-            ], 200),
-        ]);
-
         (new AggregateMultipleQuestionAnswersJob($question))->handle();
 
-        Http::assertSent(function (Request $request) use ($question, $subQuestions) {
-
-            $expectedAppendText =  "## Document **{$subQuestions->first()->questionable->title}**" . PHP_EOL . PHP_EOL;
-
-            return $request->url() == 'http://localhost:5000/library/library-id/questions/aggregate' &&
-                   $request->method() === 'POST' &&
-                   filled($request['question'] ?? []) &&
-                   filled($request['transformation'] ?? []) &&
-                   filled($request['answers'] ?? []) &&
-                   $request['transformation']['args'][0] == $question->question &&
-                   $request['transformation']['id'] == '0' &&
-                   is_array($request['transformation']['append']) &&
-                   $request['transformation']['append'][0]['id'] === $subQuestions->first()->uuid &&
-                   $request['transformation']['append'][0]['text'] === $expectedAppendText &&
-                   $request['question']['id'] == $question->uuid &&
-                   $request['question']['lang'] == 'en' &&
-                   $request['question']['text'] == $question->question && 
-                   $request['answers'][0]['text'] == $subQuestions->first()->answer['text'] &&
-                   is_array($request['answers'][0]['refs']) &&
-                   $request['answers'][0]['id'] == $subQuestions->first()->uuid
-                   ;
+        $answers = $subQuestions->map(function($q){
+            return ['id' => $q->uuid, 'text' => $q->answer['text'], 'lang' => $q->language, 'refs' => $q->answer['references']];
         });
+        
+        $answersAppend = $subQuestions->map(function($q){
+            return ['id' => $q->uuid, 'text' => "## Document **{$q->questionable->title}**" . PHP_EOL . PHP_EOL];
+        });
+
+        $copilot->assertAggregationFor(new AnswerAggregationCopilotRequest($question->uuid, $question->question, $answers->all(), 'en', '0', $answersAppend->all()));
 
         $savedQuestion = $question->fresh();
 
@@ -171,16 +145,7 @@ class AggregateMultipleQuestionAnswersJobTest extends TestCase
 
     public function test_answer_to_multiple_document_with_project_question_aggregated(): void
     {
-        config([
-            'copilot.driver' => 'cloud',
-            'copilot.queue' => false,
-            'copilot.engines.cloud' => [
-                'host' => 'http://localhost:5000/',
-                'library' => 'library-id',
-            ],
-        ]);
-
-        Http::preventStrayRequests();
+        $copilot = Copilot::fake();
 
         Queue::fake();
 
@@ -227,49 +192,29 @@ class AggregateMultipleQuestionAnswersJobTest extends TestCase
         $subQuestions->each(function($q) use ($question): void {
             $question->related()->attach($q->getKey(), ['type' => QuestionRelation::CHILDREN]);
         });
-        
-        Http::fake([
-            'http://localhost:5000/library/library-id/questions/aggregate' => Http::response([
-                "id" => $question->uuid,
-                "lang" => 'en',
-                "text" => "Aggregated answer.",
-                "refs" => [
-                    [
-                        "id" => $documents->first()->getCopilotKey(),
-                        "page_number" => 2,
-                    ],
-                    [
-                        "id" => $documents->last()->getCopilotKey(),
-                        "page_number" => 4,
-                    ]
-                ],
-            ], 200),
-        ]);
+
+        $copilot->withAggregation(new CopilotResponse("Aggregated answer.", [
+            [
+                "id" => $documents->first()->getCopilotKey(),
+                "page_number" => 2,
+            ],
+            [
+                "id" => $documents->last()->getCopilotKey(),
+                "page_number" => 4,
+            ]
+        ]));
 
         (new AggregateMultipleQuestionAnswersJob($question))->handle();
 
-        Http::assertSent(function (Request $request) use ($question, $subQuestions, $project) {
-
-            $expectedAppendText =  "## Project **{$project->title}**" . PHP_EOL. PHP_EOL;
-
-            return $request->url() == 'http://localhost:5000/library/library-id/questions/aggregate' &&
-                   $request->method() === 'POST' &&
-                   filled($request['question'] ?? []) &&
-                   filled($request['transformation'] ?? []) &&
-                   filled($request['answers'] ?? []) &&
-                   $request['transformation']['args'][0] == $question->question &&
-                   $request['transformation']['id'] == '0' &&
-                   is_array($request['transformation']['append']) &&
-                   $request['transformation']['append'][0]['id'] === $subQuestions->first()->uuid &&
-                   $request['transformation']['append'][0]['text'] === $expectedAppendText &&
-                   $request['question']['id'] == $question->uuid &&
-                   $request['question']['lang'] == 'en' &&
-                   $request['question']['text'] == $question->question && 
-                   $request['answers'][0]['text'] == $subQuestions->first()->answer['text'] &&
-                   is_array($request['answers'][0]['refs']) &&
-                   $request['answers'][0]['id'] == $subQuestions->first()->uuid
-                   ;
+        $answers = $subQuestions->map(function($q){
+            return ['id' => $q->uuid, 'text' => $q->answer['text'], 'lang' => $q->language, 'refs' => $q->answer['references']];
         });
+        
+        $answersAppend = $subQuestions->map(function($q) use ($project){
+            return ['id' => $q->uuid, 'text' => "## Project **{$project->title}**" . PHP_EOL . PHP_EOL];
+        });
+
+        $copilot->assertAggregationFor(new AnswerAggregationCopilotRequest($question->uuid, $question->question, $answers->all(), 'en', '0', $answersAppend->all()));
 
         $savedQuestion = $question->fresh();
 
@@ -314,16 +259,7 @@ class AggregateMultipleQuestionAnswersJobTest extends TestCase
 
     public function test_answer_to_multiple_question_aggregated_using_descriptive_template(): void
     {
-        config([
-            'copilot.driver' => 'cloud',
-            'copilot.queue' => false,
-            'copilot.engines.cloud' => [
-                'host' => 'http://localhost:5000/',
-                'library' => 'library-id',
-            ],
-        ]);
-
-        Http::preventStrayRequests();
+        $copilot = Copilot::fake();
 
         Queue::fake();
 
@@ -369,41 +305,29 @@ class AggregateMultipleQuestionAnswersJobTest extends TestCase
         $subQuestions->each(function($q) use ($question): void {
             $question->related()->attach($q->getKey(), ['type' => QuestionRelation::CHILDREN]);
         });
-        
-        Http::fake([
-            'http://localhost:5000/library/library-id/questions/aggregate' => Http::response([
-                "id" => $question->uuid,
-                "lang" => 'en',
-                "text" => "Aggregated answer.",
-                "refs" => [
-                    [
-                        "id" => $documents->first()->getCopilotKey(),
-                        "page_number" => 2,
-                    ],
-                    [
-                        "id" => $documents->last()->getCopilotKey(),
-                        "page_number" => 4,
-                    ]
-                ],
-            ], 200),
-        ]);
+
+        $copilot->withAggregation(new CopilotResponse("Aggregated answer.", [
+            [
+                "id" => $documents->first()->getCopilotKey(),
+                "page_number" => 2,
+            ],
+            [
+                "id" => $documents->last()->getCopilotKey(),
+                "page_number" => 4,
+            ]
+        ]));
 
         (new AggregateMultipleQuestionAnswersJob($question))->handle();
 
-        Http::assertSent(function (Request $request) use ($question, $subQuestions) {
-            return $request->url() == 'http://localhost:5000/library/library-id/questions/aggregate' &&
-                $request->method() === 'POST' &&
-                filled($request['question'] ?? []) &&
-                filled($request['transformation'] ?? []) &&
-                filled($request['answers'] ?? []) &&
-                $request['transformation']['args'][0] == $question->question &&
-                $request['transformation']['id'] == '1' &&
-                $request['question']['id'] == $question->uuid &&
-                $request['question']['lang'] == 'en' &&
-                $request['question']['text'] == $question->question && 
-                $request['answers'][0]['text'] == $subQuestions->first()->answer['text'];
-    
+        $answers = $subQuestions->map(function($q){
+            return ['id' => $q->uuid, 'text' => $q->answer['text'], 'lang' => $q->language, 'refs' => $q->answer['references']];
         });
+
+        $answersAppend = $subQuestions->map(function($q) use ($question){
+            return ['id' => $q->uuid, 'text' => "## Document **{$q->questionable->title}**" . PHP_EOL . PHP_EOL];
+        });
+
+        $copilot->assertAggregationFor(new AnswerAggregationCopilotRequest($question->uuid, $question->question, $answers->all(), 'en', '1', $answersAppend->all()));
 
         $savedQuestion = $question->fresh();
 
@@ -450,14 +374,7 @@ class AggregateMultipleQuestionAnswersJobTest extends TestCase
 
     public function test_job_re_enqued_when_pending_answers()
     {
-        config([
-            'copilot.driver' => 'cloud',
-            'copilot.queue' => false,
-            'copilot.engines.cloud' => [
-                'host' => 'http://localhost:5000/',
-                'library' => 'library-id',
-            ],
-        ]);
+        $copilot = Copilot::fake();
 
         Http::preventStrayRequests();
 
@@ -519,16 +436,7 @@ class AggregateMultipleQuestionAnswersJobTest extends TestCase
 
     public function test_empty_child_answers_handled(): void
     {
-        config([
-            'copilot.driver' => 'cloud',
-            'copilot.queue' => false,
-            'copilot.engines.cloud' => [
-                'host' => 'http://localhost:5000/',
-                'library' => 'library-id',
-            ],
-        ]);
-
-        Http::preventStrayRequests();
+        $copilot = Copilot::fake();
 
         Queue::fake();
 
@@ -573,52 +481,32 @@ class AggregateMultipleQuestionAnswersJobTest extends TestCase
         $subQuestions->each(function($q) use ($question): void {
             $question->related()->attach($q->getKey(), ['type' => QuestionRelation::CHILDREN]);
         });
-        
-        Http::fake([
-            'http://localhost:5000/library/library-id/questions/aggregate' => Http::response([
-                "id" => $question->uuid,
-                "lang" => 'en',
-                "text" => "Aggregated answer.",
-                "refs" => [
-                    [
-                        "id" => $documents->first()->getCopilotKey(),
-                        "page_number" => 2,
-                    ],
-                    [
-                        "id" => $documents->last()->getCopilotKey(),
-                        "page_number" => 4,
-                    ]
-                ],
-            ], 200),
-        ]);
+
+        $copilot->withAggregation(new CopilotResponse("Aggregated answer.", [
+            [
+                "id" => $documents->first()->getCopilotKey(),
+                "page_number" => 2,
+            ],
+            [
+                "id" => $documents->last()->getCopilotKey(),
+                "page_number" => 4,
+            ]
+        ]));
 
         $this->expectException(CopilotException::class);
         $this->expectExceptionMessage("No answers to aggregate");
 
         (new AggregateMultipleQuestionAnswersJob($question))->handle();
 
-        Http::assertNotSent(function (Request $request) use ($question, $subQuestions) {
-
-            $expectedAppendText =  "## Document **{$subQuestions->first()->questionable->title}**" . PHP_EOL. PHP_EOL;
-
-            return $request->url() == 'http://localhost:5000/library/library-id/questions/aggregate' &&
-                   $request->method() === 'POST' &&
-                   filled($request['question'] ?? []) &&
-                   filled($request['transformation'] ?? []) &&
-                   filled($request['answers'] ?? []) &&
-                   $request['transformation']['args'][0] == $question->question &&
-                   $request['transformation']['id'] == '0' &&
-                   is_array($request['transformation']['append']) &&
-                   $request['transformation']['append'][0]['id'] === $subQuestions->first()->uuid &&
-                   $request['transformation']['append'][0]['text'] === $expectedAppendText &&
-                   $request['question']['id'] == $question->uuid &&
-                   $request['question']['lang'] == 'en' &&
-                   $request['question']['text'] == $question->question && 
-                   $request['answers'][0]['text'] == $subQuestions->first()->answer['text'] &&
-                   is_array($request['answers'][0]['refs']) &&
-                   $request['answers'][0]['id'] == $subQuestions->first()->uuid
-                   ;
+        $answers = $subQuestions->map(function($q){
+            return ['id' => $q->uuid, 'text' => $q->answer['text'], 'lang' => $q->language, 'refs' => $q->answer['references']];
         });
+
+        $answersAppend = $subQuestions->map(function($q) use ($question){
+            return ['id' => $q->uuid, 'text' => "## Document **{$q->questionable->title}**" . PHP_EOL . PHP_EOL];
+        });
+
+        $copilot->assertAggregationFor(new AnswerAggregationCopilotRequest($question->uuid, $question->question, $answers->all(), 'en', '0', $answersAppend->all()));
 
     }
 }

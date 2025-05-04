@@ -266,10 +266,6 @@ class CloudEngine extends Engine
     {
         try{
             logs()->info("Aggregating answers for question [{$request->id}]");
-
-            // $response = $this->getHttpClient()
-            //     ->post("/library/{$this->getLibrary()}/questions/aggregate", $request->jsonSerialize())
-            //     ->throw();
     
             $aggregatedAnswer = $this->connnector->questions($this->getLibrary())->aggregate(
                 $request->getLibrarianQuestion(),
@@ -292,7 +288,6 @@ class CloudEngine extends Engine
         }
         catch(Throwable $ex)
         {
-            // TODO: response body can contain error information 
             logs()->error("Error asking question copilot", ['error' => $ex->getMessage(), 'request' => $request]);
             throw new CopilotException($ex->getMessage(), $ex->getCode(), $ex);
         }
@@ -326,8 +321,6 @@ class CloudEngine extends Engine
         }
         catch(Throwable $ex)
         {
-            // TODO: response body can contain error information // {"code":500,"message":"Error while parsing file","type":"Internal Server Error"}
-            // {"code":422,"message":"No content found in request","type":"Unprocessable Entity"}
             logs()->error("Error generating summary", ['error' => $ex->getMessage(), 'request' => $request]);
             throw new CopilotException($ex->getMessage(), $ex->getCode(), $ex);
         }
@@ -395,7 +388,6 @@ class CloudEngine extends Engine
         }
         catch(Throwable $ex)
         {
-            // TODO: response body can contain error information 
             logs()->error("Error classify model", ['error' => $ex->getMessage(), 'model' => $model->getCopilotKey(), 'classifier' => $classifier]);
             throw new CopilotException($ex->getMessage(), $ex->getCode(), $ex);
         }
@@ -422,7 +414,6 @@ class CloudEngine extends Engine
         }
         catch(Throwable $ex)
         {
-            // TODO: response body can contain error information 
             logs()->error("Error classify model", ['error' => $ex->getMessage(), 'text_hash' => $hash, 'classifier' => $classifier]);
             throw new CopilotException($ex->getMessage(), $ex->getCode(), $ex);
         }

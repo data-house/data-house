@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Copilot;
 
+use App\Copilot\Facades\Copilot;
 use App\Jobs\AskMultipleQuestionJob;
 use App\Models\Collection;
 use App\Models\Document;
@@ -22,14 +23,7 @@ class AskMultipleQuestionTraitTest extends TestCase
 
     public function test_model_can_be_questioned(): void
     {
-        config([
-            'copilot.driver' => 'cloud',
-            'copilot.queue' => false,
-            'copilot.engines.cloud' => [
-                'host' => 'http://localhost:5000/',
-                'library' => 'library-id',
-            ],
-        ]);
+        $copilot = Copilot::fake();
 
         Http::preventStrayRequests();
 
@@ -67,7 +61,7 @@ class AskMultipleQuestionTraitTest extends TestCase
             return $job->question->is($question);
         });
 
-        Http::assertNothingSent();
+        $copilot->assertNoInteractions();
 
         $this->assertNotNull($questionUuid);
 
@@ -92,16 +86,7 @@ class AskMultipleQuestionTraitTest extends TestCase
 
     public function test_same_question_can_be_asked_and_is_considered_a_retry(): void
     {
-        config([
-            'copilot.driver' => 'cloud',
-            'copilot.queue' => false,
-            'copilot.engines.cloud' => [
-                'host' => 'http://localhost:5000/',
-                'library' => 'library-id',
-            ],
-        ]);
-
-        Http::preventStrayRequests();
+        $copilot = Copilot::fake();
 
         Queue::fake();
         
@@ -146,7 +131,7 @@ class AskMultipleQuestionTraitTest extends TestCase
             return $job->question->is($question);
         });
 
-        Http::assertNothingSent();
+        $copilot->assertNoInteractions();
 
         $this->assertNotNull($questionUuid);
 
@@ -173,16 +158,7 @@ class AskMultipleQuestionTraitTest extends TestCase
 
     public function test_same_question_can_be_asked_and_is_not_considered_a_retry(): void
     {
-        config([
-            'copilot.driver' => 'cloud',
-            'copilot.queue' => false,
-            'copilot.engines.cloud' => [
-                'host' => 'http://localhost:5000/',
-                'library' => 'library-id',
-            ],
-        ]);
-
-        Http::preventStrayRequests();
+        $copilot = Copilot::fake();
 
         Queue::fake();
         
@@ -224,7 +200,7 @@ class AskMultipleQuestionTraitTest extends TestCase
             return $job->question->is($question);
         });
 
-        Http::assertNothingSent();
+        $copilot->assertNoInteractions();
 
         $this->assertNotNull($questionUuid);
 
