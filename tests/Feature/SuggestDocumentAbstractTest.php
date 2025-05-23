@@ -3,6 +3,9 @@
 namespace Tests\Feature;
 
 use App\Actions\SuggestDocumentAbstract;
+use App\Copilot\CopilotResponse;
+use App\Copilot\CopilotSummarizeRequest;
+use App\Copilot\Facades\Copilot;
 use App\Models\Document;
 use App\PdfProcessing\DocumentContent;
 use App\PdfProcessing\Facades\Pdf;
@@ -23,14 +26,7 @@ class SuggestDocumentAbstractTest extends TestCase
 
     public function test_page_range_with_last_page_below_start_page(): void
     {
-        config([
-            'copilot.driver' => 'cloud',
-            'copilot.queue' => false,
-            'copilot.engines.cloud' => [
-                'host' => 'http://localhost:5000/',
-                'library' => 'library-id'
-            ],
-        ]);
+        $copilot = Copilot::fake();
 
         Storage::fake('local');
 
@@ -43,8 +39,6 @@ class SuggestDocumentAbstractTest extends TestCase
                 'pages' => 20,
             ]
         ]);
-
-        Http::preventStrayRequests();
 
         $action = new SuggestDocumentAbstract();
 
@@ -54,18 +48,13 @@ class SuggestDocumentAbstractTest extends TestCase
         $abstract = $action($document, LanguageAlpha2::English, [10, 5]);
 
         $pdfDriver->assertNoParsingRequests();
+
+        $copilot->assertNoInteractions();
     }
     
     public function test_total_pages_metadata_required(): void
     {
-        config([
-            'copilot.driver' => 'cloud',
-            'copilot.queue' => false,
-            'copilot.engines.cloud' => [
-                'host' => 'http://localhost:5000/',
-                'library' => 'library-id'
-            ],
-        ]);
+        $copilot = Copilot::fake();
 
         Storage::fake('local');
 
@@ -75,8 +64,6 @@ class SuggestDocumentAbstractTest extends TestCase
 
         $document = Document::factory()->createQuietly();
 
-        Http::preventStrayRequests();
-
         $action = new SuggestDocumentAbstract();
 
         $this->expectException(InvalidArgumentException::class);
@@ -85,18 +72,13 @@ class SuggestDocumentAbstractTest extends TestCase
         $abstract = $action($document, LanguageAlpha2::English, [1, 5]);
 
         $pdfDriver->assertNoParsingRequests();
+
+        $copilot->assertNoInteractions();
     }
     
     public function test_ending_range_must_be_within_document_pages(): void
     {
-        config([
-            'copilot.driver' => 'cloud',
-            'copilot.queue' => false,
-            'copilot.engines.cloud' => [
-                'host' => 'http://localhost:5000/',
-                'library' => 'library-id'
-            ],
-        ]);
+        $copilot = Copilot::fake();
 
         Storage::fake('local');
 
@@ -110,26 +92,20 @@ class SuggestDocumentAbstractTest extends TestCase
             ]
         ]);
 
-        Http::preventStrayRequests();
-
         $action = new SuggestDocumentAbstract();
 
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('The ending page [21] is outside of the document [1, 20]');
 
         $abstract = $action($document, LanguageAlpha2::English, [18, 21]);
+
+        $copilot->assertNoInteractions();
     }
 
     public function test_abstract_suggested(): void
     {
-        config([
-            'copilot.driver' => 'cloud',
-            'copilot.queue' => false,
-            'copilot.engines.cloud' => [
-                'host' => 'http://localhost:5000/',
-                'library' => 'library-id'
-            ],
-        ]);
+        $copilot = Copilot::fake()
+            ->withSummary(new CopilotResponse("Summary."));
 
         Storage::fake('local');
 
@@ -162,27 +138,15 @@ class SuggestDocumentAbstractTest extends TestCase
         $this->assertNotNull($abstract);
         $this->assertEquals("Summary.", $abstract);
 
-        Http::assertSent(function (Request $request) use ($document) {
-            return $request->url() == 'http://localhost:5000/library/library-id/summary' &&
-                   $request->method() === 'POST' &&
-                   $request['text']['id'] == $document->getCopilotKey() &&
-                   $request['text']['text'] == 'Content of the document' &&
-                   $request['text']['lang'] == 'en';
-        });
-
         $pdfDriver->assertCount(1);
+
+        $copilot->assertSummaryFor(new CopilotSummarizeRequest($document->getCopilotKey(), 'Content of the document', LanguageAlpha2::English));
     }
     
     public function test_abstract_for_report_suggested_in_english(): void
     {
-        config([
-            'copilot.driver' => 'cloud',
-            'copilot.queue' => false,
-            'copilot.engines.cloud' => [
-                'host' => 'http://localhost:5000/',
-                'library' => 'library-id'
-            ],
-        ]);
+        $copilot = Copilot::fake()
+            ->withSummary(new CopilotResponse("Summary."));
 
         Storage::fake('local');
 
@@ -206,16 +170,6 @@ class SuggestDocumentAbstractTest extends TestCase
             ]
         ]);
 
-        Http::preventStrayRequests();
-
-        Http::fake([
-            'http://localhost:5000/library/library-id/summary' => Http::response([
-                "id" => $document->getCopilotKey(),
-                "lang" => "en",
-                "text" => "Summary."
-            ], 200),
-        ]);
-
         $action = new SuggestDocumentAbstract();
 
         $abstract = $action($document);
@@ -223,27 +177,15 @@ class SuggestDocumentAbstractTest extends TestCase
         $this->assertNotNull($abstract);
         $this->assertEquals("Summary.", $abstract);
 
-        Http::assertSent(function (Request $request) use ($document) {
-            return $request->url() == 'http://localhost:5000/library/library-id/summary' &&
-                   $request->method() === 'POST' &&
-                   $request['text']['id'] == $document->getCopilotKey() &&
-                   $request['text']['text'] == '-' . PHP_EOL . '-' . PHP_EOL . '-' . PHP_EOL . 'SUMMARY Content of the document' . PHP_EOL . 'ZUSAMMENFASSUNG (and other content)' . PHP_EOL . '-' &&
-                   $request['text']['lang'] == 'en';
-        });
-
         $pdfDriver->assertCount(1);
+
+        $copilot->assertSummaryFor(new CopilotSummarizeRequest($document->getCopilotKey(), '-' . PHP_EOL . '-' . PHP_EOL . '-' . PHP_EOL . 'SUMMARY Content of the document' . PHP_EOL . 'ZUSAMMENFASSUNG (and other content)' . PHP_EOL . '-', LanguageAlpha2::English));
     }
 
     public function test_abstract_for_report_suggested_in_german(): void
     {
-        config([
-            'copilot.driver' => 'cloud',
-            'copilot.queue' => false,
-            'copilot.engines.cloud' => [
-                'host' => 'http://localhost:5000/',
-                'library' => 'library-id'
-            ],
-        ]);
+        $copilot = Copilot::fake()
+            ->withSummary(new CopilotResponse("Summary."));
 
         Storage::fake('local');
 
@@ -267,16 +209,6 @@ class SuggestDocumentAbstractTest extends TestCase
             ]
         ]);
 
-        Http::preventStrayRequests();
-
-        Http::fake([
-            'http://localhost:5000/library/library-id/summary' => Http::response([
-                "id" => $document->getCopilotKey(),
-                "lang" => "en",
-                "text" => "Summary."
-            ], 200),
-        ]);
-
         $action = new SuggestDocumentAbstract();
 
         $abstract = $action($document, LanguageAlpha2::German);
@@ -284,28 +216,16 @@ class SuggestDocumentAbstractTest extends TestCase
         $this->assertNotNull($abstract);
         $this->assertEquals("Summary.", $abstract);
 
-        Http::assertSent(function (Request $request) use ($document) {
-            return $request->url() == 'http://localhost:5000/library/library-id/summary' &&
-                   $request->method() === 'POST' &&
-                   $request['text']['id'] == $document->getCopilotKey() &&
-                   $request['text']['text'] == '-' . PHP_EOL . '-' . PHP_EOL . '-' . PHP_EOL . 'ZUSAMMENFASSUNG Content of the document' . PHP_EOL . 'SUMMARY' . PHP_EOL . '-' &&
-                   $request['text']['lang'] == 'de';
-        });
-
         $pdfDriver->assertCount(1);
+
+        $copilot->assertSummaryFor(new CopilotSummarizeRequest($document->getCopilotKey(), '-' . PHP_EOL . '-' . PHP_EOL . '-' . PHP_EOL . 'ZUSAMMENFASSUNG Content of the document' . PHP_EOL . 'SUMMARY' . PHP_EOL . '-', LanguageAlpha2::German));
     }
 
     
     public function test_page_range_respected(): void
     {
-        config([
-            'copilot.driver' => 'cloud',
-            'copilot.queue' => false,
-            'copilot.engines.cloud' => [
-                'host' => 'http://localhost:5000/',
-                'library' => 'library-id'
-            ],
-        ]);
+        $copilot = Copilot::fake()
+            ->withSummary(new CopilotResponse("Summary."));
 
         Storage::fake('local');
 
@@ -329,16 +249,6 @@ class SuggestDocumentAbstractTest extends TestCase
             ]
         ]);
 
-        Http::preventStrayRequests();
-
-        Http::fake([
-            'http://localhost:5000/library/library-id/summary' => Http::response([
-                "id" => $document->getCopilotKey(),
-                "lang" => "en",
-                "text" => "Summary."
-            ], 200),
-        ]);
-
         $action = new SuggestDocumentAbstract();
 
         $abstract = $action($document, LanguageAlpha2::English, [4,4]);
@@ -346,14 +256,8 @@ class SuggestDocumentAbstractTest extends TestCase
         $this->assertNotNull($abstract);
         $this->assertEquals("Summary.", $abstract);
 
-        Http::assertSent(function (Request $request) use ($document) {
-            return $request->url() == 'http://localhost:5000/library/library-id/summary' &&
-                   $request->method() === 'POST' &&
-                   $request['text']['id'] == $document->getCopilotKey() &&
-                   $request['text']['text'] == 'SUMMARY Content of the document' &&
-                   $request['text']['lang'] == 'en';
-        });
-
         $pdfDriver->assertCount(1);
+
+        $copilot->assertSummaryFor(new CopilotSummarizeRequest($document->getCopilotKey(), 'SUMMARY Content of the document', LanguageAlpha2::English));
     }
 }

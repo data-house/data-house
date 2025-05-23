@@ -4,6 +4,8 @@ namespace App\Copilot;
 
 use Illuminate\Support\Arr;
 use JsonSerializable;
+use OneOffTech\LibrarianClient\Dto\Answer;
+use OneOffTech\LibrarianClient\Dto\AnswerCollection;
 
 class AnswerAggregationCopilotRequest extends CopilotRequest
 {
@@ -36,6 +38,17 @@ class AnswerAggregationCopilotRequest extends CopilotRequest
                 })
                 ->toArray(),
         ];
+    }
+
+    public function getAnswerCollection(): AnswerCollection
+    {
+        $entries = collect($this->documents)->filter()
+                ->values()
+                ->map(function($answer){
+                    return new Answer($answer['id'], $answer['lang'], $answer['text'], $answer['references'] ?? $answer['refs']);
+                });
+
+        return new AnswerCollection($entries->toArray());
     }
 
     /**

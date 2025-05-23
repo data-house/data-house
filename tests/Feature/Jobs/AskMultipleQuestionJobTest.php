@@ -2,8 +2,11 @@
 
 namespace Tests\Feature\Jobs;
 
+use App\Copilot\AnswerAggregationCopilotRequest;
+use App\Copilot\CopilotRequest;
 use App\Copilot\CopilotResponse;
 use App\Copilot\Exceptions\CopilotException;
+use App\Copilot\Facades\Copilot;
 use App\Jobs\AggregateMultipleQuestionAnswersJob;
 use App\Jobs\AskMultipleQuestionJob;
 use App\Jobs\AskQuestionJob;
@@ -30,14 +33,8 @@ class AskMultipleQuestionJobTest extends TestCase
 
     public function test_question_decomposed_and_children_queued(): void
     {
-        config([
-            'copilot.driver' => 'cloud',
-            'copilot.queue' => false,
-            'copilot.engines.cloud' => [
-                'host' => 'http://localhost:5000/',
-                'library' => 'library-id',
-            ],
-        ]);
+        $copilot = Copilot::fake()
+            ->withAnswer(new CopilotResponse("Question to execute on document"));
 
         Http::preventStrayRequests();
 
@@ -61,20 +58,9 @@ class AskMultipleQuestionJobTest extends TestCase
                 'question' => 'Do you really reply to my question?',
             ]);
 
-        
-        Http::fake([
-            'http://localhost:5000/library/library-id/questions/transform' => Http::response([
-                "id" => $question->uuid,
-                "lang" => "en",
-                "text" => "Question to execute on document",
-            ], 200),
-        ]);
-
         (new AskMultipleQuestionJob($question))->handle();
 
-        Http::assertSent(function (Request $request) use ($question) {
-            return $request->url() == 'http://localhost:5000/library/library-id/questions/transform';
-        });
+        $copilot->assertQuestionFor(new CopilotRequest($question->uuid, 'Do you really reply to my question?', ['0', '1'], 'en', '0', ["Do you really reply to my question?"]));
 
         $savedQuestion = $question->fresh();
 
@@ -119,14 +105,8 @@ class AskMultipleQuestionJobTest extends TestCase
 
     public function test_descriptive_question_decomposed_and_children_queued(): void
     {
-        config([
-            'copilot.driver' => 'cloud',
-            'copilot.queue' => false,
-            'copilot.engines.cloud' => [
-                'host' => 'http://localhost:5000/',
-                'library' => 'library-id',
-            ],
-        ]);
+        $copilot = Copilot::fake()
+            ->withAnswer(new CopilotResponse("What are the main challenges in the report?"));
 
         Http::preventStrayRequests();
 
@@ -152,23 +132,9 @@ class AskMultipleQuestionJobTest extends TestCase
                 'language' => 'en',
             ]);
 
-        
-        Http::fake([
-            'http://localhost:5000/library/library-id/questions/transform' => Http::response([
-                "id" => $question->uuid,
-                "lang" => $question->language,
-                "text" => "What are the main challenges in the report?",
-            ], 200),
-        ]);
-
         (new AskMultipleQuestionJob($question))->handle();
 
-        Http::assertSent(function (Request $request) use ($question) {
-            return $request->url() == 'http://localhost:5000/library/library-id/questions/transform' && 
-                $request['transformation'] && 
-                $request['transformation']['id'] == 1 &&
-                $request['transformation']['args'][0] == "challenges";
-        });
+        $copilot->assertQuestionFor(new CopilotRequest($question->uuid, 'challenges', ['0', '1'], 'en', '1', ["challenges"]));
 
         $savedQuestion = $question->fresh();
 

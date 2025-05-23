@@ -2,11 +2,14 @@
 
 namespace Tests\Feature\Jobs;
 
+use App\Copilot\CopilotRequest;
 use App\Copilot\CopilotResponse;
 use App\Copilot\Exceptions\CopilotException;
+use App\Copilot\Facades\Copilot;
 use App\Jobs\AskQuestionJob;
 use App\Models\Question;
 use App\Models\QuestionStatus;
+use Exception;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\Client\Request;
@@ -21,51 +24,29 @@ class AskQuestionJobTest extends TestCase
 
     public function test_question_executed(): void
     {
-        config([
-            'copilot.driver' => 'cloud',
-            'copilot.queue' => false,
-            'copilot.engines.cloud' => [
-                'host' => 'http://localhost:5000/',
-                'library' => 'library-id'
-            ],
-        ]);
-
-        Http::preventStrayRequests();
-
-        Queue::fake();
-        
         $question = Question::factory()->create([
             'question' => 'Do you really reply to my question?',
         ]);
 
         $documentKey = $question->questionable->getCopilotKey();
-        
-        Http::fake([
-            "http://localhost:5000/library/library-id/documents/{$documentKey}/questions" => Http::response([
-                "id" => $question->uuid,
-                "lang" => "en",
-                "text" => "Yes, I can provide information and answer questions related to renewable energy and sustainable development based on the context information provided.",
-                "refs" => [
-                    [
-                        "id" => $documentKey,
-                        "page_number" => 2,
-                    ],
-                    [
-                        "id" => $documentKey,
-                        "page_number" => 4,
-                    ]
-                ],
-            ], 200),
-        ]);
 
+        $copilot = Copilot::fake()
+            ->withAnswer(new CopilotResponse('Yes, I can provide information and answer questions related to renewable energy and sustainable development based on the context information provided.', [
+                [
+                    "id" => $documentKey,
+                    "page_number" => 2,
+                ],
+                [
+                    "id" => $documentKey,
+                    "page_number" => 4,
+                ]
+                ]));
+
+        Queue::fake();
+        
         (new AskQuestionJob($question))->handle();
 
-        Http::assertSent(function (Request $request) use ($question, $documentKey) {
-            return $request->url() == "http://localhost:5000/library/library-id/documents/{$documentKey}/questions" &&
-                   $request['id'] === $question->uuid &&
-                   $request['text'] == 'Do you really reply to my question?' &&
-                   $request['lang'];
-        });
+        $copilot->assertQuestionFor(new CopilotRequest($question->uuid, 'Do you really reply to my question?', $documentKey, 'en'));
 
         $savedQuestion = $question->fresh();
 
@@ -96,38 +77,11 @@ class AskQuestionJobTest extends TestCase
     
     public function test_errors_are_handled(): void
     {
-        config([
-            'copilot.driver' => 'cloud',
-            'copilot.queue' => false,
-            'copilot.engines.cloud' => [
-                'host' => 'http://localhost:5000/',
-                'library' => 'library-id'
-            ],
-        ]);
-
-        Http::preventStrayRequests();
+        $copilot = Copilot::fake()
+            ->withAnswer(new CopilotException('Field required'));
 
         $question = Question::factory()->create([
             'question' => 'Do you really reply to my question?',
-        ]);
-        
-        Http::fake([
-            "http://localhost:5000/library/library-id/documents/{$question->questionable->getCopilotKey()}/questions" => Http::response([
-                "detail" => [
-                    [
-                      "type" => "missing",
-                      "loc" => [
-                        "body",
-                        "text"
-                      ],
-                      "msg" => "Field required",
-                      "input" => [
-                        "id" => $question->uuid,
-                        "lang" => $question->language
-                      ]
-                    ]
-                  ]
-            ], 422),
         ]);
 
         $job = new AskQuestionJob($question);
@@ -139,12 +93,7 @@ class AskQuestionJobTest extends TestCase
             $job->failed();
         }
 
-        Http::assertSent(function (Request $request) use ($question) {
-            return $request->url() == "http://localhost:5000/library/library-id/documents/{$question->questionable->getCopilotKey()}/questions" &&
-                   $request['id'] === $question->uuid &&
-                   $request['text'] == 'Do you really reply to my question?' &&
-                   $request['lang'];
-        });
+        $copilot->assertQuestionFor(new CopilotRequest($question->uuid, 'Do you really reply to my question?', $question->questionable->getCopilotKey(), 'en'));
 
         $savedQuestion = $question->fresh();
 

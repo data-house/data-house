@@ -4,6 +4,9 @@ namespace App\Copilot;
 
 use Illuminate\Support\Arr;
 use JsonSerializable;
+use OneOffTech\LibrarianClient\Dto\Question;
+use OneOffTech\LibrarianClient\Dto\QuestionTransformation;
+use OneOffTech\LibrarianClient\TransformType;
 
 class CopilotRequest implements JsonSerializable
 {
@@ -50,6 +53,24 @@ class CopilotRequest implements JsonSerializable
             'text' => $this->question,
             'lang' => $this->language,
         ];
+    }
+
+    public function getLibrarianQuestion(): Question
+    {
+        return new Question(
+            id: $this->id,
+            language: $this->language,
+            text: $this->question,
+        );
+    }
+    
+    public function getLibrarianQuestionTransformation(): QuestionTransformation
+    {
+        return new QuestionTransformation(
+            id: TransformType::from($this->guidanceTemplate ?? '0'),
+            args: [$this->question],
+            append: $this->guidanceTemplateAppend ?? [],
+        );
     }
 
     /**

@@ -4,6 +4,8 @@ namespace Tests\Feature\Jobs\Pipeline;
 
 use App\Actions\SuggestDocumentAbstract;
 use App\Actions\Summary\SaveSummary;
+use App\Copilot\CopilotResponse;
+use App\Copilot\Facades\Copilot;
 use App\Jobs\Pipeline\Document\GenerateDocumentSummary;
 use App\Models\Document;
 use App\Models\DocumentSummary;
@@ -22,17 +24,8 @@ class GenerateDocumentSummaryTest extends TestCase
     
     public function test_abstract_generated(): void
     {
-        config([
-            'pdf.processors.extractor' => [
-                'host' => 'http://localhost:9000',
-            ],
-            'copilot.driver' => 'cloud',
-            'copilot.queue' => false,
-            'copilot.engines.cloud' => [
-                'host' => 'http://localhost:5000/',
-                'library' => 'library-id'
-            ],
-        ]);
+        $copilot = Copilot::fake()
+            ->withSummary(new CopilotResponse("Summary."));
 
         Storage::fake('local');
 
@@ -47,16 +40,6 @@ class GenerateDocumentSummaryTest extends TestCase
                     'pages' => 20,
                 ],
             ]);
-
-        Http::preventStrayRequests();
-
-        Http::fake([
-            'http://localhost:5000/library/library-id/summary' => Http::response([
-                "id" => $model->ulid,
-                "lang" => "en",
-                "text" => "Summary."
-            ], 200),
-        ]);
 
         $job = new GenerateDocumentSummary($model, $model->latestPipelineRun);
 
@@ -73,21 +56,15 @@ class GenerateDocumentSummaryTest extends TestCase
         $this->assertNull($document->description);
 
         $pdfDriver->assertCount(1);
+
+        $copilot->assertSummariesGenerated(1);
     }
     
     public function test_two_abstracts_generated_for_non_english_documents(): void
     {
-        config([
-            'pdf.processors.extractor' => [
-                'host' => 'http://localhost:9000',
-            ],
-            'copilot.driver' => 'cloud',
-            'copilot.queue' => false,
-            'copilot.engines.cloud' => [
-                'host' => 'http://localhost:5000/',
-                'library' => 'library-id'
-            ],
-        ]);
+        $copilot = Copilot::fake()
+            ->withSummary(new CopilotResponse("Summary."))
+            ->withSummary(new CopilotResponse("Summary."));
 
         Storage::fake('local');
 
@@ -103,16 +80,6 @@ class GenerateDocumentSummaryTest extends TestCase
                 ],
                 'languages' => collect(LanguageAlpha2::Spanish_Castilian),
             ]);
-
-        Http::preventStrayRequests();
-
-        Http::fake([
-            'http://localhost:5000/library/library-id/summary' => Http::response([
-                "id" => $model->ulid,
-                "lang" => "en",
-                "text" => "Summary."
-            ], 200),
-        ]);
 
         $job = new GenerateDocumentSummary($model, $model->latestPipelineRun);
 
@@ -131,21 +98,14 @@ class GenerateDocumentSummaryTest extends TestCase
         $this->assertTrue($summary->all_document);
         $this->assertNull($document->description);
         $pdfDriver->assertCount(2);
+
+        $copilot->assertSummariesGenerated(2);
     }
     
     public function test_only_english_abstract_generated_for_unsupported_languages(): void
     {
-        config([
-            'pdf.processors.extractor' => [
-                'host' => 'http://localhost:9000',
-            ],
-            'copilot.driver' => 'cloud',
-            'copilot.queue' => false,
-            'copilot.engines.cloud' => [
-                'host' => 'http://localhost:5000/',
-                'library' => 'library-id'
-            ],
-        ]);
+        $copilot = Copilot::fake()
+            ->withSummary(new CopilotResponse("Summary."));
 
         Storage::fake('local');
 
@@ -161,16 +121,6 @@ class GenerateDocumentSummaryTest extends TestCase
                 ],
                 'languages' => collect(LanguageAlpha2::Icelandic),
             ]);
-
-        Http::preventStrayRequests();
-
-        Http::fake([
-            'http://localhost:5000/library/library-id/summary' => Http::response([
-                "id" => $model->ulid,
-                "lang" => "en",
-                "text" => "Summary."
-            ], 200),
-        ]);
 
         $job = new GenerateDocumentSummary($model, $model->latestPipelineRun);
 
@@ -188,5 +138,6 @@ class GenerateDocumentSummaryTest extends TestCase
         $this->assertTrue($summary->ai_generated);
         $this->assertNull($document->description);
         $pdfDriver->assertCount(1);
+        $copilot->assertSummariesGenerated(1);
     }
 }

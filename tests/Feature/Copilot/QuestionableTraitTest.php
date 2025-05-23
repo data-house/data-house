@@ -3,6 +3,7 @@
 namespace Tests\Feature\Copilot;
 
 use App\Copilot\Engines\cloudEngine;
+use App\Copilot\Facades\Copilot;
 use App\Jobs\AskQuestionJob;
 use App\Models\Disk;
 use App\Models\Document;
@@ -27,30 +28,14 @@ class QuestionableTraitTest extends TestCase
 
     public function test_model_can_be_made_synchronously_questionable(): void
     {
-        config([
-            'copilot.driver' => 'cloud',
-            'copilot.queue' => false,
-            'copilot.engines.cloud' => [
-                'host' => 'http://localhost:5000/',
-                'library' => 'library-id',
-            ],
-        ]);
-
-        Http::preventStrayRequests();
+        $copilot = Copilot::fake();
 
         $pdfDriver = Pdf::fake('parse', [
             new DocumentContent("This is the header 1 This is a test PDF to be used as input in unit tests This is a heading 1 This is a paragraph below heading 1")
         ]);
 
-        
         $document = Document::factory()->createQuietly([
             'disk_path' => 'test.pdf',
-        ]);
-
-        Http::fake([
-            'http://localhost:5000/library/library-id/documents' => Http::response([
-                "message" => "Document {$document->getCopilotKey()} added to the library library-id."
-            ], 201),
         ]);
 
         Queue::fake();
@@ -62,11 +47,9 @@ class QuestionableTraitTest extends TestCase
         
         $document->questionable();
 
-        Http::assertSent(function (Request $request) use ($document) {
-            return $request->url() == 'http://localhost:5000/library/library-id/documents' &&
-                   $request['id'] === $document->getCopilotKey() && 
-                   $request['lang'] === 'en';
-        });
+        $copilot->assertDocumentsPushed(1);
+
+        $copilot->assertDocumentPushed($document->getCopilotKey());
 
         $pdfDriver->assertCount(1);
 
@@ -74,16 +57,7 @@ class QuestionableTraitTest extends TestCase
 
     public function test_model_can_be_removed_synchronously_from_questionable(): void
     {
-        config([
-            'copilot.driver' => 'cloud',
-            'copilot.queue' => false,
-            'copilot.engines.cloud' => [
-                'host' => 'http://localhost:5000/',
-                'library' => 'library-id',
-            ],
-        ]);
-
-        Http::preventStrayRequests();
+        $copilot = Copilot::fake();
 
         $pdfDriver = Pdf::fake('parse', []);
         
@@ -91,28 +65,19 @@ class QuestionableTraitTest extends TestCase
             'disk_path' => 'test.pdf',
         ]);
 
-        Http::fake([
-            'http://localhost:5000/library/*' => Http::response([
-                "message" => "Document `{$document->getCopilotKey()}` removed from the library `library-id`."
-            ], 200),
-        ]);
-
         Queue::fake();
 
         Storage::fake(Disk::DOCUMENTS->value);
 
         Storage::putFileAs('', new File(base_path('tests/fixtures/documents/data-house-test-doc.pdf')), 'test.pdf');
-
         
         $document->unquestionable();
 
-        Http::assertSent(function (Request $request) use ($document) {
-            return $request->url() == 'http://localhost:5000/library/library-id/documents/' . $document->getCopilotKey() &&
-                $request->method() === 'DELETE';
-        });
-
         $pdfDriver->assertNoParsingRequests();
 
+        $copilot->assertDocumentsRemoved(1);
+        
+        $copilot->assertDocumentRemoved($document->getCopilotKey());
     }
 
     public function test_driver_instance_returned()
@@ -124,6 +89,7 @@ class QuestionableTraitTest extends TestCase
             'copilot.engines.cloud' => [
                 'host' => 'http://localhost:5000/',
                 'library' => 'library-id',
+                'key' => Str::random(),
             ],
         ]);
 
@@ -136,15 +102,7 @@ class QuestionableTraitTest extends TestCase
 
     public function test_should_be_questionable()
     {
-
-        config([
-            'copilot.driver' => 'cloud',
-            'copilot.queue' => false,
-            'copilot.engines.cloud' => [
-                'host' => 'http://localhost:5000/',
-                'library' => 'library-id',
-            ],
-        ]);
+        $copilot = Copilot::fake();
 
         $document = Document::factory()->createQuietly();
 
@@ -153,16 +111,7 @@ class QuestionableTraitTest extends TestCase
 
     public function test_model_can_be_questioned(): void
     {
-        config([
-            'copilot.driver' => 'cloud',
-            'copilot.queue' => false,
-            'copilot.engines.cloud' => [
-                'host' => 'http://localhost:5000/',
-                'library' => 'library-id',
-            ],
-        ]);
-
-        Http::preventStrayRequests();
+        $copilot = Copilot::fake();
 
         Queue::fake();
         
@@ -189,7 +138,7 @@ class QuestionableTraitTest extends TestCase
             return $job->question->is($answer);
         });
 
-        Http::assertNothingSent();
+        $copilot->assertNoCopilotInteractions();
 
         $this->assertNotNull($questionUuid);
 
@@ -213,16 +162,7 @@ class QuestionableTraitTest extends TestCase
 
     public function test_same_question_can_be_asked_again(): void
     {
-        config([
-            'copilot.driver' => 'cloud',
-            'copilot.queue' => false,
-            'copilot.engines.cloud' => [
-                'host' => 'http://localhost:5000/',
-                'library' => 'library-id',
-            ],
-        ]);
-
-        Http::preventStrayRequests();
+        $copilot = Copilot::fake();
 
         Queue::fake();
         
@@ -262,7 +202,7 @@ class QuestionableTraitTest extends TestCase
             return $job->question->is($answer);
         });
 
-        Http::assertNothingSent();
+        $copilot->assertNoCopilotInteractions();
 
         $this->assertNotNull($questionUuid);
 
@@ -289,16 +229,7 @@ class QuestionableTraitTest extends TestCase
     
     public function test_ensure_other_users_can_ask_same_question(): void
     {
-        config([
-            'copilot.driver' => 'cloud',
-            'copilot.queue' => false,
-            'copilot.engines.cloud' => [
-                'host' => 'http://localhost:5000/',
-                'library' => 'library-id',
-            ],
-        ]);
-
-        Http::preventStrayRequests();
+        $copilot = Copilot::fake();
 
         Queue::fake();
         
@@ -335,7 +266,7 @@ class QuestionableTraitTest extends TestCase
             return $job->question->is($answer);
         });
 
-        Http::assertNothingSent();
+        $copilot->assertNoCopilotInteractions();
 
         $this->assertNotNull($questionUuid);
 

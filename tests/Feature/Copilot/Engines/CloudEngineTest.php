@@ -20,7 +20,20 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use InvalidArgumentException;
+use OneOffTech\LibrarianClient\Requests\Document\CreateDocumentRequest;
+use OneOffTech\LibrarianClient\Requests\Document\DeleteDocumentRequest;
+use OneOffTech\LibrarianClient\Requests\Document\QuestionDocumentRequest;
+use OneOffTech\LibrarianClient\Requests\Library\CreateLibraryRequest;
+use OneOffTech\LibrarianClient\Requests\Library\GetLibraryRequest;
+use OneOffTech\LibrarianClient\Requests\Library\UpdateLibraryRequest;
+use OneOffTech\LibrarianClient\Requests\Prompt\UpdatePromptsRequest;
+use OneOffTech\LibrarianClient\Requests\Question\AggregateQuestionsRequest;
+use OneOffTech\LibrarianClient\Requests\Question\TransformQuestionRequest;
+use OneOffTech\LibrarianClient\Requests\Summary\GenerateSummaryRequest;
 use PrinsFrank\Standards\Language\LanguageAlpha2;
+use Saloon\Http\Faking\MockClient;
+use Saloon\Http\Faking\MockResponse;
+use Saloon\Http\Request as SaloonRequest;
 use Tests\TestCase;
 
 class CloudEngineTest extends TestCase
@@ -32,6 +45,7 @@ class CloudEngineTest extends TestCase
         config([
             'copilot.engines.cloud' => [
                 'host' => 'http://localhost:5000/',
+                'key' => Str::random(),
                 'library' => 'library-id',
                 'library-settings' => [
                     'indexed-fields' => [
@@ -48,15 +62,9 @@ class CloudEngineTest extends TestCase
 
         Queue::fake();
 
-        Http::preventStrayRequests();
-
-        Http::fake([
-            'http://localhost:5000/libraries/library-id' => Http::response([
-                "message" => "Library not found."
-            ], 404),
-            'http://localhost:5000/libraries' => Http::response([
-                "message" => "ok"
-            ], 201),
+        $mockClient = MockClient::global([
+            GetLibraryRequest::class => MockResponse::make('{"message": "not found"}', 404),
+            CreateLibraryRequest::class => MockResponse::make('{"message": "ok"}'),
         ]);
         
         /**
@@ -66,11 +74,16 @@ class CloudEngineTest extends TestCase
 
         $engine->syncLibrarySettings();
 
-        Http::assertSent(function (Request $request) {
-            return $request->url() == 'http://localhost:5000/libraries' &&
-                   $request['id'] == 'library-id' &&
-                   $request['config']['database']['index_fields'][0] == 'resource_id' &&
-                   $request['config']['text']['n_context_chunk'] == 1;
+        $mockClient->assertSent(GetLibraryRequest::class);
+        $mockClient->assertSent(CreateLibraryRequest::class);
+
+        $mockClient->assertSent(function (SaloonRequest $request) {
+            $body = $request->body()->all();
+
+            return $request->resolveEndpoint() === '/libraries/' &&
+                $body['id'] == 'library-id' &&
+                $body['config']->database['index_fields'][0] == 'resource_id' &&
+                $body['config']->text['n_context_chunk'] == 1;
         });
     }
     
@@ -79,6 +92,7 @@ class CloudEngineTest extends TestCase
         config([
             'copilot.engines.cloud' => [
                 'host' => 'http://localhost:5000/',
+                'key' => Str::random(),
                 'library' => 'library-id',
                 'library-settings' => [
                     'indexed-fields' => [
@@ -95,26 +109,25 @@ class CloudEngineTest extends TestCase
 
         Queue::fake();
 
-        Http::preventStrayRequests();
-
-        Http::fake([
-            'http://localhost:5000/libraries/library-id' => Http::response([
-                    "id" => "library-id",
-                    "name" => "Test",
-                    "config" => [
-                      "database" => [
-                        "index_fields" => [
-                          "resource_id"
-                        ]
-                      ],
-                      "text" => [
-                        "n_context_chunk" => 10,
-                        "chunk_length" => 490,
-                        "chunk_overlap" => 10
-                      ],
-                      "enable_guardian" => false
+        $mockClient = MockClient::global([
+            GetLibraryRequest::class => MockResponse::make([
+                "id" => "library-id",
+                "name" => "Test",
+                "config" => [
+                  "database" => [
+                    "index_fields" => [
+                      "resource_id"
                     ]
+                  ],
+                  "text" => [
+                    "n_context_chunk" => 10,
+                    "chunk_length" => 490,
+                    "chunk_overlap" => 10
+                  ],
+                  "enable_guardian" => false
+                ]
             ], 200),
+            UpdateLibraryRequest::class => MockResponse::make('{"message": "ok"}'),
         ]);
 
         /**
@@ -124,14 +137,15 @@ class CloudEngineTest extends TestCase
 
         $engine->syncLibrarySettings();
 
-        Http::assertSent(function (Request $request) {
-            if($request->method() == 'GET'){
-                return true;
-            }
+        $mockClient->assertSent(GetLibraryRequest::class);
+        $mockClient->assertSent(UpdateLibraryRequest::class);
 
-            return $request->method() == 'PUT' && $request->url() == 'http://localhost:5000/libraries/library-id' &&
-                   $request['database']['index_fields'][0] == 'resource_id' &&
-                   $request['text']['n_context_chunk'] == 1;
+        $mockClient->assertSent(function (SaloonRequest $request) {
+            $body = $request->body()->all();
+
+            return $request->resolveEndpoint() === '/libraries/library-id' &&
+                $body['database']['index_fields'][0] == 'resource_id' &&
+                $body['text']['n_context_chunk'] == 1;
         });
     }
     
@@ -140,6 +154,7 @@ class CloudEngineTest extends TestCase
         config([
             'copilot.engines.cloud' => [
                 'host' => 'http://localhost:5000/',
+                'key' => Str::random(),
                 'library' => 'library-id'
             ],
         ]);
@@ -154,16 +169,12 @@ class CloudEngineTest extends TestCase
             'disk_path' => 'test.pdf',
         ]);
 
-        Http::preventStrayRequests();
+        $mockClient = MockClient::global([
+            CreateDocumentRequest::class => MockResponse::make(['message' => 'ok'], 201),
+        ]);
 
         $pdfDriver = Pdf::fake('parse', [
             new DocumentContent("This is the header 1 This is a test PDF to be used as input in unit tests This is a heading 1 This is a paragraph below heading 1")
-        ]);
-
-        Http::fake([
-            'http://localhost:5000/library/library-id/documents' => Http::response([
-                "message" => "Document {$document->getCopilotKey()} added to the library library-id."
-            ], 201),
         ]);
 
         /**
@@ -173,13 +184,17 @@ class CloudEngineTest extends TestCase
 
         $engine->update(Document::all());
 
-        Http::assertSent(function (Request $request) use ($document) {
-            return $request->url() == 'http://localhost:5000/library/library-id/documents' &&
-                   $request['id'] == $document->getCopilotKey() &&
-                   $request['lang'] == 'en';
-        });
-
         $pdfDriver->assertCount(1);
+
+        $mockClient->assertSent(CreateDocumentRequest::class);
+
+        $mockClient->assertSent(function (SaloonRequest $request) use ($document) {
+            $body = $request->body()->all();
+
+            return $request->resolveEndpoint() === '/library/library-id/documents' &&
+                $body['id'] === $document->getCopilotKey() &&
+                $body['lang'] === 'en';
+        });
 
     }
     
@@ -188,6 +203,7 @@ class CloudEngineTest extends TestCase
         config([
             'copilot.engines.cloud' => [
                 'host' => 'http://localhost:5000/',
+                'key' => Str::random(),
                 'library' => 'library-id'
             ],
         ]);
@@ -198,12 +214,8 @@ class CloudEngineTest extends TestCase
             'disk_path' => 'test.pdf',
         ]);
 
-        Http::preventStrayRequests();
-
-        Http::fake([
-            'http://localhost:5000/library/*' => Http::response([
-                "message" => "Document `{$document->getCopilotKey()}` removed from the library `library-id`."
-            ], 200),
+        $mockClient = MockClient::global([
+            DeleteDocumentRequest::class => MockResponse::make(['message' => 'ok']),
         ]);
 
         /**
@@ -213,32 +225,30 @@ class CloudEngineTest extends TestCase
 
         $engine->delete(Document::all());
 
-        Http::assertSent(function (Request $request) use ($document) {
-            return $request->url() == 'http://localhost:5000/library/library-id/documents/' . $document->getCopilotKey() &&
-                   $request->method() === 'DELETE';
+        $mockClient->assertSent(function (SaloonRequest $request) use ($document) {
+            return $request->resolveEndpoint() === '/library/library-id/documents/' . $document->getCopilotKey();
         });
 
     }
 
-    public function test_single_question(): void
+    public function test_engine_executes_single_question(): void
     {
         config([
             'copilot.driver' => 'cloud',
             'copilot.queue' => false,
             'copilot.engines.cloud' => [
                 'host' => 'http://localhost:5000/',
+                'key' => Str::random(),
                 'library' => 'library-id'
             ],
         ]);
 
         Queue::fake();
 
-        Http::preventStrayRequests();
-        
         $id = Str::uuid();
-        
-        Http::fake([
-            'http://localhost:5000/library/library-id/documents/1/questions' => Http::response([
+
+        $mockClient = MockClient::global([
+            QuestionDocumentRequest::class => MockResponse::make([
                 "id" => $id,
                 "lang" => "en",
                 "text" => "Yes, I can provide information and answer questions related to renewable energy and sustainable development based on the context information provided.",
@@ -254,7 +264,7 @@ class CloudEngineTest extends TestCase
                         "page_number" => 4,
                     ]
                 ],
-            ], 200),
+            ]),
         ]);
 
         /**
@@ -290,39 +300,41 @@ class CloudEngineTest extends TestCase
             ],
         ], $response->jsonSerialize());
 
-        Http::assertSent(function (Request $request) use ($id) {
-            return $request->url() == 'http://localhost:5000/library/library-id/documents/1/questions' &&
-                   $request->method() === 'POST' &&
-                   $request['id'] == $id &&
-                   $request['text'] == 'Question text' &&
-                   $request['lang'] == 'en';
+        $mockClient->assertSent(QuestionDocumentRequest::class);
+
+        $mockClient->assertSent(function (SaloonRequest $request) use ($id) {
+            $body = $request->body()->all();
+
+            return $request->resolveEndpoint() === '/library/library-id/documents/1/questions' && 
+                $body['id'] == $id &&
+                $body['text'] == 'Question text' &&
+                $body['lang'] == 'en';
         });
 
     }
 
-    public function test_multiple_question_decomposition(): void
+    public function test_engine_transform_multiple_question(): void
     {
         config([
             'copilot.driver' => 'cloud',
             'copilot.queue' => false,
             'copilot.engines.cloud' => [
                 'host' => 'http://localhost:5000/',
+                'key' => Str::random(),
                 'library' => 'library-id'
             ],
         ]);
 
         Queue::fake();
 
-        Http::preventStrayRequests();
-
         $id = Str::uuid();
 
-        Http::fake([
-            'http://localhost:5000/library/library-id/questions/transform' => Http::response([
+        $mockClient = MockClient::global([
+            TransformQuestionRequest::class => MockResponse::make([
                 "id" => $id,
                 "lang" => "en",
                 "text" => "Transformed Question",
-            ], 200),
+            ]),
         ]);
         
 
@@ -348,39 +360,38 @@ class CloudEngineTest extends TestCase
             "references" => [],
         ], $response->jsonSerialize());
 
-        Http::assertSent(function (Request $request) use ($id) {
-            return $request->url() == 'http://localhost:5000/library/library-id/questions/transform' &&
-                   $request->method() === 'POST' &&
-                   filled($request['question'] ?? []) &&
-                   filled($request['transformation'] ?? []) &&
-                   $request['transformation']['args'][0] == 'Question text' &&
-                   $request['transformation']['id'] == '0' &&
-                   $request['question']['id'] == $id &&
-                   $request['question']['lang'] == 'en' &&
-                   $request['question']['text'] == 'Question text'
-                   ;
+        $mockClient->assertSent(TransformQuestionRequest::class);
+
+        $mockClient->assertSent(function (SaloonRequest $request) use ($id) {
+            $body = $request->body()->all();
+
+            return $request->resolveEndpoint() === '/library/library-id/questions/transform' &&
+                $body['question']['id'] === (string) $id &&
+                $body['question']['lang'] === 'en' &&
+                $body['question']['text'] === 'Question text' &&
+                $body['transformation']['id'] === '0' &&
+                $body['transformation']['args'][0] === 'Question text';
         });
     }
 
-    public function test_multiple_question_aggregation(): void
+    public function test_engine_aggregates_multiple_answers_to_a_question(): void
     {
         config([
             'copilot.driver' => 'cloud',
             'copilot.queue' => false,
             'copilot.engines.cloud' => [
                 'host' => 'http://localhost:5000/',
+                'key' => Str::random(),
                 'library' => 'library-id'
             ],
         ]);
 
         Queue::fake();
 
-        Http::preventStrayRequests();
-
         $id = Str::uuid();
 
-        Http::fake([
-            'http://localhost:5000/library/library-id/questions/aggregate' => Http::response([
+        $mockClient = MockClient::global([
+            AggregateQuestionsRequest::class => MockResponse::make([
                 "id" => $id,
                 "lang" => 'en',
                 "text" => "Aggregated answer.",
@@ -390,7 +401,7 @@ class CloudEngineTest extends TestCase
                         "page_number" => 2,
                     ]
                 ],
-            ], 200),
+            ]),
         ]);
         
 
@@ -446,19 +457,21 @@ class CloudEngineTest extends TestCase
             ],
         ], $response->jsonSerialize());
 
-        Http::assertSent(function (Request $request) use ($id) {
-            return $request->url() == 'http://localhost:5000/library/library-id/questions/aggregate' &&
-                   $request->method() === 'POST' &&
-                   filled($request['question'] ?? []) &&
-                   filled($request['transformation'] ?? []) &&
-                   filled($request['answers'] ?? []) &&
-                   $request['transformation']['args'][0] == 'Question text' &&
-                   $request['transformation']['id'] == '0' &&
-                   is_null($request['transformation']['append']) &&
-                   $request['question']['id'] == $id &&
-                   $request['question']['lang'] == 'en' &&
-                   $request['question']['text'] == 'Question text'
-                   ;
+        $mockClient->assertSent(AggregateQuestionsRequest::class);
+
+        $mockClient->assertSent(function (SaloonRequest $request) use ($id) {
+            $body = $request->body()->all();
+
+            return $request->resolveEndpoint() === '/library/library-id/questions/aggregate' &&
+                filled($body['question'] ?? []) &&
+                filled($body['transformation'] ?? []) &&
+                filled($body['answers'] ?? []) &&
+                $body['transformation']['args'][0] == 'Question text' &&
+                $body['transformation']['id'] == '0' &&
+                empty($body['transformation']['append']) &&
+                $body['question']['id'] == (string) $id &&
+                $body['question']['lang'] == 'en' &&
+                $body['question']['text'] == 'Question text';
         });
     }
 
@@ -469,18 +482,17 @@ class CloudEngineTest extends TestCase
             'copilot.queue' => false,
             'copilot.engines.cloud' => [
                 'host' => 'http://localhost:5000/',
+                'key' => Str::random(),
                 'library' => 'library-id'
             ],
         ]);
 
         Queue::fake();
 
-        Http::preventStrayRequests();
-
         $id = Str::uuid();
 
-        Http::fake([
-            'http://localhost:5000/library/library-id/questions/aggregate' => Http::response([
+        $mockClient = MockClient::global([
+            AggregateQuestionsRequest::class => MockResponse::make([
                 "id" => $id,
                 "lang" => 'en',
                 "text" => "Aggregated answer.",
@@ -490,7 +502,7 @@ class CloudEngineTest extends TestCase
                         "page_number" => 2,
                     ]
                 ],
-            ], 200),
+            ]),
         ]);
         
 
@@ -546,21 +558,23 @@ class CloudEngineTest extends TestCase
             ],
         ], $response->jsonSerialize());
 
-        Http::assertSent(function (Request $request) use ($id) {
-            return $request->url() == 'http://localhost:5000/library/library-id/questions/aggregate' &&
-                   $request->method() === 'POST' &&
-                   filled($request['question'] ?? []) &&
-                   filled($request['transformation'] ?? []) &&
-                   filled($request['answers'] ?? []) &&
-                   $request['transformation']['args'][0] == 'Question text' &&
-                   $request['transformation']['id'] == '0' &&
-                   is_array($request['transformation']['append']) &&
-                   $request['transformation']['append'][0]['id'] === 'q1' &&
-                   $request['transformation']['append'][0]['text'] === 'Append' &&
-                   $request['question']['id'] == $id &&
-                   $request['question']['lang'] == 'en' &&
-                   $request['question']['text'] == 'Question text'
-                   ;
+        $mockClient->assertSent(AggregateQuestionsRequest::class);
+
+        $mockClient->assertSent(function (SaloonRequest $request) use ($id) {
+            $body = $request->body()->all();
+
+            return $request->resolveEndpoint() === '/library/library-id/questions/aggregate' &&
+                filled($body['question'] ?? []) &&
+                filled($body['transformation'] ?? []) &&
+                filled($body['answers'] ?? []) &&
+                $body['transformation']['args'][0] == 'Question text' &&
+                $body['transformation']['id'] == '0' &&
+                is_array($body['transformation']['append']) &&
+                $body['transformation']['append'][0]['id'] === 'q1' &&
+                $body['transformation']['append'][0]['text'] === 'Append' &&
+                $body['question']['id'] == (string) $id &&
+                $body['question']['lang'] == 'en' &&
+                $body['question']['text'] == 'Question text';
         });
     }
 
@@ -571,22 +585,21 @@ class CloudEngineTest extends TestCase
             'copilot.queue' => false,
             'copilot.engines.cloud' => [
                 'host' => 'http://localhost:5000/',
+                'key' => Str::random(),
                 'library' => 'library-id',
             ],
         ]);
 
         Queue::fake();
 
-        Http::preventStrayRequests();
-
         $id = Str::uuid();
 
-        Http::fake([
-            'http://localhost:5000/library/library-id/summary' => Http::response([
+        $mockClient = MockClient::global([
+            GenerateSummaryRequest::class => MockResponse::make([
                 "id" => $id,
                 "lang" => "en",
                 "text" => "Summary."
-            ], 200),
+            ]),
         ]);
 
         /**
@@ -605,12 +618,15 @@ class CloudEngineTest extends TestCase
             "references" => [],
         ], $response->jsonSerialize());
 
-        Http::assertSent(function (Request $request) use ($id) {
-            return $request->url() == 'http://localhost:5000/library/library-id/summary' &&
-                   $request->method() === 'POST' &&
-                   $request['text']['id'] == $id &&
-                   $request['text']['text'] == 'The text to summarize' &&
-                   $request['text']['lang'] == 'en';
+        $mockClient->assertSent(GenerateSummaryRequest::class);
+
+        $mockClient->assertSent(function (SaloonRequest $request) use ($id) {
+            $body = $request->body()->all();
+
+            return $request->resolveEndpoint() === '/library/library-id/summary' &&
+                $body['id'] == $id &&
+                $body['text'] == 'The text to summarize' &&
+                $body['lang'] == 'en';
         });
     }
 
@@ -621,26 +637,55 @@ class CloudEngineTest extends TestCase
             'copilot.queue' => false,
             'copilot.engines.cloud' => [
                 'host' => 'http://localhost:5000/',
+                'key' => Str::random(),
             ],
         ]);
 
         Queue::fake();
 
-        Http::preventStrayRequests();
-
-        $id = Str::uuid();
+        $mockClient = MockClient::global([
+            GenerateSummaryRequest::class => MockResponse::make([], 404),
+        ]);
 
         /**
          * @var \App\Copilot\Engines\Engine
          */
         $engine = app(CopilotManager::class)->driver('cloud');
         
-        $request = new CopilotSummarizeRequest($id, 'The text to summarize', LanguageAlpha2::French);
+        $request = new CopilotSummarizeRequest(Str::uuid(), 'The text to summarize', LanguageAlpha2::French);
 
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('French language not supported. Automated summaries are supported only for text in English, German, Spanish_Castilian.');
 
         $response = $engine->summarize($request);
+
+        $mockClient->assertNotSent(GenerateSummaryRequest::class);
+    }
+
+    public function test_refresh_prompts(): void
+    {
+        config([
+            'copilot.driver' => 'cloud',
+            'copilot.queue' => false,
+            'copilot.engines.cloud' => [
+                'host' => 'http://localhost:5000/',
+                'key' => Str::random(),
+            ],
+        ]);
+
+        $mockClient = MockClient::global([
+            UpdatePromptsRequest::class => MockResponse::make(['message' => 'ok']),
+        ]);
+
+        /**
+         * @var \App\Copilot\Engines\Engine
+         */
+        $engine = app(CopilotManager::class)->driver('cloud');
+
+        $engine->refreshPrompts();
+
+        $mockClient->assertSent(UpdatePromptsRequest::class);
+
     }
 
 

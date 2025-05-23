@@ -24,6 +24,7 @@
         "livewire/livewire": "^3.4",
         "meilisearch/meilisearch-php": "^1.1",
         "oneofftech/laravel-language-recognizer": "^0.2.0",
+        "oneofftech/librarian-client": "dev-main",
         "oneofftech/parse-client": "^0.2",
         "prinsfrank/standards": "^3.1",
         "rinvex/countries": "^9.0",
