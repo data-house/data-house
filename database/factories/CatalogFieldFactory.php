@@ -20,7 +20,7 @@ class CatalogFieldFactory extends Factory
     {
         return [
             'title' => fake()->sentence(),
-            'catalog_id' => Catalog::factory()->withPersonalTeam(),
+            'catalog_id' => Catalog::factory(),
             'user_id' => function($attributes){
                 return Catalog::find($attributes['catalog_id'])->user->getKey();
             },

@@ -2,6 +2,8 @@
 
 namespace Database\Factories;
 
+use App\CatalogFieldType;
+use App\Models\CatalogField;
 use App\Models\User;
 use App\Models\Visibility;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -35,5 +37,17 @@ class CatalogFactory extends Factory
                 'visibility' => Visibility::PROTECTED,
             ];
         });
+    }
+
+    public function withTextField(): self
+    {
+        return $this->withField(
+            fieldType: CatalogFieldType::TEXT
+        );
+    }
+
+    public function withField(CatalogFieldType $fieldType = CatalogFieldType::TEXT): self
+    {
+        return $this->has(CatalogField::factory()->state(['data_type' => $fieldType]), 'fields');
     }
 }
