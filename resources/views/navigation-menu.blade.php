@@ -26,6 +26,11 @@
                             <x-flyer-link wire:navigate href="{{ route('documents.library') }}" :active="request()->routeIs('documents.*') || request()->routeIs('imports.*') || request()->routeIs('mappings.*') || request()->routeIs('collections.*')">
                                 {{ __('Documents') }}
                             </x-flyer-link>
+                            @can('viewAny', \App\Models\Catalog::class)
+                            <x-flyer-link wire:navigate href="{{ route('catalogs.index') }}" :active="request()->routeIs('catalogs.*')">
+                                {{ __('Catalogs') }}
+                            </x-flyer-link>
+                            @endcan
                             @can('viewAny', \App\Models\Question::class)
                                 <x-flyer-link wire:navigate href="{{ route('questions.index') }}" :active="request()->routeIs('questions.*')">{{ __('Questions') }}</x-flyer-link>
                             @endcan
@@ -53,6 +58,11 @@
                     <x-nav-link href="{{ route('documents.library') }}" :active="request()->routeIs('documents.*') || request()->routeIs('imports.*') || request()->routeIs('mappings.*') || request()->routeIs('collections.*')">
                         {{ __('Documents') }}
                     </x-nav-link>
+                    @can('viewAny', \App\Models\Catalog::class)
+                        <x-nav-link href="{{ route('catalogs.index') }}" :active="request()->routeIs('catalogs.*')">
+                            {{ __('Catalogs') }}
+                        </x-nav-link>
+                    @endcan
                     @can('viewAny', \App\Models\Question::class)
                         <x-nav-link href="{{ route('questions.index') }}" :active="request()->routeIs('questions.*')">{{ __('Questions') }}</x-nav-link>
                     @endcan
