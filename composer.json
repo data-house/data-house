@@ -2,7 +2,11 @@
     "name": "data-house/data-house",
     "type": "project",
     "description": "Data House is a piloting platform to test possible Knowledge Management interventions.",
-    "keywords": ["knowledge-management", "pilot", "km"],
+    "keywords": [
+        "knowledge-management",
+        "pilot",
+        "km"
+    ],
     "license": "AGPLv3",
     "require": {
         "php": "^8.3",
@@ -10,6 +14,8 @@
         "blade-ui-kit/blade-icons": "^1.5",
         "cloudmeshdev/livewire-slideover": "^1.0",
         "codeat3/blade-codicons": "^1.31",
+        "filament/forms": "^3.3",
+        "filament/tables": "^3.3",
         "http-interop/http-factory-guzzle": "^1.2",
         "intervention/image-laravel": "^1.5",
         "laravel/framework": "^12.0",
@@ -61,7 +67,8 @@
     "scripts": {
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
-            "@php artisan package:discover --ansi"
+            "@php artisan package:discover --ansi",
+            "@php artisan filament:upgrade"
         ],
         "post-update-cmd": [
             "@php artisan vendor:publish --tag=laravel-assets --ansi --force"
