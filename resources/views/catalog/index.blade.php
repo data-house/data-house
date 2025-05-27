@@ -24,6 +24,9 @@
                         <h3 class="text-lg font-semibold text-gray-900 mb-4">{{ __('Getting Started') }}</h3>
                         <div class="flex items-center justify-between">
                             <div class="space-y-2">
+
+                                <p>lets you turn any set of notes into a powerful database. With bases you can organize everything from projects to travel plans, reading lists, and more</p>
+
                                 <p class="text-sm text-gray-600">{{ __('New to catalogs? Follow these steps:') }}</p>
                                 <ol class="list-decimal list-inside space-y-2 text-sm text-gray-600">
                                     <li>{{ __('Create a new catalog for your documents') }}</li>

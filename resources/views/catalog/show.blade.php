@@ -6,7 +6,16 @@
         <x-page-heading :title="$catalog->title">
 
             <x-slot:actions>
-                
+                @can('create', \App\Models\CatalogEntry::class)
+                    <x-button x-init  x-on:click="Livewire.dispatch('openSlideover', {component: 'catalog.create-entry-slideover', arguments: {catalogId: '{{ $catalog->getKey() }}'}})" size="sm">
+                        {{ __('Add Entry') }}
+                    </x-button>
+                @endcan
+                @can('create', \App\Models\CatalogField::class)
+                    <x-button class="mt-4" x-init x-on:click="Livewire.dispatch('openSlideover', {component: 'catalog.create-field-slideover', arguments: {catalog: '{{ $catalog->getKey() }}'}})">
+                        {{ __('Add Field') }}
+                    </x-button>
+                @endcan
             </x-slot>
 
         </x-page-heading>
@@ -41,9 +50,111 @@
                     </div>
                 </div>
 
-                <div class="col-span-12  lg:col-span-8 xl:col-span-9">
+                <div class="col-span-12 lg:col-span-8 xl:col-span-9">
+                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                        <div class="p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-semibold text-gray-900">{{ __('Entries') }}</h3>
+                                <div class="flex space-x-3">
+                                    <x-button x-init  x-on:click="Livewire.dispatch('openSlideover', {component: 'catalog.create-entry-slideover', arguments: {catalogId: '{{ $catalog->getKey() }}'}})" size="sm">
+                                        {{ __('Add Entry') }}
+                                    </x-button>
+                                </div>
+                            </div>
 
-                    Show entries and columns
+                            @if($fields->isEmpty())
+                                <div class="text-center py-8">
+                                    <div class="mx-auto w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center mb-4">
+                                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                                        </svg>
+                                    </div>
+                                    <p class="text-sm text-gray-500">{{ __('No fields defined') }}</p>
+                                    <p class="mt-1 text-sm text-gray-500">{{ __('Add fields to your catalog to define its structure.') }}</p>
+                                    <x-button class="mt-4" x-init x-on:click="Livewire.dispatch('openSlideover', {component: 'catalog.create-field-slideover', arguments: {catalog: '{{ $catalog->getKey() }}'}})">
+                                        {{ __('Add Field') }}
+                                    </x-button>
+                                </div>
+                            @else
+                                <div class="relative overflow-x-auto">
+                                    <table class="w-full text-sm text-left text-gray-500">
+                                        <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                                            <tr>
+                                                @foreach($fields as $field)
+                                                    <th scope="col" class="px-6 py-3 whitespace-nowrap">
+                                                        {{ $field->title }}
+                                                        <div class="text-xs font-normal text-gray-500 uppercase">{{ $field->data_type->name }}</div>
+                                                    </th>
+                                                @endforeach
+                                                <th scope="col" class="px-6 py-3 whitespace-nowrap">
+                                                    {{ __('Actions') }}
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @forelse($entries as $entry)
+                                                <tr class="bg-white border-b hover:bg-gray-50">
+                                                    @foreach($fields as $field)
+                                                        <td class="px-6 py-4">
+                                                            @php
+                                                                $value = $entry->catalogValues->first(function($value) use ($field) {
+                                                                    return $value->catalogField->id === $field->id;
+                                                                });
+                                                            @endphp
+                                                            
+                                                            @if($value)
+                                                                @switch($field->data_type)
+                                                                    @case(\App\CatalogFieldType::TEXT)
+                                                                        {{ $value->value_text }}
+                                                                        @break
+                                                                    @case(\App\CatalogFieldType::NUMBER)
+                                                                        {{ $value->value_float }}
+                                                                        @break
+                                                                    @case(\App\CatalogFieldType::DATETIME)
+                                                                        {{ $value->value_date?->toDateString() }}
+                                                                        @break
+                                                                    @case(\App\CatalogFieldType::BOOLEAN)
+                                                                        @if($value->value_bool)
+                                                                            <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                                                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                                                            </svg>
+                                                                        @endif
+                                                                        @break
+                                                                    @case(\App\CatalogFieldType::SKOS_CONCEPT)
+                                                                        {{ optional($value->skosConcept)->prefLabel }}
+                                                                        @break
+                                                                    @default
+                                                                        {{ $value->value }}
+                                                                @endswitch
+                                                            @endif
+                                                        </td>
+                                                    @endforeach
+                                                    <td class="px-6 py-4 whitespace-nowrap">
+                                                        <div class="flex items-center space-x-3">
+                                                            <button type="button" class="text-blue-600 hover:text-blue-900"
+                                                                x-on:click="Livewire.dispatch('openSlideover', {component: 'catalog.edit-entry-slideover', arguments: {entryId: '{{ $entry->uuid }}'}})">
+                                                                {{ __('Edit') }}
+                                                            </button>
+                                                            <button type="button" class="text-red-600 hover:text-red-900"
+                                                                x-on:click="Livewire.dispatch('openModal', {component: 'catalog.delete-entry-modal', arguments: {entryId: '{{ $entry->uuid }}'}})">
+                                                                {{ __('Delete') }}
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            @empty
+                                                <tr>
+                                                    <td colspan="{{ $fields->count() + 1 }}" class="px-6 py-4 text-center text-sm text-gray-500">
+                                                        {{ __('No entries yet') }}
+                                                    </td>
+                                                </tr>
+                                            @endforelse
+                                        </tbody>
+                                    </table>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
                     
                         {{-- @if($catalogs->isEmpty())
                             <div class="text-center py-8" x-data>

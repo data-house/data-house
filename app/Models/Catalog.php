@@ -10,6 +10,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Catalog extends Model
 {
+
+    /**
+     * Think of renaming to BASES, like Obsidian does
+     */
+
     /** @use HasFactory<\Database\Factories\CatalogFactory> */
     use HasFactory;
 
@@ -69,6 +74,10 @@ class Catalog extends Model
         return $this->hasMany(CatalogField::class);
     }
 
+    public function entries(): HasMany
+    {
+        return $this->hasMany(CatalogEntry::class);
+    }
 
     /**
      * Check if the catalog is viewable by a user

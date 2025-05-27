@@ -26,8 +26,15 @@ class CatalogController extends Controller
      */
     public function show(Catalog $catalog)
     {
+        $fields = $catalog->fields()->orderBy('order')->get();
+        $entries = $catalog->entries()->with(['catalogValues.catalogField'])->get();
+
+        dump($entries);
+
         return view('catalog.show', [
             'catalog' => $catalog,
+            'fields' => $fields,
+            'entries' => $entries,
         ]);
     }
 }

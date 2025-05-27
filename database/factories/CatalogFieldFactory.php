@@ -19,7 +19,7 @@ class CatalogFieldFactory extends Factory
     public function definition(): array
     {
         return [
-            'title' => fake()->sentence(),
+            'title' => fake()->word(),
             'catalog_id' => Catalog::factory(),
             'user_id' => function($attributes){
                 return Catalog::find($attributes['catalog_id'])->user->getKey();
