@@ -30,31 +30,6 @@
         <x-textarea id="description" wire:model="editingForm.description" name="description" class="mt-1 block w-full" />
     </div>
 
-    @if($editingForm['data_type'])
-        <div class="mt-4">
-            <x-label for="constraints" value="{{ __('Constraints') }}" />
-            <p class="text-stone-600 text-sm mt-1">
-                @switch($editingForm['data_type'])
-                    @case(\App\CatalogFieldType::TEXT->value)
-                    @case(\App\CatalogFieldType::RICH_TEXT->value)
-                        {{ __('Optional. Define minimum and maximum length constraints in JSON format. Example: {"min": 10, "max": 1000}') }}
-                        @break
-                    @case(\App\CatalogFieldType::NUMBER->value)
-                        {{ __('Optional. Define minimum and maximum value constraints in JSON format. Example: {"min": 0, "max": 100}') }}
-                        @break
-                    @case(\App\CatalogFieldType::DATE->value)
-                    @case(\App\CatalogFieldType::DATETIME->value)
-                        {{ __('Optional. Define date range constraints in JSON format. Example: {"min": "2024-01-01", "max": "2024-12-31"}') }}
-                        @break
-                    @default
-                        {{ __('Optional. Define field-specific constraints in JSON format.') }}
-                @endswitch
-            </p>
-            <x-input-error for="editingForm.constraints" class="mt-2" />
-            <x-textarea id="constraints" wire:model="editingForm.constraints" name="constraints" class="mt-1 block w-full font-mono text-sm" placeholder='{"min": 0, "max": 100}' />
-        </div>
-    @endif
-
     <x-slot name="actions">
         <x-button type="submit">
             <span wire:loading.remove wire:target="storeField">{{ __('Add field') }}</span>

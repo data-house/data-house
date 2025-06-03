@@ -70,7 +70,7 @@ class CreateFieldSlideover extends SlideoverComponent
 
         $this->dispatch('field-created');
 
-        // TODO: think about the best way to refresh the view
+        $this->closeSlideover();
         
     }
 
