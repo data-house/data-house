@@ -45,8 +45,4 @@ return new class extends Migration
         Schema::dropIfExists('catalog_entries');
     }
 
-    // public function shouldRun(): bool
-    // {
-    //     return false;
-    // }
 };

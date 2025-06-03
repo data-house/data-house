@@ -31,14 +31,14 @@ class CreateCatalogEntry
          */
         $user = $user ?? auth()->user();
 
-        logs()->info("Update on catalog");
+        
         
         throw_unless($user->can('update', $catalog), AuthorizationException::class);
         
-        logs()->info("Create on entry");
+        
         throw_unless($user->can('create', CatalogEntry::class), AuthorizationException::class);
 
-        logs()->info("Before validation");
+        
         Validator::make($data, [
             'document_id' => ['nullable', 'exists:documents,id'],
             'project_id' => ['nullable', 'exists:projects,id'],
@@ -54,17 +54,10 @@ class CreateCatalogEntry
 
         $valuesMappedToCatalogValues = collect($data['values'])->map(function($val) use ($user, $catalog, $fields){
 
-            logs()->info("Mapping value", ['val' => $val, 'fields' => $fields]);
-
             $type = $fields[$val['field']];
 
             return [
                 $type->valueFieldName() => $val['value'],
-                // 'value_int' => null,
-                // 'value_date' => null,
-                // 'value_float' => null,
-                // 'value_bool' => null,
-                // 'value_concept' => null,
                 'user_id' => $user->getKey(),
                 'catalog_id' => $catalog->getKey(),
                 'catalog_field_id' => $val['field'],
@@ -76,7 +69,7 @@ class CreateCatalogEntry
          */
         $entry = DB::transaction(function() use ($user, $data, $catalog, $valuesMappedToCatalogValues){
 
-            $entry = CatalogEntry::forceCreate([
+            $entry = CatalogEntry::create([
                     'catalog_id' => $catalog->getKey(),
                     // 'document_id' => ,
                     // 'project_id' => ,

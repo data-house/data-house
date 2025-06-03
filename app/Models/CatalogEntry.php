@@ -8,13 +8,17 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Spatie\EloquentSortable\Sortable;
+use Spatie\EloquentSortable\SortableTrait;
 
-class CatalogEntry extends Model
+class CatalogEntry extends Model implements Sortable
 {
     /** @use HasFactory<\Database\Factories\CatalogEntryFactory> */
     use HasFactory;
 
     use HasUuids;
+
+    use SortableTrait;
 
     protected $fillable = [
         'entry_index',
@@ -22,6 +26,15 @@ class CatalogEntry extends Model
         'user_id',
         'document_id',
         'project_id',
+    ];
+
+    /**
+     * Configure how sorting fields work
+     */
+    public $sortable = [
+        'order_column_name' => 'entry_index',
+        'sort_when_creating' => true,
+        'ignore_timestamps' => true, // do not touch update_at when sorting
     ];
 
     protected function casts(): array
@@ -49,6 +62,15 @@ class CatalogEntry extends Model
     public function getRouteKeyName()
     {
         return 'uuid';
+    }
+
+    /**
+     * Create the sorting query to populate the order column when adding or moving a field
+     */
+    public function buildSortQuery()
+    {
+        return static::query()
+            ->where('catalog_id', $this->catalog_id);
     }
 
     public function user(): BelongsTo

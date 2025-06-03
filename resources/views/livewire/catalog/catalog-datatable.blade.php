@@ -63,7 +63,7 @@
                     @forelse($entries as $entry)
                         <tr class="bg-white border-b hover:bg-gray-50 group">
                             <td class="px-6 py-4 sticky left-0 bg-white group-hover:bg-gray-50">
-                                {{ $loop->iteration }}
+                                {{ $entry->entry_index }}
                             </td>
                             @foreach($fields as $field)
                                 <td class="px-6 py-4">
@@ -130,6 +130,9 @@
                 </tbody>
             </table>
 
+        </div>
+
+        <div class="mt-4">
             {{ $entries->links() }}
         </div>
     @endif
