@@ -31,29 +31,40 @@ class CreateCatalogEntry
          */
         $user = $user ?? auth()->user();
 
+        logs()->info("Update on catalog");
+        
         throw_unless($user->can('update', $catalog), AuthorizationException::class);
+        
+        logs()->info("Create on entry");
         throw_unless($user->can('create', CatalogEntry::class), AuthorizationException::class);
 
+        logs()->info("Before validation");
         Validator::make($data, [
             'document_id' => ['nullable', 'exists:documents,id'],
             'project_id' => ['nullable', 'exists:projects,id'],
-            'description' => ['nullable', 'string', 'max:6000'],
             'values' => ['required', 'array', 'min:1'],
-            'values.*.field' => ['required', 'string', /* 'uuid' */ ], // TODO: validate existence in catalog fields
+            'values.*.field' => ['required', 'integer', /* 'uuid' */ ], // TODO: validate existence in catalog fields
             'values.*.value' => ['nullable'],
         ])->validate();
 
         // TODO: after initial validation all fields should be validated against the specific field constraints
 
+        $fields = $catalog->fields()->get()->mapWithKeys(fn($field) => [$field->id => $field->data_type]);
 
-        $valuesMappedToCatalogValues = collect($data['values'])->map(function($val) use ($user, $catalog){
+
+        $valuesMappedToCatalogValues = collect($data['values'])->map(function($val) use ($user, $catalog, $fields){
+
+            logs()->info("Mapping value", ['val' => $val, 'fields' => $fields]);
+
+            $type = $fields[$val['field']];
+
             return [
-                'value_text' => $val['value'],
-                'value_int' => null,
-                'value_date' => null,
-                'value_float' => null,
-                'value_bool' => null,
-                'value_concept' => null,
+                $type->valueFieldName() => $val['value'],
+                // 'value_int' => null,
+                // 'value_date' => null,
+                // 'value_float' => null,
+                // 'value_bool' => null,
+                // 'value_concept' => null,
                 'user_id' => $user->getKey(),
                 'catalog_id' => $catalog->getKey(),
                 'catalog_field_id' => $val['field'],

@@ -3,6 +3,11 @@
 namespace App\Models;
 
 use App\CatalogFieldType;
+use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\Field;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -85,5 +90,51 @@ class CatalogField extends Model implements Sortable
     {
         return static::query()
             ->where('catalog_id', $this->catalog_id);
+    }
+
+
+    /**
+     * Return the Laravel validation rules to use when verifying input data for this field
+     */
+    public function validationRules(): array
+    {
+        return array_filter([
+            'nullable',
+            $this->data_type === CatalogFieldType::TEXT || $this->data_type === CatalogFieldType::MULTILINE_TEXT ? 'min:1' : null,
+            $this->data_type === CatalogFieldType::TEXT ? 'max:600' : null,
+            $this->data_type === CatalogFieldType::MULTILINE_TEXT ? 'max:6000' : null,
+            $this->data_type === CatalogFieldType::NUMBER ? 'numeric' : null,
+            $this->data_type === CatalogFieldType::DATETIME ? 'date' : null,
+            $this->data_type === CatalogFieldType::BOOLEAN ? 'boolean' : null,
+        ]);
+    }
+
+
+    public function toFilamentField(): Field
+    {
+
+        $html_identifier = "f_{$this->id}";
+
+        $fieldInstanceType = match($this->data_type) {
+            CatalogFieldType::TEXT => TextInput::make($html_identifier),
+            CatalogFieldType::MULTILINE_TEXT => Textarea::make($html_identifier)->autosize(),
+            CatalogFieldType::NUMBER => TextInput::make($html_identifier)->numeric()->inputMode('decimal'),
+            CatalogFieldType::DATETIME => DateTimePicker::make($html_identifier),
+            CatalogFieldType::BOOLEAN => Toggle::make($html_identifier)->default(false),
+            // CatalogFieldType::SKOS_CONCEPT => 'value_concept',
+        };
+
+        if($this->order === 1)
+        {
+            $fieldInstanceType
+                ->autofocus();
+        }
+
+        return $fieldInstanceType
+            ->nullable()
+            ->label($this->title)
+            ->validationAttribute($this->title)
+            ->helperText($this->description)
+            ->rules($this->validationRules());
     }
 }

@@ -28,6 +28,8 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rules\Password;
 use Laravel\Pennant\Feature;
 use App\Rules\PasswordDoesNotContainEmail;
+use Filament\Support\Colors\Color;
+use Filament\Support\Facades\FilamentColor;
 use Livewire\Livewire;
 
 class AppServiceProvider extends ServiceProvider
@@ -96,6 +98,15 @@ class AppServiceProvider extends ServiceProvider
                 ->mixedCase()
                 ->rules(new PasswordMaximumLength, new PasswordDoesNotContainEmail(auth()->user()->email ?? request()->input('email')));
         });
+
+        FilamentColor::register([
+            'danger' => Color::Red,
+            'gray' => Color::Stone,
+            'info' => Color::Blue,
+            'primary' => Color::Lime,
+            'success' => Color::Green,
+            'warning' => Color::Amber,
+        ]);
     }
 
     protected function configureGates()

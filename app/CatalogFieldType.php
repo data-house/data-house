@@ -5,9 +5,14 @@ namespace App;
 enum CatalogFieldType: int
 {
     /**
-     * A single or multiline field
+     * A single line text field
      */
-    case TEXT = 10; // both single line and multiline
+    case TEXT = 10;
+    
+    /**
+     * A multiline text field
+     */
+    case MULTILINE_TEXT = 11;
 
     /**
      * A number field (integer or float)
@@ -28,4 +33,29 @@ enum CatalogFieldType: int
      * A single SKOS Concept contained in a specific SKOS Collection
      */
     case SKOS_CONCEPT = 50;
+
+    public function icon(): string
+    {
+        return match($this) {
+            self::TEXT => 'heroicon-m-bars-3-bottom-left',
+            self::MULTILINE_TEXT => 'heroicon-m-bars-4',
+            self::NUMBER => 'heroicon-m-hashtag',
+            self::DATETIME => 'heroicon-m-calendar',
+            self::BOOLEAN => 'heroicon-m-check-circle',
+            self::SKOS_CONCEPT => 'heroicon-m-tag',
+        };
+    }
+    
+    public function valueFieldName(): string
+    {
+        return match($this) {
+            self::TEXT => 'value_text',
+            self::MULTILINE_TEXT => 'value_text',
+            self::NUMBER => 'value_float',
+            self::DATETIME => 'value_date',
+            self::BOOLEAN => 'value_bool',
+            self::SKOS_CONCEPT => 'value_concept',
+        };
+    }
+    
 }
