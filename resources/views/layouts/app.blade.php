@@ -13,6 +13,8 @@
         {{-- Styles --}}
         @livewireStyles
 
+        @filamentStyles
+
         <x-analytics::tracking-code />
     </head>
     <body class="font-sans antialiased">
@@ -41,6 +43,8 @@
         @stack('modals')
 
         @livewireScriptConfig
+
+        @filamentScripts
 
         @livewire('livewire-ui-slideover')
     </body>
