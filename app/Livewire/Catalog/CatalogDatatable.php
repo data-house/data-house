@@ -8,6 +8,7 @@ use App\Models\Catalog;
 use App\Models\CatalogField;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Locked;
+use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -19,6 +20,12 @@ class CatalogDatatable extends Component
 
     #[Locked]
     public $catalogId;
+
+    #[Url(as: 'sort', history: true)]
+    public ?int $sort_by = null;
+
+    #[Url(as: 'direction', history: true)]
+    public ?string $sort_direction = null;
 
     protected $listeners = [
         'field-created' => 'refresh',
@@ -42,37 +49,91 @@ class CatalogDatatable extends Component
     #[Computed()]
     public function fields()
     {
-
-        return $this->catalog->fields()->orderBy('order')->get();
+        return $this->catalog->fields()->ordered()->get();
     }
 
     #[Computed()]
     public function entries()
     {
+        $sorting_field = filled($this->sort_by) ? $this->fields->where('order', $this->sort_by)->sole() : null;
 
-        return $this->catalog->entries()->with(['catalogValues.catalogField'])->paginate();
+        return $this->catalog->entries()
+            ->with(['catalogValues.catalogField'])
+            // sort by entry no ascending if no sorting option defined
+            ->when(blank($this->sort_by), function($query){
+                $query->orderBy('entry_index', $this->sort_direction === 'desc' ? 'desc' : 'asc');
+            })
+            ->paginate();
     }
 
 
-    public function fieldsSorted(array $items)
+    // Move field order
+    public function moveFieldRight(int $index)
     {
-        $currentOrder = $this->fields->pluck('id', 'order');
-        
-        $order = collect($items)->pluck('value')->toArray();
+        $fields = $this->fields;
 
-        $movedFields = $currentOrder->values()->diffAssoc($order);
+        if($index >= $fields->count()){
+            return;
+        }
 
-        dd(compact('currentOrder', 'order', 'movedFields'));
+        $current = $fields->where('order', $index)->sole();
+        $next = $fields->where('order', $index+1)->sole();
 
-        // CatalogField::setNewOrder(ids: $order, modifyQuery: function(Builder $query){
-        //     $query->where('catalog_id', $this->catalog->getKey());
-        // });
+        CatalogField::swapOrder($current, $next);
 
-        // unset($this->days);
-        // $movedDays->each(fn($day) => $this->dispatch("day-{$day}-updated"));
+        unset($this->fields);
     }
+    
+    public function moveFieldLeft(int $index)
+    {
+        $fields = $this->fields;
 
+        if($index <= 1){
+            return;
+        }
 
+        $current = $fields->where('order', $index)->sole();
+        $previous = $fields->where('order', $index-1)->sole();
+
+        CatalogField::swapOrder($current, $previous);
+
+        unset($this->fields);
+    }
+    
+    // Sorting
+    public function sortAscending(int $index)
+    {
+        $fields = $this->fields;
+
+        if($index < 1){
+            $this->sort_by = null;
+            $this->sort_direction = 'asc';
+            $this->resetPage();
+            return;
+        }
+
+        if($index >= $fields->count()){
+            return;
+        }
+
+        $this->sort_by = $index;
+        $this->sort_direction = 'asc';
+        $this->resetPage();
+    }
+    
+    public function sortDescending(int $index)
+    {
+        if($index < 1){
+            $this->sort_by = null;
+            $this->sort_direction = 'desc';
+            $this->resetPage();
+            return;
+        }
+
+        $this->sort_by = $index;
+        $this->sort_direction = 'desc';
+        $this->resetPage();
+    }
 
 
     public function render()

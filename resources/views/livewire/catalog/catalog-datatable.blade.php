@@ -17,29 +17,73 @@
 
             <table class="w-full text-sm text-left" 
             >
-                <thead class="text-xs text-stone-700 bg-stone-50">
+                <thead class="text-xs text-stone-700 bg-stone-50 sticky top-0">
                     <tr>
-                        <th scope="col" class=" font-normal px-6 py-3 whitespace-nowrap sticky left-0 bg-stone-50">
-                            {{ __('No') }}
+                        <th scope="col" class=" font-normal whitespace-nowrap sticky left-0 bg-stone-50">
+                            <x-popover>
+                                    <x-slot name="trigger" class="font-normal px-6 py-3 whitespace-nowrap inline-flex gap-1 items-center hover:bg-stone-100">
+        
+                                        {{ __('No') }}
+                                            
+                                        <x-heroicon-m-ellipsis-horizontal class="ms-1 size-4" />
+                                    </x-slot>
+                                    
+                                    <button wire:click="sortAscending(0)" class="inline-flex items-center gap-1 w-full px-4 py-2 text-left text-sm leading-5 focus:outline-none transition duration-150 ease-in-out text-stone-700 hover:bg-stone-100 focus:bg-stone-100">
+                                        @if (blank($sort_by) && (blank($sort_direction) || $sort_direction === 'asc'))
+                                            <span>THIS</span>
+                                        @endif
+                                        {{ __('Ascending') }}
+                                    </button>
+                                    <button wire:click="sortDescending(0)" class="inline-flex items-center gap-1 w-full px-4 py-2 text-left text-sm leading-5 focus:outline-none transition duration-150 ease-in-out text-stone-700 hover:bg-stone-100 focus:bg-stone-100">
+                                        @if (blank($sort_by) && $sort_direction === 'desc')
+                                            <span>THIS</span>
+                                        @endif
+                                        {{ __('Descending') }}
+                                    </button>
+
+                                </x-popover>
                         </th>
                         @foreach($fields as $field)
-                            <th scope="col" class="font-normal px-6 py-3 whitespace-nowrap ">
-                                <div class="inline-flex gap-1 items-center">
-                                    <x-dynamic-component :component="$field->data_type->icon()" class="text-stone-500 size-3" />
-    
-                                    {{ $field->title }}
+                            <th scope="col">
+                                <x-popover>
+                                    <x-slot name="trigger" class="font-normal px-6 py-3 whitespace-nowrap inline-flex gap-1 items-center hover:bg-stone-100">
+                                
+                                        <x-dynamic-component :component="$field->data_type->icon()" class="text-stone-500 size-3" />
+        
+                                        {{ $field->title }}
+                                            
+                                        <x-heroicon-m-ellipsis-horizontal class="ms-1 size-4" />
+                                    </x-slot>
+                                    
+                                    <button wire:click="sortAscending({{ $field->order }})" class="inline-flex items-center gap-1 w-full px-4 py-2 text-left text-sm leading-5 focus:outline-none transition duration-150 ease-in-out text-stone-700 hover:bg-stone-100 focus:bg-stone-100">
+                                        @if ($sort_by === $field->order && $sort_direction === 'asc')
+                                            <span>THIS</span>
+                                        @endif
+                                        {{ __('Ascending') }}
+                                    </button>
+                                    <button wire:click="sortDescending({{ $field->order }})" class="inline-flex items-center gap-1 w-full px-4 py-2 text-left text-sm leading-5 focus:outline-none transition duration-150 ease-in-out text-stone-700 hover:bg-stone-100 focus:bg-stone-100">
+                                        @if ($sort_by === $field->order && $sort_direction === 'desc')
+                                            <span>THIS</span>
+                                        @endif
+                                        {{ __('Descending') }}
+                                    </button>
 
-                                    <x-dropdown align="right" class="ms-2" width="third" contentClasses="py-1 bg-white flex flex-col  min-h-[24rem] max-h-[24rem]">
-                                        <x-slot name="trigger">
-                                            <x-heroicon-m-ellipsis-horizontal class="size-4" />
-                                        </x-slot>
+                                    <div class="border-t border-stone-200"></div>
 
-                                        <x-slot name="content">
+                                    <button wire:click="moveFieldLeft({{ $field->order }})" @disabled($field->order <= 1) class="inline-flex items-center gap-1 w-full px-4 py-2 text-left text-sm leading-5 focus:outline-none transition duration-150 ease-in-out text-stone-700 hover:bg-stone-100 focus:bg-stone-100 disabled:cursor-not-allowed disabled:opacity-65">
+                                        <x-codicon-arrow-small-left class="size-4 text-stone-600" />
+                                        {{ __('Move left') }}
+                                    </button>
+                                    <button wire:click="moveFieldRight({{ $field->order }})" @disabled($field->order >= $fields->count()) class="inline-flex items-center gap-1 w-full px-4 py-2 text-left text-sm leading-5 focus:outline-none transition duration-150 ease-in-out text-stone-700 hover:bg-stone-100 focus:bg-stone-100 disabled:cursor-not-allowed disabled:opacity-65">
+                                        <x-codicon-arrow-small-right class="size-4 text-stone-600" />
+                                        {{ __('Move right') }}
+                                    </button>
 
-                                            Dropdown
-                                        </x-slot>
-                                    </x-dropdown>
-                                </div>
+
+                                </x-popover>
+
+                            
+                        
                             </th>
                         @endforeach
                         <th scope="col" class=" font-normal px-6 py-3 whitespace-nowrap">
@@ -54,7 +98,7 @@
                         <th scope="col" class=" font-normal px-6 py-3 whitespace-nowrap">
                             {{ __('Last update date') }}
                         </th>
-                        <th scope="col" class=" font-normal px-6 py-3 whitespace-nowrap sticky right-0">
+                        <th scope="col" class="pointer-events-none font-normal px-6 py-3 whitespace-nowrap sticky right-0">
                             
                         </th>
                     </tr>
