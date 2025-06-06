@@ -63,6 +63,19 @@ class CatalogDatatable extends Component
             ->when(blank($this->sort_by), function($query){
                 $query->orderBy('entry_index', $this->sort_direction === 'desc' ? 'desc' : 'asc');
             })
+            ->when(filled($this->sort_by), function($query) use ($sorting_field){
+
+                $value_field = $sorting_field->data_type->valueFieldName();
+
+                $query
+                    ->select('catalog_entries.*')
+                    ->leftJoin('catalog_values', function($join) use ($sorting_field) {
+                        $join->on('catalog_entries.id', '=', 'catalog_values.catalog_entry_id')
+                            ->where('catalog_values.catalog_field_id', '=', $sorting_field->id);
+                    })
+                    ->orderBy("catalog_values.{$value_field}", $this->sort_direction === 'desc' ? 'desc' : 'asc')
+                    ;
+            })
             ->paginate();
     }
 
