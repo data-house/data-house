@@ -19,7 +19,7 @@ $width = match ($width) {
 };
 @endphp
 
-<div class="md:relative" x-data="{{ $state }}"  x-on:closedropdown.window="open = false" @click.away="open = false" @close.stop="open = false" @keydown.escape="open = false">
+<div class="" x-data="{{ $state }}"  x-on:closedropdown.window="open = false" @click.away="open = false" @close.stop="open = false" @keydown.escape="open = false">
     <button type="button" @click="open = ! open" x-ref="button" {{ $trigger->attributes }}>
         {{ $trigger }}
     </button>

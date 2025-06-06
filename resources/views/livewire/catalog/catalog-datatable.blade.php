@@ -21,7 +21,7 @@
                     <tr>
                         <th scope="col" class=" font-normal whitespace-nowrap sticky left-0 bg-stone-50">
                             <x-popover>
-                                    <x-slot name="trigger" class="font-normal px-6 py-3 whitespace-nowrap inline-flex gap-1 items-center hover:bg-stone-100">
+                                    <x-slot name="trigger" class="bg-stone-50 font-normal px-6 py-3 whitespace-nowrap inline-flex gap-1 items-center hover:bg-stone-100">
         
                                         {{ __('No') }}
                                             
@@ -30,13 +30,13 @@
                                     
                                     <button wire:click="sortAscending(0)" class="inline-flex items-center gap-1 w-full px-4 py-2 text-left text-sm leading-5 focus:outline-none transition duration-150 ease-in-out text-stone-700 hover:bg-stone-100 focus:bg-stone-100">
                                         @if (blank($sort_by) && (blank($sort_direction) || $sort_direction === 'asc'))
-                                            <span>THIS</span>
+                                            <x-heroicon-m-check-circle class="size-4" />
                                         @endif
                                         {{ __('Ascending') }}
                                     </button>
                                     <button wire:click="sortDescending(0)" class="inline-flex items-center gap-1 w-full px-4 py-2 text-left text-sm leading-5 focus:outline-none transition duration-150 ease-in-out text-stone-700 hover:bg-stone-100 focus:bg-stone-100">
                                         @if (blank($sort_by) && $sort_direction === 'desc')
-                                            <span>THIS</span>
+                                            <x-heroicon-m-check-circle class="size-4" />
                                         @endif
                                         {{ __('Descending') }}
                                     </button>
@@ -57,13 +57,13 @@
                                     
                                     <button wire:click="sortAscending({{ $field->order }})" class="inline-flex items-center gap-1 w-full px-4 py-2 text-left text-sm leading-5 focus:outline-none transition duration-150 ease-in-out text-stone-700 hover:bg-stone-100 focus:bg-stone-100">
                                         @if ($sort_by === $field->order && $sort_direction === 'asc')
-                                            <span>THIS</span>
+                                            <x-heroicon-m-check-circle class="size-4" />
                                         @endif
                                         {{ __('Ascending') }}
                                     </button>
                                     <button wire:click="sortDescending({{ $field->order }})" class="inline-flex items-center gap-1 w-full px-4 py-2 text-left text-sm leading-5 focus:outline-none transition duration-150 ease-in-out text-stone-700 hover:bg-stone-100 focus:bg-stone-100">
                                         @if ($sort_by === $field->order && $sort_direction === 'desc')
-                                            <span>THIS</span>
+                                            <x-heroicon-m-check-circle class="size-4" />
                                         @endif
                                         {{ __('Descending') }}
                                     </button>
