@@ -6,9 +6,30 @@
         <x-page-heading :title="__('Catalogs')">
 
             <x-slot:actions>
-                @can('create', \App\Models\Catalog::class)
-                    <x-button x-data x-on:click="Livewire.dispatch('openSlideover', {component: 'catalog.create-catalog-slideover'})">{{ __('Create a catalog') }}</x-button>
-                @endcan
+
+                <div class="flex space-x-4 mt-3 divide-x divide-stone-200 items-center justify-stretch sm:justify-end">
+
+                    <div class="text-sm py-2 sm:text-right truncate">
+                        @if ($is_search)
+                            {{ trans_choice(':total catalog found|:total catalogs found', $catalogs->total(), ['total' => $catalogs->total()]) }}
+                        @endif
+            
+                        @if (!$is_search)
+                            {{ trans_choice(':total catalog in the library|:total catalogs in the library', $catalogs->total(), ['total' => $catalogs->total()]) }}
+                        @endif
+                    </div>
+
+                    {{-- <div class="pl-4">
+                        <x-sorting-dropdown model="\App\Models\Catalog" />
+                    </div> --}}
+
+                    <x-visualization-style-switcher :user="auth()->user()" class="pl-4" />
+
+                    @can('create', \App\Models\Catalog::class)
+                        <x-button x-data x-on:click="Livewire.dispatch('openSlideover', {component: 'catalog.create-catalog-slideover'})">{{ __('Create a catalog') }}</x-button>
+                    @endcan
+
+                </div>
             </x-slot>
 
         </x-page-heading>
@@ -21,48 +42,38 @@
 
                 <div class="col-span-12  lg:col-span-8 xl:col-span-9">
 
-                    @forelse ($catalogs as $catalog)
+                    @php
+                        $visualizationStyle = 'catalog-' . (auth()->user()->getPreference(\App\Models\Preference::VISUALIZATION_LAYOUT)?->value ?? 'grid');
+                    @endphp
 
-                        <a wire:navigate href="{{ route('catalogs.show', $catalog) }}" class="flex items-center space-x-4 hover:bg-gray-50 rounded-md -mx-2 p-2">
-                            <div class="flex-shrink-0 w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
-                                <x-heroicon-o-table-cells class="size-4" />
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <p class="text-sm font-medium text-gray-900 truncate">
-                                    {{ $catalog->title }}
-                                </p>
-                                <p class="text-sm text-gray-500 truncate">
-                                    {{ $catalog->description }}
-                                </p>
-                                <p class="text-sm text-gray-500 truncate">
-                                    {{ __('Last modified: :date', ['date' => $catalog->updated_at->diffForHumans()]) }}
-                                </p>
-                            </div>
-                        </a>
-                        
-                    @empty
-                        <div class="px-6 py-4 bg-white overflow-hidden shadow-sm rounded sm:rounded-lg"  x-data>
-                            <h3 class="text-lg font-semibold text-gray-900 mb-3">{{ __('Getting Started') }}</h3>
-                            <div class="flex flex-col gap-3">
-                                <div class="space-y-3">
-                                    <p class="text-sm">{{ __('Turn documents into a powerful database. With catalogs you can organize everything from reading lists, recommendations, projects lifecycle, and more') }}</p>
+                    <x-dynamic-component :component="$visualizationStyle" class="mt-3" :catalogs="$catalogs">
+                        <x-slot name="empty">
+                            <div class="px-6 py-4 bg-white overflow-hidden shadow-sm rounded sm:rounded-lg"  x-data>
+                                    <h3 class="text-lg font-semibold text-gray-900 mb-3">{{ __('Getting Started') }}</h3>
+                                    <div class="flex flex-col gap-3">
+                                        <div class="space-y-3">
+                                            <p class="text-sm">{{ __('Turn documents into a powerful database. With catalogs you can organize everything from reading lists, recommendations, projects lifecycle, and more') }}</p>
 
-                                    <ol class="list-decimal list-inside space-y-2 text-sm">
-                                        <li>{{ __('Create a new catalog') }}</li>
-                                        <li>{{ __('Add custom fields to capture information') }}</li>
-                                        <li>{{ __('Share with your team or all users') }}</li>
-                                    </ol>
-                                </div>
-                                @can('create', \App\Models\Catalog::class)
-                                    <div class="flex-shrink-0">
-                                        <x-button x-on:click="Livewire.dispatch('openSlideover', {component: 'catalog.create-catalog-slideover'})">
-                                            {{ __('Create Your First Catalog') }}
-                                        </x-button>
+                                            <ol class="list-decimal list-inside space-y-2 text-sm">
+                                                <li>{{ __('Create a new catalog') }}</li>
+                                                <li>{{ __('Add custom fields to capture information') }}</li>
+                                                <li>{{ __('Share with your team or all users') }}</li>
+                                            </ol>
+                                        </div>
+                                        @can('create', \App\Models\Catalog::class)
+                                            <div class="flex-shrink-0">
+                                                <x-button x-on:click="Livewire.dispatch('openSlideover', {component: 'catalog.create-catalog-slideover'})">
+                                                    {{ __('Create Your First Catalog') }}
+                                                </x-button>
+                                            </div>
+                                        @endcan
                                     </div>
-                                @endcan
-                            </div>
-                        </div>
-                    @endforelse
+                                </div>
+                        </x-slot>
+                    </x-dynamic-component>
+            
+                    <div class="mt-2">{{ $catalogs?->links() }}</div>
+
                 </div>
 
 
@@ -73,29 +84,35 @@
                         <ul class="space-y-4">
                             <li class="flex items-start space-x-3">
                                 <div class="flex-shrink-0">
-                                    <x-heroicon-o-check-circle @class(['size-6', 'text-green-600' => $catalogs->isNotEmpty(), 'text-stone-700' => $catalogs->isEmpty() ])  />
+                                    <x-dynamic-component
+                                        :component="$hint_create_done ? 'heroicon-o-check-circle' : 'heroicon-o-arrow-right-circle'"
+                                        @class(['size-6', 'text-green-600' => $hint_create_done, 'text-stone-700' => !$hint_create_done ]) />
                                 </div>
                                 <div>
                                     <h4 class="text-sm font-medium text-gray-900">{{ __('Organize') }}</h4>
-                                    <p class="mt-1 text-sm text-gray-500">{{ __('Create catalogs to combine data spread across documents.') }}</p>
+                                    <p class="mt-1 text-sm text-gray-500">{{ __('Create catalogs to analyze and combine data from documents and projects.') }}</p>
                                 </div>
                             </li>
                             <li class="flex items-start space-x-3">
                                 <div class="flex-shrink-0">
-                                    <x-heroicon-o-check-circle @class(['size-6', 'text-green-600' => $catalogs->isNotEmpty(), 'text-stone-700' => $catalogs->isEmpty() ])  />
+                                    <x-dynamic-component
+                                        :component="$hint_structure_done ? 'heroicon-o-check-circle' : 'heroicon-o-arrow-right-circle'"
+                                        @class(['size-6', 'text-green-600' => $hint_structure_done, 'text-stone-700' => !$hint_structure_done ]) />
                                 </div>
                                 <div>
                                     <h4 class="text-sm font-medium text-gray-900">{{ __('Structure') }}</h4>
-                                    <p class="mt-1 text-sm text-gray-500">{{ __('Add custom fields for better organization.') }}</p>
+                                    <p class="mt-1 text-sm text-gray-500">{{ __('Create fields to organize data and provide structure, like a database.') }}</p>
                                 </div>
                             </li>
                             <li class="flex items-start space-x-3">
                                 <div class="flex-shrink-0">
-                                    <x-heroicon-o-check-circle @class(['size-6', 'text-green-600' => $catalogs->isNotEmpty(), 'text-stone-700' => $catalogs->isEmpty() ])  />
+                                    <x-dynamic-component
+                                        :component="$hint_share_done ? 'heroicon-o-check-circle' : 'heroicon-o-arrow-right-circle'"
+                                        @class(['size-6', 'text-green-600' => $hint_share_done, 'text-stone-700' => !$hint_share_done ]) />
                                 </div>
                                 <div>
                                     <h4 class="text-sm font-medium text-gray-900">{{ __('Collaborate') }}</h4>
-                                    <p class="mt-1 text-sm text-gray-500">{{ __('Open catalogs to your team or all users.') }}</p>
+                                    <p class="mt-1 text-sm text-gray-500">{{ __('Make catalogs visible to your teammates or all users.') }}</p>
                                 </div>
                             </li>
                         </ul>

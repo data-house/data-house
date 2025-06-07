@@ -80,6 +80,20 @@ class Catalog extends Model
     }
 
     /**
+     * Scope the query to return only catalogs viewable by a user
+     * given visibility and team access
+     */
+    public function scopeVisibleTo($query, User $user)
+    {
+        return $query
+            ->where(fn($q) => $q->whereIn('visibility', [Visibility::PUBLIC, Visibility::PROTECTED]))
+            ->when($user->currentTeam, function ($query, Team $team): void {
+                $query->orWhere(fn($q) => $q->where('visibility', Visibility::TEAM)->where('team_id', $team->getKey()));
+            })
+            ->orWhere(fn($q) => $q->where('visibility', Visibility::PERSONAL)->where('user_id', $user->getKey()));
+    }
+
+    /**
      * Check if the catalog is viewable by a user
      */
     public function isVisibleBy(User $user): bool

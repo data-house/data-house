@@ -1,5 +1,5 @@
 
-<x-slideover wire:submit="storeCatalog" :title="__('Create a catalog')" description="{{ __('...')}}">
+<x-slideover wire:submit="storeCatalog" :title="__('Create a catalog')" description="{{ __('Create a new catalog to structure data scattered across documents and projects.') }}" class="max-w-2xl" wire:key="create-catalog-slideover">
     
             <div class="h-6"></div>
     
