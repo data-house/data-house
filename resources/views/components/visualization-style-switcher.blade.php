@@ -15,7 +15,7 @@
 
     @foreach (\App\Models\Preference::VISUALIZATION_LAYOUT->acceptableValues() as $style)
         
-        <a href="{{ route('user-preferences', [
+        <a wire:navigate href="{{ route('user-preferences', [
             'preference' => 'VISUALIZATION_LAYOUT',
             'value' => $style
         ])}}" class="p-1 rounded ring-1 hover:ring-indigo-600 hover:bg-indigo-100 focus:outline-none focus:ring-indigo-600 focus:bg-indigo-100 {{ (is_null($visualizationPreference) && $style==='grid') || (!is_null($visualizationPreference) && $visualizationPreference->value === $style) ? 'ring-indigo-400 text-indigo-600 bg-indigo-50' : ' ring-stone-400 '}}" title="{{ __('Change layout to :layout', ['layout' => $style]) }}">
