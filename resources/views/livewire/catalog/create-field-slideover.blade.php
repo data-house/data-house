@@ -1,4 +1,4 @@
-<x-slideover wire:submit="storeField" :title="__('Add field')" :description="__('Add a new field to define what information can be captured in this catalog.')">
+<x-slideover wire:submit="storeField" :title="__('Create field')" :description="__('Add a new field to your catalog. There are specific fields for various data types, use the best for the information you want to capture. Each catalog entry will have a progressive index and can be connected to documents and projects.')" class="max-w-2xl" wire:key="create-field-slideover">
     
     <div class="h-6"></div>
 

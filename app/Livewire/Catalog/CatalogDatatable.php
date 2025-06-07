@@ -2,6 +2,8 @@
 
 namespace App\Livewire\Catalog;
 
+use App\Actions\Catalog\CreateCatalogField;
+use App\CatalogFieldType;
 use App\Livewire\Concern\InteractWithUser;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use App\Models\Catalog;
@@ -146,6 +148,39 @@ class CatalogDatatable extends Component
         $this->sort_by = $index;
         $this->sort_direction = 'desc';
         $this->resetPage();
+    }
+
+
+    public function generateTodoListExample(CreateCatalogField $createField)
+    {
+        // Ensure user can add fields to this catalog
+        abort_unless($this->user->can('update', $this->catalog), 403);
+
+        $createField(
+            catalog: $this->catalog,
+            title: __('Activity'),
+            fieldType: CatalogFieldType::TEXT,
+            description: __('Describe the activity you want to track.'),
+            user: $this->user,
+        );
+        
+        $createField(
+            catalog: $this->catalog,
+            title: __('Completed'),
+            fieldType: CatalogFieldType::BOOLEAN,
+            description: __('Track whether the activity is completed.'),
+            user: $this->user,
+        );
+        
+        $createField(
+            catalog: $this->catalog,
+            title: __('Due Date'),
+            fieldType: CatalogFieldType::DATETIME,
+            description: __('Is there a due date for the activity?'),
+            user: $this->user,
+        );
+
+        $this->dispatch('field-created');
     }
 
 

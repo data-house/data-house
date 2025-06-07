@@ -1,16 +1,54 @@
 <div>
     @if($fields->isEmpty())
-        <div class="text-center py-8">
-            <div class="mx-auto w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center mb-4">
-                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-                </svg>
+        <div class="grid grid-cols-1 md:grid-cols-3">
+        
+            <div class="px-6 py-4 bg-white overflow-hidden shadow-sm rounded sm:rounded-lg md:col-span-2"  x-data>
+                <h3 class="text-lg font-semibold text-gray-900 mb-3">{{ __('Getting Started') }}</h3>
+                <div class="flex flex-col gap-3">
+                    <div class="space-y-3">
+                        <p class="text-sm">{{ __('Fields define the backbone of your catalog providing safe and structured storage for your data. Fields for counting entries and the connect with documents and projects are automatically added for you.') }}</p>
+
+                        <ol class="list-decimal list-inside space-y-2 text-sm">
+                            <li>{{ __('Add a first field') }}</li>
+                            <li>{{ __('Save an entry') }}</li>
+                            <li>{{ __('You can add more fields later') }}</li>
+                        </ol>
+                    </div>
+                    @can('create', \App\Models\CatalogField::class)
+                        <div class="flex-shrink-0">
+                            <x-button class="mt-4" x-data x-on:click="Livewire.dispatch('openSlideover', {component: 'catalog.create-field-slideover', arguments: {catalog: '{{ $catalog->getKey() }}'}})">
+                                {{ __('Create a Field') }}
+                            </x-button>
+                        </div>
+                    @endcan
+                </div>
             </div>
-            <p class="text-sm text-gray-500">{{ __('No fields defined') }}</p>
-            <p class="mt-1 text-sm text-gray-500">{{ __('Add fields to your catalog to define its structure.') }}</p>
-            <x-button class="mt-4" x-data x-on:click="Livewire.dispatch('openSlideover', {component: 'catalog.create-field-slideover', arguments: {catalog: '{{ $catalog->getKey() }}'}})">
-                {{ __('Add Field') }}
-            </x-button>
+
+            <div class="">
+
+                <div class="p-6">
+                    <h3 class="font-semibold text-gray-900 mb-4">{{ __('Don\'t know what to add') }}</h3>
+                    <ul class="space-y-4">
+                        <li class="flex items-start space-x-3">
+                            <div class="flex-shrink-0">
+                                <x-heroicon-o-table-cells class="size-6 shrink-0 text-stone-500" />
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-medium text-gray-900">{{ __('Track your todos') }}</h4>
+                                <p class="mt-1 text-sm text-gray-500">{{ __('Create a todo list to track your activities.') }}</p>
+                                <p class="mt-1 text-sm text-gray-500">{{ __('With three fields: activity, done/not done checkmark and a due date you can monitor your progress.') }}</p>
+                                <p class="mt-1">
+                                <x-small-button wire:click="generateTodoListExample">
+                                    <span wire:loading.remove wire:target="generateTodoListExample">{{ __('Generate the todo list fields') }}</span>
+                                    <span wire:loading wire:target="generateTodoListExample">{{ __('Preparing your todo list...') }}</span>
+                                </x-small-button>
+                                </p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+            </div>
         </div>
     @else
         <div class="relative overflow-x-auto" x-on:field-created.window="$wire.$refresh()"  x-on:catalog-entry-added.window="$wire.$refresh()">
@@ -21,7 +59,7 @@
                     <tr>
                         <th scope="col" class=" font-normal whitespace-nowrap sticky left-0 bg-stone-50">
                             <x-popover>
-                                    <x-slot name="trigger" class="bg-stone-50 font-normal px-6 py-3 whitespace-nowrap inline-flex gap-1 items-center hover:bg-stone-100">
+                                    <x-slot name="trigger" class="bg-stone-50 font-normal px-6 py-3 whitespace-nowrap flex w-full gap-1 items-center hover:bg-stone-100">
         
                                         {{ __('No') }}
                                             
@@ -46,7 +84,7 @@
                         @foreach($fields as $field)
                             <th scope="col">
                                 <x-popover>
-                                    <x-slot name="trigger" class="font-normal px-6 py-3 whitespace-nowrap inline-flex gap-1 items-center hover:bg-stone-100">
+                                    <x-slot name="trigger" class="font-normal px-6 py-3 whitespace-nowrap flex w-full gap-1 items-center hover:bg-stone-100">
                                 
                                         <x-dynamic-component :component="$field->data_type->icon()" class="text-stone-500 size-3" />
         
@@ -130,9 +168,7 @@
                                                 @break
                                             @case(\App\CatalogFieldType::BOOLEAN)
                                                 @if($value->value_bool)
-                                                    <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-                                                    </svg>
+                                                    <x-heroicon-s-check-circle class="w-5 h-5 text-green-600" />
                                                 @endif
                                                 @break
                                             @case(\App\CatalogFieldType::SKOS_CONCEPT)
@@ -166,7 +202,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="{{ $fields->count() + 1 }}" class="px-6 py-4 text-center text-sm text-gray-500">
+                            <td colspan="{{ $fields->count() + 6 }}" class="px-6 py-4 text-center text-sm text-gray-500">
                                 {{ __('No entries yet') }}
                             </td>
                         </tr>

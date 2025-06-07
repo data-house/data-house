@@ -13,7 +13,7 @@
                 @endcan
                 @can('create', \App\Models\CatalogField::class)
                     <x-secondary-button x-data x-on:click="Livewire.dispatch('openSlideover', {component: 'catalog.create-field-slideover', arguments: {catalog: '{{ $catalog->getKey() }}'}})">
-                        {{ __('Add Field') }}
+                        {{ __('Create Field') }}
                     </x-secondary-button>
                 @endcan
             </x-slot>

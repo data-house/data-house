@@ -47,26 +47,26 @@
                     <x-dynamic-component :component="$visualizationStyle" class="mt-3" :catalogs="$catalogs">
                         <x-slot name="empty">
                             <div class="px-6 py-4 bg-white overflow-hidden shadow-sm rounded sm:rounded-lg"  x-data>
-                                    <h3 class="text-lg font-semibold text-gray-900 mb-3">{{ __('Getting Started') }}</h3>
-                                    <div class="flex flex-col gap-3">
-                                        <div class="space-y-3">
-                                            <p class="text-sm">{{ __('Turn documents into a powerful database. With catalogs you can organize everything from reading lists, recommendations, projects lifecycle, and more') }}</p>
+                                <h3 class="text-lg font-semibold text-gray-900 mb-3">{{ __('Getting Started') }}</h3>
+                                <div class="flex flex-col gap-3">
+                                    <div class="space-y-3">
+                                        <p class="text-sm">{{ __('Turn documents into a powerful database. With catalogs you can organize everything from reading lists, recommendations, projects lifecycle, and more') }}</p>
 
-                                            <ol class="list-decimal list-inside space-y-2 text-sm">
-                                                <li>{{ __('Create a new catalog') }}</li>
-                                                <li>{{ __('Add custom fields to capture information') }}</li>
-                                                <li>{{ __('Share with your team or all users') }}</li>
-                                            </ol>
-                                        </div>
-                                        @can('create', \App\Models\Catalog::class)
-                                            <div class="flex-shrink-0">
-                                                <x-button x-on:click="Livewire.dispatch('openSlideover', {component: 'catalog.create-catalog-slideover'})">
-                                                    {{ __('Create Your First Catalog') }}
-                                                </x-button>
-                                            </div>
-                                        @endcan
+                                        <ol class="list-decimal list-inside space-y-2 text-sm">
+                                            <li>{{ __('Create a new catalog') }}</li>
+                                            <li>{{ __('Add custom fields to capture information') }}</li>
+                                            <li>{{ __('Share with your team or all users') }}</li>
+                                        </ol>
                                     </div>
+                                    @can('create', \App\Models\Catalog::class)
+                                        <div class="flex-shrink-0">
+                                            <x-button x-on:click="Livewire.dispatch('openSlideover', {component: 'catalog.create-catalog-slideover'})">
+                                                {{ __('Create Your First Catalog') }}
+                                            </x-button>
+                                        </div>
+                                    @endcan
                                 </div>
+                            </div>
                         </x-slot>
                     </x-dynamic-component>
             
