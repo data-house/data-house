@@ -131,9 +131,6 @@
                             {{ __('Project') }}
                         </th>
                         <th scope="col" class=" font-normal px-6 py-3 whitespace-nowrap">
-                            {{ __('Creation date') }}
-                        </th>
-                        <th scope="col" class=" font-normal px-6 py-3 whitespace-nowrap">
                             {{ __('Last update date') }}
                         </th>
                         <th scope="col" class="pointer-events-none font-normal px-6 py-3 whitespace-nowrap sticky right-0">
@@ -181,13 +178,18 @@
                                 </td>
                             @endforeach
                             <td class="px-6 py-4">
-                                &nbsp; {{-- document --}}
+                                @if ($entry->document)
+                                    <a wire:navigate href="{{ route('documents.show', $entry->document) }}" class="block max-w-52 truncate hover:underline">{{ $entry->document->title }}</a>
+                                @else
+                                    &nbsp;
+                                @endif
                             </td>
-                            <td class="px-6 py-4">
-                                &nbsp; {{-- Project --}}
-                            </td>
-                            <td class="px-6 py-4">
-                                <x-date :value="$entry->created_at" />
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                @if ($entry->project)
+                                    <a wire:navigate href="{{ route('projects.show', $entry->project) }}"  class="block max-w-52 truncate hover:underline">{{ $entry->project->title }}</a>
+                                @else
+                                    &nbsp;
+                                @endif
                             </td>
                             <td class="px-6 py-4">
                                 <x-date :value="$entry->updated_at" />

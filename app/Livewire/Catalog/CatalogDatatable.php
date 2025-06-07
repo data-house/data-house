@@ -60,7 +60,7 @@ class CatalogDatatable extends Component
         $sorting_field = filled($this->sort_by) ? $this->fields->where('order', $this->sort_by)->sole() : null;
 
         return $this->catalog->entries()
-            ->with(['catalogValues.catalogField'])
+            ->with(['catalogValues.catalogField', 'document', 'project'])
             // sort by entry no ascending if no sorting option defined
             ->when(blank($this->sort_by), function($query){
                 $query->orderBy('entry_index', $this->sort_direction === 'desc' ? 'desc' : 'asc');

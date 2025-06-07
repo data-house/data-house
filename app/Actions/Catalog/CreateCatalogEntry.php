@@ -6,8 +6,10 @@ use App\CatalogFieldType;
 use App\Models\Catalog;
 use App\Models\CatalogEntry;
 use App\Models\CatalogField;
+use App\Models\Project;
 use App\Models\SkosCollection;
 use App\Models\User;
+use App\Models\Document;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -39,7 +41,7 @@ class CreateCatalogEntry
         throw_unless($user->can('create', CatalogEntry::class), AuthorizationException::class);
 
         
-        Validator::make($data, [
+        $validatedData = Validator::make($data, [
             'document_id' => ['nullable', 'exists:documents,id'],
             'project_id' => ['nullable', 'exists:projects,id'],
             'values' => ['required', 'array', 'min:1'],
@@ -52,7 +54,7 @@ class CreateCatalogEntry
         $fields = $catalog->fields()->get()->mapWithKeys(fn($field) => [$field->id => $field->data_type]);
 
 
-        $valuesMappedToCatalogValues = collect($data['values'])->map(function($val) use ($user, $catalog, $fields){
+        $valuesMappedToCatalogValues = collect($validatedData['values'])->map(function($val) use ($user, $catalog, $fields){
 
             $type = $fields[$val['field']];
 
@@ -64,15 +66,18 @@ class CreateCatalogEntry
             ];
         });
 
+        $document = filled($validatedData['document_id'] ?? null) ? Document::findOrFail($validatedData['document_id'])->load('project') : null;
+        $project = filled($validatedData['project_id'] ?? null) ? Project::findOrFail($validatedData['project_id']) : ($document?->project ?? null);
+
         /**
          * @var \App\Models\CatalogEntry
          */
-        $entry = DB::transaction(function() use ($user, $data, $catalog, $valuesMappedToCatalogValues){
+        $entry = DB::transaction(function() use ($user, $data, $catalog, $valuesMappedToCatalogValues, $document, $project) {
 
             $entry = CatalogEntry::create([
                     'catalog_id' => $catalog->getKey(),
-                    // 'document_id' => ,
-                    // 'project_id' => ,
+                    'document_id' => $document?->getKey() ?? null,
+                    'project_id' => $project?->getKey() ?? null,
                     'user_id' => $user->getKey(),
             ]);
 

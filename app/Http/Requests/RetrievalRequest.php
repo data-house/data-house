@@ -51,4 +51,10 @@ class RetrievalRequest extends QueryBuilderRequest
     {
         return $this->filters()->except('source')->count();
     }
+
+
+    public static function fromArray(array $data): self
+    {
+        return (new static())->merge($data);
+    }
 }
