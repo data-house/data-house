@@ -7,8 +7,7 @@
 
             <x-slot:actions>
 
-                <div class="flex space-x-4 mt-3 divide-x divide-stone-200 items-center justify-stretch sm:justify-end">
-
+                <div class="flex space-x-4 divide-x divide-stone-200 items-center">
                     <div class="text-sm py-2 sm:text-right truncate">
                         @if ($is_search)
                             {{ trans_choice(':total catalog found|:total catalogs found', $catalogs->total(), ['total' => $catalogs->total()]) }}
@@ -24,12 +23,11 @@
                     </div> --}}
 
                     <x-visualization-style-switcher :user="auth()->user()" class="pl-4" />
-
-                    @can('create', \App\Models\Catalog::class)
-                        <x-button x-data x-on:click="Livewire.dispatch('openSlideover', {component: 'catalog.create-catalog-slideover'})">{{ __('Create a catalog') }}</x-button>
-                    @endcan
-
                 </div>
+
+                @can('create', \App\Models\Catalog::class)
+                    <x-button x-data x-on:click="Livewire.dispatch('openSlideover', {component: 'catalog.create-catalog-slideover'})">{{ __('Create a catalog') }}</x-button>
+                @endcan
             </x-slot>
 
         </x-page-heading>
