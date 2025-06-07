@@ -39,6 +39,7 @@
         "spatie/laravel-activitylog": "^4.8",
         "spatie/laravel-data": "^4.5",
         "spatie/laravel-query-builder": "^6.3.2",
+        "spatie/simple-excel": "^3.7",
         "staudenmeir/laravel-adjacency-list": "^1.24",
         "sweetrdf/easyrdf": "^1.16",
         "timokoerber/laravel-one-time-operations": "^1.4",

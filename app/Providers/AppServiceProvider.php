@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Console\Commands\Catalog\DeleteCatalogCommand;
 use App\Http\Requests\RetrievalRequest;
 use App\Jobs\Pipeline\Document\AttachDocumentToLibraryCollection;
 use App\Jobs\Pipeline\Document\ConvertToPdf;
@@ -107,6 +108,8 @@ class AppServiceProvider extends ServiceProvider
             'success' => Color::Green,
             'warning' => Color::Amber,
         ]);
+
+        DeleteCatalogCommand::prohibit($this->app->isProduction());
     }
 
     protected function configureGates()
