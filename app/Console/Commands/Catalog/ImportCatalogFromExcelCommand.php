@@ -3,6 +3,7 @@
 namespace App\Console\Commands\Catalog;
 
 use App\Actions\Catalog\CreateCatalog;
+use App\Actions\Catalog\CreateCatalogEntry;
 use App\Actions\Catalog\CreateCatalogField;
 use App\CatalogFieldType;
 use App\Models\User;
@@ -31,13 +32,8 @@ class ImportCatalogFromExcelCommand extends Command
     /**
      * Execute the console command.
      */
-    public function handle(CreateCatalog $createCatalog, CreateCatalogField $createField): void
+    public function handle(CreateCatalog $createCatalog, CreateCatalogField $createField, CreateCatalogEntry $createEntry): void
     {
-        // Get the first rows of the file to establish the structure and the datatype of the columns
-
-        // Read the whole file
-
-
         $file = $this->argument('file');
 
         $user = User::find(1);
@@ -101,29 +97,45 @@ class ImportCatalogFromExcelCommand extends Command
             return;
         }
 
-        $entryIndexColumn = dump($possibleEntryIndexColumn->keys()->first());
+        $entryIndexColumn = $possibleEntryIndexColumn->keys()->first();
 
 
-        $fieldsToCreate = $possibleFields->except($entryIndexColumn)->dump();
+        $fieldsToCreate = $possibleFields->except($entryIndexColumn);
 
         if($fieldsToCreate->isEmpty()) {
             $this->error("No fields to create, all columns are empty or only contain a row index.");
             return;
         }
         
+        $this->info("Creating fields: " . $fieldsToCreate->keys()->join(', '));
 
-        $fields = $fieldsToCreate->map(function($type, $column) use ($createField, $catalog, $user) {
-            return $createField($catalog, $column, $type, user: $user);
+        $fields = $fieldsToCreate->mapWithKeys(function($type, $column) use ($createField, $catalog, $user) {
+            return [$column => $createField($catalog, $column, $type, user: $user)];
         });
 
-        // SimpleExcelReader::create($file)
-        //     ->trimHeaderRow()
-        //     ->getRows()
-        //     ->each(function(array $rowProperties) {
+        $this->info("Creating rows...");
 
-        //         // column ID or No => entry_index
+        $rows->each(function(array $rowProperties) use ($fields, $entryIndexColumn, $createEntry, $catalog, $user) {
 
-        //         dd($rowProperties);
-        //     });
+                // column ID or No => entry_index
+
+                $createEntry(
+                    $catalog,
+                    [
+                        'entry_index' => $rowProperties[$entryIndexColumn] ?? null,
+                        'document_id' => null, // TODO: handle documents
+                        'project_id' => null, // TODO: handle projects
+                        'values' => collect($rowProperties)->except($entryIndexColumn)->map(function($rowValue, $rowColumn) use ($fields){
+                            return [
+                                'field' => $fields[$rowColumn]->getKey(),
+                                'value' => $rowValue,
+                            ];
+                        })->toArray()
+                    ],
+                    $user
+                );
+            });
+
+        $this->comment("Import comleted.");
     }
 }

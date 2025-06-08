@@ -154,9 +154,6 @@
                                     
                                     @if($value)
                                         @switch($field->data_type)
-                                            @case(\App\CatalogFieldType::TEXT)
-                                                {{ $value->value_text }}
-                                                @break
                                             @case(\App\CatalogFieldType::NUMBER)
                                                 {{ $value->value_float }}
                                                 @break
@@ -172,7 +169,7 @@
                                                 {{ optional($value->skosConcept)->prefLabel }}
                                                 @break
                                             @default
-                                                {{ $value->value }}
+                                                {{ $value->value_text }}
                                         @endswitch
                                     @endif
                                 </td>

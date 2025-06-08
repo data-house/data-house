@@ -33,14 +33,21 @@ class DeleteCatalogCommand extends Command
 
         $catalog = Catalog::findOrFail($catalogRef);
 
-        if($catalog->entries()->exists()) {
-            $this->error('This catalog has entries. Please delete the entries first.');
-            return;
-        }
+        // if($catalog->entries()->exists()) {
+        //     $this->error('This catalog has entries. Please delete the entries first.');
+        //     return;
+        // }
 
+        $this->line("Deleting catalog {$catalog->title}...");
+
+        $catalog->catalogValues()->delete();
+        
+        $catalog->entries()->delete();
 
         $catalog->fields()->delete();
         
         $catalog->delete();
+
+        $this->info("Catalog {$catalog->title} deleted successfully.");
     }
 }

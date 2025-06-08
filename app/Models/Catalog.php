@@ -78,6 +78,11 @@ class Catalog extends Model
     {
         return $this->hasMany(CatalogEntry::class);
     }
+    
+    public function catalogValues(): HasMany
+    {
+        return $this->hasMany(CatalogValue::class);
+    }
 
     /**
      * Scope the query to return only catalogs viewable by a user

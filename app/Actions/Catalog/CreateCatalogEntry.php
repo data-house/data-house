@@ -42,6 +42,7 @@ class CreateCatalogEntry
 
         
         $validatedData = Validator::make($data, [
+            'entry_index' => ['nullable', 'integer'],
             'document_id' => ['nullable', 'exists:documents,id'],
             'project_id' => ['nullable', 'exists:projects,id'],
             'values' => ['required', 'array', 'min:1'],
@@ -58,13 +59,17 @@ class CreateCatalogEntry
 
             $type = $fields[$val['field']];
 
+            if(blank($val['value'])) {
+                return null;
+            }
+
             return [
                 $type->valueFieldName() => $val['value'],
                 'user_id' => $user->getKey(),
                 'catalog_id' => $catalog->getKey(),
                 'catalog_field_id' => $val['field'],
             ];
-        });
+        })->filter();
 
         $document = filled($validatedData['document_id'] ?? null) ? Document::findOrFail($validatedData['document_id'])->load('project') : null;
         $project = filled($validatedData['project_id'] ?? null) ? Project::findOrFail($validatedData['project_id']) : ($document?->project ?? null);
@@ -72,9 +77,10 @@ class CreateCatalogEntry
         /**
          * @var \App\Models\CatalogEntry
          */
-        $entry = DB::transaction(function() use ($user, $data, $catalog, $valuesMappedToCatalogValues, $document, $project) {
+        $entry = DB::transaction(function() use ($user, $validatedData, $catalog, $valuesMappedToCatalogValues, $document, $project) {
 
             $entry = CatalogEntry::create([
+                    'entry_index' => $validatedData['entry_index'] ?? null,
                     'catalog_id' => $catalog->getKey(),
                     'document_id' => $document?->getKey() ?? null,
                     'project_id' => $project?->getKey() ?? null,
