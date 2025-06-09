@@ -20,6 +20,7 @@ class CatalogValue extends Model
         'value_date',
         'value_float',
         'value_bool',
+        'value_concept',
         'user_id',
         'catalog_id',
         'catalog_field_id',
@@ -77,7 +78,7 @@ class CatalogValue extends Model
     
     public function concept(): BelongsTo
     {
-        return $this->belongsTo(SkosConcept::class);
+        return $this->belongsTo(SkosConcept::class, 'value_concept');
     }
 
     

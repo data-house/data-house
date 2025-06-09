@@ -57,5 +57,36 @@ enum CatalogFieldType: int
             self::SKOS_CONCEPT => 'value_concept',
         };
     }
+
+
+    public function label(): string
+    {
+        return trans("catalog.field_types.label.{$this->name}");
+    }
+    
+    public function description(): string
+    {
+        return trans("catalog.field_types.description.{$this->name}");
+    }
+
+    public static function allLabels(): array
+    {
+        return collect(static::cases())->mapWithKeys(fn($entry) => [$entry->value => $entry->label()])->toArray();
+    }
+    
+    public static function allDescriptions(): array
+    {
+        return collect(static::cases())->mapWithKeys(fn($entry) => [$entry->value => $entry->description()])->toArray();
+    }
+
+    public function isReference(): bool
+    {
+        return $this === self::SKOS_CONCEPT;
+    }
+    
+    public function isPrimitive(): bool
+    {
+        return $this !== self::SKOS_CONCEPT;
+    }
     
 }

@@ -5,6 +5,7 @@ namespace App\Models;
 use App\CatalogFieldType;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Field;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -77,9 +78,9 @@ class CatalogField extends Model implements Sortable
         return $this->belongsTo(Catalog::class);
     }
 
-    public function skosCollection(): HasOne
+    public function skosCollection(): BelongsTo
     {
-        return $this->hasOne(SkosCollection::class);
+        return $this->belongsTo(SkosCollection::class);
     }
 
 
@@ -121,7 +122,7 @@ class CatalogField extends Model implements Sortable
             CatalogFieldType::NUMBER => TextInput::make($html_identifier)->numeric()->inputMode('decimal'),
             CatalogFieldType::DATETIME => DateTimePicker::make($html_identifier),
             CatalogFieldType::BOOLEAN => Toggle::make($html_identifier)->default(false),
-            // CatalogFieldType::SKOS_CONCEPT => 'value_concept',
+            CatalogFieldType::SKOS_CONCEPT => Select::make($html_identifier)->options($this->skosCollection->concepts()->pluck('pref_label', 'id')),
         };
 
         if($this->order === 1)

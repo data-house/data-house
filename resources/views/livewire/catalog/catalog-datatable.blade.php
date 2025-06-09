@@ -92,21 +92,24 @@
                                             
                                         <x-heroicon-m-ellipsis-horizontal class="ms-1 size-4" />
                                     </x-slot>
-                                    
-                                    <button wire:click="sortAscending({{ $field->order }})" class="inline-flex items-center gap-1 w-full px-4 py-2 text-left text-sm leading-5 focus:outline-none transition duration-150 ease-in-out text-stone-700 hover:bg-stone-100 focus:bg-stone-100">
-                                        @if ($sort_by === $field->order && $sort_direction === 'asc')
-                                            <x-heroicon-m-check-circle class="size-4" />
-                                        @endif
-                                        {{ __('Ascending') }}
-                                    </button>
-                                    <button wire:click="sortDescending({{ $field->order }})" class="inline-flex items-center gap-1 w-full px-4 py-2 text-left text-sm leading-5 focus:outline-none transition duration-150 ease-in-out text-stone-700 hover:bg-stone-100 focus:bg-stone-100">
-                                        @if ($sort_by === $field->order && $sort_direction === 'desc')
-                                            <x-heroicon-m-check-circle class="size-4" />
-                                        @endif
-                                        {{ __('Descending') }}
-                                    </button>
 
-                                    <div class="border-t border-stone-200"></div>
+                                    @unless ($field->data_type->isReference())
+                                        <button wire:click="sortAscending({{ $field->order }})" class="inline-flex items-center gap-1 w-full px-4 py-2 text-left text-sm leading-5 focus:outline-none transition duration-150 ease-in-out text-stone-700 hover:bg-stone-100 focus:bg-stone-100">
+                                            @if ($sort_by === $field->order && $sort_direction === 'asc')
+                                                <x-heroicon-m-check-circle class="size-4" />
+                                            @endif
+                                            {{ __('Ascending') }}
+                                        </button>
+                                        <button wire:click="sortDescending({{ $field->order }})" class="inline-flex items-center gap-1 w-full px-4 py-2 text-left text-sm leading-5 focus:outline-none transition duration-150 ease-in-out text-stone-700 hover:bg-stone-100 focus:bg-stone-100">
+                                            @if ($sort_by === $field->order && $sort_direction === 'desc')
+                                                <x-heroicon-m-check-circle class="size-4" />
+                                            @endif
+                                            {{ __('Descending') }}
+                                        </button>
+
+                                        <div class="border-t border-stone-200"></div>
+                                    @endunless
+                                    
 
                                     <button wire:click="moveFieldLeft({{ $field->order }})" @disabled($field->order <= 1) class="inline-flex items-center gap-1 w-full px-4 py-2 text-left text-sm leading-5 focus:outline-none transition duration-150 ease-in-out text-stone-700 hover:bg-stone-100 focus:bg-stone-100 disabled:cursor-not-allowed disabled:opacity-65">
                                         <x-codicon-arrow-small-left class="size-4 text-stone-600" />
@@ -166,7 +169,9 @@
                                                 @endif
                                                 @break
                                             @case(\App\CatalogFieldType::SKOS_CONCEPT)
-                                                {{ optional($value->skosConcept)->prefLabel }}
+                                                @if ($value->concept)
+                                                    <a wire:navigate href="{{ route('vocabulary-concepts.show', $value->concept) }}" class="block max-w-52 truncate hover:underline">{{ $value->concept->pref_label }}</a>
+                                                @endif
                                                 @break
                                             @default
                                                 {{ $value->value_text }}
