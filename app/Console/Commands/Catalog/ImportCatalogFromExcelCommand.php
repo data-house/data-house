@@ -6,12 +6,16 @@ use App\Actions\Catalog\CreateCatalog;
 use App\Actions\Catalog\CreateCatalogEntry;
 use App\Actions\Catalog\CreateCatalogField;
 use App\CatalogFieldType;
+use App\Models\Document;
+use App\Models\Project;
+use App\Models\SkosConcept;
 use App\Models\User;
 use App\Models\Visibility;
 use DateTime;
 use DateTimeImmutable;
 use Illuminate\Console\Command;
 use Spatie\SimpleExcel\SimpleExcelReader;
+use \Illuminate\Support\Str;
 
 class ImportCatalogFromExcelCommand extends Command
 {
@@ -44,8 +48,7 @@ class ImportCatalogFromExcelCommand extends Command
         }
 
 
-        $catalog = $createCatalog(basename($file), 'This catalog was imported from Excel file: ' . basename($file), Visibility::PERSONAL, $user);
-        $this->info("Catalog created: {$catalog->title} ({$catalog->getKey()})");
+        $this->line('Inspecting file structure...');
 
         $reader = SimpleExcelReader::create($file)
             ->trimHeaderRow();
@@ -81,41 +84,97 @@ class ImportCatalogFromExcelCommand extends Command
                 return [$column => CatalogFieldType::DATETIME];
             }
 
-            if($values->filter(fn($value) => is_string($value))->map(fn($value) => strlen($value))->max() <= 100) {
+            $stringyValues = $values->filter(fn($value) => is_string($value))->map(fn($value) => trim($value));
+
+            if($stringyValues->isNotEmpty() && SkosConcept::whereIn('pref_label', $stringyValues)->orWhereIn('notation', $stringyValues)->exists()){
+                // Check if terms are exact concepts, if yes take the skos collection that contains them, if any
+                $concepts = SkosConcept::whereIn('pref_label', $stringyValues)
+                    ->orWhereIn('notation', $stringyValues)
+                    ->with('collections')
+                    ->get()
+                    ->pluck('collections')->flatten();
+
+                if($concepts->isNotEmpty() && $concepts->count() === 1){
+                    return [$column => [
+                        'type' => CatalogFieldType::SKOS_CONCEPT,
+                        'concept_collection' => $concepts->first(),
+                    ]];
+                }
+
+            } 
+
+            if($stringyValues->map(fn($value) => strlen($value))->max() <= 100) {
                 return [$column => CatalogFieldType::TEXT];
             }
-
 
             return [$column => CatalogFieldType::MULTILINE_TEXT];
         });
 
-
         $possibleEntryIndexColumn = $possibleFields->only(['No', 'ID', 'Index', 'Entry No','no', 'id', 'index', 'entry no']);
+        
+        $possibleEntryDocumentColumn = $possibleFields->only(['Document', 'Document ID', 'Document Ref', 'document', 'document id', 'document ref',]);
+        
+        $possibleEntryProjectColumn = $possibleFields->only(['Project', 'Project ID', 'Project Ref', 'project', 'project id', 'project ref', ]);
 
         if($possibleEntryIndexColumn->isNotEmpty() && $possibleEntryIndexColumn->count() > 1) {
             $this->error("Ambiguous index column, found {$possibleEntryIndexColumn->count()} candidates: {$possibleEntryIndexColumn->join(',')}");
             return;
         }
 
+        if($possibleEntryDocumentColumn->isNotEmpty() && $possibleEntryDocumentColumn->count() > 1) {
+            $this->error("Ambiguous document reference column, found {$possibleEntryDocumentColumn->count()} candidates: {$possibleEntryDocumentColumn->join(',')}");
+            return;
+        }
+
+        if($possibleEntryProjectColumn->isNotEmpty() && $possibleEntryProjectColumn->count() > 1) {
+            $this->error("Ambiguous Project reference column, found {$possibleEntryProjectColumn->count()} candidates: {$possibleEntryProjectColumn->join(',')}");
+            return;
+        }
+
         $entryIndexColumn = $possibleEntryIndexColumn->keys()->first();
+        
+        $entryDocumentColumn = $possibleEntryDocumentColumn->keys()->first(); // TODO: verify column contain uuid
 
+        $entryProjectColumn = $possibleEntryProjectColumn->keys()->first(); // TODO: verify column contain uuid
 
-        $fieldsToCreate = $possibleFields->except($entryIndexColumn);
+        $this->table(['column', 'field'], [
+            [$entryIndexColumn, 'index'],
+            [$entryDocumentColumn, 'document'],
+            [$entryProjectColumn, 'project'],
+            ...$possibleFields->map(fn($type, $column) => [$column, is_array($type) ? "{$type['type']->label()}<{$type['concept_collection']?->pref_label}>" : $type->label()])->toArray(),
+        ]);
+
+        $confirmed = $this->confirm('Proceed creating the catalog?');
+
+        if(!$confirmed){
+            $this->comment('Aborted by user.');
+            return ;
+        }
+
+        $fieldsToCreate = $possibleFields->except([$entryIndexColumn, $entryDocumentColumn, $entryProjectColumn]);
 
         if($fieldsToCreate->isEmpty()) {
             $this->error("No fields to create, all columns are empty or only contain a row index.");
             return;
         }
+
+        $this->line("Creating catalog...");
+        $catalog = $createCatalog(basename($file), 'Imported from Excel: ' . basename($file), Visibility::PERSONAL, $user);
         
-        $this->info("Creating fields: " . $fieldsToCreate->keys()->join(', '));
+        $this->line("Creating fields...");
 
         $fields = $fieldsToCreate->mapWithKeys(function($type, $column) use ($createField, $catalog, $user) {
+
+            if(is_array($type)){
+                return [$column => $createField($catalog, $column, $type['type'], skosCollection: $type['concept_collection'], user: $user)];
+            }
+
             return [$column => $createField($catalog, $column, $type, user: $user)];
         });
 
-        $this->info("Creating rows...");
+        $this->line("Creating rows...");
 
-        $rows->each(function(array $rowProperties) use ($fields, $entryIndexColumn, $createEntry, $catalog, $user) {
+        $rows->each(function(array $rowProperties) use ($fields, $entryIndexColumn, $entryDocumentColumn, $entryProjectColumn, $createEntry, $catalog, $user) {
 
                 // column ID or No => entry_index
 
@@ -123,14 +182,36 @@ class ImportCatalogFromExcelCommand extends Command
                     $catalog,
                     [
                         'entry_index' => $rowProperties[$entryIndexColumn] ?? null,
-                        'document_id' => null, // TODO: handle documents
-                        'project_id' => null, // TODO: handle projects
-                        'values' => collect($rowProperties)->except($entryIndexColumn)->map(function($rowValue, $rowColumn) use ($fields){
+                        'document_id' => filled($entryDocumentColumn) && Str::isUlid($rowProperties[$entryDocumentColumn]) ? Document::whereUlid($rowProperties[$entryDocumentColumn])->sole()->getKey() : null,
+                        'project_id' => filled($entryProjectColumn) && Str::isUlid($rowProperties[$entryProjectColumn]) ? Project::whereUlid($rowProperties[$entryProjectColumn])->sole()->getKey() : null,
+                        'values' => collect($rowProperties)->except([$entryIndexColumn, $entryProjectColumn, $entryDocumentColumn])->map(function($rowValue, $rowColumn) use ($fields){
+
+                            $field = $fields[$rowColumn];
+
+                            if(blank($rowValue)){
+                                return null;
+                            }
+
+                            if($field->data_type->isReference()){
+
+                                
+                                $conceptValue = $field->skosCollection->concepts()->where('pref_label', $rowValue)->orWhere('notation', $rowValue)->first();
+                                
+                                if(is_null($conceptValue)){
+                                    return null;
+                                }
+
+                                return [
+                                    'field' => $fields[$rowColumn]->getKey(), // column is SKOS then we need to find the concept ID
+                                    'value' => $conceptValue->getKey(),
+                                ];
+                            }
+
                             return [
-                                'field' => $fields[$rowColumn]->getKey(),
+                                'field' => $fields[$rowColumn]->getKey(), // column is SKOS then we need to find the concept ID
                                 'value' => $rowValue,
                             ];
-                        })->toArray()
+                        })->filter()->toArray()
                     ],
                     $user
                 );

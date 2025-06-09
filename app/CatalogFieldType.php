@@ -61,12 +61,12 @@ enum CatalogFieldType: int
 
     public function label(): string
     {
-        return trans("catalog.field_types.label.{$this->name}");
+        return trans("catalog-lang.field_types.label.{$this->name}");
     }
     
     public function description(): string
     {
-        return trans("catalog.field_types.description.{$this->name}");
+        return trans("catalog-lang.field_types.description.{$this->name}");
     }
 
     public static function allLabels(): array
