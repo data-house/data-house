@@ -112,9 +112,9 @@ class ImportCatalogFromExcelCommand extends Command
 
         $possibleEntryIndexColumn = $possibleFields->only(['No', 'ID', 'Index', 'Entry No','no', 'id', 'index', 'entry no']);
         
-        $possibleEntryDocumentColumn = $possibleFields->only(['Document', 'Document ID', 'Document Ref', 'document', 'document id', 'document ref',]);
+        $possibleEntryDocumentColumn = $possibleFields->only(['Document', 'Document ID', 'Document Ulid', 'document_ulid', 'Document Ref', 'document', 'document id', 'document ulid' , 'document ref',]);
         
-        $possibleEntryProjectColumn = $possibleFields->only(['Project', 'Project ID', 'Project Ref', 'project', 'project id', 'project ref', ]);
+        $possibleEntryProjectColumn = $possibleFields->only(['Project', 'Project ID', 'Project Ref', 'Project Ulid', 'project_ulid', 'project', 'project id', 'project ulid', 'project ref', ]);
 
         if($possibleEntryIndexColumn->isNotEmpty() && $possibleEntryIndexColumn->count() > 1) {
             $this->error("Ambiguous index column, found {$possibleEntryIndexColumn->count()} candidates: {$possibleEntryIndexColumn->join(',')}");
@@ -178,12 +178,28 @@ class ImportCatalogFromExcelCommand extends Command
 
                 // column ID or No => entry_index
 
+                $document = null;
+                $project = null;
+
+                if(filled($entryDocumentColumn) && Str::isUlid($rowProperties[$entryDocumentColumn])){
+                    $document = Document::whereUlid($rowProperties[$entryDocumentColumn])->first();
+                }
+
+                if(filled($entryProjectColumn) && Str::isUlid($rowProperties[$entryProjectColumn])){
+                    $project = Project::whereUlid($rowProperties[$entryProjectColumn])->first();
+                }
+
+                if(is_null($project) && !is_null($document)){
+                    $project = $document->project;
+                }
+
                 $createEntry(
                     $catalog,
                     [
                         'entry_index' => $rowProperties[$entryIndexColumn] ?? null,
-                        'document_id' => filled($entryDocumentColumn) && Str::isUlid($rowProperties[$entryDocumentColumn]) ? Document::whereUlid($rowProperties[$entryDocumentColumn])->sole()->getKey() : null,
-                        'project_id' => filled($entryProjectColumn) && Str::isUlid($rowProperties[$entryProjectColumn]) ? Project::whereUlid($rowProperties[$entryProjectColumn])->sole()->getKey() : null,
+                        // TODO: ensure/validate document accessibility from current user
+                        'document_id' => $document?->getKey(),
+                        'project_id' => $project?->getKey(),
                         'values' => collect($rowProperties)->except([$entryIndexColumn, $entryProjectColumn, $entryDocumentColumn])->map(function($rowValue, $rowColumn) use ($fields){
 
                             $field = $fields[$rowColumn];

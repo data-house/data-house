@@ -14,7 +14,7 @@
                         @endif
             
                         @if (!$is_search)
-                            {{ trans_choice(':total catalog in the library|:total catalogs in the library', $catalogs->total(), ['total' => $catalogs->total()]) }}
+                            {{ trans_choice(':total catalog|:total catalogs', $catalogs->total(), ['total' => $catalogs->total()]) }}
                         @endif
                     </div>
 
