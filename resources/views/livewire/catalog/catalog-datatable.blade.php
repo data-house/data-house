@@ -82,7 +82,7 @@
                                 </x-popover>
                         </th>
                         @foreach($fields as $field)
-                            <th scope="col">
+                            <th scope="col" @class(['min-w-96' => $field->data_type === \App\CatalogFieldType::MULTILINE_TEXT])>
                                 <x-popover>
                                     <x-slot name="trigger" class="font-normal px-6 py-3 whitespace-nowrap flex w-full gap-1 items-center hover:bg-stone-100">
                                 
