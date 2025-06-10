@@ -6,12 +6,12 @@
         <x-page-heading :title="$catalog->title">
 
             <x-slot:actions>
-                @can('create', \App\Models\CatalogEntry::class)
+                @can('create', [\App\Models\CatalogEntry::class, $catalog])
                     <x-button x-data  x-on:click="Livewire.dispatch('openSlideover', {component: 'catalog.create-entry-slideover', arguments: {catalog: '{{ $catalog->getKey() }}'}})">
                         {{ __('Add Entry') }}
                     </x-button>
                 @endcan
-                @can('create', \App\Models\CatalogField::class)
+                @can('create', [\App\Models\CatalogField::class, $catalog])
                     <x-secondary-button x-data x-on:click="Livewire.dispatch('openSlideover', {component: 'catalog.create-field-slideover', arguments: {catalog: '{{ $catalog->getKey() }}'}})">
                         {{ __('Create Field') }}
                     </x-secondary-button>

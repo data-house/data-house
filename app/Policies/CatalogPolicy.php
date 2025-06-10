@@ -42,6 +42,7 @@ class CatalogPolicy
         return ($user->hasPermission('catalog:update') ||
            $user->hasTeamPermission($user->currentTeam, 'catalog:update')) && $catalog->isVisibleBy($user) && 
            (($user->currentTeam && $user->currentTeam->is($catalog->team)) || $user->is($catalog->user));
+           // TODO: limit updates to owner of catalog ?
     }
 
     /**
@@ -49,7 +50,9 @@ class CatalogPolicy
      */
     public function delete(User $user, Catalog $catalog): bool
     {
-        return false;
+        return ($user->hasPermission('catalog:delete') ||
+           $user->hasTeamPermission($user->currentTeam, 'catalog:delete')) && $catalog->isVisibleBy($user) && 
+           (($user->currentTeam && $user->currentTeam->is($catalog->team)) || $user->is($catalog->user));
     }
 
     /**
@@ -57,7 +60,9 @@ class CatalogPolicy
      */
     public function restore(User $user, Catalog $catalog): bool
     {
-        return false;
+        return ($user->hasPermission('catalog:delete') ||
+           $user->hasTeamPermission($user->currentTeam, 'catalog:delete')) && $catalog->isVisibleBy($user) && 
+           (($user->currentTeam && $user->currentTeam->is($catalog->team)) || $user->is($catalog->user));
     }
 
     /**
@@ -65,6 +70,8 @@ class CatalogPolicy
      */
     public function forceDelete(User $user, Catalog $catalog): bool
     {
-        return false;
+        return ($user->hasPermission('catalog:delete') ||
+           $user->hasTeamPermission($user->currentTeam, 'catalog:delete')) && $catalog->isVisibleBy($user) && 
+           (($user->currentTeam && $user->currentTeam->is($catalog->team)) || $user->is($catalog->user));
     }
 }

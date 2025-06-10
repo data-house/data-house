@@ -34,6 +34,26 @@ enum CatalogFieldType: int
      */
     case SKOS_CONCEPT = 50;
 
+    /**
+     * Summarize {{column}}
+     */
+    case AI_SUMMARY = 60;
+
+    /**
+     * Translate {{column}}
+     */
+    case AI_TRANSLATE = 61;
+
+    /**
+     * Extract keywords from {{column}}
+     */
+    case AI_EXTRACT_KEYWORDS = 62;
+    
+    /**
+     * Do something with {{ column }}, free prompt
+     */
+    case AI_DO_SOMETHING = 63;
+
     public function icon(): string
     {
         return match($this) {

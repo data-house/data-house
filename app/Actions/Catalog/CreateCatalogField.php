@@ -28,8 +28,7 @@ class CreateCatalogField
          */
         $user = $user ?? auth()->user();
 
-        throw_unless($user->can('update', $catalog), AuthorizationException::class);
-        throw_unless($user->can('create', CatalogField::class), AuthorizationException::class);
+        throw_unless($user->can('create', [CatalogField::class, $catalog]), AuthorizationException::class);
 
         $input = [
             'title' => $title,

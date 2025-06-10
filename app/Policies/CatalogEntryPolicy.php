@@ -28,9 +28,9 @@ class CatalogEntryPolicy
     /**
      * Determine whether the user can create models.
      */
-    public function create(User $user): bool
+    public function create(User $user, Catalog $catalog): bool
     {
-        return $user->can('create', Catalog::class);
+        return $user->can('update', $catalog);
     }
 
     /**

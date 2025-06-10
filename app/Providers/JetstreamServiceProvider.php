@@ -81,8 +81,7 @@ class JetstreamServiceProvider extends ServiceProvider
             'catalog:view',
             'catalog:create',
             'catalog:update',
-            'catalog:delete',
-        ])->description('Can do everything the Contributor does plus upload documents, create collections and invite team members');
+        ])->description('Can do everything the Contributor does plus upload documents, create collections, modify team catalogs and invite team members');
 
         Jetstream::role(Role::CONTRIBUTOR->value, Role::CONTRIBUTOR->label(), [
             'project:view',
@@ -106,8 +105,6 @@ class JetstreamServiceProvider extends ServiceProvider
             'note:update',
             'note:delete',
             'catalog:view',
-            'catalog:create',
-            'catalog:update',
         ])->description('Can do everything the Guest does plus edit document titles and summaries.');
         
         Jetstream::role(Role::GUEST->value, Role::GUEST->label(), [

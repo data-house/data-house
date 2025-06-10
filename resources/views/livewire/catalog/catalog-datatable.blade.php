@@ -6,7 +6,7 @@
                 <h3 class="text-lg font-semibold text-gray-900 mb-3">{{ __('Getting Started') }}</h3>
                 <div class="flex flex-col gap-3">
                     <div class="space-y-3">
-                        <p class="text-sm">{{ __('Fields define the backbone of your catalog providing safe and structured storage for your data. Fields for counting entries and the connect with documents and projects are automatically added for you.') }}</p>
+                        <p class="text-sm">{{ __('Fields define the backbone of your catalog providing safe and structured storage for your data. Fields for counting entries and connect with documents or projects are automatically added for you.') }}</p>
 
                         <ol class="list-decimal list-inside space-y-2 text-sm">
                             <li>{{ __('Add a first field') }}</li>
@@ -14,7 +14,7 @@
                             <li>{{ __('You can add more fields later') }}</li>
                         </ol>
                     </div>
-                    @can('create', \App\Models\CatalogField::class)
+                    @can('create', [\App\Models\CatalogField::class, $catalog])
                         <div class="flex-shrink-0">
                             <x-button class="mt-4" x-data x-on:click="Livewire.dispatch('openSlideover', {component: 'catalog.create-field-slideover', arguments: {catalog: '{{ $catalog->getKey() }}'}})">
                                 {{ __('Create a Field') }}
@@ -27,7 +27,7 @@
             <div class="">
 
                 <div class="p-6">
-                    <h3 class="font-semibold text-gray-900 mb-4">{{ __('Don\'t know what to add') }}</h3>
+                    <h3 class="font-semibold text-gray-900 mb-4">{{ __('Don\'t know what to add?') }}</h3>
                     <ul class="space-y-4">
                         <li class="flex items-start space-x-3">
                             <div class="flex-shrink-0">

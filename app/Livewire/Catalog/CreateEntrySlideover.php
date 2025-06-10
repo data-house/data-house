@@ -65,8 +65,7 @@ class CreateEntrySlideover extends SlideoverComponent implements HasForms
     {
 
         $customFormFields = $this->fields
-            ->map(fn($field) => $field->toFilamentField())
-            ->dump();
+            ->map(fn($field) => $field->toFilamentField());
         
         $baseFields = [
             Select::make('document')

@@ -5,7 +5,7 @@
     {{ $this->form }}
 
 
-    
+    <div class="h-4"></div>
 
     <x-slot name="actions">
         <x-secondary-button type="button" wire:click="saveAndClose">

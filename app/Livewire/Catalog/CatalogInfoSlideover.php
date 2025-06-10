@@ -9,6 +9,7 @@ use App\Livewire\Concern\InteractWithUser;
 use App\Models\Catalog;
 use App\Models\Question;
 use App\Models\Team;
+use App\Models\Visibility;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Locked;
 use LivewireUI\Slideover\SlideoverComponent;
@@ -68,11 +69,31 @@ class CatalogInfoSlideover extends SlideoverComponent
             ->loadCount('entries');
     }
 
+    public function changeVisibility($value)
+    {
+        $level = match($value) {
+            1 => Visibility::PERSONAL,
+            2 => Visibility::TEAM,
+            3 => Visibility::PROTECTED,
+        };
+
+        $catalog = $this->catalog;
+
+        $this->user->can('update', $catalog);
+
+        $catalog->visibility = $level;
+
+        $catalog->save();
+    }
+
     
     public function render()
     {
         return view('livewire.catalog.catalog-info-slideover', [
             'catalog' => $this->catalog,
+            'visibility' => $this->catalog->visibility ?? Visibility::PERSONAL,
+            'visibility_options' => Visibility::forDocuments(),
+            'can_share' => $this->user->can('update', $this->catalog),
         ]);
     }
 }

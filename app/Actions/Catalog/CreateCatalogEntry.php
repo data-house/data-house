@@ -34,11 +34,7 @@ class CreateCatalogEntry
         $user = $user ?? auth()->user();
 
         
-        
-        throw_unless($user->can('update', $catalog), AuthorizationException::class);
-        
-        
-        throw_unless($user->can('create', CatalogEntry::class), AuthorizationException::class);
+        throw_unless($user->can('create', [CatalogEntry::class, $catalog]), AuthorizationException::class);
 
         
         $validatedData = Validator::make($data, [
