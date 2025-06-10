@@ -28,7 +28,7 @@
         </x-page-heading>
     </x-slot>
 
-    <div class="pt-8 pb-12">
+    <div class="pt-4 pb-12">
         <div class="px-4 sm:px-6 lg:px-8">                    
             <livewire:catalog.catalog-datatable :catalog="$catalog" />
         </div>

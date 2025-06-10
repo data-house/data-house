@@ -7,12 +7,15 @@ use App\CatalogFieldType;
 use App\Livewire\Concern\InteractWithUser;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use App\Models\Catalog;
+use App\Models\CatalogEntry;
 use App\Models\CatalogField;
+use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Locked;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
+use MeiliSearch\Endpoints\Indexes;
 
 class CatalogDatatable extends Component
 {
@@ -28,6 +31,9 @@ class CatalogDatatable extends Component
 
     #[Url(as: 'direction', history: true)]
     public ?string $sort_direction = null;
+    
+    #[Url(as: 's', history: true)]
+    public ?string $search = null;
 
     protected $listeners = [
         'field-created' => 'refresh',
@@ -58,6 +64,15 @@ class CatalogDatatable extends Component
     public function entries()
     {
         $sorting_field = filled($this->sort_by) ? $this->fields->where('order', $this->sort_by)->sole() : null;
+
+        if(filled($this->search)){
+            return CatalogEntry::search($this->search)
+                ->query(fn (EloquentBuilder $query) => $query->with(['catalogValues.catalogField', 'catalogValues.concept', 'document', 'project']))
+                ->where('catalog_id', $this->catalogId)
+                ->paginate();
+
+        }
+
 
         return $this->catalog->entries()
             ->with(['catalogValues.catalogField', 'catalogValues.concept', 'document', 'project'])

@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Laravel\Scout\Searchable;
 use Spatie\EloquentSortable\Sortable;
 use Spatie\EloquentSortable\SortableTrait;
 
@@ -19,6 +20,8 @@ class CatalogEntry extends Model implements Sortable
     use HasUuids;
 
     use SortableTrait;
+
+    use Searchable;
 
     protected $fillable = [
         'entry_index',
@@ -98,5 +101,79 @@ class CatalogEntry extends Model implements Sortable
         return $this->hasMany(CatalogValue::class);
             // TODO: order by field.order
             // TODO: chaperone, otherwise I get problems accessing the field definition from within the value
+    }
+
+    /**
+     * Modify the query used to retrieve models when making all of the models searchable.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    protected function makeAllSearchableUsing($query)
+    {
+        return $query->with([
+            'document',
+            'project',
+            'catalogValues.catalogField',
+            'catalogValues.concept',
+        ]);
+    }
+
+    /**
+     * Get the indexable data array for the model.
+     *
+     * @return array
+     */
+    public function toSearchableArray()
+    {
+
+        $values = $this->catalogValues->mapWithKeys(function($value){
+
+            $fieldType = $value->catalogField->data_type;
+
+            $field = $fieldType->valueFieldName();
+
+            if($fieldType->isReference()){
+                // TODO: currently works only for the SkosConcept referenced type
+
+                if(is_null($value->value_concept)){
+                    return [
+                        $value->catalogField->uuid => null,
+                    ];
+                }
+
+                return [
+                    $value->catalogField->uuid => collect([
+                        $value->concept->pref_label,
+                        $value->concept->notation,
+                    ])
+                    ->merge($value->concept->alt_labels)
+                    ->merge($value->concept->hidden_labels)
+                    ->filter()
+                    ->values()
+                    ->toArray(),
+                ];
+            }
+
+            return [
+                $value->catalogField->uuid => $value->{$field},
+            ];
+        });
+
+
+        return [
+            'id' => $this->id,
+            'entry_index' => $this->entry_index,
+            'catalog_id' => $this->catalog_id,
+            'document_id' => $this->document_id,
+            'project_id' => $this->project_id,
+            'created_at' => $this->created_at->toDateString(),
+
+            'document' => $this->document?->title,
+            'project' => $this->project?->title,
+
+            ...$values->all(),
+            
+        ];
     }
 }

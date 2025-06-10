@@ -53,6 +53,15 @@
     @else
         <div class="relative overflow-x-auto" x-on:field-created.window="$wire.$refresh()"  x-on:catalog-entry-added.window="$wire.$refresh()">
 
+            <div class="relative  mb-4">
+                <x-input type="text" name="catalog_s" wire:model.live.debounce.500ms="search" id="catalog_s" class="min-w-full" placeholder="{{ __('Search entries...') }}" />
+
+                <div wire:loading wire:target="search" class="absolute top-0 right-0 flex items-center h-full p-2 text-orange-50 bg-orange-600 rounded-r-md ">
+                    {{ __('Searching...') }}
+                </div>
+            </div>
+
+
             <table class="w-full text-sm text-left" 
             >
                 <thead class="text-xs text-stone-700 bg-stone-50 sticky top-0">
