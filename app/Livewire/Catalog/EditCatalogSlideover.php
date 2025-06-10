@@ -6,13 +6,14 @@ use App\Actions\Catalog\CreateCatalog;
 use App\Actions\Review\RequestQuestionReview;
 use App\Data\Notifications\ActivitySummaryNotificationData;
 use App\Livewire\Concern\InteractWithUser;
+use App\Models\Catalog;
 use App\Models\Question;
 use App\Models\Team;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Locked;
 use LivewireUI\Slideover\SlideoverComponent;
 
-class CreateCatalogSlideover extends SlideoverComponent
+class EditCatalogSlideover extends SlideoverComponent
 {
 
     use InteractWithUser;
@@ -24,9 +25,22 @@ class CreateCatalogSlideover extends SlideoverComponent
     ];
 
 
-    public function mount()
+    #[Locked]
+    public $catalogId;
+
+
+    public function mount($catalog)
     {
         abort_unless($this->user, 401);
+
+        $catalog = $catalog instanceof Catalog ? $catalog : Catalog::findOrFail($catalog);
+        
+        $this->user->can('update', $catalog);
+
+        $this->catalogId = $catalog->getKey();
+
+        $this->editingForm['title'] = $catalog->title;
+        $this->editingForm['description'] = $catalog->description;
 
     }
 
@@ -46,24 +60,27 @@ class CreateCatalogSlideover extends SlideoverComponent
         ];
     }
 
+    #[Computed()]
+    public function catalog()
+    {
+        return Catalog::find($this->catalogId);
+    }
+
     
-    public function storeCatalog()
+    public function updateCatalog()
     {
         $this->validate();
 
-        $createCatalog = app()->make(CreateCatalog::class);
+        $catalog = $this->catalog;
 
-        $catalog = $createCatalog(
-            title: $this->editingForm['title'],
-            description: $this->editingForm['description'],
-            user: $this->user,
-        );
+        $this->user->can('update', $catalog);
 
-        // $this->reviewerTeams->each(fn($team) => $createCatalog($this->question, $team));
+        $catalog->title = $this->editingForm['title'];
+        $catalog->description = $this->editingForm['description'];
+
+        $catalog->save();
 
         $this->dispatch('catalog-created');
-
-        // todo: redirect to catalog using wire:navigate
 
         $this->redirectRoute('catalogs.show', $catalog, navigate: true);
     }
@@ -71,6 +88,8 @@ class CreateCatalogSlideover extends SlideoverComponent
     
     public function render()
     {
-        return view('livewire.catalog.create-catalog-slideover');
+        return view('livewire.catalog.edit-catalog-slideover', [
+            'catalog' => $this->catalog,
+        ]);
     }
 }

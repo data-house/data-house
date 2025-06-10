@@ -48,9 +48,7 @@
                     <span class="z-10 absolute inset-0"></span>{{ $catalog->title }}
                 </a>
 
-                @feature(Flag::editDocumentVisibility())
-                    <x-document-visibility-badge :value="$catalog->visibility" />
-                @endfeature
+                <x-document-visibility-badge :value="$catalog->visibility" />
             </div>
 
             <div
