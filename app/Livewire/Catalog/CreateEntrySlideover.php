@@ -34,12 +34,17 @@ class CreateEntrySlideover extends SlideoverComponent implements HasForms
 
     #[Locked]
     public $catalogId;
+    
+    #[Locked]
+    public $entryId;
 
-    public function mount($catalog)
+    public function mount($catalog, $entry = null)
     {
         abort_unless($this->user, 401);
 
         $this->catalogId = $catalog instanceof Catalog ? $catalog->getKey() : $catalog;
+
+        abort_if($this->fields()->isEmpty(), 422);
 
         $this->form->fill();
     }
@@ -60,7 +65,8 @@ class CreateEntrySlideover extends SlideoverComponent implements HasForms
     {
 
         $customFormFields = $this->fields
-            ->map(fn($field) => $field->toFilamentField());
+            ->map(fn($field) => $field->toFilamentField())
+            ->dump();
         
         $baseFields = [
             Select::make('document')

@@ -7,7 +7,7 @@
 
             <x-slot:actions>
                 @can('create', \App\Models\CatalogEntry::class)
-                    <x-button x-data  x-on:click="Livewire.dispatch('openSlideover', {component: 'catalog.create-entry-slideover', arguments: {catalog: '{{ $catalog->getKey() }}'}})" size="sm">
+                    <x-button x-data  x-on:click="Livewire.dispatch('openSlideover', {component: 'catalog.create-entry-slideover', arguments: {catalog: '{{ $catalog->getKey() }}'}})">
                         {{ __('Add Entry') }}
                     </x-button>
                 @endcan
