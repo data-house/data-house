@@ -15,39 +15,42 @@ class DeleteCatalogCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'catalog:delete {catalog}';
+    protected $signature = 'catalog:delete {catalogs*}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Delete a catalog and it\'s entries. This command is irreversible and should be used with caution.';
+    protected $description = 'Delete one or more catalogs and their entries. This command is irreversible and should be used with caution.';
 
     /**
      * Execute the console command.
      */
     public function handle()
     {
-        $catalogRef = $this->argument('catalog');
+        $catalogRefs = $this->argument('catalogs');
 
-        $catalog = Catalog::findOrFail($catalogRef);
+        foreach ($catalogRefs as $catalogRef) {
+            try {
+                $catalog = Catalog::findOrFail($catalogRef);
 
-        // if($catalog->entries()->exists()) {
-        //     $this->error('This catalog has entries. Please delete the entries first.');
-        //     return;
-        // }
+                $this->line("Deleting catalog {$catalog->title}...");
 
-        $this->line("Deleting catalog {$catalog->title}...");
+                $catalog->catalogValues()->delete();
+                
+                $catalog->entries()->delete();
 
-        $catalog->catalogValues()->delete();
-        
-        $catalog->entries()->delete();
+                $catalog->fields()->delete();
+                
+                $catalog->delete();
 
-        $catalog->fields()->delete();
-        
-        $catalog->delete();
-
-        $this->info("Catalog {$catalog->title} deleted successfully.");
+                $this->info("Catalog {$catalog->title} deleted successfully.");
+            }
+            catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+                $this->error("Catalog {$catalogRef} not found.");
+                continue;
+            }
+        }
     }
 }
