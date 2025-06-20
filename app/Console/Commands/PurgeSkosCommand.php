@@ -26,7 +26,7 @@ class PurgeSkosCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Remove vocabulary data';
+    protected $description = 'Clear all vocabulary data';
 
     /**
      * Execute the console command.
