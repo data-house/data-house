@@ -6,6 +6,7 @@ use App\Actions\Catalog\CreateCatalog;
 use App\Actions\Catalog\CreateCatalogEntry;
 use App\Actions\Catalog\CreateCatalogField;
 use App\CatalogFieldType;
+use App\Models\CatalogEntry;
 use App\Models\Document;
 use App\Models\Project;
 use App\Models\SkosConcept;
@@ -183,6 +184,8 @@ class ImportCatalogFromExcelCommand extends Command
 
         $this->line("Creating rows...");
 
+        CatalogEntry::disableSearchSyncing();
+
         $rows->each(function(array $rowProperties) use ($fields, $entryIndexColumn, $entryDocumentColumn, $entryProjectColumn, $createEntry, $catalog, $user) {
 
                 // column ID or No => entry_index
@@ -241,6 +244,12 @@ class ImportCatalogFromExcelCommand extends Command
                     $user
                 );
             });
+
+        CatalogEntry::enableSearchSyncing();
+        
+        $this->line("Making entries searchable...");
+
+        $catalog->entries()->searchable();
 
         $this->comment("Import completed.");
     }
