@@ -92,12 +92,21 @@ class ImportCatalogFromExcelCommand extends Command
                     ->orWhereIn('notation', $stringyValues)
                     ->with('collections')
                     ->get()
-                    ->pluck('collections')->flatten();
+                    ->pluck('collections')
+                    ->flatten()
+                    ->unique('id');
 
                 if($concepts->isNotEmpty() && $concepts->count() === 1){
                     return [$column => [
                         'type' => CatalogFieldType::SKOS_CONCEPT,
                         'concept_collection' => $concepts->first(),
+                    ]];
+                }
+
+                if($concepts->isNotEmpty() && $concepts->count() > 1 && $conceptWithColumnName = $concepts->where('pref_label', $column)->first()){
+                    return [$column => [
+                        'type' => CatalogFieldType::SKOS_CONCEPT,
+                        'concept_collection' => $conceptWithColumnName,
                     ]];
                 }
 
@@ -233,6 +242,6 @@ class ImportCatalogFromExcelCommand extends Command
                 );
             });
 
-        $this->comment("Import comleted.");
+        $this->comment("Import completed.");
     }
 }
