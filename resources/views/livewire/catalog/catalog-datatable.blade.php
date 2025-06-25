@@ -89,6 +89,12 @@
 
                                 </x-popover>
                         </th>
+                        <th scope="col" class=" font-normal px-6 py-3 whitespace-nowrap">
+                            {{ __('Document') }}
+                        </th>
+                        <th scope="col" class=" font-normal px-6 py-3 whitespace-nowrap">
+                            {{ __('Project') }}
+                        </th>
                         @foreach($fields as $field)
                             <th scope="col" @class(['min-w-96' => $field->data_type === \App\CatalogFieldType::MULTILINE_TEXT])>
                                 <x-popover>
@@ -135,12 +141,7 @@
                         
                             </th>
                         @endforeach
-                        <th scope="col" class=" font-normal px-6 py-3 whitespace-nowrap">
-                            {{ __('Document') }}
-                        </th>
-                        <th scope="col" class=" font-normal px-6 py-3 whitespace-nowrap">
-                            {{ __('Project') }}
-                        </th>
+                        
                         <th scope="col" class=" font-normal px-6 py-3 whitespace-nowrap">
                             {{ __('Last update date') }}
                         </th>
@@ -154,6 +155,20 @@
                         <tr class="bg-white border-b hover:bg-gray-50 group">
                             <td class="px-6 py-4 sticky left-0 bg-white group-hover:bg-gray-50">
                                 {{ $entry->entry_index }}
+                            </td>
+                            <td class="px-6 py-4">
+                                @if ($entry->document)
+                                    <a wire:navigate href="{{ route('documents.show', $entry->document) }}" class="block max-w-52 truncate hover:underline">{{ $entry->document->title }}</a>
+                                @else
+                                    &nbsp;
+                                @endif
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                @if ($entry->project)
+                                    <a wire:navigate href="{{ route('projects.show', $entry->project) }}"  class="block max-w-52 truncate hover:underline">{{ $entry->project->title }}</a>
+                                @else
+                                    &nbsp;
+                                @endif
                             </td>
                             @foreach($fields as $field)
                                 <td class="px-6 py-4">
@@ -187,20 +202,7 @@
                                     @endif
                                 </td>
                             @endforeach
-                            <td class="px-6 py-4">
-                                @if ($entry->document)
-                                    <a wire:navigate href="{{ route('documents.show', $entry->document) }}" class="block max-w-52 truncate hover:underline">{{ $entry->document->title }}</a>
-                                @else
-                                    &nbsp;
-                                @endif
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                @if ($entry->project)
-                                    <a wire:navigate href="{{ route('projects.show', $entry->project) }}"  class="block max-w-52 truncate hover:underline">{{ $entry->project->title }}</a>
-                                @else
-                                    &nbsp;
-                                @endif
-                            </td>
+                            
                             <td class="px-6 py-4">
                                 <x-date :value="$entry->updated_at" />
                             </td>
