@@ -36,11 +36,25 @@
                     
                     x-description="Background overlay" 
                 ></div>
+
+                @if (count($components) > $i)
+                        @php
+                            $componentId = collect($components)->slice($i, 1)->keys()->first();
+                            $component = $components[$componentId];
+                            $key = $componentId;
+                            $maxWidth = $component['slideoverAttributes']['maxWidth'] ?? null;
+                        @endphp
                 
                 <div 
                     x-show="isEnabled && visibleComponents.length > {{ $i }}" 
-                    class="slideover-ui-panel absolute inset-y-0 right-0 flex bg-white w-full max-w-xl z-10 rounded-lg m-4"
-                    x-bind:class="getComponentAttributeById(getComponentIdByIndex({{ $i }}), 'width')"
+                    {{-- class="" --}}
+                    @class([
+                        'slideover-ui-panel absolute inset-y-0 right-0 flex bg-white w-full z-10 rounded-lg m-4',
+                        'sm:max-w-md md:max-w-xl lg:max-w-3xl xl:max-w-5xl 2xl:max-w-6xl' => $maxWidth && $maxWidth == '6xl',
+                        'max-w-2xl' =>  !$maxWidth || ($maxWidth && $maxWidth != '6xl'),
+                    ])
+                    
+                    {{-- x-bind:class="console.log(getComponentAttributeById(getComponentIdByIndex({{ $i }}), 'width'))" --}}
                     
                     x-transition:enter="transform transition ease-in-out duration-150" 
                     x-transition:enter-start="translate-x-full" 
@@ -51,20 +65,17 @@
 
                     x-description=" Slideover panel" 
                 >
-                    @if (count($components) > $i)
-                        @php
-                            $componentId = collect($components)->slice($i, 1)->keys()->first();
-                            $component = $components[$componentId];
-                            $key = $componentId;
-                        @endphp
+                    
                         
+    {{-- @dump($component['slideoverAttributes']) --}}
+
                         <div x-ref="{{ $key }}" wire:key="{{ $key }}" class="grow">
                             @livewire($component['name'], $component['attributes'], key($key))
                         </div>
+                    </div>
                     @endif
-                </div>
             </div>
-            <!-- Slideover template -->
+            {{-- Slideover template --}}
         @endfor
     
     </div>

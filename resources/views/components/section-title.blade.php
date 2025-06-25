@@ -7,7 +7,7 @@
         </p>
     </div>
 
-    <div class="px-4 sm:px-0 flex items-center gap-2">
+    <div class="px-4 sm:px-0 flex items-center flex-col gap-2">
         {{ $aside ?? '' }}
     </div>
 </div>

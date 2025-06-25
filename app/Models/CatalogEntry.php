@@ -80,6 +80,11 @@ class CatalogEntry extends Model implements Sortable
     {
         return $this->belongsTo(User::class);
     }
+    
+    public function lastUpdatedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'updated_by');
+    }
 
     public function catalog(): BelongsTo
     {

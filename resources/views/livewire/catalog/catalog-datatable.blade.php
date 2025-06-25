@@ -206,8 +206,14 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap sticky right-0 bg-white group-hover:bg-gray-50">
                                 <div class="flex items-center space-x-3">
-                                    <x-secondary-button >
-                                        {{ __('Edit') }}
+                                    <x-secondary-button wire:click="$dispatch(
+                                'openSlideover', { 
+                                    component: 'catalog.catalog-entry-view-slideover', 
+                                    arguments: { 
+                                        catalogEntry: '{{ $entry->getKey() }}'
+                                    }
+                                })">
+                                        {{ __('Open') }}
                                     </x-secondary-button>
                                 </div>
                             </td>
