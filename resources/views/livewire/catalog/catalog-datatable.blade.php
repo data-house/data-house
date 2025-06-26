@@ -1,5 +1,5 @@
 <div>
-    @if($fields->isEmpty())
+    @if($visible_fields->isEmpty())
         <div class="grid grid-cols-1 md:grid-cols-3">
         
             <div class="px-6 py-4 bg-white overflow-hidden shadow-sm rounded sm:rounded-lg md:col-span-2"  x-data>
@@ -66,23 +66,32 @@
                 <thead class="text-xs text-stone-700 bg-stone-50 sticky top-0">
                     <tr>
                         <th scope="col" class=" font-normal whitespace-nowrap sticky left-0 bg-stone-50">
+                            @php
+                                $index_column_icon = blank($sort_by) ? ($sort_direction === 'asc' ? 'heroicon-m-bars-arrow-up' : 'heroicon-m-bars-arrow-down') : 'heroicon-m-hashtag';
+                            @endphp
                             <x-popover>
                                     <x-slot name="trigger" class="bg-stone-50 font-normal px-6 py-3 whitespace-nowrap flex w-full gap-1 items-center hover:bg-stone-100">
+
+                                        <x-dynamic-component :component="$index_column_icon" class="text-stone-500 size-3" />
         
                                         {{ __('No') }}
                                             
                                         <x-heroicon-m-ellipsis-horizontal class="ms-1 size-4" />
                                     </x-slot>
                                     
-                                    <button wire:click="sortAscending(0)" class="inline-flex items-center gap-1 w-full px-4 py-2 text-left text-sm leading-5 focus:outline-none transition duration-150 ease-in-out text-stone-700 hover:bg-stone-100 focus:bg-stone-100">
+                                    <button wire:click="resetSorting('asc')" class="inline-flex items-center gap-1 w-full px-4 py-2 text-left text-sm leading-5 focus:outline-none transition duration-150 ease-in-out text-stone-700 hover:bg-stone-100 focus:bg-stone-100">
                                         @if (blank($sort_by) && (blank($sort_direction) || $sort_direction === 'asc'))
                                             <x-heroicon-m-check-circle class="size-4" />
+                                        @else
+                                            <span class="block size-4"></span>
                                         @endif
                                         {{ __('Ascending') }}
                                     </button>
-                                    <button wire:click="sortDescending(0)" class="inline-flex items-center gap-1 w-full px-4 py-2 text-left text-sm leading-5 focus:outline-none transition duration-150 ease-in-out text-stone-700 hover:bg-stone-100 focus:bg-stone-100">
+                                    <button wire:click="resetSorting('desc')" class="inline-flex items-center gap-1 w-full px-4 py-2 text-left text-sm leading-5 focus:outline-none transition duration-150 ease-in-out text-stone-700 hover:bg-stone-100 focus:bg-stone-100">
                                         @if (blank($sort_by) && $sort_direction === 'desc')
                                             <x-heroicon-m-check-circle class="size-4" />
+                                        @else
+                                            <span class="block size-4"></span>
                                         @endif
                                         {{ __('Descending') }}
                                     </button>
@@ -95,12 +104,19 @@
                         <th scope="col" class=" font-normal px-6 py-3 whitespace-nowrap">
                             {{ __('Project') }}
                         </th>
-                        @foreach($fields as $field)
+                        @foreach($visible_fields as $field)
+
+                            @php
+                                $sort_active = $sort_by === $field->uuid;
+
+                                $icon = $sort_active ? ($sort_direction === 'asc' ? 'heroicon-m-bars-arrow-up' : 'heroicon-m-bars-arrow-down') : $field->data_type->icon();
+                            @endphp
+
                             <th scope="col" @class(['min-w-96' => $field->data_type === \App\CatalogFieldType::MULTILINE_TEXT])>
                                 <x-popover>
                                     <x-slot name="trigger" class="font-normal px-6 py-3 whitespace-nowrap flex w-full gap-1 items-center hover:bg-stone-100">
                                 
-                                        <x-dynamic-component :component="$field->data_type->icon()" class="text-stone-500 size-3" />
+                                        <x-dynamic-component :component="$icon" class="text-stone-500 size-3" />
         
                                         {{ $field->title }}
                                             
@@ -108,15 +124,19 @@
                                     </x-slot>
 
                                     @unless ($field->data_type->isReference())
-                                        <button wire:click="sortAscending({{ $field->order }})" class="inline-flex items-center gap-1 w-full px-4 py-2 text-left text-sm leading-5 focus:outline-none transition duration-150 ease-in-out text-stone-700 hover:bg-stone-100 focus:bg-stone-100">
-                                            @if ($sort_by === $field->order && $sort_direction === 'asc')
+                                        <button wire:click="sortAscending('{{ $field->uuid }}')" class="inline-flex items-center gap-1 w-full px-4 py-2 text-left text-sm leading-5 focus:outline-none transition duration-150 ease-in-out text-stone-700 hover:bg-stone-100 focus:bg-stone-100">
+                                            @if ($sort_active && $sort_direction === 'asc')
                                                 <x-heroicon-m-check-circle class="size-4" />
+                                            @else
+                                                <span class="block size-4"></span>
                                             @endif
                                             {{ __('Ascending') }}
                                         </button>
-                                        <button wire:click="sortDescending({{ $field->order }})" class="inline-flex items-center gap-1 w-full px-4 py-2 text-left text-sm leading-5 focus:outline-none transition duration-150 ease-in-out text-stone-700 hover:bg-stone-100 focus:bg-stone-100">
-                                            @if ($sort_by === $field->order && $sort_direction === 'desc')
+                                        <button wire:click="sortDescending('{{ $field->uuid }}')" class="inline-flex items-center gap-1 w-full px-4 py-2 text-left text-sm leading-5 focus:outline-none transition duration-150 ease-in-out text-stone-700 hover:bg-stone-100 focus:bg-stone-100">
+                                            @if ($sort_active && $sort_direction === 'desc')
                                                 <x-heroicon-m-check-circle class="size-4" />
+                                            @else
+                                                <span class="block size-4"></span>
                                             @endif
                                             {{ __('Descending') }}
                                         </button>
@@ -125,13 +145,17 @@
                                     @endunless
                                     
 
-                                    <button wire:click="moveFieldLeft({{ $field->order }})" @disabled($field->order <= 1) class="inline-flex items-center gap-1 w-full px-4 py-2 text-left text-sm leading-5 focus:outline-none transition duration-150 ease-in-out text-stone-700 hover:bg-stone-100 focus:bg-stone-100 disabled:cursor-not-allowed disabled:opacity-65">
+                                    <button wire:click="moveFieldLeft({{ $field->order }})" @disabled($field->order <= 1) class="inline-flex items-center gap-2 w-full px-4 py-2 text-left text-sm leading-5 focus:outline-none transition duration-150 ease-in-out text-stone-700 hover:bg-stone-100 focus:bg-stone-100 disabled:cursor-not-allowed disabled:opacity-65">
                                         <x-codicon-arrow-small-left class="size-4 text-stone-600" />
                                         {{ __('Move left') }}
                                     </button>
-                                    <button wire:click="moveFieldRight({{ $field->order }})" @disabled($field->order >= $fields->count()) class="inline-flex items-center gap-1 w-full px-4 py-2 text-left text-sm leading-5 focus:outline-none transition duration-150 ease-in-out text-stone-700 hover:bg-stone-100 focus:bg-stone-100 disabled:cursor-not-allowed disabled:opacity-65">
+                                    <button wire:click="moveFieldRight({{ $field->order }})" @disabled($field->order >= $all_fields->count()) class="inline-flex items-center gap-2 w-full px-4 py-2 text-left text-sm leading-5 focus:outline-none transition duration-150 ease-in-out text-stone-700 hover:bg-stone-100 focus:bg-stone-100 disabled:cursor-not-allowed disabled:opacity-65">
                                         <x-codicon-arrow-small-right class="size-4 text-stone-600" />
                                         {{ __('Move right') }}
+                                    </button>
+                                    <button type="button" wire:click="toggleFieldVisibility({{ $field->order }})" class="inline-flex whitespace-nowrap items-center gap-2 w-full px-4 py-2 text-left text-sm leading-5 focus:outline-none transition duration-150 ease-in-out text-stone-700 hover:bg-stone-100 focus:bg-stone-100">
+                                        <x-heroicon-m-eye-slash class="size-4 text-stone-600 shrink-0" />
+                                        {{ __('Hide') }}
                                     </button>
 
 
@@ -145,7 +169,29 @@
                         <th scope="col" class=" font-normal px-6 py-3 whitespace-nowrap">
                             {{ __('Last update date') }}
                         </th>
-                        <th scope="col" class="pointer-events-none font-normal px-6 py-3 whitespace-nowrap sticky right-0">
+                        <th scope="col" class="font-normal whitespace-nowrap sticky right-0 bg-stone-50">
+
+                            <x-popover aria-label="{{ __('Select columns') }}" :close-outside-click="false" width="60">
+                                <x-slot name="trigger" class="font-normal px-6 py-3 whitespace-nowrap flex w-full gap-1 items-center hover:bg-stone-100">
+                            
+                                    <x-heroicon-m-view-columns class="size-4" />
+                                </x-slot>
+
+                                @foreach($all_fields as $field)
+                                    <button type="button" wire:click="toggleFieldVisibility({{ $field->order }})" class="inline-flex whitespace-nowrap items-center gap-2 w-full px-4 py-2 text-left text-sm leading-5 focus:outline-none transition duration-150 ease-in-out text-stone-700 hover:bg-stone-100 focus:bg-stone-100">
+                                        @if ($field->make_hidden)
+                                            <x-heroicon-m-eye-slash class="size-4 text-stone-600 shrink-0" />
+                                        @else
+                                            <span class="block size-4"></span>
+                                        @endif
+                                        {{ $field->title }}
+                                    </button>
+                                @endforeach
+                                
+                                
+
+                            </x-popover>
+
                             
                         </th>
                     </tr>
@@ -170,7 +216,7 @@
                                     &nbsp;
                                 @endif
                             </td>
-                            @foreach($fields as $field)
+                            @foreach($visible_fields as $field)
                                 <td class="px-6 py-4">
                                     @php
                                         $value = $entry->catalogValues->first(function($value) use ($field) {
@@ -222,7 +268,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="{{ $fields->count() + 6 }}" class="px-6 py-4 text-center text-sm text-gray-500">
+                            <td colspan="{{ $visible_fields->count() + 6 }}" class="px-6 py-4 text-center text-sm text-gray-500">
                                 {{ __('No entries yet') }}
                             </td>
                         </tr>

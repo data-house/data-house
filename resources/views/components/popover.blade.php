@@ -1,4 +1,4 @@
-@props(['align' => 'right', 'width' => '48', 'contentClasses' => 'py-1 bg-white', 'dropdownClasses' => '', 'state' => '{ open: false }'])
+@props(['align' => 'right', 'closeOutsideClick' => true, 'width' => '48', 'contentClasses' => 'py-1 bg-white', 'dropdownClasses' => '', 'state' => '{ open: false }'])
 
 @php
 $alignmentClasses = match ($align) {
@@ -19,10 +19,12 @@ $width = match ($width) {
 };
 @endphp
 
-<div class="" x-data="{{ $state }}"  x-on:closedropdown.window="open = false" @click.away="open = false" @close.stop="open = false" @keydown.escape="open = false">
+<div class="" x-data="{{ $state }}"  x-on:closedropdown.window="open = false" @if($closeOutsideClick) @click.outside="open = false" @endif @close.stop="open = false" @keydown.escape="open = false">
     <button type="button" @click="open = ! open" x-ref="button" {{ $trigger->attributes }}>
         {{ $trigger }}
     </button>
+
+    {{--  --}}
 
     <template x-teleport="body">
     <div x-show="open"

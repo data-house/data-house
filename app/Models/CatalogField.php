@@ -44,6 +44,7 @@ class CatalogField extends Model implements Sortable
     {
         return [
             'data_type' => CatalogFieldType::class,
+            'make_hidden' => 'boolean',
         ];
     }
 
@@ -83,6 +84,19 @@ class CatalogField extends Model implements Sortable
         return $this->belongsTo(SkosCollection::class);
     }
 
+    
+    public function scopeVisible($query)
+    {
+        return $query
+            ->where(fn($q) => $q->whereNull('make_hidden')->orWhere('make_hidden', false));
+    }
+
+    public function scopeHidden($query)
+    {
+        return $query
+            ->where('make_hidden', '==', true);
+    }
+
 
     /**
      * Create the sorting query to populate the order column when adding or moving a field
@@ -108,6 +122,28 @@ class CatalogField extends Model implements Sortable
             $this->data_type === CatalogFieldType::DATETIME ? 'date' : null,
             $this->data_type === CatalogFieldType::BOOLEAN ? 'boolean' : null,
         ]);
+    }
+
+    public function hide(): void
+    {
+        $this->make_hidden = true;
+        $this->save();
+    }
+    
+    public function show(): void
+    {
+        $this->make_hidden = false;
+        $this->save();
+    }
+
+    public function toggleVisibility(): void
+    {
+        if($this->make_hidden){
+            $this->show();
+            return;
+        }
+
+        $this->hide();
     }
 
 

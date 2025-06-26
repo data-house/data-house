@@ -5,7 +5,6 @@ namespace App\Livewire\Catalog;
 use App\Actions\Catalog\CreateCatalogField;
 use App\CatalogFieldType;
 use App\Livewire\Concern\InteractWithUser;
-use Illuminate\Contracts\Database\Eloquent\Builder;
 use App\Models\Catalog;
 use App\Models\CatalogEntry;
 use App\Models\CatalogField;
@@ -15,7 +14,6 @@ use Livewire\Attributes\Locked;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
-use MeiliSearch\Endpoints\Indexes;
 
 class CatalogDatatable extends Component
 {
@@ -27,7 +25,7 @@ class CatalogDatatable extends Component
     public $catalogId;
 
     #[Url(as: 'sort', history: true)]
-    public ?int $sort_by = null;
+    public ?string $sort_by = null;
 
     #[Url(as: 'direction', history: true)]
     public ?string $sort_direction = null;
@@ -63,7 +61,7 @@ class CatalogDatatable extends Component
     #[Computed()]
     public function entries()
     {
-        $sorting_field = filled($this->sort_by) ? $this->fields->where('order', $this->sort_by)->sole() : null;
+        $sorting_field = filled($this->sort_by) ? $this->fields->where('uuid', $this->sort_by)->sole() : null;
 
         if(filled($this->search)){
             return CatalogEntry::search($this->search)
@@ -100,6 +98,8 @@ class CatalogDatatable extends Component
     // Move field order
     public function moveFieldRight(int $index)
     {
+        abort_unless($this->user->can('update', $this->catalog), 403);
+
         $fields = $this->fields;
 
         if($index >= $fields->count()){
@@ -107,15 +107,38 @@ class CatalogDatatable extends Component
         }
 
         $current = $fields->where('order', $index)->sole();
-        $next = $fields->where('order', $index+1)->sole();
+        $next = $fields
+            ->where('order', '>', $index)
+            ->where('make_hidden', false)
+            ->sortBy('order')
+            ->first();
 
-        CatalogField::swapOrder($current, $next);
+        if (!$next) {
+            
+            return;
+        }
+
+        [$beforeNext, $afterNext] = $fields->partition(function ($f) use ($next) {
+            return $f->order <= $next->order;
+        });
+
+        $reordered = collect($beforeNext->map->id->diff([$current->id]))
+            ->push($current->id)
+            ->push($afterNext->map->id)
+            ->flatten(1)
+            ->values();
+
+        CatalogField::setNewOrder($reordered->all(), modifyQuery: function($query){
+            $query->where('catalog_id', $this->catalogId);
+        } );
 
         unset($this->fields);
     }
     
     public function moveFieldLeft(int $index)
     {
+        abort_unless($this->user->can('update', $this->catalog), 403);
+
         $fields = $this->fields;
 
         if($index <= 1){
@@ -123,44 +146,76 @@ class CatalogDatatable extends Component
         }
 
         $current = $fields->where('order', $index)->sole();
-        $previous = $fields->where('order', $index-1)->sole();
+        $previous = $fields
+            ->where('order', '<', $index)
+            ->where('make_hidden', false)
+            ->sortByDesc('order')
+            ->first();
+        
+        if (!$previous) {
+            return;
+        }
 
-        CatalogField::swapOrder($current, $previous);
+        [$beforePrevious, $afterPrevious] = $fields->partition(function ($f) use ($previous) {
+            return $f->order < $previous->order;
+        });
+
+        $reordered = collect($beforePrevious->map->id)
+            ->push($current->id)
+            ->push($afterPrevious->map->id->diff([$current->id]))
+            ->flatten(1)
+            ->values();
+
+        CatalogField::setNewOrder($reordered->all(), modifyQuery: function($query){
+            $query->where('catalog_id', $this->catalogId);
+        } );
 
         unset($this->fields);
     }
     
+    public function toggleFieldVisibility(int $index)
+    {
+        abort_unless($this->user->can('update', $this->catalog), 403);
+
+        $fields = $this->fields;
+
+        $current = $fields->where('order', $index)->sole();
+
+        $current->toggleVisibility();
+
+        if($this->sort_by === $current->uuid){
+            $this->resetSorting();
+        }
+
+        unset($this->fields);
+    }
+
+    public function resetSorting($direction = 'asc')
+    {
+        $this->sort_by = null;
+        $this->sort_direction = $direction;
+        $this->resetPage();
+    }
+    
     // Sorting
-    public function sortAscending(int $index)
+    public function sortAscending(string $ref)
     {
         $fields = $this->fields;
 
-        if($index < 1){
-            $this->sort_by = null;
-            $this->sort_direction = 'asc';
-            $this->resetPage();
-            return;
-        }
+        // TODO: check if ref is a valid field uuid
 
-        if($index >= $fields->count()){
-            return;
-        }
-
-        $this->sort_by = $index;
+        $this->sort_by = $ref;
         $this->sort_direction = 'asc';
         $this->resetPage();
     }
     
-    public function sortDescending(int $index)
+    public function sortDescending(string $ref)
     {
-        if($index < 1){
-            $this->sort_by = null;
-            $this->sort_direction = 'desc';
-            $this->resetPage();
-            return;
-        }
+        $fields = $this->fields;
 
-        $this->sort_by = $index;
+        // TODO: check if ref is a valid field uuid
+
+        $this->sort_by = $ref;
         $this->sort_direction = 'desc';
         $this->resetPage();
     }
@@ -203,7 +258,8 @@ class CatalogDatatable extends Component
     {
         return view('livewire.catalog.catalog-datatable', [
             'catalog' => $this->catalog,
-            'fields' => $this->fields,
+            'visible_fields' => $this->fields->where('make_hidden', false),
+            'all_fields' => $this->fields,
             'entries' => $this->entries,
         ]);
     }
