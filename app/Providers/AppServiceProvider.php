@@ -181,6 +181,11 @@ class AppServiceProvider extends ServiceProvider
         Feature::define(Flag::COLLECTIONS_TOPIC_GROUP->value, fn (User $user) => match (true) {
             default => false,
         });
+        
+        Feature::define(Flag::VOCABULARY->value, fn (User $user) => match (true) {
+            $user->hasRole(Role::ADMIN->value) => false,
+            default => false,
+        });
     }
 
     protected function configureHelpers()

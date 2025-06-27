@@ -37,9 +37,11 @@
                             <x-flyer-link wire:navigate href="{{ route('projects.index') }}" :active="request()->routeIs('projects.*')">
                                 {{ __('Projects') }}
                             </x-flyer-link>
+                            @feature(Flag::vocabulary())
                             <x-flyer-link wire:navigate href="{{ route('vocabularies.index') }}" :active="request()->routeIs('vocabularies.*') || request()->routeIs('vocabulary-concepts.*')">
                                 {{ __('Vocabularies') }}
                             </x-flyer-link>
+                            @endfeature
                         </x-slot>
                     </x-flyer>
                 </div>
@@ -69,9 +71,11 @@
                     <x-nav-link href="{{ route('projects.index') }}" :active="request()->routeIs('projects.*')">
                         {{ __('Projects') }}
                     </x-nav-link>
+                    @feature(Flag::vocabulary())
                     <x-nav-link href="{{ route('vocabularies.index') }}" :active="request()->routeIs('vocabularies.*') || request()->routeIs('vocabulary-concepts.*')">
                         {{ __('Vocabularies') }}
                     </x-nav-link>
+                    @endfeature
                 </div>
             </div>
 

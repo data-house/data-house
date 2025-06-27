@@ -239,7 +239,11 @@
                                                 @break
                                             @case(\App\CatalogFieldType::SKOS_CONCEPT)
                                                 @if ($value->concept)
-                                                    <a wire:navigate href="{{ route('vocabulary-concepts.show', $value->concept) }}" class="block max-w-52 truncate hover:underline">{{ $value->concept->pref_label }}</a>
+                                                    @feature(Flag::vocabulary())
+                                                        <a wire:navigate href="{{ route('vocabulary-concepts.show', $value->concept) }}" class="block max-w-52 truncate hover:underline">{{ $value->concept->pref_label }}</a>
+                                                    @else
+                                                        <span class="block max-w-52 truncate">{{ $value->concept->pref_label }}</span>
+                                                    @endfeature
                                                 @endif
                                                 @break
                                             @default
