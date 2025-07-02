@@ -40,6 +40,13 @@ class DocumentController extends Controller
      */
     public function store(Request $request)
     {
+
+
+        // TODO: allow direct upload of new documents
+
+        // TODO: allow to execute flows on document => first flow extract recommendations, how to configure them?
+        // The flow requires the JSON for the structured extraction and the mapping to the CatalogEntry and Field to populate with each extraction
+
         abort_unless(config('library.upload.allow_direct_upload'), 404);
         
         $validated = $this->validate($request, [

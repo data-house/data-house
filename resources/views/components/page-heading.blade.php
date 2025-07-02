@@ -5,7 +5,7 @@
         <h1 class="grow text-lg font-semibold leading-7 text-stone-900 whitespace-nowrap">{{ $title }}</h1>
 
         @if (isset($actions) && $actions->isNotEmpty())
-        <div class="flex space-x-4 divide-x divide-stone-200 items-center justify-between sm:justify-end ">
+        <div class="flex space-x-4  items-center justify-between sm:justify-end ">
 
             {{ $actions ?? null}}
         </div>

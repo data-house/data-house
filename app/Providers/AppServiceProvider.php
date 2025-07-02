@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Console\Commands\Catalog\DeleteCatalogCommand;
+use App\Data\Catalog\Flows\StructuredExtractionConfigurationData;
 use App\Http\Requests\RetrievalRequest;
 use App\Jobs\Pipeline\Document\AttachDocumentToLibraryCollection;
 use App\Jobs\Pipeline\Document\ConvertToPdf;
@@ -32,6 +33,7 @@ use App\Rules\PasswordDoesNotContainEmail;
 use Filament\Support\Colors\Color;
 use Filament\Support\Facades\FilamentColor;
 use Livewire\Livewire;
+use Spatie\LaravelData\Support\DataConfig;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -110,6 +112,10 @@ class AppServiceProvider extends ServiceProvider
         ]);
 
         DeleteCatalogCommand::prohibit($this->app->isProduction());
+
+        app(DataConfig::class)->enforceMorphMap([
+            'extract' => StructuredExtractionConfigurationData::class,
+        ]);
     }
 
     protected function configureGates()

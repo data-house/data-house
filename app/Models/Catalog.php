@@ -73,7 +73,7 @@ class Catalog extends Model
     {
         return $this->hasMany(CatalogField::class);
     }
-
+    
     public function entries(): HasMany
     {
         return $this->hasMany(CatalogEntry::class);
@@ -82,6 +82,11 @@ class Catalog extends Model
     public function catalogValues(): HasMany
     {
         return $this->hasMany(CatalogValue::class);
+    }
+    
+    public function flows(): HasMany
+    {
+        return $this->hasMany(CatalogFlow::class);
     }
 
     /**

@@ -29,6 +29,7 @@ class CatalogEntry extends Model implements Sortable
         'user_id',
         'document_id',
         'project_id',
+        'catalog_flow_run_id',
     ];
 
     /**
@@ -106,6 +107,11 @@ class CatalogEntry extends Model implements Sortable
         return $this->hasMany(CatalogValue::class);
             // TODO: order by field.order
             // TODO: chaperone, otherwise I get problems accessing the field definition from within the value
+    }
+    
+    public function catalogFlowRuns(): HasMany
+    {
+        return $this->hasMany(CatalogFlowRun::class);
     }
 
     /**

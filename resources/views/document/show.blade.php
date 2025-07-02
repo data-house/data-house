@@ -40,6 +40,8 @@
                         @endfeature
                     </div>
                 @endcan
+
+                <livewire:document-flow-action-button :document="$document" />
             </div>
         </div>
     </x-slot>

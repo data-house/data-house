@@ -7,6 +7,8 @@ use App\Copilot\CopilotRequest;
 use App\Copilot\CopilotResponse;
 use App\Copilot\CopilotSummarizeRequest;
 use Illuminate\Support\Collection;
+use OneOffTech\LibrarianClient\Dto\Document;
+use OneOffTech\LibrarianClient\Dto\Extraction;
 
 class NullEngine extends Engine
 {
@@ -76,6 +78,11 @@ class NullEngine extends Engine
     public function classifyText(string $classifier, string $text, string $lang = 'en'): Collection
     {
         return collect();
+    }
+
+    public function extract(string $structuredResponseModel, Document $from, ?array $sections = null, ?string $instructions = null): Extraction
+    {
+        return new Extraction([]);
     }
 
     public function refreshPrompts(): string

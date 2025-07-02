@@ -17,6 +17,16 @@ export default {
         './resources/views/**/*.blade.php',
     ],
 
+    safelist : [
+        'sm:max-w-md',
+        'max-w-2xl',
+        'md:max-w-xl',
+        'lg:max-w-3xl',
+        'xl:max-w-4xl',
+        'xl:max-w-5xl',
+        '2xl:max-w-7xl',
+    ],
+
     theme: {
         extend: {
             

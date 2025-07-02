@@ -45,10 +45,13 @@ class CatalogController extends Controller
         $fields = $catalog->fields()->orderBy('order')->get();
         $entries = $catalog->entries()->with(['catalogValues.catalogField'])->get();
 
+        $flows = $catalog->flows->loadCount('runs');
+
         return view('catalog.show', [
             'catalog' => $catalog,
             'fields' => $fields,
             'entries' => $entries,
+            'flows' => $flows,
         ]);
     }
 }

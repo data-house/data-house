@@ -29,7 +29,7 @@ return new class extends Migration
 
             $table->string('title');
 
-            $table->mediumText('description')->nullable();            
+            $table->mediumText('description')->nullable();
 
             $table->foreignIdFor(User::class, 'updated_by')->nullable();
             
