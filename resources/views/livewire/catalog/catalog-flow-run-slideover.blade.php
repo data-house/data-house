@@ -7,7 +7,7 @@
        <span class="text-stone-600">{{ __('Catalog:') }}</span> <a href="{{ route('catalogs.show', $catalog) }}" class="underline">{{ $catalog->title }}</a>
     </p>
 
-    <h3 class="font-bold mb-3">{{ __('Runs') }}</h3>
+    <h3 class="font-bold mb-3">{{ __('Runs') }} ({{ $flow->runs->count() }})</h3>
 
     <table class="w-full text-sm">
         <thead>
@@ -24,11 +24,15 @@
                     <td class="p-2"><x-status-badge :status="$run->status" /></td>
                 </tr>
             @empty
-                @if ($document)
-                    {{ __('No runs for this flow on :document', ['document' => $document->title]) }}
-                @else
-                    {{ __('No runs for this flow') }}
-                @endif
+                <tr>
+                    <td colspan="2">
+                        @if ($document)
+                            {{ __('No runs for this flow on :document', ['document' => $document->title]) }}
+                        @else
+                            {{ __('No runs for this flow') }}
+                        @endif
+                    </td>
+                </tr>
             @endforelse
         </tbody>
     </table>

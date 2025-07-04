@@ -7,11 +7,13 @@ use App\Models\CatalogFlow;
 use App\Models\CatalogFlowRun;
 use App\Models\Document;
 use App\Models\ImportStatus;
+use App\Notifications\CatalogFlowRunExecutedNotification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Notification;
 
 class ExecuteCatalogFlowJob implements ShouldQueue
 {
@@ -47,9 +49,13 @@ class ExecuteCatalogFlowJob implements ShouldQueue
             $this->flowRun->run_result = $result;
             $this->flowRun->save();
         } catch (\Throwable $th) {
+            logs()->error("Flow run error [run = {$this->flowRun->getKey()}]", ['error' => $th]);
             $this->flowRun->status = ImportStatus::FAILED;
             $this->flowRun->run_result = ['error' => $th->getMessage()];
             $this->flowRun->save();
+        }
+        finally{
+            Notification::send($this->flowRun->user, new CatalogFlowRunExecutedNotification($this->flowRun));
         }
         
     }

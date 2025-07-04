@@ -40,7 +40,7 @@ class CatalogFlowRun extends Model
     public function scopeVisibleTo($query, User $user)
     {
         return $query
-            ->when(!$user->hasRole(Role::ADMIN->value), function ($query, $role) use ($user): void {
+            ->when(!$user->hasRole(Role::ADMIN->value) || $user->cannot('update', $this->catalog), function ($query, $role) use ($user): void {
                 $query->where('user_id', $user->getKey());
             });
     }

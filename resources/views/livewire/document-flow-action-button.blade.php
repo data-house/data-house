@@ -11,14 +11,19 @@
 
     @forelse ($flows as $flow)
         <p class="flex" wire:key="{{ $flow->id }}">
-            <button type="button" wire:click="showFlow('{{ $flow->uuid }}')" class="grow inline-flex items-center gap-1 w-full pl-4 py-2 text-left text-sm leading-5 focus:outline-none transition duration-150 ease-in-out text-stone-700 hover:bg-stone-100 focus:bg-stone-100">
-                {{ $flow->title }} 
-                &nbsp;({{ $flow->runs_count }})
+            <button type="button" wire:click="showFlow('{{ $flow->uuid }}')" class="grow inline-flex items-center gap-1 pl-4 pr-2 py-2 text-left text-sm leading-5 focus:outline-none transition duration-150 ease-in-out text-stone-700 hover:bg-stone-100 focus:bg-stone-100">
+                {{ $flow->title }}
             </button>
-            
-            <button type="button" wire:click="triggerFlow('{{ $flow->uuid }}')" class="inline-flex items-center gap-1 pr-4 py-2 text-left text-sm leading-5 focus:outline-none transition duration-150 ease-in-out text-stone-700 hover:bg-stone-100 focus:bg-stone-100">
-                Play
-            </button>
+
+            @if ($flow->runs_count > 0)
+                <button type="button" wire:click="showFlow('{{ $flow->uuid }}')" class="inline-flex items-center gap-1 pr-4 pl-2 py-2 text-left text-sm leading-5 focus:outline-none transition duration-150 ease-in-out text-stone-700 hover:bg-stone-100 focus:bg-stone-100">
+                    <x-status-badge :status="\App\Models\ImportStatus::RUNNING" />
+                </button>
+            @else
+                <button type="button" wire:click="triggerFlow('{{ $flow->uuid }}')" class="inline-flex items-center gap-1 pl-2 pr-4 py-2 text-left text-sm leading-5 focus:outline-none transition duration-150 ease-in-out text-stone-700 hover:bg-stone-100 focus:bg-stone-100">
+                    {{ __('Play') }}
+                </button>
+            @endif
         </p>
     @empty
         <p class="text-stone-600">{{ __('No flows defined.') }}</p>

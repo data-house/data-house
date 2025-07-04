@@ -67,6 +67,8 @@ class ExecuteCatalogFlowOnDocument
 
         $extractionResponse = $extraction->content;
 
+        logs()->info("Extraction for [{$flow->getKey()}] [{$document->getKey()}]", ['response' => $extractionResponse]);
+
         // I have field-UUID => json_attribute
         $fieldToAttribute = $flowConfiguration->attributes_to_field;
 

@@ -37,13 +37,12 @@
                         </x-slot>
 
                         @forelse ($flows as $flow)
-                            <button type="button" x-data x-on:click="Livewire.dispatch('openSlideover', {component: 'catalog.catalog-flow-run-slideover', arguments: {flow: '{{ $flow->getKey() }}'}})" class=" inline-flex items-center gap-1 w-full pl-4 py-2 text-left text-sm leading-5 focus:outline-none transition duration-150 ease-in-out text-stone-700 hover:bg-stone-100 focus:bg-stone-100">
-                                {{ $flow->title }} 
-                                &nbsp;({{ $flow->runs_count }})
+                            <button type="button" x-data x-on:click="Livewire.dispatch('openSlideover', {component: 'catalog.catalog-flow-run-slideover', arguments: {flow: '{{ $flow->getKey() }}'}})" class=" inline-flex items-center gap-1 w-full px-4 py-2 text-left text-sm leading-5 focus:outline-none transition duration-150 ease-in-out text-stone-700 hover:bg-stone-100 focus:bg-stone-100">
+                                {{ $flow->title }}
                             </button>
                             
                         @empty
-                            <p class="text-stone-600">{{ __('No flows defined for this catalog.') }}</p>
+                            <p class="px-4 py-2 text-stone-600 text-sm">{{ __('No flows defined for this catalog.') }}</p>
                         @endforelse
 
 

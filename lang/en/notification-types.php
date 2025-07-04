@@ -19,6 +19,7 @@ return [
         'question-review-requested' => 'Answer review requested',
         'question-review-assigned' => 'Assigned as answer reviewer',
         'question-review-completed' => 'Answer review completed',
+        'catalog-flow-run-executed' => 'Action executed',
     ],
 
 ];

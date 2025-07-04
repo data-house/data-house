@@ -65,7 +65,7 @@ class CatalogFlowRunSlideover extends SlideoverComponent
                 'catalog',
                 'runs' => function($query){
                     $query
-                        ->visibleTo($this->user)
+                        // ->visibleTo($this->user) // TODO: assicurarsi che tenga in considerazione dei permessi dell'utente sul team corrente
                         ->when($this->document, fn($q) => $q->forDocument($this->document))
                         ->orderBy('updated_at', 'desc');
                 },
