@@ -46,7 +46,7 @@ class CatalogEntryPolicy
      */
     public function delete(User $user, CatalogEntry $catalogEntry): bool
     {
-        return $user->can('delete', $catalogEntry->catalog);
+        return $user->can('update', $catalogEntry->catalog);
     }
 
     /**
@@ -54,7 +54,7 @@ class CatalogEntryPolicy
      */
     public function restore(User $user, CatalogEntry $catalogEntry): bool
     {
-        return $user->can('restore', $catalogEntry->catalog);
+        return $user->can('update', $catalogEntry->catalog);
     }
 
     /**

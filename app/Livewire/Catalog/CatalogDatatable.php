@@ -32,6 +32,9 @@ class CatalogDatatable extends Component
     
     #[Url(as: 's', history: true)]
     public ?string $search = null;
+    
+    #[Url(as: 'trashed', history: true)]
+    public ?bool $trashed = null;
 
     protected $listeners = [
         'field-created' => 'refresh',
@@ -73,6 +76,7 @@ class CatalogDatatable extends Component
 
 
         return $this->catalog->entries()
+            ->when($this->trashed, fn($query) => $query->onlyTrashed())
             ->with(['catalogValues.catalogField', 'catalogValues.concept', 'document', 'project'])
             // sort by entry no ascending if no sorting option defined
             ->when(blank($this->sort_by), function($query){

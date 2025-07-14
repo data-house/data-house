@@ -23,10 +23,8 @@ class CatalogEntryFactory extends Factory
         return [
             'user_id' => User::factory(),
             'catalog_id' => Catalog::factory(),
-            'catalog_id' => CatalogEntry::factory(),
             'document_id' => null,
             'project_id' => null,
-            'catalog_id' => CatalogField::factory(),
         ];
     }
 }

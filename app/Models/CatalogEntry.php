@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Laravel\Scout\Searchable;
 use Spatie\EloquentSortable\Sortable;
 use Spatie\EloquentSortable\SortableTrait;
@@ -22,6 +24,10 @@ class CatalogEntry extends Model implements Sortable
     use SortableTrait;
 
     use Searchable;
+
+    use SoftDeletes;
+
+    protected const DELETED_AT = 'trashed_at';
 
     protected $fillable = [
         'entry_index',
@@ -74,6 +80,7 @@ class CatalogEntry extends Model implements Sortable
     public function buildSortQuery()
     {
         return static::query()
+            ->withoutGlobalScope(SoftDeletingScope::class)
             ->where('catalog_id', $this->catalog_id);
     }
 
@@ -85,6 +92,11 @@ class CatalogEntry extends Model implements Sortable
     public function lastUpdatedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'updated_by');
+    }
+    
+    public function trashedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'trashed_by');
     }
 
     public function catalog(): BelongsTo
@@ -109,9 +121,9 @@ class CatalogEntry extends Model implements Sortable
             // TODO: chaperone, otherwise I get problems accessing the field definition from within the value
     }
     
-    public function catalogFlowRuns(): HasMany
+    public function catalogFlowRun(): BelongsTo
     {
-        return $this->hasMany(CatalogFlowRun::class);
+        return $this->belongsTo(CatalogFlowRun::class);
     }
 
     /**
@@ -179,6 +191,7 @@ class CatalogEntry extends Model implements Sortable
             'document_id' => $this->document_id,
             'project_id' => $this->project_id,
             'created_at' => $this->created_at->toDateString(),
+            'trashed_at' => $this->trashed_at?->toDateString(),
 
             'document' => $this->document?->title,
             'project' => $this->project?->title,

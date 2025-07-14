@@ -68,7 +68,7 @@ class CreateFieldSlideover extends SlideoverComponent implements HasForms
                 ->native(false)
                 ->optionsLimit(10)
                 ->options(SkosCollection::query()->latest()->paginate(6)->pluck('pref_label', 'id'))
-                ->getSearchResultsUsing(fn (string $search): array => SkosCollection::query()->latest()->paginate(6)->pluck('pref_label', 'id'))
+                ->getSearchResultsUsing(fn (string $search) => SkosCollection::query()->where('pref_label', 'like', '%'.e($search).'%')->latest()->paginate(6)->pluck('pref_label', 'id'))
                 ->loadingMessage(__('Loading vocabulary groups...'))
                 ->searchPrompt(__('Search vocabulary groups by title and content'))
                 ->searchingMessage(__('Searching vocabulary groups...')),

@@ -41,7 +41,7 @@ class CreateCatalogField
                 'string',
                 'min:1',
                 'max:255',
-                // TODO: verify field has unique title within catalog
+                Rule::unique('catalog_fields', 'title')->where(fn ($query) => $query->where('catalog_id', $catalog->getKey()))
             ],
             'description' => ['nullable', 'string', 'max:6000'],
             'skos_collection' => ['nullable', Rule::requiredIf($fieldType == CatalogFieldType::SKOS_CONCEPT)],

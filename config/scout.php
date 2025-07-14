@@ -263,6 +263,7 @@ return [
                     'document_id',
                     'project_id',
                     'created_at',
+                    'trashed_at',
                 ],
                 'sortableAttributes' => [
                     'entry_index',
@@ -270,6 +271,7 @@ return [
                     'document_id',
                     'project_id',
                     'created_at',
+                    'trashed_at',
                 ],
             ],
         ],

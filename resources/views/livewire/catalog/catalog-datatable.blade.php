@@ -188,7 +188,16 @@
                                     </button>
                                 @endforeach
                                 
-                                
+                                <div class="border-t border-stone-200"></div>
+
+                                <button type="button" wire:click="$toggle('trashed')" class="inline-flex whitespace-nowrap items-center gap-2 w-full px-4 py-2 text-left text-sm leading-5 focus:outline-none transition duration-150 ease-in-out text-stone-700 hover:bg-stone-100 focus:bg-stone-100">
+                                    @if ($trashed)
+                                        <x-heroicon-m-check-circle class="size-4" />
+                                    @else
+                                        <span class="block size-4"></span>
+                                    @endif
+                                    {{ __('Show trashed entries') }}
+                                </button>
 
                             </x-popover>
 
@@ -199,7 +208,7 @@
                 <tbody>
                     @forelse($entries as $entry)
                         <tr class="bg-white border-b hover:bg-gray-50 group">
-                            <td class="px-6 py-4 sticky left-0 bg-white group-hover:bg-gray-50">
+                            <td class="px-6 py-4 sticky left-0 bg-white group-hover:bg-gray-50 {{ $entry->trashed() ? 'line-through' : '' }}">
                                 {{ $entry->entry_index }}
                             </td>
                             <td class="px-6 py-4">
@@ -267,6 +276,17 @@
                                 })">
                                         {{ __('Open') }}
                                     </x-secondary-button>
+                                    @can('update', $entry)
+                                        <x-secondary-button wire:click="$dispatch(
+                                            'openSlideover', { 
+                                                component: 'catalog.edit-entry-slideover', 
+                                                arguments: { 
+                                                    entry: '{{ $entry->getKey() }}'
+                                                }
+                                            })">
+                                        {{ __('Edit') }}
+                                    </x-secondary-button>
+                                    @endcan
                                 </div>
                             </td>
                         </tr>

@@ -5,6 +5,23 @@
 
 
     <div class="space-y-4 md:grid md:grid-cols-2 xl:grid-cols-3 gap-4">
+
+        @if ($catalog_entry->trashed())
+            <div class="py-2 px-2 flex gap-1 items-center min-w-0 md:col-span-2 xl:col-span-3 bg-stone-100 rounded">
+                <x-heroicon-c-trash class="size-4 text-current" />
+
+                <p class="ml-3 font-medium text-sm">{{ __('You are looking at a trashed entry.') }}
+
+                    @can('restore', $catalog_entry)
+                        <x-small-button wire:click="restoreEntry">
+                            <span wire:loading.remove wire:target="restoreEntry">{{ __('Restore') }}</span>
+                            <span wire:loading wire:target="restoreEntry">{{ __('Restoring...') }}</span>
+                        </x-small-button>
+                    @endcan
+
+                </p>
+            </div>            
+        @endif
         
         <div class="flex flex-col gap-4 xl:col-span-2">
         @foreach($fields as $field)
@@ -97,11 +114,18 @@
             </div>
 
 
-            <div class="text-sm">
+            <div class="text-sm space-y-2">
 
 
-                <x-date :value="$catalog_entry->updated_at" /> {{ __('by') }} {{ $catalog_entry->lastUpdatedBy?->name ?? $catalog_entry->user?->name }}
+                <p>
+                    <x-date :value="$catalog_entry->updated_at" /> {{ __('by') }} {{ $catalog_entry->lastUpdatedBy?->name ?? $catalog_entry->user?->name }}
+                </p>
 
+                @if ($catalog_entry->trashed())
+                    <p>
+                        {{ __('Trashed at') }} <x-date :value="$catalog_entry->trashed_at" /> {{ __('by') }} {{ $catalog_entry->trashedBy?->name ?? $catalog_entry->user?->name }}
+                    </p>
+                @endif
                 
             </div>
         </div>

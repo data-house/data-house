@@ -3,6 +3,7 @@
 namespace App\Livewire\Catalog;
 
 use App\Actions\Catalog\CreateCatalog;
+use App\Actions\Catalog\RestoreCatalogEntry;
 use App\Actions\Review\RequestQuestionReview;
 use App\Data\Notifications\ActivitySummaryNotificationData;
 use App\Livewire\Concern\InteractWithUser;
@@ -29,7 +30,7 @@ class CatalogEntryViewSlideover extends SlideoverComponent
     {
         abort_unless($this->user, 401);
 
-        $catalogEntry = $catalogEntry instanceof CatalogEntry ? $catalogEntry : CatalogEntry::findOrFail($catalogEntry);
+        $catalogEntry = $catalogEntry instanceof CatalogEntry ? $catalogEntry : CatalogEntry::withTrashed()->findOrFail($catalogEntry);
         
         $this->user->can('view', $catalogEntry);
 
@@ -40,7 +41,7 @@ class CatalogEntryViewSlideover extends SlideoverComponent
     #[Computed()]
     public function entry()
     {
-        return CatalogEntry::find($this->catalogEntryId)
+        return CatalogEntry::withTrashed()->find($this->catalogEntryId)
             ->load([
                 'user',
                 'lastUpdatedBy',
@@ -66,6 +67,20 @@ class CatalogEntryViewSlideover extends SlideoverComponent
     public static function slideoverMaxWidth(): string
     {
         return '6xl';
+    }
+
+    public function restoreEntry()
+    {
+        $restoreEntry = app()->make(RestoreCatalogEntry::class); 
+
+        $restoreEntry($this->entry, $this->user);
+
+        $this->dispatch('banner-message', 
+            type: 'success',
+            message: __('Entry :entry restored from trash.', ['entry' => $this->entry->entry_index]),
+        );
+
+        $this->dispatch('catalog-entry-added');
     }
 
     

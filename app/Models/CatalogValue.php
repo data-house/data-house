@@ -61,6 +61,11 @@ class CatalogValue extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function lastUpdatedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'updated_by');
+    }
+
     public function catalog(): BelongsTo
     {
         return $this->belongsTo(Catalog::class);
@@ -90,5 +95,15 @@ class CatalogValue extends Model
     protected function getValueColumnName(): string
     {
         return 'value_text';
+    }
+
+
+    public function toFilamentFieldValue(): array
+    {
+        $html_identifier = "f_{$this->catalog_field_id}";
+
+       $valueField = $this->catalogField->data_type->valueFieldName();
+
+        return [$html_identifier => $this->{$valueField}];
     }
 }

@@ -205,12 +205,9 @@
 
                     <div class="space-y-3">
                         <h4 class="font-bold text-stone-700">{{ __('Project') }}</h4>
-                        
-                        @if ($document->project)
-                            <x-project-card :project="$document->project" />
-                        @else
-                            <p class="prose">{{ __('Project not identified') }}</p>
-                        @endif
+
+                        <livewire:document-project :document="$document" />
+
                     </div>
 
                     <x-section-border />
