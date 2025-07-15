@@ -49,7 +49,7 @@ class EditEntrySlideover extends SlideoverComponent implements HasForms
     #[Computed()]
     public function entry(): CatalogEntry
     {
-        return CatalogEntry::withTrashed()->findOrFail($this->entryId)->load(['catalog', 'catalogValues', 'catalogValues.catalogField']);
+        return CatalogEntry::withTrashed()->findOrFail($this->entryId)->load(['catalog', 'catalogValues', 'catalogValues.catalogField', 'document']);
     }
 
     #[Computed()]
@@ -74,13 +74,18 @@ class EditEntrySlideover extends SlideoverComponent implements HasForms
     {
         $customFormFields = $this->fields
             ->map(fn($field) => $field->toFilamentField());
+
+        $documentBaseOptions = collect($this->entry->document ? [$this->entry->document->getKey() => $this->entry->document->title] : [])
+            ->concat(Document::retrieve(RetrievalRequest::fromArray(['sort' => '-date_upload']), user: $this->user)
+                        ->paginate(6)
+                        ->pluck('title', 'id'))->unique()->all();
    
         $baseFields = [
             Select::make('document')
                 ->label(__('Document'))
                 ->placeholder(__('Select a document'))
                 ->searchable()
-                ->options(Document::retrieve(RetrievalRequest::fromArray(['sort' => '-date_upload']), user: $this->user)->paginate(6)->pluck('title', 'id')->toArray())
+                ->options($documentBaseOptions)
                 ->getSearchResultsUsing(fn (string $search): array => Document::retrieve(RetrievalRequest::fromArray(['s' => $search]), user: $this->user)->paginate(6)->pluck('title', 'id')->toArray())
                 ->loadingMessage(__('Loading documents...'))
                 ->searchPrompt(__('Search documents by title and content'))
