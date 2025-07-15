@@ -77,16 +77,6 @@ class CreateEntrySlideover extends SlideoverComponent implements HasForms
                 ->loadingMessage(__('Loading documents...'))
                 ->searchPrompt(__('Search documents by title and content'))
                 ->searchingMessage(__('Searching documents...')),
-            // // Documents and projects are connected, if a document has a project, the project field is inherited
-            // Select::make('project')
-            //     ->label(__('Project'))
-            //     ->placeholder(__('Select a project'))
-            //     ->searchable()
-            //     ->options(Project::query()->latest('updated_at')->take(6)->pluck('title', 'id')->toArray())
-            //     ->getSearchResultsUsing(fn (string $search): array => Project::advancedSearch($search)->paginate(6)->pluck('title', 'id')->toArray())
-            //     ->loadingMessage(__('Loading projects...'))
-            //     ->searchPrompt(__('Search projects by title and metadata'))
-            //     ->searchingMessage(__('Searching projects...')),
         ];
 
         return $form
@@ -97,11 +87,6 @@ class CreateEntrySlideover extends SlideoverComponent implements HasForms
 
     public function save(CreateCatalogEntry $createEntry)
     {
-
-        // TODO: at least one field must have a value before proceeding
-        
-        // TODO: additional errors should be catched and handled
-
         $createEntry = app()->make(CreateCatalogEntry::class); 
 
         $formState = $this->form->getState();

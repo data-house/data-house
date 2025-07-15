@@ -86,7 +86,7 @@ class CreateCatalogFlowTest extends TestCase
         $this->assertEquals("Test", $flow->description);
         
         $this->assertInstanceOf(StructuredExtractionConfigurationData::class, $flow->configuration);
-        $this->assertInstanceOf(StructuredExtractionConfigurationData::class, dump($freshFlow->configuration));
+        $this->assertInstanceOf(StructuredExtractionConfigurationData::class, $freshFlow->configuration);
 
         $schema = $flow->configuration->schema;
 

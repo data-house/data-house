@@ -78,7 +78,6 @@ class CatalogDatatable extends Component
         return $this->catalog->entries()
             ->when($this->trashed, fn($query) => $query->onlyTrashed())
             ->with(['catalogValues.catalogField', 'catalogValues.concept', 'document', 'project'])
-            // sort by entry no ascending if no sorting option defined
             ->when(blank($this->sort_by), function($query){
                 $query->orderBy('entry_index', $this->sort_direction === 'asc' ? 'asc' : 'desc');
             })
@@ -227,7 +226,6 @@ class CatalogDatatable extends Component
 
     public function generateTodoListExample(CreateCatalogField $createField)
     {
-        // Ensure user can add fields to this catalog
         abort_unless($this->user->can('update', $this->catalog), 403);
 
         $createField(

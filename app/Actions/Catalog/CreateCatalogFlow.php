@@ -33,11 +33,10 @@ class CreateCatalogFlow
          * @var \App\Models\User
          */
         $user = $user ?? auth()->user();
-
         
         throw_unless($user->can('create', [CatalogFlow::class, $catalog]), AuthorizationException::class);
         
-        // TODO: think how to validate the configuration
+        // TODO: think how to validate the flow configuration schema
         // TODO: fields uuid should be validated against current catalog
         
         $validatedData = Validator::make([

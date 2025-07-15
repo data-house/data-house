@@ -143,9 +143,9 @@ class ImportCatalogFromExcelCommand extends Command
 
         $entryIndexColumn = $possibleEntryIndexColumn->keys()->first();
         
-        $entryDocumentColumn = $possibleEntryDocumentColumn->keys()->first(); // TODO: verify column contain uuid
+        $entryDocumentColumn = $possibleEntryDocumentColumn->keys()->first();
 
-        $entryProjectColumn = $possibleEntryProjectColumn->keys()->first(); // TODO: verify column contain uuid
+        $entryProjectColumn = $possibleEntryProjectColumn->keys()->first();
 
         $this->table(['column', 'field'], [
             [$entryIndexColumn, 'index'],
@@ -209,7 +209,6 @@ class ImportCatalogFromExcelCommand extends Command
                     $catalog,
                     [
                         'entry_index' => $rowProperties[$entryIndexColumn] ?? null,
-                        // TODO: ensure/validate document accessibility from current user
                         'document_id' => $document?->getKey(),
                         'project_id' => $project?->getKey(),
                         'values' => collect($rowProperties)->except([$entryIndexColumn, $entryProjectColumn, $entryDocumentColumn])->map(function($rowValue, $rowColumn) use ($fields){

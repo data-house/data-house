@@ -117,7 +117,6 @@ class CatalogEntry extends Model implements Sortable
     public function catalogValues(): HasMany
     {
         return $this->hasMany(CatalogValue::class);
-            // TODO: order by field.order
             // TODO: chaperone, otherwise I get problems accessing the field definition from within the value
     }
     

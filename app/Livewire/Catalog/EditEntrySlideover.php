@@ -2,30 +2,21 @@
 
 namespace App\Livewire\Catalog;
 
-use App\Actions\Catalog\CreateCatalogEntry;
-use App\Actions\Catalog\CreateCatalogField;
 use App\Actions\Catalog\DeleteCatalogEntry;
 use App\Actions\Catalog\PermanentDeleteCatalogEntry;
 use App\Actions\Catalog\RestoreCatalogEntry;
 use App\Actions\Catalog\UpdateCatalogEntry;
 use App\Models\Catalog;
-use App\CatalogFieldType;
 use App\Http\Requests\RetrievalRequest;
-use App\Models\CatalogField;
 use App\Livewire\Concern\InteractWithUser;
 use App\Models\CatalogEntry;
 use App\Models\Document;
-use App\Models\Project;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Illuminate\Validation\Rules\Enum;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Locked;
 use Filament\Forms\Form;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\MarkdownEditor;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Get;
 use LivewireUI\Slideover\SlideoverComponent;
 
 class EditEntrySlideover extends SlideoverComponent implements HasForms
@@ -44,8 +35,6 @@ class EditEntrySlideover extends SlideoverComponent implements HasForms
         abort_unless($this->user, 401);
 
         $this->entryId = $entry instanceof CatalogEntry ? $entry->getKey() : $entry;
-
-        // TODO: load data 
 
         abort_if($this->fields()->isEmpty(), 422);
 
@@ -83,14 +72,9 @@ class EditEntrySlideover extends SlideoverComponent implements HasForms
 
     public function form(Form $form): Form
     {
-
-        // TODO: devo recuperare i valori per ogni field
-
         $customFormFields = $this->fields
             ->map(fn($field) => $field->toFilamentField());
-
-        
-        
+   
         $baseFields = [
             Select::make('document')
                 ->label(__('Document'))
@@ -126,8 +110,6 @@ class EditEntrySlideover extends SlideoverComponent implements HasForms
         $updateEntry($this->entry, $this->catalog, $data, $this->user);
 
         $this->dispatch('catalog-entry-added');
-
-        // $this->form->fill();
 
         $this->closeSlideover();
     }

@@ -21,8 +21,6 @@ class CreateCatalogField
      */
     public function __invoke(Catalog $catalog, string $title, CatalogFieldType $fieldType, ?SkosCollection $skosCollection = null, ?string $description = null , ?User $user = null): CatalogField
     {
-        // TODO: think about contraints
-
         /**
          * @var \App\Models\User
          */

@@ -2,16 +2,9 @@
 
 namespace App\Livewire\Catalog;
 
-use App\Actions\Catalog\CreateCatalog;
-use App\Actions\Review\RequestQuestionReview;
-use App\Data\Notifications\ActivitySummaryNotificationData;
 use App\Livewire\Concern\InteractWithUser;
-use App\Models\Catalog;
 use App\Models\CatalogFlow;
 use App\Models\Document;
-use App\Models\Question;
-use App\Models\Team;
-use App\Models\Visibility;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Locked;
@@ -65,7 +58,6 @@ class CatalogFlowRunSlideover extends SlideoverComponent
                 'catalog',
                 'runs' => function($query){
                     $query
-                        // ->visibleTo($this->user) // TODO: assicurarsi che tenga in considerazione dei permessi dell'utente sul team corrente
                         ->when($this->document, fn($q) => $q->forDocument($this->document))
                         ->orderBy('updated_at', 'desc');
                 },

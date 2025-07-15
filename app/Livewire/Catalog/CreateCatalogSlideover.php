@@ -59,11 +59,7 @@ class CreateCatalogSlideover extends SlideoverComponent
             user: $this->user,
         );
 
-        // $this->reviewerTeams->each(fn($team) => $createCatalog($this->question, $team));
-
         $this->dispatch('catalog-created');
-
-        // todo: redirect to catalog using wire:navigate
 
         $this->redirectRoute('catalogs.show', $catalog, navigate: true);
     }

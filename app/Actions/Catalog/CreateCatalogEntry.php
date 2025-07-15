@@ -2,20 +2,15 @@
 
 namespace App\Actions\Catalog;
 
-use App\CatalogFieldType;
 use App\Models\Catalog;
 use App\Models\CatalogEntry;
-use App\Models\CatalogField;
 use App\Models\Project;
-use App\Models\SkosCollection;
 use App\Models\User;
 use App\Models\Document;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\Rules\Enum;
-use Smalot\PdfParser\Exception\NotImplementedException;
 
 class CreateCatalogEntry
 {
@@ -25,9 +20,6 @@ class CreateCatalogEntry
      */
     public function __invoke(Catalog $catalog, array $data,  ?User $user = null): CatalogEntry
     {
-        // TODO: think about contraints
-
-
         /**
          * @var \App\Models\User
          */
@@ -42,11 +34,13 @@ class CreateCatalogEntry
             'document_id' => ['nullable', 'exists:documents,id'],
             'project_id' => ['nullable', 'exists:projects,id'],
             'values' => ['required', 'array', 'min:1'],
-            'values.*.field' => ['required', 'integer', /* 'uuid' */ ], // TODO: validate existence in catalog fields
+            'values.*.field' => ['required', 'integer', Rule::exists('catalog_fields', 'id')->where(function($query) use ($catalog){
+                $query->where('catalog_id', $catalog->getKey());
+            }) ],
             'values.*.value' => ['nullable'],
         ])->validate();
 
-        // TODO: after initial validation all fields should be validated against the specific field constraints
+        // TODO: validate each field against own constraint when fields can have additional constraints
 
         $fields = $catalog->fields()->get()->mapWithKeys(fn($field) => [$field->id => $field->data_type]);
 
