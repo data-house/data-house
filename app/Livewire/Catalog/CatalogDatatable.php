@@ -205,7 +205,7 @@ class CatalogDatatable extends Component
     {
         $fields = $this->fields;
 
-        // TODO: check if ref is a valid field uuid
+        abort_if(blank($fields->where('uuid', $ref)->first()), 404);
 
         $this->sort_by = $ref;
         $this->sort_direction = 'asc';
@@ -216,7 +216,7 @@ class CatalogDatatable extends Component
     {
         $fields = $this->fields;
 
-        // TODO: check if ref is a valid field uuid
+        abort_if(blank($fields->where('uuid', $ref)->first()), 404);
 
         $this->sort_by = $ref;
         $this->sort_direction = 'desc';
