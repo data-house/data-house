@@ -29,7 +29,7 @@ RUN \
 
 ## second step, assemble the image
 
-FROM php:8.3.17-fpm-bullseye AS php
+FROM php:8.3.23-fpm-bullseye AS php
 
 LABEL maintainer="OneOffTech <info@oneofftech.xyz>" \
   org.label-schema.name="data-house/data-house" \
