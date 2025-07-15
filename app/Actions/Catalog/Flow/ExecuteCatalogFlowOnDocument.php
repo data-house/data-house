@@ -3,27 +3,11 @@
 namespace App\Actions\Catalog\Flow;
 
 use App\Actions\Catalog\CreateCatalogEntry;
-use App\Catalog\Flow\FlowTargetEntity;
-use App\Catalog\Flow\FlowTrigger;
-use App\CatalogFieldType;
-use App\Data\Catalog\Flows\FlowConfiguration;
 use App\Data\Catalog\Flows\StructuredExtractionConfigurationData;
-use App\Models\Catalog;
-use App\Models\CatalogEntry;
-use App\Models\CatalogField;
 use App\Models\CatalogFlow;
 use App\Models\CatalogFlowRun;
-use App\Models\Project;
-use App\Models\SkosCollection;
-use App\Models\User;
 use App\Models\Document;
-use Illuminate\Auth\Access\AuthorizationException;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
-use Illuminate\Validation\Rules\Enum;
 use OneOffTech\LibrarianClient\Dto\Document as DtoDocument;
-use Smalot\PdfParser\Exception\NotImplementedException;
 
 class ExecuteCatalogFlowOnDocument
 {
