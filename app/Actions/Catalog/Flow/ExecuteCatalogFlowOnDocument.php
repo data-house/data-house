@@ -83,7 +83,7 @@ class ExecuteCatalogFlowOnDocument
                     'project_id' => $document->project?->getKey(),
                     'values' => $values->all(),
                 ], 
-                user: $flow->user,
+                user: $flowRun?->user ?? $flow->user,
             );
 
             if(filled($flowRun)){
