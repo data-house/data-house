@@ -12,6 +12,7 @@ use Exception;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Testing\Fakes\Fake;
 use OneOffTech\LibrarianClient\Dto\Document;
+use OneOffTech\LibrarianClient\Dto\Extraction;
 use PHPUnit\Framework\Assert as PHPUnit;
 use Throwable;
 
@@ -311,7 +312,12 @@ class FakeEngine extends Engine implements Fake
     }
 
 
+    public function extract(string $structuredResponseModel, Document $document, ?array $sections = null, ?string $instructions = null): Extraction
+    {
+        $this->copilotRequests->push(['method' => 'extract', 'library' => $this->getLibrary(), 'carrying' => func_get_args()]);
 
+        return new Extraction([]);
+    }
 
 
 

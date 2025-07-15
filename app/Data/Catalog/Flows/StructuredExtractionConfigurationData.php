@@ -26,7 +26,7 @@ class StructuredExtractionConfigurationData extends FlowConfiguration
          */
         public ?array $document_sections = null,
     ) {
-        // $this->variant = 'extract';
+        
      }
 
 }
