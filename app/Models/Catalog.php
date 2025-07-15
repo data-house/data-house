@@ -71,22 +71,22 @@ class Catalog extends Model
 
     public function fields(): HasMany
     {
-        return $this->hasMany(CatalogField::class);
+        return $this->hasMany(CatalogField::class)->chaperone();
     }
     
     public function entries(): HasMany
     {
-        return $this->hasMany(CatalogEntry::class);
+        return $this->hasMany(CatalogEntry::class)->chaperone();
     }
     
     public function catalogValues(): HasMany
     {
-        return $this->hasMany(CatalogValue::class);
+        return $this->hasMany(CatalogValue::class)->chaperone();
     }
     
     public function flows(): HasMany
     {
-        return $this->hasMany(CatalogFlow::class);
+        return $this->hasMany(CatalogFlow::class)->chaperone();
     }
 
     /**
