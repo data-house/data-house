@@ -624,9 +624,9 @@ class CloudEngineTest extends TestCase
             $body = $request->body()->all();
 
             return $request->resolveEndpoint() === '/library/library-id/summary' &&
-                $body['id'] == $id &&
-                $body['text'] == 'The text to summarize' &&
-                $body['lang'] == 'en';
+                $body['text']['id'] == $id &&
+                $body['text']['text'] == 'The text to summarize' &&
+                $body['text']['lang'] == 'en';
         });
     }
 

@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\CatalogEntry;
 use App\Models\Collection;
 use App\Models\Document;
 use App\Models\Note;
@@ -252,6 +253,25 @@ return [
                     'notation',
                     'scheme_pref_label',
                     'top_concept',
+                ],
+            ],
+            CatalogEntry::class => [
+                'filterableAttributes'=> [
+                    'id',
+                    'entry_index',
+                    'catalog_id',
+                    'document_id',
+                    'project_id',
+                    'created_at',
+                    'trashed_at',
+                ],
+                'sortableAttributes' => [
+                    'entry_index',
+                    'catalog_id',
+                    'document_id',
+                    'project_id',
+                    'created_at',
+                    'trashed_at',
                 ],
             ],
         ],

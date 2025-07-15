@@ -3,7 +3,7 @@
 
         <x-button class="gap-1" title="{{ __('Currently accessibly by: :value', ['value' => $visibility->label()])}}">
             <x-heroicon-o-eye class="w-3 h-3 shrink-0" />
-            {{ __('Change Visibility')}} <x-heroicon-o-chevron-down class="w-5 h-5" />
+            {{ __('Change Visibility')}} <x-heroicon-o-chevron-down class="size-4" />
         </x-button>
 
     </x-slot>

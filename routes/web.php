@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\AdminProjectController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\InstanceOverviewController;
 use App\Http\Controllers\AvatarController;
+use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\CollectionController;
 use App\Http\Controllers\CreateMultipleQuestionController;
 use App\Http\Controllers\DashboardController;
@@ -87,6 +88,8 @@ Route::middleware([
 
     Route::resource('vocabularies', VocabularyController::class)->only(['index', 'show']);
     Route::resource('vocabulary-concepts', VocabularyConceptController::class)->only(['show']);
+
+    Route::resource('catalogs', CatalogController::class)->only(['index', 'show']);
 });
 
 Route::middleware([

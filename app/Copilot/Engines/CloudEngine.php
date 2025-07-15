@@ -22,6 +22,7 @@ use \Illuminate\Support\Str;
 use OneOffTech\LibrarianClient\Connectors\LibrarianConnector;
 use OneOffTech\LibrarianClient\Dto\Classifier;
 use OneOffTech\LibrarianClient\Dto\Document;
+use OneOffTech\LibrarianClient\Dto\Extraction;
 use OneOffTech\LibrarianClient\Dto\Library;
 use OneOffTech\LibrarianClient\Dto\LibraryConfiguration;
 use OneOffTech\LibrarianClient\Dto\Text;
@@ -415,6 +416,27 @@ class CloudEngine extends Engine
         catch(Throwable $ex)
         {
             logs()->error("Error classify model", ['error' => $ex->getMessage(), 'text_hash' => $hash, 'classifier' => $classifier]);
+            throw new CopilotException($ex->getMessage(), $ex->getCode(), $ex);
+        }
+    }
+
+    public function extract(string $structuredResponseModel, Document $document, ?array $sections = null, ?string $instructions = null): Extraction
+    {
+        try{
+            logs()->info("Performing structured extraction...");
+
+            $response = $this->connnector->extractions($this->getLibrary())->extract(
+                structuredResponseModel: $structuredResponseModel,
+                from: $document,
+                sections: $sections,
+                instructions: $instructions,
+            );
+
+            return $response;
+        }
+        catch(Throwable $ex)
+        {
+            logs()->error("Error structured extraction", ['error' => $ex->getMessage(), 'classifier' => $classifier]);
             throw new CopilotException($ex->getMessage(), $ex->getCode(), $ex);
         }
     }

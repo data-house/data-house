@@ -8,6 +8,8 @@ use App\Copilot\CopilotResponse;
 use App\Copilot\CopilotSummarizeRequest;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
+use OneOffTech\LibrarianClient\Dto\Document;
+use OneOffTech\LibrarianClient\Dto\Extraction;
 use OneOffTech\LibrarianClient\Dto\LibraryConfiguration;
 
 abstract class Engine
@@ -124,6 +126,8 @@ abstract class Engine
      * @return \Illuminate\Support\Collection
      */
     abstract public function classifyText(string $classifier, string $text): Collection;
+
+    abstract public function extract(string $structuredResponseModel, Document $from, ?array $sections = null, ?string $instructions = null): Extraction;
 
     /**
      * Refresh the configured prompts in Copilot
