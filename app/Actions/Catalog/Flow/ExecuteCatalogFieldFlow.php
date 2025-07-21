@@ -29,6 +29,8 @@ class ExecuteCatalogFieldFlow
      */
     public function __invoke(CatalogFieldFlow $flow, CatalogEntry $entry, ?CatalogFieldFlowRun $flowRun = null, ?User $user = null): array
     {
+        logs()->info("Executing field flow [flow: {$flow->getKey()}] [entry: {$entry->getKey()}]");
+
         throw_unless($flow->configuration instanceof RewriteConfigurationData, __('Only rewrite flows are supported'));
         
         throw_unless($flow->action == CatalogFieldActionType::AI_REWRITE, __('Only rewrite flows are supported'));
@@ -45,11 +47,27 @@ class ExecuteCatalogFieldFlow
             ->where('catalog_field_id', $sourceFieldId)
             ->first();
 
-        throw_if(blank($sourceValue), __('Field empty'));
+        $targetField = $flow->targetField;
+        $targetValue = $entry->catalogValues()
+            ->where('catalog_field_id', $targetField->getKey())
+            ->first();
+
+        if(blank($sourceValue)){
+            logs()->info("Skipping field flow - blank field [flow: {$flow->getKey()}] [entry: {$entry->getKey()}]");
+            return [];
+        }
 
         $fieldValue = $sourceValue->{$sourceValue->catalogField->data_type->valueFieldName()};
 
-        throw_if(blank($fieldValue), __('Field empty'));
+        if(blank($fieldValue)){
+            logs()->info("Skipping field flow - blank field value [flow: {$flow->getKey()}] [entry: {$entry->getKey()}]");
+            return [];
+        }
+
+        if(filled($targetValue) && !$flow->overwrite_existing){
+            logs()->info("Skipping field flow - overwrite not allowed [flow: {$flow->getKey()}] [entry: {$entry->getKey()}]");
+            return [];
+        }
 
         // Execute action
 
@@ -73,13 +91,6 @@ class ExecuteCatalogFieldFlow
         // Store value in the target field catalog value
 
         // TODO: How I can identify a negative reply?
-
-        
-
-        $targetField = $flow->targetField;
-        $targetValue = $entry->catalogValues()
-            ->where('catalog_field_id', $targetField->getKey())
-            ->first();
 
         if(blank($targetValue)){
             $entry->catalogValues()->create([

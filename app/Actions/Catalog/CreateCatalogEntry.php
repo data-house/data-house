@@ -93,7 +93,11 @@ class CreateCatalogEntry
             ->pluck('flows')
             ->flatten()
             ->each(function($flow) use ($entry, $executeFlow, $user) {
-                $executeFlow($flow, $entry, user: $user);
+                try {
+                    $executeFlow($flow, $entry, user: $user);
+                } catch (\Throwable $th) {
+                    report($th);
+                }
             });
 
         return $entry;
