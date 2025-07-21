@@ -2,6 +2,7 @@
 
 namespace App\Actions\Catalog;
 
+use App\Actions\Catalog\Flow\ExecuteCatalogFieldFlow;
 use App\Models\Catalog;
 use App\Models\CatalogEntry;
 use App\Models\Project;
@@ -77,12 +78,23 @@ class CreateCatalogEntry
                     'user_id' => $user->getKey(),
             ]);
 
-            $entry->catalogValues()->createMany($valuesMappedToCatalogValues);
-
+            $entry->catalogValues()->createMany($valuesMappedToCatalogValues);            
             return $entry;
         });
+        
+        $executeFlow = app()->make(ExecuteCatalogFieldFlow::class);
 
-
+        // Execute auto-triggered field actions
+        $catalog->fields()
+            ->with(['flows' => function($query) {
+                $query->where('auto_trigger', true);
+            }])
+            ->get()
+            ->pluck('flows')
+            ->flatten()
+            ->each(function($flow) use ($entry, $executeFlow, $user) {
+                $executeFlow($flow, $entry, user: $user);
+            });
 
         return $entry;
     }

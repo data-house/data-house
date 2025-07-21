@@ -98,6 +98,12 @@ abstract class Engine
      */
     abstract public function summarize(CopilotSummarizeRequest $request): CopilotResponse;
 
+    /**
+     * Direct chat message
+     * 
+     * @return \App\Copilot\CopilotResponse
+     */
+    abstract public function chat(string $user, string $prompt, ?string $chatId = null): CopilotResponse;
 
     /**
      * Add a text classifier

@@ -436,7 +436,36 @@ class CloudEngine extends Engine
         }
         catch(Throwable $ex)
         {
-            logs()->error("Error structured extraction", ['error' => $ex->getMessage(), 'classifier' => $classifier]);
+            logs()->error("Error structured extraction", ['error' => $ex->getMessage(), 'document' => $document->id]);
+            throw new CopilotException($ex->getMessage(), $ex->getCode(), $ex);
+        }
+    }
+
+    
+    public function chat(string $user, string $prompt, ?string $chatId = null): CopilotResponse
+    {
+        try{
+
+            $summary = $this->connnector->summaries($this->getLibrary())->generate(
+                text: new Text(
+                    id: $chatId ?? sha1($user),
+                    content: $user,
+                    language: 'en',
+                ),
+                prompt: $prompt,
+            );
+
+            logs()->info("Summarize text with custom prompt request");
+
+            if(blank($summary->content)){
+                throw new CopilotException("Summary not generated.");
+            }
+
+            return new CopilotResponse($summary->content);
+        }
+        catch(Throwable $ex)
+        {
+            logs()->error("Error generating summary using custom prompt", ['error' => $ex->getMessage(), 'request' => [$user, $prompt]]);
             throw new CopilotException($ex->getMessage(), $ex->getCode(), $ex);
         }
     }
