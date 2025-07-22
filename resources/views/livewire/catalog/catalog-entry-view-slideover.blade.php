@@ -65,6 +65,9 @@
                 @can('update', $catalog_entry)
                     @if ($field->flows->isNotEmpty())
                         <div class="text-sm mt-1">
+                            @if (filled($flowError))
+                                <p class="text-sm text-red-600">{{ $flowError }}</p>
+                            @endif
                             @foreach ($field->flows as $flow)
                                 <p>
                                     <x-small-button wire:click="triggerFlow('{{ $flow->uuid }}')"><x-heroicon-c-sparkles class="size-3" />

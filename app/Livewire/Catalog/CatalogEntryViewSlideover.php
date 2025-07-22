@@ -28,6 +28,9 @@ class CatalogEntryViewSlideover extends SlideoverComponent
     public $catalogEntryId;
 
 
+    public ?string $flowError = null;
+
+
     public function mount($catalogEntry)
     {
         abort_unless($this->user, 401);
@@ -98,9 +101,14 @@ class CatalogEntryViewSlideover extends SlideoverComponent
 
         $executeFlow = app()->make(ExecuteCatalogFieldFlow::class);
 
-        $executeFlow($flow, $this->entry, user: $this->user);
-
-        unset($this->entry);
+        try {
+            $executeFlow($flow, $this->entry, user: $this->user);
+            
+            unset($this->entry);
+            $this->dispatch('catalog-entry-added');
+        } catch (\Throwable $th) {
+            $this->flowError = $th->getMessage();
+        }
     }
 
     
