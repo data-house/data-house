@@ -60,6 +60,11 @@ class NullEngine extends Engine
         return new CopilotResponse('');
     }
 
+    public function chat(string $user, string $prompt, ?string $chatId = null): CopilotResponse
+    {
+        return new CopilotResponse('');
+    }
+
     public function addClassifier(string $classifier, string $url): string
     {
         return 'classifier_id';

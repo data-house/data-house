@@ -94,7 +94,7 @@ class CatalogValue extends Model
      */
     protected function getValueColumnName(): string
     {
-        return 'value_text';
+        return $this->catalogField->data_type->valueFieldName();
     }
 
 

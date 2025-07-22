@@ -58,10 +58,27 @@
                             @endif
                             @break
                         @default
-                            {{ $value->value_text }}
+                            <p>{{ $value->value_text }}</p>
                     @endswitch
                 @endif
                 
+                @can('update', $catalog_entry)
+                    @if ($field->flows->isNotEmpty())
+                        <div class="text-sm mt-1">
+                            @if (filled($flowError))
+                                <p class="text-sm text-red-600">{{ $flowError }}</p>
+                            @endif
+                            @foreach ($field->flows as $flow)
+                                <p>
+                                    <x-small-button wire:click="triggerFlow('{{ $flow->uuid }}')"><x-heroicon-c-sparkles class="size-3" />
+                                        <span wire:loading wire:target="triggerFlow('{{ $flow->uuid }}')">{{ __('Executing :flow...', ['flow' => $flow->title]) }}</span>
+                                        <span wire:loading.remove wire:target="triggerFlow('{{ $flow->uuid }}')">{{ $flow->title }}</span>
+                                    </x-small-button>
+                                </p>
+                            @endforeach
+                        </div>
+                    @endif
+                @endcan
             </div>
         @endforeach
         </div>

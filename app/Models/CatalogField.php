@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Spatie\EloquentSortable\Sortable;
 use Spatie\EloquentSortable\SortableTrait;
@@ -79,6 +80,11 @@ class CatalogField extends Model implements Sortable
         return $this->belongsTo(Catalog::class);
     }
 
+    public function flows(): HasMany
+    {
+        return $this->hasMany(CatalogFieldFlow::class, 'source_field_id')->chaperone();
+    }
+
     public function skosCollection(): BelongsTo
     {
         return $this->belongsTo(SkosCollection::class);
@@ -105,6 +111,16 @@ class CatalogField extends Model implements Sortable
     {
         return static::query()
             ->where('catalog_id', $this->catalog_id);
+    }
+
+    public function sourceActions(): HasMany
+    {
+        return $this->hasMany(CatalogFieldAction::class, 'source_field_id');
+    }
+
+    public function targetActions(): HasMany
+    {
+        return $this->hasMany(CatalogFieldAction::class, 'target_field_id');
     }
 
 

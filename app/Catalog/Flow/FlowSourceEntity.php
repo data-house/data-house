@@ -2,7 +2,7 @@
 
 namespace App\Catalog\Flow;
 
-enum FlowTargetEntity: int
+enum FlowSourceEntity: int
 {
     /**
      * The flow operates on documents

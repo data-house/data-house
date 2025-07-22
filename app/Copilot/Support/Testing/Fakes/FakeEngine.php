@@ -253,6 +253,13 @@ class FakeEngine extends Engine implements Fake
             "Expected {$expectedCount} aggregations, found {$actualCount}."
         );
     }
+
+    public function chat(string $user, string $prompt, ?string $chatId = null): CopilotResponse
+    {
+        $this->copilotRequests->push(['method' => 'chat', 'library' => $this->getLibrary(), 'carrying' => ['user' => $user, 'prompt' => $prompt, 'chatId' => $chatId]]);
+
+        return $this->getFakeResponse('chat');
+    }
     
     public function summarize(CopilotSummarizeRequest $request): CopilotResponse
     {

@@ -2,6 +2,7 @@
 
 namespace App\Actions\Catalog;
 
+use App\Actions\Catalog\Flow\ExecuteCatalogFieldFlow;
 use App\CatalogFieldType;
 use App\Models\Catalog;
 use App\Models\CatalogEntry;
@@ -104,7 +105,24 @@ class UpdateCatalogEntry
             return $entry;
         });
 
+        $executeFlow = app()->make(ExecuteCatalogFieldFlow::class);
 
+
+        // Get all fields with their values and flows
+        $catalog->fields()
+            ->with(['flows' => function($query) {
+                $query->where('auto_trigger', true);
+            }])
+            ->get()
+            ->pluck('flows')
+            ->flatten()
+            ->each(function($flow) use ($entry, $executeFlow, $user) {
+                try {
+                    $executeFlow($flow, $entry, user: $user);
+                } catch (\Throwable $th) {
+                    report($th);
+                }
+            });
 
         return $entry;
     }

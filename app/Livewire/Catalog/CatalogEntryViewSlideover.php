@@ -3,6 +3,7 @@
 namespace App\Livewire\Catalog;
 
 use App\Actions\Catalog\CreateCatalog;
+use App\Actions\Catalog\Flow\ExecuteCatalogFieldFlow;
 use App\Actions\Catalog\RestoreCatalogEntry;
 use App\Actions\Review\RequestQuestionReview;
 use App\Data\Notifications\ActivitySummaryNotificationData;
@@ -12,6 +13,7 @@ use App\Models\CatalogEntry;
 use App\Models\Question;
 use App\Models\Team;
 use App\Models\Visibility;
+use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Locked;
 use LivewireUI\Slideover\SlideoverComponent;
@@ -24,6 +26,9 @@ class CatalogEntryViewSlideover extends SlideoverComponent
 
     #[Locked]
     public $catalogEntryId;
+
+
+    public ?string $flowError = null;
 
 
     public function mount($catalogEntry)
@@ -56,7 +61,7 @@ class CatalogEntryViewSlideover extends SlideoverComponent
     #[Computed()]
     public function fields()
     {
-        return $this->entry->catalog->fields()->ordered()->get();
+        return $this->entry->catalog->fields()->with('flows')->ordered()->get();
     }
 
     public static function slideoverWidth(): string
@@ -71,7 +76,7 @@ class CatalogEntryViewSlideover extends SlideoverComponent
 
     public function restoreEntry()
     {
-        $restoreEntry = app()->make(RestoreCatalogEntry::class); 
+        $restoreEntry = app()->make(RestoreCatalogEntry::class);
 
         $restoreEntry($this->entry, $this->user);
 
@@ -81,6 +86,29 @@ class CatalogEntryViewSlideover extends SlideoverComponent
         );
 
         $this->dispatch('catalog-entry-added');
+    }
+
+
+    public function triggerFlow($flowUuid)
+    {
+        $flows = $this->fields->pluck('flows')->flatten()->mapWithKeys(fn($f) => [$f->uuid => $f]);
+
+        $flow = $flows->get($flowUuid);
+
+        if(blank($flow)){
+            throw ValidationException::withMessages(['action' => __('Please select a valid action')]);
+        }
+
+        $executeFlow = app()->make(ExecuteCatalogFieldFlow::class);
+
+        try {
+            $executeFlow($flow, $this->entry, user: $this->user);
+            
+            unset($this->entry);
+            $this->dispatch('catalog-entry-added');
+        } catch (\Throwable $th) {
+            $this->flowError = $th->getMessage();
+        }
     }
 
     
