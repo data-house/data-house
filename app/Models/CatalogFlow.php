@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Catalog\Flow\FlowSourceEntity;
-use App\Catalog\Flow\FlowTargetEntity;
 use App\Catalog\Flow\FlowTrigger;
 use App\Data\Catalog\Flows\FlowConfiguration;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;

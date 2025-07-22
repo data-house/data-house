@@ -2,7 +2,6 @@
 
 namespace App\Actions\Catalog;
 
-use App\Catalog\Flow\FlowTargetEntity;
 use App\Catalog\Flow\FlowTrigger;
 use App\CatalogFieldActionType;
 use App\CatalogFieldType;

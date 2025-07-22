@@ -2,7 +2,7 @@
 
 namespace App\Actions\Catalog;
 
-use App\Catalog\Flow\FlowTargetEntity;
+use App\Catalog\Flow\FlowSourceEntity;
 use App\Catalog\Flow\FlowTrigger;
 use App\CatalogFieldType;
 use App\Data\Catalog\Flows\FlowConfiguration;
@@ -27,7 +27,7 @@ class CreateCatalogFlow
     /**
      * Add an entry with values to a catalog
      */
-    public function __invoke(Catalog $catalog, string $title, FlowConfiguration $configuration, FlowTrigger $trigger = FlowTrigger::MANUAL, FlowTargetEntity $entity = FlowTargetEntity::DOCUMENT, ?string $description = null,  ?User $user = null): CatalogFlow
+    public function __invoke(Catalog $catalog, string $title, FlowConfiguration $configuration, FlowTrigger $trigger = FlowTrigger::MANUAL, FlowSourceEntity $entity = FlowSourceEntity::DOCUMENT, ?string $description = null,  ?User $user = null): CatalogFlow
     {
         /**
          * @var \App\Models\User

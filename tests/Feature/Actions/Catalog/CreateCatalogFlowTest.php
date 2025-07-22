@@ -4,7 +4,7 @@ namespace Tests\Feature\Actions\Catalog;
 
 use App\Actions\Catalog\CreateCatalogEntry;
 use App\Actions\Catalog\CreateCatalogFlow;
-use App\Catalog\Flow\FlowTargetEntity;
+use App\Catalog\Flow\FlowSourceEntity;
 use App\Catalog\Flow\FlowTrigger;
 use App\Data\Catalog\Flows\StructuredExtractionConfigurationData;
 use App\Models\Catalog;
@@ -81,7 +81,7 @@ class CreateCatalogFlowTest extends TestCase
         $this->assertTrue($flow->catalog()->is($catalog));
 
         $this->assertEquals(FlowTrigger::MANUAL, $flow->trigger);
-        $this->assertEquals(FlowTargetEntity::DOCUMENT, $flow->target_entity);
+        $this->assertEquals(FlowSourceEntity::DOCUMENT, $flow->target_entity);
         $this->assertEquals("Test structured extraction flow", $flow->title);
         $this->assertEquals("Test", $flow->description);
         
