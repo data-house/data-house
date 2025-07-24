@@ -64,7 +64,7 @@ class ExecuteCatalogFieldFlow
             return [];
         }
 
-        if(filled($targetValue) && !$flow->overwrite_existing){
+        if(filled($targetValue) && !$targetValue->hasNoValue() && !$flow->overwrite_existing){
             logs()->info("Skipping field flow - overwrite not allowed [flow: {$flow->getKey()}] [entry: {$entry->getKey()}]");
             return [];
         }
@@ -100,7 +100,7 @@ class ExecuteCatalogFieldFlow
                 'catalog_field_id' => $targetField->getKey(),
             ]);
         }
-        else if($flow->overwrite_existing){
+        else if($flow->overwrite_existing || $targetValue->hasNoValue()){
 
             $targetValue->updated_by = $user->getKey();
 

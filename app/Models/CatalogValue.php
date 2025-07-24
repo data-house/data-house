@@ -97,6 +97,16 @@ class CatalogValue extends Model
         return $this->catalogField->data_type->valueFieldName();
     }
 
+    public function hasNoValue(): bool
+    {
+        return blank($this->value_text) &&
+            blank($this->value_int) &&
+            blank($this->value_date) &&
+            blank($this->value_float) &&
+            blank($this->value_bool) &&
+            blank($this->value_concept);
+    }
+
 
     public function toFilamentFieldValue(): array
     {
