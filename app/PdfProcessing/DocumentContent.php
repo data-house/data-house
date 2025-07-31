@@ -89,4 +89,31 @@ class DocumentContent implements JsonSerializable, Countable
         return $this->raw->toArray();
     }
 
+    public function compactPages(): self
+    {
+        $pages = $this->collect()->map(function($page, $index){
+            return [
+                'category' => 'page',
+                'attributes' => [
+                    'page' => $index+1,
+                ],
+                'content' => [
+                    [
+                        'category' => 'body',
+                        'content' => $page->text(),
+                        'marks' => [],
+                        'attributes' => $page->items()[0]['attributes']??[],
+                    ],
+                ],
+            ];
+        })->toArray();
+        
+
+        return new self(DocumentNode::fromArray([
+            'category' => 'doc',
+            'attributes' => [],
+            'content' => $pages,
+        ]));
+    }
+
 }
