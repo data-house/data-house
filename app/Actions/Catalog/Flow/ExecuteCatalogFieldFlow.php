@@ -82,8 +82,9 @@ class ExecuteCatalogFieldFlow
         );
 
         $response = str($result->text)
-            ->remove(['<abbr>', '</abbr>'])
+            ->remove(['<abbr>', '</abbr>', '**Rewrite:**', '**Cluster:**'])
             ->replaceMatches('/<cluster>.*?<\/cluster>/s', '')
+            ->trim()
             ->__toString();
 
         throw_if(blank($response), __('Cannot generate'));
