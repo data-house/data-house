@@ -131,7 +131,7 @@ class CloudEngine extends Engine
                         new Document(
                             id: $object['id'],
                             language: $object['lang'],
-                            data: $object['data']->toArray()
+                            data: $object['data']->compactPages()->toArray()
                         ));
 
                     return $response->json();
