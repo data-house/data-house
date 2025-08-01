@@ -112,7 +112,7 @@
                                 $icon = $sort_active ? ($sort_direction === 'asc' ? 'heroicon-m-bars-arrow-up' : 'heroicon-m-bars-arrow-down') : $field->data_type->icon();
                             @endphp
 
-                            <th scope="col" @class(['min-w-96' => $field->data_type === \App\CatalogFieldType::MULTILINE_TEXT])>
+                            <th wire:key="f{{ $loop->index }}" scope="col" @class(['min-w-96' => $field->data_type === \App\CatalogFieldType::MULTILINE_TEXT])>
                                 <x-popover>
                                     <x-slot name="trigger" class="font-normal px-6 py-3 whitespace-nowrap flex w-full gap-1 items-center hover:bg-stone-100">
                                 
@@ -207,7 +207,7 @@
                 </thead>
                 <tbody>
                     @forelse($entries as $entry)
-                        <tr class="bg-white border-b hover:bg-gray-50 group">
+                        <tr class="bg-white border-b hover:bg-gray-50 group"  wire:key="e{{ $loop->index }}">
                             <td class="px-6 py-4 sticky left-0 bg-white group-hover:bg-gray-50 {{ $entry->trashed() ? 'line-through' : '' }}">
                                 {{ $entry->entry_index }}
                             </td>
