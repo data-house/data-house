@@ -19,7 +19,7 @@ $width = match ($width) {
 };
 @endphp
 
-<div class="" x-data="{{ $state }}"  x-on:closedropdown.window="open = false" @if($closeOutsideClick) @click.outside="open = false" @endif @close.stop="open = false" @keydown.escape="open = false">
+<div class="" x-data="{{ $state }}"  x-on:closedropdown.window="open = false" @keydown.escape="open = false">
     <button type="button" @click="open = ! open" x-ref="button" {{ $trigger->attributes }}>
         {{ $trigger }}
     </button>
@@ -29,6 +29,7 @@ $width = match ($width) {
     <template x-teleport="body">
     <div x-show="open"
         x-trap="open"
+        @click.outside="open = false"
         @keydown.escape="open = false"
             x-anchor.bottom-start="$refs.button"
             x-transition:enter="transition ease-out duration-200"
