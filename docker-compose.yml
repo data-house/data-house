@@ -1,4 +1,4 @@
-version: '3'
+
 services:
     # laravel.test:
     #     build:
@@ -48,7 +48,7 @@ services:
             retries: 3
             timeout: 5s
     meilisearch:
-        image: 'getmeili/meilisearch:v1.5'
+        image: 'getmeili/meilisearch:v1.14.0'
         ports:
             - '${FORWARD_MEILISEARCH_PORT:-7700}:7700'
         volumes:
