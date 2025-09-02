@@ -54,9 +54,27 @@
         <div class="relative  mb-4">
             <x-input type="text" name="catalog_s" wire:model.live.debounce.500ms="search" id="catalog_s" class="min-w-full" placeholder="{{ __('Search entries...') }}" />
 
-            <div wire:loading wire:target="search" class="absolute top-0 right-0 flex items-center h-full p-2 text-orange-50 bg-orange-600 rounded-r-md ">
+            <div wire:loading wire:target="search,applyFilter,clearFilter,clearAllFilters,filters" class="absolute top-0 right-0 flex items-center h-full p-2 text-orange-50 bg-orange-600 rounded-r-md ">
                 {{ __('Searching...') }}
             </div>
+
+            @if (filled($applied_filters))
+                <ul class="mt-1 flex gap-2 items-center text-sm">
+                    <li class="text-stone-700">{{ __('Applied filters') }}</li>
+
+                    @foreach ($applied_filters as $field => $filter)
+                        <li class="flex items-center rounded-full overflow-hidden border border-stone-400 bg-stone-200">
+                            <span class="bg-stone-300 px-2 py-1">{{ $filter['name'] }}</span>
+                            <span class="bg-stone-200 px-2 py-1">{{ $filter['value'] }}</span>
+                            <button wire:click="clearFilter('{{ $field }}')" class="px-2 py-1 focus:outline-none transition duration-150 ease-in-out text-stone-700 hover:bg-stone-100 focus:bg-stone-100">
+                                x
+                            </button>
+                        </li>
+                    @endforeach
+
+                    <li><x-small-button wire:click="clearAllFilters">{{ __('Clear all filters') }}</x-small-button></li>
+                </ul>
+            @endif
         </div>
 
         <div class="relative overflow-x-auto" x-on:field-created.window="$wire.$refresh()"  x-on:catalog-entry-added.window="$wire.$refresh()">
@@ -109,12 +127,12 @@
                             @php
                                 $sort_active = $sort_by === $field->uuid;
 
-                                $icon = $sort_active ? ($sort_direction === 'asc' ? 'heroicon-m-bars-arrow-up' : 'heroicon-m-bars-arrow-down') : $field->data_type->icon();
+                                $icon = $sort_active ? ($sort_direction === 'asc' ? 'heroicon-m-bars-arrow-up' : 'heroicon-m-bars-arrow-down') : (($filters[$field->uuid] ?? false) ? 'heroicon-m-funnel' : $field->data_type->icon());
                             @endphp
 
                             <th wire:key="f{{ $loop->index }}" scope="col" @class(['min-w-96' => $field->data_type === \App\CatalogFieldType::MULTILINE_TEXT])>
                                 <x-popover>
-                                    <x-slot name="trigger" class="font-normal px-6 py-3 whitespace-nowrap flex w-full gap-1 items-center hover:bg-stone-100">
+                                    <x-slot name="trigger" class="relative font-normal px-6 py-3 whitespace-nowrap flex w-full gap-1 items-center {{ $filters[$field->uuid] ?? false ? 'bg-green-100 hover:bg-green-200' : 'hover:bg-stone-100' }} ">
                                 
                                         <x-dynamic-component :component="$icon" class="text-stone-500 size-3" />
         
@@ -144,6 +162,54 @@
                                         <div class="border-t border-stone-200"></div>
                                     @endunless
                                     
+                                    @if($field->skosCollection)
+                                        <button wire:click="clearFilter('{{ $field->uuid }}')" class="inline-flex items-center gap-1 w-full px-4 py-2 text-left text-sm leading-5 focus:outline-none transition duration-150 ease-in-out text-stone-700 hover:bg-stone-100 focus:bg-stone-100">
+                                            @if (!($filters[$field->uuid] ?? false))
+                                                <x-heroicon-m-check-circle class="size-4 shrink-0" />
+                                            @else
+                                                <span class="block size-4 shrink-0"></span>
+                                            @endif
+                                            {{ __('All') }}
+                                        </button>
+                                        <button wire:click="applyFilter('{{ $field->uuid }}', '_')" class="inline-flex items-center gap-1 w-full px-4 py-2 text-left text-sm leading-5 focus:outline-none transition duration-150 ease-in-out text-stone-700 hover:bg-stone-100 focus:bg-stone-100">
+                                            @if (($filters[$field->uuid] ?? false) && ($filters[$field->uuid] == '_' || is_array($filters[$field->uuid]) && in_array('_', $filters[$field->uuid])))
+                                                <x-heroicon-m-check-circle class="size-4 shrink-0" />
+                                            @else
+                                                <span class="block size-4 shrink-0"></span>
+                                            @endif
+                                            {{ __('Blank') }}
+                                        </button>
+                                        @foreach ($field->skosCollection->concepts as $concept)
+                                            <button wire:click="applyFilter('{{ $field->uuid }}', '{{ $concept->pref_label }}')" class="inline-flex items-center gap-1 w-full px-4 py-2 text-left text-sm leading-5 focus:outline-none transition duration-150 ease-in-out text-stone-700 hover:bg-stone-100 focus:bg-stone-100">
+                                                @if (($filters[$field->uuid] ?? false) && ($filters[$field->uuid] === $concept->pref_label || is_array($filters[$field->uuid]) && in_array($concept->pref_label, $filters[$field->uuid])) )
+                                                    <x-heroicon-m-check-circle class="size-4 shrink-0" />
+                                                @else
+                                                    <span class="block size-4 shrink-0"></span>
+                                                @endif
+                                                {{ $concept->pref_label }}
+                                            </button>
+                                            
+                                        @endforeach
+
+                                        <div class="border-t border-stone-200"></div>
+                                    @else
+                                        <x-input type="text" class="w-full text-sm" placeholder="{{ __('Type to filter') }}" wire:model.live.debounce.250ms="filters.{{ $field->uuid }}" wire:key="field_filter_{{ $field->uuid }}" />
+
+                                        <button wire:click="applyFilter('{{ $field->uuid }}', '_')" class="inline-flex items-center gap-1 w-full px-4 py-2 text-left text-sm leading-5 focus:outline-none transition duration-150 ease-in-out text-stone-700 hover:bg-stone-100 focus:bg-stone-100">
+                                            @if (($filters[$field->uuid] ?? false) && ($filters[$field->uuid] == '_' || is_array($filters[$field->uuid]) && in_array('_', $filters[$field->uuid])))
+                                                <x-heroicon-m-check-circle class="size-4 shrink-0" />
+                                            @else
+                                                <span class="block size-4 shrink-0"></span>
+                                            @endif
+                                            {{ __('Blank') }}
+                                        </button>
+
+                                        <button wire:click="clearFilter('{{ $field->uuid }}')" class="inline-flex items-center gap-1 w-full px-4 py-2 text-left text-sm leading-5 focus:outline-none transition duration-150 ease-in-out text-stone-700 hover:bg-stone-100 focus:bg-stone-100">
+                                            <span class="block size-4 shrink-0"></span>                                            
+                                            {{ __('Clear filter') }}
+                                        </button>
+                                        <div class="border-t border-stone-200"></div>
+                                    @endif
 
                                     <button wire:click="moveFieldLeft({{ $field->order }})" @disabled($field->order <= 1) class="inline-flex items-center gap-2 w-full px-4 py-2 text-left text-sm leading-5 focus:outline-none transition duration-150 ease-in-out text-stone-700 hover:bg-stone-100 focus:bg-stone-100 disabled:cursor-not-allowed disabled:opacity-65">
                                         <x-codicon-arrow-small-left class="size-4 text-stone-600" />
@@ -171,7 +237,7 @@
                         </th>
                         <th scope="col" class="font-normal whitespace-nowrap sticky right-0 bg-stone-50">
 
-                            <x-popover aria-label="{{ __('Select columns') }}" :close-outside-click="false" width="60">
+                            <x-popover aria-label="{{ __('Select columns') }}" width="60">
                                 <x-slot name="trigger" class="font-normal px-6 py-3 whitespace-nowrap flex w-full gap-1 items-center hover:bg-stone-100">
                             
                                     <x-heroicon-m-view-columns class="size-4" />

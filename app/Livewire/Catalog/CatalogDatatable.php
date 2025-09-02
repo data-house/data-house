@@ -9,6 +9,7 @@ use App\Models\Catalog;
 use App\Models\CatalogEntry;
 use App\Models\CatalogField;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
+use Illuminate\Support\Arr;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Locked;
 use Livewire\Attributes\Url;
@@ -36,6 +37,9 @@ class CatalogDatatable extends Component
     #[Url(as: 'trashed', history: true)]
     public ?bool $trashed = null;
 
+    #[Url(as: 'filters', history: true)]
+    public ?array $filters = [];
+
     protected $listeners = [
         'field-created' => 'refresh',
     ];
@@ -58,18 +62,24 @@ class CatalogDatatable extends Component
     #[Computed()]
     public function fields()
     {
-        return $this->catalog->fields()->ordered()->get();
+        return $this->catalog->fields()->with('skosCollection.concepts')->ordered()->get();
     }
+
+
 
     #[Computed()]
     public function entries()
     {
         $sorting_field = filled($this->sort_by) ? $this->fields->where('uuid', $this->sort_by)->sole() : null;
 
-        if(filled($this->search)){
-            return CatalogEntry::search($this->search)
+        if(filled($this->search) || filled($this->filters)){
+
+            // TODO: handle sorting while searching
+
+            
+
+            return CatalogEntry::searchWithCustomFilters($this->search, $this->buildFiltersString())
                 ->query(fn (EloquentBuilder $query) => $query->with(['catalogValues.catalogField', 'catalogValues.concept', 'document', 'project']))
-                ->where('catalog_id', $this->catalogId)
                 ->paginate();
 
         }
@@ -95,6 +105,46 @@ class CatalogDatatable extends Component
                     ;
             })
             ->paginate();
+    }
+
+    public function applyFilter(string $field, $value)
+    {
+        if(is_null($value)){
+            unset($this->filters[$field]);
+            return;
+        }
+
+        // TODO: handle clicking on same value
+
+        if(filled($this->filters[$field] ?? [])){
+
+            if(!is_array($this->filters[$field])){
+                $this->filters[$field] = Arr::wrap($this->filters[$field]);
+            }
+
+
+            if(in_array($value, $this->filters[$field])){
+                $this->filters[$field] = Arr::reject($this->filters[$field], function($selectedValue) use ($value){
+                    return $selectedValue === $value;
+                });
+            }
+            else {
+                $this->filters[$field] = [ ...$this->filters[$field] , $value];
+            }
+            return; 
+        }
+
+        $this->filters[$field] = [$value];
+    }
+
+    public function clearFilter(string $field)
+    {
+        unset($this->filters[$field]);
+    }
+    
+    public function clearAllFilters()
+    {
+        $this->filters = [];
     }
 
 
@@ -255,6 +305,107 @@ class CatalogDatatable extends Component
         $this->dispatch('field-created');
     }
 
+    #[Computed()]
+    public function appliedFilters(): array
+    {
+
+        $fields = $this->fields->pluck('title', 'uuid');
+
+        return collect($this->filters)
+            ->only($fields->keys())
+            ->mapWithKeys(function($filterValue, $filterKey) use ($fields){
+
+                $valueLabel = is_array($filterValue) ? (count($filterValue) > 1 ? trans_choice(':count value|:count values', count($filterValue), ['count' => count($filterValue)]) : $filterValue[0]) : $filterValue;
+
+                return [$filterKey => [
+                    'name' => $fields->get($filterKey, 'Not found'),
+                    'value' => $valueLabel === '_' ? __('Blank') : $valueLabel,
+                ]];
+            })
+            ->all();
+
+        // map key to filter name
+        // elaborate and make a preview of filter values
+    }
+
+    protected function buildFiltersString(): string
+    {
+
+        $fields = $this->fields->pluck('data_type', 'uuid');
+
+        $validatedFilters = Arr::only($this->filters, $fields->keys()->all());
+
+        $catalogTenantFilter = "catalog_id = {$this->catalogId}";
+
+            $userFilters = collect($validatedFilters)->map(function($value, $key) use ($fields){
+
+                if(is_array($value)){
+
+                    if(in_array('_', $value)){
+
+                        $vals = collect($value)->map(function ($value) {
+                            if($value === '_'){
+                                return null;
+                            }
+
+                            if (is_bool($value)) {
+                                return sprintf('%s', $value ? 'true' : 'false');
+                            }
+
+                            return filter_var($value, FILTER_VALIDATE_INT) !== false
+                                ? sprintf('%s', $value)
+                                : sprintf('"%s"', $value);
+                        })->filter()->values();
+
+                        if($vals->isEmpty()){
+                            return "(fields.{$key} IS NULL OR NOT fields.{$key} EXISTS)";
+                        }
+
+                        $otherWheres = sprintf('%s %s [%s]', "fields.{$key}", 'IN', $vals->implode(', '));
+
+                        return "(fields.{$key} IS NULL OR NOT fields.{$key} EXISTS OR {$otherWheres})";
+                    }
+                    
+                    return sprintf('%s %s [%s]', "fields.{$key}", 'IN', collect($value)->map(function ($value) {
+                        if (is_bool($value)) {
+                            return sprintf('%s', $value ? 'true' : 'false');
+                        }
+
+                        return filter_var($value, FILTER_VALIDATE_INT) !== false
+                            ? sprintf('%s', $value)
+                            : sprintf('"%s"', $value);
+                    })->values()->implode(', '));
+                
+    
+                }
+                else {
+
+                    $fieldType = $fields->get($key, CatalogFieldType::TEXT);
+
+                    
+                    if (is_bool($value)) {
+                        return sprintf('%s=%s', "fields.{$key}", $value ? 'true' : 'false');
+                    }
+                    
+                    if (is_null($value)) {
+                        return sprintf('%s %s', "fields.{$key}", 'IS NULL');
+                    }
+                    
+                    if($fieldType == CatalogFieldType::TEXT || $fieldType == CatalogFieldType::MULTILINE_TEXT){
+                        // if text field we use the contains operator https://www.meilisearch.com/docs/learn/filtering_and_sorting/filter_expression_reference#contains
+                        return sprintf('%s CONTAINS "%s"', "fields.{$key}", $value);
+                    }
+    
+                    return is_numeric($value)
+                        ? sprintf('%s=%s', "fields.{$key}", $value)
+                        : sprintf('%s="%s"', "fields.{$key}", $value);
+                }
+            })->filter()->join(' AND ');
+
+
+            return "{$catalogTenantFilter} AND {$userFilters}";
+    }
+
 
     public function render()
     {
@@ -263,6 +414,7 @@ class CatalogDatatable extends Component
             'visible_fields' => $this->fields->where('make_hidden', false),
             'all_fields' => $this->fields,
             'entries' => $this->entries,
+            'applied_filters' => $this->appliedFilters,
         ]);
     }
 }

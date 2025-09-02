@@ -264,6 +264,7 @@ return [
                     'project_id',
                     'created_at',
                     'trashed_at',
+                    'fields', // https://meilisearch.notion.site/API-usage-Settings-to-opt-out-indexing-features-filterableAttributes-1764b06b651f80aba8bdf359b2df3ca8
                 ],
                 'sortableAttributes' => [
                     'entry_index',
