@@ -208,8 +208,6 @@ class CatalogEntry extends Model implements Sortable
     {
         $escapedQuery = htmlspecialchars($query ?? '', ENT_NOQUOTES | ENT_SUBSTITUTE, 'UTF-8');
 
-        $modelClass = static::class;
-
         /**
          * @var \App\Models\User
          */
@@ -218,48 +216,13 @@ class CatalogEntry extends Model implements Sortable
         $team = $user->currentTeam;
 
         return static::search($escapedQuery, function(Indexes $meilisearch, string $query, array $options) use ($filters, $user, $team, $project){
-            
-            // Laravel Scout doesn't support Tenant Token, 
-            // so we include additional filters to 
-            // select only accessible documents. 
-            // https://www.meilisearch.com/docs/learn/security/tenant_tokens
-            // https://blog.meilisearch.com/role-based-access-guide/
 
-            // $userTenantFilters = collect([
-            //     "uploaded_by = {$user->getKey()} AND visibility = ". Visibility::PERSONAL->value,
-            //     "visibility IN [".Visibility::PROTECTED->value.",".Visibility::PUBLIC->value."]",
-            // ])
-            // ->when($team, function (BaseCollection $collection, Team $value) {
-            //     return $collection->push("team_id = {$value->getKey()} AND visibility = ". Visibility::TEAM->value);
-            // })->join(' OR ');
+            if(filled($filters)){
+                $options['filter'] = ($options['filter'] ?? false) ? "{$filters} AND ({$options['filter']})" : "{$filters}";
+            }
 
-            // $projectTenantFilters = collect([
-            //     $project ? "project_id = {$project->getKey()}" : null,
-            // ])->filter()->join(' OR ');
-
-            // $tenantFilters = $projectTenantFilters ? "({$projectTenantFilters} AND ({$userTenantFilters}))" : "({$userTenantFilters})";
-
-            $options['filter'] = ($options['filter'] ?? false) ? "{$filters} AND ({$options['filter']})" : "{$filters}";
-
-            // using same strategy as the scout driver
-            // this will be the entrypoint to use the extra facets information
-            // included in the search result response
             return $meilisearch->rawSearch($query, $options);
-
         })
-        
-        // ->when(!empty($filters), function(Builder $builder) use ($filters) {
-        //     foreach($filters as $filter => $value){
-        //         $builder->whereIn($filter, Arr::wrap($value));
-        //     }
-        //     return $builder;
-        // })
-        // ->options([
-        //     // Set extra options for the query
-        //     // https://www.meilisearch.com/docs/reference/api/search#facets
-        //     // facets parameter can be added, so we get pre-calculated results in the search result response
-        //     'facets' => config("scout.meilisearch.index-settings.{$modelClass}.filterableAttributes", []),
-        // ])
         ;
     }
 }

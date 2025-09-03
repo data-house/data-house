@@ -73,14 +73,19 @@ class CatalogDatatable extends Component
         $sorting_field = filled($this->sort_by) ? $this->fields->where('uuid', $this->sort_by)->sole() : null;
 
         if(filled($this->search) || filled($this->filters)){
-
-            // TODO: handle sorting while searching
-
             
+            $sortField = blank($this->sort_by) ? 'entry_index' : "fields.{$this->sort_by}";
 
-            return CatalogEntry::searchWithCustomFilters($this->search, $this->buildFiltersString())
-                ->query(fn (EloquentBuilder $query) => $query->with(['catalogValues.catalogField', 'catalogValues.concept', 'document', 'project']))
-                ->paginate();
+            $sortDirection = $this->sort_direction === 'asc' ? 'asc' : 'desc';
+
+            $builder = CatalogEntry::searchWithCustomFilters($this->search, $this->buildFiltersString())
+                ->query(fn (EloquentBuilder $query) => $query->with(['catalogValues.catalogField', 'catalogValues.concept', 'document', 'project']));
+            
+            if(blank($this->search)){
+                $builder->orderBy($sortField, $sortDirection);
+            }
+
+            return $builder->paginate();
 
         }
 
@@ -337,36 +342,17 @@ class CatalogDatatable extends Component
 
         $catalogTenantFilter = "catalog_id = {$this->catalogId}";
 
-            $userFilters = collect($validatedFilters)->map(function($value, $key) use ($fields){
+        $userFilters = collect($validatedFilters)->map(function($value, $key) use ($fields){
 
-                if(is_array($value)){
+            if(is_array($value)){
 
-                    if(in_array('_', $value)){
+                if(in_array('_', $value)){
 
-                        $vals = collect($value)->map(function ($value) {
-                            if($value === '_'){
-                                return null;
-                            }
-
-                            if (is_bool($value)) {
-                                return sprintf('%s', $value ? 'true' : 'false');
-                            }
-
-                            return filter_var($value, FILTER_VALIDATE_INT) !== false
-                                ? sprintf('%s', $value)
-                                : sprintf('"%s"', $value);
-                        })->filter()->values();
-
-                        if($vals->isEmpty()){
-                            return "(fields.{$key} IS NULL OR NOT fields.{$key} EXISTS)";
+                    $vals = collect($value)->map(function ($value) {
+                        if($value === '_'){
+                            return null;
                         }
 
-                        $otherWheres = sprintf('%s %s [%s]', "fields.{$key}", 'IN', $vals->implode(', '));
-
-                        return "(fields.{$key} IS NULL OR NOT fields.{$key} EXISTS OR {$otherWheres})";
-                    }
-                    
-                    return sprintf('%s %s [%s]', "fields.{$key}", 'IN', collect($value)->map(function ($value) {
                         if (is_bool($value)) {
                             return sprintf('%s', $value ? 'true' : 'false');
                         }
@@ -374,36 +360,58 @@ class CatalogDatatable extends Component
                         return filter_var($value, FILTER_VALIDATE_INT) !== false
                             ? sprintf('%s', $value)
                             : sprintf('"%s"', $value);
-                    })->values()->implode(', '));
+                    })->filter()->values();
+
+                    if($vals->isEmpty()){
+                        return "(fields.{$key} IS NULL OR NOT fields.{$key} EXISTS)";
+                    }
+
+                    $otherWheres = sprintf('%s %s [%s]', "fields.{$key}", 'IN', $vals->implode(', '));
+
+                    return "(fields.{$key} IS NULL OR NOT fields.{$key} EXISTS OR {$otherWheres})";
+                }
                 
-    
-                }
-                else {
-
-                    $fieldType = $fields->get($key, CatalogFieldType::TEXT);
-
-                    
+                return sprintf('%s %s [%s]', "fields.{$key}", 'IN', collect($value)->map(function ($value) {
                     if (is_bool($value)) {
-                        return sprintf('%s=%s', "fields.{$key}", $value ? 'true' : 'false');
+                        return sprintf('%s', $value ? 'true' : 'false');
                     }
-                    
-                    if (is_null($value)) {
-                        return sprintf('%s %s', "fields.{$key}", 'IS NULL');
-                    }
-                    
-                    if($fieldType == CatalogFieldType::TEXT || $fieldType == CatalogFieldType::MULTILINE_TEXT){
-                        // if text field we use the contains operator https://www.meilisearch.com/docs/learn/filtering_and_sorting/filter_expression_reference#contains
-                        return sprintf('%s CONTAINS "%s"', "fields.{$key}", $value);
-                    }
-    
-                    return is_numeric($value)
-                        ? sprintf('%s=%s', "fields.{$key}", $value)
-                        : sprintf('%s="%s"', "fields.{$key}", $value);
+
+                    return filter_var($value, FILTER_VALIDATE_INT) !== false
+                        ? sprintf('%s', $value)
+                        : sprintf('"%s"', $value);
+                })->values()->implode(', '));
+            
+
+            }
+            else {
+
+                $fieldType = $fields->get($key, CatalogFieldType::TEXT);
+
+                
+                if (is_bool($value)) {
+                    return sprintf('%s=%s', "fields.{$key}", $value ? 'true' : 'false');
                 }
-            })->filter()->join(' AND ');
+                
+                if (is_null($value)) {
+                    return sprintf('%s %s', "fields.{$key}", 'IS NULL');
+                }
+                
+                if($fieldType == CatalogFieldType::TEXT || $fieldType == CatalogFieldType::MULTILINE_TEXT){
+                    // if text field we use the contains operator https://www.meilisearch.com/docs/learn/filtering_and_sorting/filter_expression_reference#contains
+                    return sprintf('%s CONTAINS "%s"', "fields.{$key}", $value);
+                }
 
+                return is_numeric($value)
+                    ? sprintf('%s=%s', "fields.{$key}", $value)
+                    : sprintf('%s="%s"', "fields.{$key}", $value);
+            }
+        })->filter()->join(' AND ');
 
+        if(filled($userFilters)){
             return "{$catalogTenantFilter} AND {$userFilters}";
+        }
+
+        return "{$catalogTenantFilter}";
     }
 
 

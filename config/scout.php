@@ -273,6 +273,7 @@ return [
                     'project_id',
                     'created_at',
                     'trashed_at',
+                    'fields',
                 ],
             ],
         ],
