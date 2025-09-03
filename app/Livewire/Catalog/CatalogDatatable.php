@@ -79,7 +79,7 @@ class CatalogDatatable extends Component
             $sortDirection = $this->sort_direction === 'asc' ? 'asc' : 'desc';
 
             $builder = CatalogEntry::searchWithCustomFilters($this->search, $this->buildFiltersString())
-                ->query(fn (EloquentBuilder $query) => $query->with(['catalogValues.catalogField', 'catalogValues.concept', 'document', 'project']));
+                ->query(fn (EloquentBuilder $query) => $query->with(['catalogValues.catalogField', 'catalogValues.concept', 'document', 'document.project', 'project']));
             
             if(blank($this->search)){
                 $builder->orderBy($sortField, $sortDirection);
@@ -92,7 +92,7 @@ class CatalogDatatable extends Component
 
         return $this->catalog->entries()
             ->when($this->trashed, fn($query) => $query->onlyTrashed())
-            ->with(['catalogValues.catalogField', 'catalogValues.concept', 'document', 'project'])
+            ->with(['catalogValues.catalogField', 'catalogValues.concept', 'document', 'document.project', 'project'])
             ->when(blank($this->sort_by), function($query){
                 $query->orderBy('entry_index', $this->sort_direction === 'asc' ? 'asc' : 'desc');
             })
@@ -118,8 +118,6 @@ class CatalogDatatable extends Component
             unset($this->filters[$field]);
             return;
         }
-
-        // TODO: handle clicking on same value
 
         if(filled($this->filters[$field] ?? [])){
 
