@@ -128,9 +128,9 @@ class CatalogDatatable extends Component
 
 
             if(in_array($value, $this->filters[$field])){
-                $this->filters[$field] = Arr::reject($this->filters[$field], function($selectedValue) use ($value){
+                $this->filters[$field] = collect($this->filters[$field])->reject(function($selectedValue) use ($value){
                     return $selectedValue === $value;
-                });
+                })->values()->all();
             }
             else {
                 $this->filters[$field] = [ ...$this->filters[$field] , $value];
