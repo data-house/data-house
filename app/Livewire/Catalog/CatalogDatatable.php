@@ -114,6 +114,7 @@ class CatalogDatatable extends Component
 
     public function applyFilter(string $field, $value)
     {
+        
         if(is_null($value)){
             unset($this->filters[$field]);
             return;
@@ -134,6 +135,10 @@ class CatalogDatatable extends Component
             else {
                 $this->filters[$field] = [ ...$this->filters[$field] , $value];
             }
+            if(blank($this->filters[$field])){
+                $this->clearFilter($field);
+            }
+
             return; 
         }
 
@@ -318,6 +323,10 @@ class CatalogDatatable extends Component
             ->only($fields->keys())
             ->mapWithKeys(function($filterValue, $filterKey) use ($fields){
 
+                if(blank($filterValue)){
+                    return null;
+                }
+
                 $valueLabel = is_array($filterValue) ? (count($filterValue) > 1 ? trans_choice(':count value|:count values', count($filterValue), ['count' => count($filterValue)]) : $filterValue[0]) : $filterValue;
 
                 return [$filterKey => [
@@ -325,6 +334,7 @@ class CatalogDatatable extends Component
                     'value' => $valueLabel === '_' ? __('Blank') : $valueLabel,
                 ]];
             })
+            ->filter()
             ->all();
 
         // map key to filter name

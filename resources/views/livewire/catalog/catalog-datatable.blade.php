@@ -287,7 +287,7 @@
                             <td class="px-6 py-4 whitespace-nowrap">
                                 @if ($entry->project)
                                     <a wire:navigate href="{{ route('projects.show', $entry->project) }}"  class="block max-w-52 truncate hover:underline">{{ $entry->project->title }}</a>
-                                @elseif ($entry->document->project)
+                                @elseif ($entry->document?->project)
                                     <a wire:navigate href="{{ route('projects.show', $entry->document->project) }}"  class="block max-w-52 truncate hover:underline">{{ $entry->document->project->title }}</a>
                                 @else
                                     &nbsp;
